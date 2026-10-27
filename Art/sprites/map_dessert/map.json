@@ -1,0 +1,166 @@
+{
+  "ppu": 72,
+  "note": "pieces: world_rect = [x0, y0, x1, y1] in game units covered by the image, pivot bottom-left at (x0, y0); draw again at every rect in instances. sprites: ppu 128, pivot in px from the bottom-left. Rules: docs/work/art-maps.md section 4.",
+  "pieces": {
+    "dessert_bg.png": {
+      "world_rect": [
+        -1.5,
+        -1.5,
+        25.5,
+        14.0
+      ]
+    },
+    "dessert_floor.png": {
+      "world_rect": [
+        -1.5,
+        -1.5,
+        25.5,
+        0.25
+      ],
+      "note": "top y = 0"
+    },
+    "icecream_strawberry.png": {
+      "world_rect": [
+        1.25,
+        1.0,
+        6.75,
+        2.25
+      ],
+      "nine_slice": {
+        "left_px": 54,
+        "right_px": 54
+      },
+      "top_from_image_top_px": 18,
+      "centre_x": 4.0,
+      "start_width": 5.0,
+      "top_y": 2.0,
+      "note": "world_rect at start width; melt by shrinking the middle around centre_x"
+    },
+    "icecream_mint.png": {
+      "world_rect": [
+        17.25,
+        1.0,
+        22.75,
+        2.25
+      ],
+      "nine_slice": {
+        "left_px": 54,
+        "right_px": 54
+      },
+      "top_from_image_top_px": 18,
+      "centre_x": 20.0,
+      "start_width": 5.0,
+      "top_y": 2.0,
+      "note": "world_rect at start width; melt by shrinking the middle around centre_x"
+    },
+    "icecream_vanilla.png": {
+      "world_rect": [
+        8.25,
+        2.6,
+        15.75,
+        3.85
+      ],
+      "nine_slice": {
+        "left_px": 54,
+        "right_px": 54
+      },
+      "top_from_image_top_px": 18,
+      "centre_x": 12.0,
+      "start_width": 7.0,
+      "top_y": 3.6,
+      "note": "world_rect at start width; melt by shrinking the middle around centre_x"
+    },
+    "icecream_chocolate.png": {
+      "world_rect": [
+        10.25,
+        5.0,
+        13.75,
+        6.25
+      ],
+      "nine_slice": {
+        "left_px": 54,
+        "right_px": 54
+      },
+      "top_from_image_top_px": 18,
+      "centre_x": 12.0,
+      "start_width": 3.0,
+      "top_y": 6.0,
+      "note": "world_rect at start width; melt by shrinking the middle around centre_x"
+    },
+    "dessert_full.png": {
+      "world_rect": [
+        -1.5,
+        -1.5,
+        25.5,
+        14.0
+      ],
+      "note": "bg + floor + all platforms (ice cream at start width), check / simple use"
+    }
+  },
+  "sprites": {
+    "fork.png": {
+      "ppu": 128,
+      "size": [
+        80,
+        176
+      ],
+      "pivot_px_from_bottom_left": [
+        40,
+        8
+      ],
+      "pivot_normalized": [
+        0.5,
+        0.04545
+      ],
+      "note": "pivot = fork tip. Hit box 0.5 x 1.2 above the tip"
+    },
+    "macaron.png": {
+      "ppu": 128,
+      "size": [
+        144,
+        106
+      ],
+      "pivot_px_from_bottom_left": [
+        72,
+        8
+      ],
+      "pivot_normalized": [
+        0.5,
+        0.07547
+      ],
+      "note": "pivot = bottom centre. Hit box 1.0 x 0.7"
+    },
+    "lollipop_sign.png": {
+      "ppu": 128,
+      "size": [
+        192,
+        200
+      ],
+      "pivot_px_from_bottom_left": [
+        96,
+        192
+      ],
+      "pivot_normalized": [
+        0.5,
+        0.96
+      ],
+      "note": "pivot = hang point (top); sway around it"
+    },
+    "pendant_lamp.png": {
+      "ppu": 128,
+      "size": [
+        96,
+        216
+      ],
+      "pivot_px_from_bottom_left": [
+        48,
+        208
+      ],
+      "pivot_normalized": [
+        0.5,
+        0.96296
+      ],
+      "note": "pivot = hang point (top); sway around it"
+    }
+  }
+}

@@ -3,8 +3,10 @@ Jelly kitchen sprites: builds the models in Blender and renders the sprite sheet
 
 Run from the repository root (Blender 5.2):
   blender -b --factory-startup --python Art/blender/build_sprites.py -- all
-Targets: all | characters | knife | map | preview
-  all runs characters, knife, map, preview in that order, each in its own Blender process.
+Targets: all | characters | knife | map | preview | maps | winter | warehouse | dessert | map_previews
+  all runs characters, knife, map, preview and then maps, each in its own Blender process.
+  maps runs the three new maps (docs/work/maps.md section 5) and their previews: winter, warehouse, dessert,
+  map_previews.
 
 Coordinates: world X = game x, world Z = game y (1 unit = 1 game unit), the orthographic camera looks
 along +Y (side view, no tilt). Characters are built facing +X and turned 30 degrees toward the camera;
@@ -15,6 +17,7 @@ import bmesh
 import json
 import math
 import os
+import random
 import subprocess
 import sys
 import tempfile
@@ -1394,6 +1397,762 @@ def target_preview():
     print('preview done')
 
 
+# ================================================================ new maps (docs/work/maps.md section 5)
+# Same scale, shading and outlines as the kitchen: static pieces at MAP_PPU with a world_rect, moving things
+# (hazards, pushable objects, swaying decor) at CHAR_PPU built around their pivot at the origin.
+# Output rules: docs/work/art-maps.md section 4.
+
+SPRITE_LINE = '#14161D'
+
+
+def tex_wall_mat(name, c1, c2, seam, brick_w, row_h, seam_size, offset=0.0, glows=()):
+    """Back wall like the kitchen tiles: brick texture in world x/z, darker toward the top, stepped glows."""
+    mat = bpy.data.materials.new(name)
+    nt = _tree(mat)
+    xz, _, z = _xz_coords(nt)
+    br = nt.nodes.new('ShaderNodeTexBrick')
+    br.offset = offset
+    nt.links.new(xz, br.inputs['Vector'])
+    br.inputs['Color1'].default_value = rgb(c1)
+    br.inputs['Color2'].default_value = rgb(c2)
+    br.inputs['Mortar'].default_value = rgb(seam)
+    br.inputs['Scale'].default_value = 1.0
+    br.inputs['Mortar Size'].default_value = seam_size
+    br.inputs['Brick Width'].default_value = brick_w
+    br.inputs['Row Height'].default_value = row_h
+    mr = nt.nodes.new('ShaderNodeMapRange')
+    nt.links.new(z, mr.inputs['Value'])
+    mr.inputs['From Min'].default_value = 6.0
+    mr.inputs['From Max'].default_value = 14.0
+    col = _mix(nt, _ramp(nt, mr.outputs['Result'], [(0.0, 0.0), (1.0, 0.55)], 'LINEAR'),
+               br.outputs['Color'], rgb('#14161D'))
+    for i, (cx, cz, radius, c, strength) in enumerate(glows):
+        col = _glow(nt, xz, cx, cz, radius, _rgb_node(nt, 'GLOW%d' % i, c), col, strength)
+    _emit(nt, col)
+    return mat
+
+
+def hang_chain(bm, cx, z0, z1, y, mats=(0, 1), pitch=0.19):
+    """Vertical chain of alternating ring / side-on links from z0 up to z1 (kitchen lid chains)."""
+    z, i = z0, 0
+    while z < z1:
+        if i % 2 == 0:
+            add_tube(bm, [(cx + 0.065 * math.cos(a), y, z + 0.12 * math.sin(a))
+                          for a in (2 * math.pi * k / 16 for k in range(16))], 0.022, mat=mats[0], sides=6, closed=True)
+        else:
+            add_tube(bm, [(cx, y - 0.05, z - 0.12), (cx, y - 0.05, z + 0.12)], 0.024, mat=mats[1], sides=6)
+        z += pitch
+        i += 1
+
+
+def drip_band(x0, x1, top, z, depth, n, seed):
+    """Band from top down to z with a lumpy lower edge hanging up to depth below z (snow / ice overhang)."""
+    rnd = random.Random(seed)
+    pts = [(x1, top), (x0, top), (x0, z)]
+    step = (x1 - x0) / n
+    for i in range(n):
+        a = x0 + i * step
+        d = depth * (0.35 + 0.65 * rnd.random())
+        pts += [(a + step * 0.25, z - d * 0.4), (a + step * 0.5, z - d), (a + step * 0.75, z - d * 0.4)]
+    pts.append((x1, z))
+    return pts
+
+
+class MapKit:
+    """Collections + object helper shared by the three new maps."""
+
+    def __init__(self, scene):
+        self.scene = scene
+        self.cols = {}
+        self.line = line_mat('PlatformLine', PLATFORM_LINE)
+        self.sline = line_mat('SpriteLine', SPRITE_LINE)
+
+    def coll(self, name):
+        if name not in self.cols:
+            self.cols[name] = bpy.data.collections.new(name)
+            self.scene.collection.children.link(self.cols[name])
+        return self.cols[name]
+
+    def obj(self, name, coll, mats, build, outline=0.0, sprite=False, smooth=False):
+        bm = bmesh.new()
+        build(bm)
+        ob = new_obj(name, bm, mats, coll=self.coll(coll), smooth=smooth)
+        if outline:
+            add_outline(ob, self.sline if sprite else self.line, outline)
+        return ob
+
+
+def render_map_set(name, build, pieces, sprites, full):
+    """pieces: [(file, collection, world_rect, extra json)] at MAP_PPU; the first rect of 'instances' is where the
+    model is built. sprites: [(file, collection, (w, h), pivot px, note)] at CHAR_PPU, modelled around the origin.
+    full: collections for <name>_full.png (other instances are pasted in afterwards)."""
+    scene = reset_scene()
+    add_camera(scene, 0, 0, 1.0)
+    add_sun(scene, (-0.5, -0.8, 0.6), energy=3.0)
+    kit = MapKit(scene)
+    build(kit)
+    bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, name + '.blend'), compress=True)
+    out_dir = os.path.join(SPRITES, 'map_' + name)
+    os.makedirs(out_dir, exist_ok=True)
+
+    def only(*names):
+        for n, c in kit.cols.items():
+            c.hide_render = n not in names
+
+    meta = dict(ppu=MAP_PPU, note='pieces: world_rect = [x0, y0, x1, y1] in game units covered by the image, pivot '
+                                  'bottom-left at (x0, y0); draw again at every rect in instances. sprites: ppu 128, '
+                                  'pivot in px from the bottom-left. Rules: docs/work/art-maps.md section 4.',
+                pieces={}, sprites={})
+    report = dict(map=name, clipped=[], sizes={})
+    for fname, cname, rect, extra in pieces:
+        only(cname)
+        w, h = frame_camera(scene, *rect, MAP_PPU)
+        path = os.path.join(out_dir, fname)
+        render_to(scene, path)
+        meta['pieces'][fname] = dict(world_rect=list(rect), **extra)
+        report['sizes'][fname] = [w, h]
+        if not cname.startswith(('BG', 'FLOOR', 'EAVE')) and _touches_edge(load_png(path)):
+            report['clipped'].append(fname)
+    for fname, cname, (w, h), piv, note in sprites:
+        only(cname)
+        x0, z0 = -piv[0] / CHAR_PPU, -piv[1] / CHAR_PPU
+        rw, rh = frame_camera(scene, x0, z0, x0 + w / CHAR_PPU, z0 + h / CHAR_PPU, CHAR_PPU)
+        path = os.path.join(out_dir, fname)
+        render_to(scene, path)
+        meta['sprites'][fname] = dict(ppu=CHAR_PPU, size=[rw, rh], pivot_px_from_bottom_left=list(piv),
+                                      pivot_normalized=[round(piv[0] / w, 5), round(piv[1] / h, 5)], note=note)
+        report['sizes'][fname] = [rw, rh]
+        if _touches_edge(load_png(path)):
+            report['clipped'].append(fname)
+
+    only(*full)
+    frame_camera(scene, *BG_RECT, MAP_PPU)
+    fpath = os.path.join(out_dir, name + '_full.png')
+    render_to(scene, fpath)
+    img = load_png(fpath)
+    for fname, _, rect, extra in pieces:
+        for inst in extra.get('instances', [])[1:]:
+            over(img, load_png(os.path.join(out_dir, fname)),
+                 round((inst[0] - BG_RECT[0]) * MAP_PPU), round((inst[1] - BG_RECT[1]) * MAP_PPU))
+    save_png(img, fpath)
+    meta['pieces'][name + '_full.png'] = dict(world_rect=list(BG_RECT), note='bg + floor + all platforms (ice cream '
+                                                                             'at start width), check / simple use')
+    with open(os.path.join(out_dir, 'map.json'), 'w', encoding='utf-8') as fh:
+        json.dump(meta, fh, indent=2)
+    print('REPORT', json.dumps(report))
+
+
+def _touches_edge(arr, thr=0.1):
+    a = arr[..., 3] > thr
+    return bool(a[0].any() or a[-1].any() or a[:, 0].any() or a[:, -1].any())
+
+
+# ---------------------------------------------------------------- winter eaves (id 2)
+
+W_SILLS = [(1.5, 6.5), (17.5, 22.5)]      # ice, top 2.4
+W_BEAMS = [(5.0, 9.5), (14.5, 19.0)]      # wood, top 4.8
+W_BENCH = (10.0, 14.0, 1.6)
+W_ICE_FLOOR = (8.0, 16.0)
+W_EAVE_BOTTOM = 13.0
+ICE = '#4C7DA6'
+ICE_TOP = '#A6DCEF'
+SNOW = '#5E6E8C'
+SNOW_TOP = '#A9C4E0'
+
+
+def build_winter(kit):
+    # ---- background: dark plank wall, two warm windows behind the sills, beam brackets, pine, snowflakes
+    kit.obj('Wall', 'BG', [tex_wall_mat('Wall', '#283041', '#252C3B', '#1A1F2A', 1.1, 40.0, 0.03, glows=(
+        (4.0, 4.0, 4.2, '#40342C', 0.4), (20.0, 4.0, 4.2, '#40342C', 0.4), (12.0, 9.5, 6.0, '#26304A', 0.35)))],
+        lambda bm: _box(bm, -4, -4, 28, 16, 6.0, 6.2))
+    frame = flat_mat('WinFrame', '#1B1E26')
+    glass = flat_mat('WinGlass', '#46342A')
+    glow = flat_mat('WinGlow', '#5C4432')
+    frost = flat_mat('WinFrost', '#3E3A3E')
+    for i, (x0, x1) in enumerate(W_SILLS):
+        cx = (x0 + x1) / 2
+        kit.obj('Window%d' % i, 'BG', [frame, glass, glow, frost], lambda bm, x0=x0, x1=x1, cx=cx: (
+            _box(bm, x0 + 0.1, 2.6, x1 - 0.1, 5.4, 5.0, 5.2, 0),
+            _box(bm, x0 + 0.25, 2.75, x1 - 0.25, 5.25, 4.8, 5.0, 1),
+            add_prism(bm, ellipse_pts(cx, 3.9, 1.5, 0.95, 32), 4.6, 4.8, XZ, 2),
+            add_prism(bm, [(x0 + 0.25, 2.75), (x0 + 1.0, 2.75), (x0 + 0.25, 3.4)], 4.5, 4.6, XZ, 3),
+            add_prism(bm, [(x1 - 0.25, 5.25), (x1 - 1.1, 5.25), (x1 - 0.25, 4.5)], 4.5, 4.6, XZ, 3),
+            _box(bm, cx - 0.07, 2.75, cx + 0.07, 5.25, 4.3, 4.5, 0),
+            _box(bm, x0 + 0.25, 3.93, x1 - 0.25, 4.07, 4.3, 4.5, 0)))
+    iron = flat_mat('BeamBracket', '#23272F')
+    kit.obj('BeamBrackets', 'BG', [iron], lambda bm: [
+        add_prism(bm, [(bx - 0.08, 4.4), (bx + 0.08, 4.4), (bx + 0.08, 3.75), (bx + s * 0.55, 4.4),
+                       (bx + s * 0.75, 4.4), (bx + 0.08, 3.5), (bx - 0.08, 3.5)] if s > 0 else
+                  [(bx + 0.08, 4.4), (bx - 0.08, 4.4), (bx - 0.08, 3.75), (bx + s * 0.55, 4.4),
+                   (bx + s * 0.75, 4.4), (bx - 0.08, 3.5), (bx + 0.08, 3.5)], 4.0, 4.2, XZ)
+        for x0, x1 in W_BEAMS for bx, s in ((x0 + 0.5, 1), (x1 - 0.5, -1))])
+    needle = flat_mat('Pine', '#1A2528')
+    pine_snow = flat_mat('PineSnow', '#263036')
+    kit.obj('Pine', 'BG', [needle, pine_snow], lambda bm: [
+        (add_prism(bm, [(-1.6, z - 1.3), (0.6 + 0.12 * k, z - 1.1), (-1.6, z)], 3.0, 3.2, XZ, 0),
+         add_prism(bm, [(-1.6, z), (0.6 + 0.12 * k, z - 1.1), (0.3 + 0.12 * k, z - 1.13), (-1.6, z - 0.22)],
+                   2.9, 3.0, XZ, 1))
+        for k, z in enumerate((12.9, 11.8, 10.7, 9.6, 8.5))])
+    flake = flat_mat('Flake', '#3E4A68')
+    rnd = random.Random(2)
+    kit.obj('Snowflakes', 'BG', [flake], lambda bm: [
+        add_prism(bm, ellipse_pts(rnd.uniform(-1.5, 25.5), rnd.uniform(5.6, 12.6), r, r, 10), 2.0, 2.1, XZ)
+        for r in [rnd.uniform(0.035, 0.07) for _ in range(70)]])
+
+    # ---- eave (drawn in front of the hazards): fascia board, gutter, snow cap; bottom edge at 13.0
+    fascia = wood_mat('Fascia', '#33303A', '#24222A', '#18171D', plank=3.1)
+    gutter = toon_mat('Gutter', '#3A4150', '#232833')
+    cap = flat_mat('EaveSnow', '#56647E')
+    kit.obj('Eave', 'EAVE', [fascia, cap], lambda bm: (
+        _box(bm, -2.0, W_EAVE_BOTTOM + 0.15, 26.0, 14.2, -0.4, 0.4, 0),
+        add_prism(bm, drip_band(-2.0, 26.0, 14.2, 13.78, 0.16, 56, 3), -0.45, -0.41, XZ, 1)), outline=0.03)
+    kit.obj('Gutter', 'EAVE', [gutter], lambda bm: add_tube(
+        bm, [(-2.0, -0.6, W_EAVE_BOTTOM + 0.11), (26.0, -0.6, W_EAVE_BOTTOM + 0.11)], 0.1, sides=12),
+        outline=0.03, smooth=True)
+
+    # ---- floor: snow on a wooden porch, smooth ice puddle at x 8..16
+    porch = wood_mat('Porch', '#4E3A2C', '#3A2B20', '#2A1E16', plank=1.6, fade_from=-0.3, fade_to=-1.5)
+    snow = flat_mat('Snow', SNOW)
+    snow_top = flat_mat('SnowTop', SNOW_TOP)
+    ice = flat_mat('Ice', ICE)
+    ice_top = flat_mat('IceTop', ICE_TOP)
+    ice_shine = flat_mat('IceShine', '#7FB2D4')
+    a, b = W_ICE_FLOOR
+    kit.obj('Porch', 'FLOOR', [porch, snow, snow_top], lambda bm: (
+        _box(bm, -2.0, -2.5, 26.0, 0.0, -1.0, 1.0, 0),
+        add_prism(bm, drip_band(-2.0, 26.0, 0.0, -0.2, 0.14, 70, 4), -1.02, -1.01, XZ, 1),
+        _box(bm, -2.0, -0.06, 26.0, 0.0, -1.03, -1.02, 2)))
+    kit.obj('IcePuddle', 'FLOOR', [ice, ice_top, ice_shine], lambda bm: (
+        add_prism(bm, [(a, 0.0), (a, -0.18), (a + 0.25, -0.26), (b - 0.25, -0.26), (b, -0.18), (b, 0.0)],
+                  -1.06, -1.04, XZ, 0),
+        _box(bm, a + 0.05, -0.05, b - 0.05, 0.0, -1.07, -1.06, 1),
+        [add_prism(bm, [(s, -0.08), (s + 0.5, -0.08), (s + 0.42, -0.12), (s - 0.08, -0.12)], -1.08, -1.07, XZ, 2)
+         for s in (9.0, 11.6, 14.2)]), outline=0.03)
+
+    # ---- ice sill (left position; the right one reuses the sprite)
+    x0, x1 = W_SILLS[0]
+    sill_wood = wood_mat('Sill', '#5C4432', '#45321F', '#34251A', plank=2.5)
+    tassel = flat_mat('Tassel', '#6A9CC4')
+    kit.obj('Sill', 'SILL', [sill_wood, ice, ice_top], lambda bm: (
+        _box(bm, x0 + 0.05, 2.06, x1 - 0.05, 2.32, -0.3, 0.3, 0),
+        add_prism(bm, drip_band(x0 - 0.06, x1 + 0.06, 2.4, 2.3, 0.12, 12, 5), -0.33, -0.31, XZ, 1),
+        _box(bm, x0 - 0.04, 2.35, x1 + 0.04, 2.4, -0.34, -0.33, 2)), outline=0.03)
+    kit.obj('SillTassels', 'SILL', [tassel], lambda bm: [
+        add_prism(bm, [(tx - 0.05, 2.07), (tx + 0.05, 2.07), (tx, 2.07 - ln)], -0.2, 0.0, XZ)
+        for tx, ln in zip([x0 + 0.4 + 0.47 * k for k in range(10)], [0.18, 0.28, 0.14, 0.24, 0.32, 0.16, 0.26, 0.2,
+                                                                       0.3, 0.15])], outline=0.02)
+
+    # ---- bench: snowy seat at 1.6, legs to the floor
+    bx0, bx1, btop = W_BENCH
+    bench = wood_mat('Bench', '#6E4E36', '#523825', '#3A2819', plank=1.9)
+    kit.obj('Bench', 'BENCH', [bench, snow, snow_top], lambda bm: (
+        _box(bm, bx0, btop - 0.34, bx1, btop - 0.08, -0.3, 0.3, 0),
+        [_box(bm, lx, 0.0, lx + 0.24, btop - 0.34, -0.2, 0.2, 0) for lx in (bx0 + 0.35, bx1 - 0.59)],
+        add_prism(bm, drip_band(bx0 - 0.04, bx1 + 0.04, btop, btop - 0.1, 0.1, 9, 6), -0.33, -0.31, XZ, 1),
+        _box(bm, bx0, btop - 0.05, bx1, btop, -0.34, -0.33, 2)), outline=0.03)
+
+    # ---- beam (left position)
+    x0, x1 = W_BEAMS[0]
+    beam = wood_mat('Beam', '#5E4532', '#463222', '#33241A', plank=2.3)
+    kit.obj('Beam', 'BEAM', [beam, snow, snow_top], lambda bm: (
+        _box(bm, x0, 4.4, x1, 4.74, -0.3, 0.3, 0),
+        add_prism(bm, drip_band(x0 - 0.03, x1 + 0.03, 4.8, 4.72, 0.08, 9, 7), -0.33, -0.31, XZ, 1),
+        _box(bm, x0, 4.75, x1, 4.8, -0.34, -0.33, 2)), outline=0.03)
+
+    # ---- sprites around the origin (pivot): icicle tip, shards, snowball bottom, lantern hang point
+    def flat(name, col):
+        return flat_mat(name, col)
+    tip = [(0.0, 0.0), (0.03, 0.12), (0.06, 0.3), (0.09, 0.42), (0.08, 0.5), (0.12, 0.64), (0.14, 0.8),
+           (0.13, 0.88), (0.17, 1.0), (0.2, 1.12), (0.19, 1.2), (0.06, 1.22), (-0.07, 1.19), (-0.19, 1.21),
+           (-0.2, 1.1), (-0.15, 0.98), (-0.16, 0.9), (-0.11, 0.72), (-0.08, 0.52), (-0.06, 0.4), (-0.025, 0.15)]
+    shade = [(0.0, 0.02), (0.03, 0.12), (0.06, 0.3), (0.09, 0.42), (0.08, 0.5), (0.12, 0.64), (0.14, 0.8),
+             (0.13, 0.88), (0.17, 1.0), (0.19, 1.12), (0.09, 1.12), (0.07, 0.9), (0.05, 0.62), (0.03, 0.36)]
+    kit.obj('Icicle', 'ICICLE', [flat('IcicleIce', '#E4F2FC')], lambda bm: add_prism(bm, tip, -0.012, 0.012, XZ),
+            outline=0.018, sprite=True)
+    kit.obj('IcicleShade', 'ICICLE', [flat('IcicleShade', '#A8CBE4')],
+            lambda bm: add_prism(bm, shade, -0.016, -0.013, XZ))
+    kit.obj('IcicleShine', 'ICICLE', [flat('IcicleShine', '#FFFFFF')], lambda bm: add_prism(
+        bm, [(-0.13, 0.98), (-0.095, 0.98), (-0.035, 0.34), (-0.05, 0.34)], -0.017, -0.016, XZ))
+    shard = flat('Shard', '#DCECF8')
+    puff = flat('Puff', '#7E8EAA')
+    kit.obj('Shards', 'SHARDS', [shard], lambda bm: [add_prism(bm, p, -0.012, 0.012, XZ) for p in (
+        [(-0.36, 0.0), (-0.2, 0.0), (-0.3, 0.22)], [(0.06, 0.0), (0.22, 0.0), (0.12, 0.25)],
+        [(-0.1, 0.12), (0.0, 0.2), (-0.12, 0.26)], [(0.3, 0.1), (0.42, 0.16), (0.32, 0.22)])],
+        outline=0.018, sprite=True)
+    kit.obj('ShardPuffs', 'SHARDS', [puff], lambda bm: [
+        add_prism(bm, ellipse_pts(px, pz, rx, rz, 16), 0.02, 0.04, XZ)
+        for px, pz, rx, rz in ((-0.08, 0.05, 0.15, 0.06), (0.32, 0.04, 0.12, 0.05), (-0.42, 0.04, 0.06, 0.04))])
+    kit.obj('Snowball', 'SNOWBALL', [toon_mat('SnowballMat', '#A2B2CC', '#66758F', rim=0.4, rim_col='#C4D2E6')],
+            lambda bm: (add_ellipsoid(bm, (0, 0, 0.485), (0.5, 0.5, 0.485), seg=32, rings=16),
+                        add_ellipsoid(bm, (0.2, -0.3, 0.8), (0.14, 0.14, 0.11)),
+                        add_ellipsoid(bm, (-0.25, -0.3, 0.3), (0.12, 0.12, 0.1))),
+            outline=0.018, sprite=True, smooth=True)
+    iron_s = flat('LanternIron', '#2A2E36')
+    lamp = flat('LanternGlass', '#C98E4E')
+    lamp_in = flat('LanternCore', '#E2AE68')
+    cord = flat('Cord', '#3A3A40')
+    kit.obj('LanternCord', 'LANTERN', [cord], lambda bm: add_tube(bm, [(0, 0, 0.0), (0, 0, -0.33)], 0.016),
+            outline=0.012, sprite=True)
+    kit.obj('Lantern', 'LANTERN', [iron_s, lamp, lamp_in], lambda bm: (
+        add_prism(bm, [(-0.15, -0.31), (0.15, -0.31), (0.26, -0.43), (-0.26, -0.43)], -0.03, 0.03, XZ, 0),
+        _box(bm, -0.22, -1.0, 0.22, -0.43, 0.0, 0.03, 0),
+        _box(bm, -0.17, -0.95, 0.17, -0.48, -0.01, 0.0, 1),
+        add_prism(bm, ellipse_pts(0.0, -0.72, 0.1, 0.16, 16), -0.02, -0.01, XZ, 2),
+        _box(bm, -0.02, -0.95, 0.02, -0.48, -0.03, -0.02, 0),
+        add_prism(bm, [(-0.24, -1.0), (0.24, -1.0), (0.15, -1.1), (-0.15, -1.1)], -0.03, 0.03, XZ, 0),
+        add_prism(bm, ellipse_pts(0.0, -1.13, 0.05, 0.05, 10), -0.03, 0.03, XZ, 0)), outline=0.018, sprite=True)
+
+
+def target_winter():
+    sills = [[x0 - 0.25, 1.525, x1 + 0.25, 2.525] for x0, x1 in W_SILLS]
+    beams = [[x0 - 0.25, 4.3, x1 + 0.25, 4.925] for x0, x1 in W_BEAMS]
+    render_map_set('winter', build_winter, [
+        ('winter_bg.png', 'BG', BG_RECT, {}),
+        ('winter_eave.png', 'EAVE', (-1.5, 12.875, 25.5, 14.0),
+         dict(note='draw in front of the hazards; bottom edge y = 13.0')),
+        ('winter_floor.png', 'FLOOR', FLOOR_RECT, dict(note='top y = 0; ice puddle x 8..16')),
+        ('winter_ice_sill.png', 'SILL', tuple(sills[0]), dict(instances=sills, note='ice, top y = 2.4')),
+        ('winter_bench.png', 'BENCH', (9.75, 0.0, 14.25, 1.75), dict(note='top y = 1.6')),
+        ('winter_beam.png', 'BEAM', tuple(beams[0]), dict(instances=beams, note='top y = 4.8')),
+    ], [
+        ('icicle.png', 'ICICLE', (64, 176), (32, 8), 'pivot = icicle tip. Hit box 0.4 x 1.2 above the tip'),
+        ('icicle_shards.png', 'SHARDS', (128, 48), (64, 8), 'after landing, 6 ticks'),
+        ('snowball.png', 'SNOWBALL', (144, 144), (72, 8), 'pivot = bottom centre. Hit box 1.0 x 1.0'),
+        ('lantern.png', 'LANTERN', (96, 168), (48, 160), 'pivot = hang point (top); sway around it'),
+    ], ('BG', 'FLOOR', 'SILL', 'BENCH', 'BEAM', 'EAVE'))
+
+
+# ---------------------------------------------------------------- warehouse (id 3)
+
+H_RACKS = [(1.0, 5.0), (19.0, 23.0)]     # shelves at 2.4 and 4.8
+H_PALLET = (9.5, 14.5, 3.6)
+H_CHAIN_X = (10.0, 14.0)
+H_RAIL = (13.2, 13.6)
+
+
+def build_warehouse(kit):
+    # ---- background: corrugated wall, high windows with cool light shafts, rail, chains, columns, box stacks
+    kit.obj('Wall', 'BG', [tex_wall_mat('Wall', '#252C38', '#222935', '#191E27', 0.34, 40.0, 0.07, glows=(
+        (12.0, 10.4, 3.6, '#463A2C', 0.55), (3.3, 10.6, 4.0, '#283550', 0.4), (20.7, 10.6, 4.0, '#283550', 0.4)))],
+        lambda bm: _box(bm, -4, -4, 28, 16, 6.0, 6.2))
+    shaft = flat_mat('Shaft', '#2A3246')
+    kit.obj('Shafts', 'BG', [shaft], lambda bm: (
+        add_prism(bm, [(2.1, 9.0), (4.5, 9.0), (8.4, 0.0), (5.2, 0.0)], 5.8, 5.9, XZ),
+        add_prism(bm, [(19.5, 9.0), (21.9, 9.0), (18.8, 0.0), (15.6, 0.0)], 5.8, 5.9, XZ)))
+    frame = flat_mat('WinFrame', '#1A1D24')
+    glass = flat_mat('WinGlass', '#2A3A5C')
+    moon = flat_mat('Moon', '#8C9CC0')
+    kit.obj('Windows', 'BG', [frame, glass, moon], lambda bm: [
+        (_box(bm, wx, 9.0, wx + 2.6, 12.2, 5.4, 5.6, 0),
+         _box(bm, wx + 0.14, 9.14, wx + 2.46, 12.06, 5.2, 5.4, 1),
+         _box(bm, wx + 1.24, 9.14, wx + 1.36, 12.06, 5.0, 5.2, 0),
+         [_box(bm, wx + 0.14, zz - 0.06, wx + 2.46, zz + 0.06, 5.0, 5.2, 0) for zz in (10.1, 11.08)])
+        for wx in (2.0, 19.4)] + [add_prism(bm, ellipse_pts(2.75, 11.55, 0.3, 0.3, 24), 5.1, 5.15, XZ, 2)])
+    col_m = flat_mat('Column', '#1D232C')
+    col_e = flat_mat('ColumnEdge', '#262D38')
+    kit.obj('Columns', 'BG', [col_m, col_e], lambda bm: [
+        (_box(bm, cx - 0.22, -1.0, cx + 0.22, H_RAIL[0], 4.5, 4.7, 0),
+         _box(bm, cx - 0.22, -1.0, cx - 0.16, H_RAIL[0], 4.4, 4.5, 1),
+         _box(bm, cx + 0.16, -1.0, cx + 0.22, H_RAIL[0], 4.4, 4.5, 1)) for cx in (6.7, 17.3)])
+    box_a = flat_mat('BoxA', '#2B2621')
+    box_b = flat_mat('BoxB', '#26221E')
+    tape = flat_mat('Tape', '#332D26')
+
+    def stack(bm, x0, x1, heights, seed):
+        rnd = random.Random(seed)
+        z = 0.0
+        for k, hgt in enumerate(heights):
+            dx = rnd.uniform(-0.25, 0.25)
+            _box(bm, x0 + dx, z, x1 + dx, z + hgt - 0.04, 4.0, 4.2, k % 2)
+            _box(bm, (x0 + x1) / 2 + dx - 0.1, z, (x0 + x1) / 2 + dx + 0.1, z + hgt - 0.04, 3.9, 4.0, 2)
+            z += hgt
+    kit.obj('BoxStacks', 'BG', [box_a, box_b, tape], lambda bm: (
+        stack(bm, -2.2, 0.55, (1.55, 1.85, 1.35, 2.05, 1.7), 8),
+        stack(bm, 23.45, 26.2, (1.75, 1.45, 2.15, 1.6, 1.9), 9)))
+    rail = flat_mat('Rail', '#2C3038')
+    rail_lit = flat_mat('RailLit', '#454A55')
+    kit.obj('Rail', 'BG', [rail, rail_lit], lambda bm: (
+        _box(bm, -2.0, H_RAIL[0] + 0.08, 26.0, H_RAIL[1] - 0.08, 1.0, 1.2, 0),
+        _box(bm, -2.0, H_RAIL[0], 26.0, H_RAIL[0] + 0.08, 0.9, 1.0, 0),
+        _box(bm, -2.0, H_RAIL[1] - 0.08, 26.0, H_RAIL[1], 0.9, 1.0, 1),
+        [_box(bm, x, H_RAIL[1], x + 0.18, 14.5, 1.2, 1.4, 0) for x in (2.9, 11.9, 20.9)]))
+    lamp_shade = flat_mat('LampShade', '#2C3038')
+    bulb = flat_mat('Bulb', '#D9AE6E')
+    kit.obj('WallLamp', 'BG', [lamp_shade, bulb], lambda bm: (
+        add_prism(bm, ellipse_pts(12.0, 10.55, 0.1, 0.1, 16), 4.7, 4.8, XZ, 1),
+        add_prism(bm, [(11.7, 10.55), (12.3, 10.55), (12.18, 10.8), (11.82, 10.8)], 4.6, 4.7, XZ, 0),
+        _box(bm, 11.96, 10.8, 12.04, 11.4, 4.6, 4.7, 0)))
+    chain = flat_mat('Chain', '#59606C')
+    chain_dark = flat_mat('ChainDark', '#3E434D')
+    kit.obj('Chains', 'BG', [chain, chain_dark], lambda bm: [
+        hang_chain(bm, cx, H_PALLET[2] + 0.18, H_RAIL[0], 1.5) for cx in H_CHAIN_X])
+
+    # ---- floor: concrete slabs, yellow / black safety band, warm top line
+    conc = tex_wall_mat('Concrete', '#42474F', '#3D424A', '#30343B', 3.2, 40.0, 0.02)
+    conc_top = flat_mat('ConcreteTop', '#CDBF9F')
+    yellow = flat_mat('Safety', '#8C7834')
+    black = flat_mat('SafetyDark', '#202228')
+    kit.obj('Floor', 'FLOOR', [conc, conc_top, yellow, black], lambda bm: (
+        _box(bm, -2.0, -2.5, 26.0, 0.0, -1.0, 1.0, 0),
+        _box(bm, -2.0, -0.05, 26.0, 0.0, -1.02, -1.0, 1),
+        _box(bm, -2.0, -0.44, 26.0, -0.22, -1.02, -1.0, 2),
+        [add_prism(bm, [(x, -0.44), (x + 0.22, -0.44), (x + 0.44, -0.22), (x + 0.22, -0.22)], -1.04, -1.02, XZ, 3)
+         for x in [-2.0 + 0.5 * k for k in range(57)]]))
+
+    # ---- rack (left position): thin posts, two orange shelf beams with warm top lines
+    x0, x1 = H_RACKS[0]
+    post = flat_mat('Post', '#3A4454')
+    hole = flat_mat('PostHole', '#1E232C')
+    beam = toon_mat('RackBeam', '#9C5A30', '#6A3A20', spec=0.3, mid=0.7)
+    beam_top = flat_mat('RackTop', '#F0B474')
+    plate = flat_mat('RackPlate', '#2C323C')
+    kit.obj('RackPosts', 'RACK', [post, hole], lambda bm: [
+        (_box(bm, px, 0.0, px + 0.14, 4.8, 0.0, 0.2, 0),
+         [_box(bm, px + 0.05, hz, px + 0.09, hz + 0.08, -0.02, 0.0, 1) for hz in [0.3 + 0.3 * k for k in range(15)]])
+        for px in (x0, x1 - 0.14)], outline=0.03)
+    kit.obj('RackShelves', 'RACK', [beam, beam_top, plate], lambda bm: [
+        (_box(bm, x0, top - 0.24, x1, top, -0.3, -0.1, 0),
+         _box(bm, x0 + 0.02, top - 0.05, x1 - 0.02, top, -0.31, -0.3, 1),
+         [_box(bm, px, top - 0.3, px + 0.2, top + 0.0 - 0.02, -0.33, -0.31, 2) for px in (x0 - 0.03, x1 - 0.17)])
+        for top in (2.4, 4.8)], outline=0.03)
+
+    # ---- hanging pallet: deck, blocks, bottom board, chain eyelets
+    px0, px1, ptop = H_PALLET
+    deck = wood_mat('PalletWood', '#86663F', '#664B2D', '#4A3420', plank=1.25)
+    block = flat_mat('PalletBlock', '#5E452C')
+    deck_top = flat_mat('PalletTop', '#E8C48A')
+    eye = flat_mat('Eyelet', '#59606C')
+    kit.obj('Pallet', 'PALLET', [deck, block, deck_top], lambda bm: (
+        _box(bm, px0, ptop - 0.18, px1, ptop, -0.3, 0.3, 0),
+        [_box(bm, bx, ptop - 0.4, bx + 0.6, ptop - 0.18, -0.25, 0.25, 1) for bx in (px0, 11.7, px1 - 0.6)],
+        _box(bm, px0, ptop - 0.46, px1, ptop - 0.4, -0.3, 0.3, 0),
+        _box(bm, px0 + 0.02, ptop - 0.05, px1 - 0.02, ptop, -0.31, -0.3, 2)), outline=0.03)
+    kit.obj('PalletEyes', 'PALLET', [eye], lambda bm: [
+        add_tube(bm, [(cx + 0.045 * math.cos(a), -0.2, ptop + 0.055 + 0.045 * math.sin(a))
+                      for a in (2 * math.pi * k / 16 for k in range(16))], 0.016, sides=6, closed=True)
+        for cx in H_CHAIN_X], outline=0.015)
+
+    # ---- crate (and its cracked variant): 1.4 x 1.2 around the bottom-centre pivot
+    def crate(coll, k, cracked):
+        pine = flat_mat('CratePine' + coll, scale_hex('#CFA066', k))
+        frame_c = flat_mat('CrateFrame' + coll, scale_hex('#AF7F49', k))
+        brace = flat_mat('CrateBrace' + coll, scale_hex('#BC8C53', k))
+        seam = flat_mat('CrateSeam' + coll, scale_hex('#86592F', k))
+        metal = flat_mat('CrateMetal' + coll, '#3A3E48')
+        bolt = flat_mat('CrateBolt' + coll, '#8A909C')
+        top = flat_mat('CrateTop' + coll, scale_hex('#F2D49A', k))
+        crack = flat_mat('CrateCrack' + coll, '#24180F')
+        kit.obj('Crate' + coll, coll, [pine, frame_c, brace], lambda bm: (
+            _box(bm, -0.7, 0.0, 0.7, 1.2, -0.02, 0.02, 0),
+            [_box(bm, a, b, c, d, -0.04, -0.02, 1) for a, b, c, d in (
+                (-0.7, 0.0, 0.7, 0.13), (-0.7, 1.07, 0.7, 1.2), (-0.7, 0.0, -0.57, 1.2), (0.57, 0.0, 0.7, 1.2))],
+            add_prism(bm, [(-0.57, 0.13), (-0.37, 0.13), (0.57, 0.9), (0.57, 1.07), (0.37, 1.07), (-0.57, 0.3)],
+                      -0.05, -0.04, XZ, 2)), outline=0.018, sprite=True)
+        kit.obj('CrateDetail' + coll, coll, [seam, metal, bolt, top, crack], lambda bm: (
+            [_box(bm, sx - 0.012, 0.13, sx + 0.012, 1.07, -0.03, -0.025, 0) for sx in (-0.29, 0.0, 0.29)],
+            [(_box(bm, cx - 0.09, cz - 0.09, cx + 0.09, cz + 0.09, -0.06, -0.05, 1),
+              add_prism(bm, ellipse_pts(cx, cz, 0.03, 0.03, 10), -0.07, -0.06, XZ, 2))
+             for cx in (-0.6, 0.6) for cz in (0.1, 1.1)],
+            _box(bm, -0.68, 1.15, 0.68, 1.2, -0.08, -0.07, 3),
+            [add_prism(bm, p, -0.09, -0.08, XZ, 4) for p in ((
+                [(-0.2, 1.07), (-0.14, 1.07), (-0.24, 0.82), (-0.08, 0.66), (-0.22, 0.44), (-0.27, 0.45),
+                 (-0.14, 0.66), (-0.3, 0.82)],
+                [(0.57, 0.36), (0.57, 0.42), (0.34, 0.3), (0.22, 0.13), (0.28, 0.13), (0.38, 0.27)],
+                [(-0.57, 0.86), (-0.57, 0.8), (-0.4, 0.74), (-0.36, 0.6), (-0.32, 0.6), (-0.36, 0.78)]) if cracked else ())]))
+    crate('CRATE', 1.0, False)
+    crate('CRACKED', 0.86, True)
+
+    # ---- crane hook: chain from the hang point, yellow block, steel hook
+    hchain = flat_mat('HookChain', '#59606C')
+    hchain_d = flat_mat('HookChainDark', '#3E434D')
+    kit.obj('HookChain', 'HOOK', [hchain, hchain_d], lambda bm: hang_chain(bm, 0.0, -1.24, 0.0, 0.0, pitch=0.19),
+            outline=0.012, sprite=True)
+    kit.obj('HookBlock', 'HOOK', [toon_mat('HookBlock', '#A88A3A', '#6E5A24', spec=0.3)], lambda bm: add_prism(
+        bm, [(-0.17, -1.3), (0.17, -1.3), (0.14, -1.53), (-0.14, -1.53)], -0.06, 0.06, XZ), outline=0.018,
+        sprite=True)
+    kit.obj('Hook', 'HOOK', [toon_mat('HookSteel', '#7A8290', '#454B57', spec=0.5)], lambda bm: add_tube(
+        bm, [(0, 0, -1.53), (0, 0, -1.66), (0.01, 0, -1.74), (-0.04, 0, -1.82), (-0.11, 0, -1.83),
+             (-0.16, 0, -1.78), (-0.17, 0, -1.72)], 0.035, sides=10), outline=0.018, sprite=True, smooth=True)
+
+
+def target_warehouse():
+    racks = [[x0 - 0.25, 0.0, x1 + 0.25, 4.925] for x0, x1 in H_RACKS]
+    render_map_set('warehouse', build_warehouse, [
+        ('warehouse_bg.png', 'BG', BG_RECT, dict(note='rail y 13.2..13.6, pallet chains x 10 / 14 included')),
+        ('warehouse_floor.png', 'FLOOR', FLOOR_RECT, dict(note='top y = 0')),
+        ('warehouse_rack.png', 'RACK', tuple(racks[0]), dict(instances=racks, note='shelf tops y = 2.4 and 4.8')),
+        ('warehouse_pallet.png', 'PALLET', (9.25, 3.1, 14.75, 3.725), dict(note='top y = 3.6')),
+    ], [
+        ('crate.png', 'CRATE', (192, 168), (96, 8), 'pivot = bottom centre. Hit box 1.4 x 1.2. Falling, resting '
+                                                    'and start crates'),
+        ('crate_cracked.png', 'CRACKED', (192, 168), (96, 8), 'last 20 ticks before a resting crate disappears'),
+        ('crane_hook.png', 'HOOK', (64, 256), (32, 248), 'pivot = hang point (top); sway around it'),
+    ], ('BG', 'FLOOR', 'RACK', 'PALLET'))
+
+
+# ---------------------------------------------------------------- dessert shop (id 4)
+
+D_SCOOPS = [   # file, centre x, start width, top y, body, shadow, top line
+    ('icecream_strawberry.png', 4.0, 5.0, 2.0, '#D88DA2', '#A05E78', '#F4C6D0'),
+    ('icecream_mint.png', 20.0, 5.0, 2.0, '#8ECDB0', '#5C9480', '#CDEFE0'),
+    ('icecream_vanilla.png', 12.0, 7.0, 3.6, '#E4D29E', '#B09A68', '#F6ECCB'),
+    ('icecream_chocolate.png', 12.0, 3.0, 6.0, '#7A4E36', '#523222', '#C8957A'),
+]
+D_SLICE = 0.75     # fixed end of the 9-slice: 0.25 margin + 0.5 rounded end (54 px)
+
+
+def scoop_rect(cx, w, top):
+    return (cx - w / 2 - 0.25, top - 1.0, cx + w / 2 + 0.25, top + 0.25)
+
+
+def build_dessert(kit):
+    # ---- background: dim striped wallpaper, ceiling molding, window with a street lamp, menu board,
+    #      macaron tower and a cake dome (all vertical or above 7; nothing level with 2.0 / 3.6 / 6.0)
+    kit.obj('Wall', 'BG', [tex_wall_mat('Wall', '#352C3A', '#32293A', '#2A3236', 1.3, 40.0, 0.3, glows=(
+        (12.0, 11.8, 4.2, '#4E3E34', 0.5), (20.0, 11.8, 3.6, '#4E3E34', 0.45), (1.8, 8.8, 3.2, '#2C3550', 0.4)))],
+        lambda bm: _box(bm, -4, -4, 28, 16, 6.0, 6.2))
+    mold = flat_mat('Molding', '#221C26')
+    kit.obj('Molding', 'BG', [mold], lambda bm: _box(bm, -2.0, 13.5, 26.0, 14.5, 5.0, 5.2))
+    frame = flat_mat('WinFrame', '#1E1A22')
+    glass = flat_mat('WinGlass', '#1E2640')
+    pole = flat_mat('LampPole', '#141820')
+    halo = flat_mat('LampHalo', '#3A3A48')
+    street = flat_mat('StreetLamp', '#C8955A')
+    kit.obj('Window', 'BG', [frame, glass, pole, halo, street], lambda bm: (
+        _box(bm, 0.3, 6.6, 3.3, 11.2, 5.0, 5.2, 0),
+        _box(bm, 0.45, 6.75, 3.15, 11.05, 4.8, 5.0, 1),
+        _box(bm, 2.35, 6.75, 2.45, 9.6, 4.7, 4.8, 2),
+        add_prism(bm, ellipse_pts(2.4, 9.75, 0.34, 0.34, 24), 4.6, 4.7, XZ, 3),
+        add_prism(bm, ellipse_pts(2.4, 9.75, 0.1, 0.1, 16), 4.5, 4.6, XZ, 4),
+        _box(bm, 1.74, 6.75, 1.86, 11.05, 4.4, 4.5, 0),
+        _box(bm, 0.45, 8.84, 3.15, 8.96, 4.4, 4.5, 0)))
+    board = flat_mat('Menu', '#232A28')
+    board_frame = flat_mat('MenuFrame', '#3A2C24')
+    chalk = flat_mat('Chalk', '#3E4C48')
+    kit.obj('Menu', 'BG', [board_frame, board, chalk], lambda bm: (
+        _box(bm, 16.2, 7.6, 19.0, 10.4, 5.0, 5.2, 0),
+        _box(bm, 16.35, 7.75, 18.85, 10.25, 4.8, 5.0, 1),
+        [_box(bm, 16.65, mz, 16.65 + ln, mz + 0.07, 4.7, 4.8, 2) for mz, ln in (
+            (9.8, 1.6), (9.35, 1.1), (9.0, 1.4), (8.55, 0.9), (8.2, 1.5))]))
+    mac = [flat_mat('TowerA', '#4A3C48'), flat_mat('TowerB', '#3E4A44'), flat_mat('TowerC', '#4C4436'),
+           flat_mat('TowerStand', '#2E2830')]
+    kit.obj('MacaronTower', 'BG', mac, lambda bm: (
+        _box(bm, 7.0, 0.0, 7.4, 0.35, 4.6, 4.8, 3),
+        _box(bm, 6.4, 0.35, 8.0, 0.45, 4.6, 4.8, 3),
+        [add_prism(bm, ellipse_pts(7.2 + (c - (n - 1) / 2) * 0.36, 0.62 + r * 0.33, 0.17, 0.15, 12),
+                   4.4, 4.5, XZ, (r + c) % 3)
+         for r, n in enumerate((5, 5, 4, 4, 3, 3, 2, 2, 1, 1)) for c in range(n)]))
+    dome = flat_mat('Dome', '#2B2A36')
+    cake = flat_mat('DomeCake', '#3E3236')
+    kit.obj('CakeDome', 'BG', [dome, cake, mac[3]], lambda bm: (
+        _box(bm, 23.2, 0.0, 25.6, 0.12, 4.6, 4.8, 2),
+        add_prism(bm, ellipse_pts(24.4, 0.12, 1.05, 1.9, 32, 0.0, math.pi) + [(23.35, 0.12)], 4.5, 4.6, XZ, 0),
+        _box(bm, 23.75, 0.12, 25.05, 0.9, 4.4, 4.5, 1)))
+
+    # ---- floor: muted mint checker tiles, warm top line
+    tiles = bpy.data.materials.new('Tiles')
+    nt = _tree(tiles)
+    xz, _, z = _xz_coords(nt)
+    chk = nt.nodes.new('ShaderNodeTexChecker')
+    nt.links.new(xz, chk.inputs['Vector'])
+    chk.inputs['Color1'].default_value = rgb('#4A6058')
+    chk.inputs['Color2'].default_value = rgb('#3A4C47')
+    chk.inputs['Scale'].default_value = 2.0
+    mr = nt.nodes.new('ShaderNodeMapRange')
+    nt.links.new(z, mr.inputs['Value'])
+    mr.inputs['From Min'].default_value = -0.3
+    mr.inputs['From Max'].default_value = -1.5
+    _emit(nt, _mix(nt, _ramp(nt, mr.outputs['Result'], [(0.0, 0.0), (0.35, 0.3), (0.7, 0.55)]),
+                   chk.outputs['Color'], rgb('#1E2422')))
+    band = flat_mat('TileBand', '#6E8C80')
+    tile_top = flat_mat('TileTop', '#E6DCB6')
+    kit.obj('Floor', 'FLOOR', [tiles, band, tile_top], lambda bm: (
+        _box(bm, -2.0, -2.5, 26.0, -0.12, -1.0, 1.0, 0),
+        _box(bm, -2.0, -0.12, 26.0, 0.0, -1.02, -1.0, 1),
+        _box(bm, -2.0, -0.05, 26.0, 0.0, -1.03, -1.02, 2)))
+
+    # ---- ice cream platforms, each at its start width. Between the two fixed 0.75 ends every column is
+    #      identical (bands only), so Unity can 9-slice them to any width without visible stretching.
+    wafer = flat_mat('Wafer', '#B98A52')
+    wafer_line = flat_mat('WaferLine', '#8A6236')
+    for i, (fname, cx, w, top, body, shadow, lit) in enumerate(D_SCOOPS):
+        x0, x1 = cx - w / 2, cx + w / 2
+        mats = [flat_mat('Cream%d' % i, body), flat_mat('CreamShadow%d' % i, shadow),
+                flat_mat('CreamTop%d' % i, lit), wafer, wafer_line]
+        r = 0.22
+
+        def outline_pts(x0=x0, x1=x1, top=top):
+            quarter = [math.pi / 2 * k / 8 for k in range(9)]
+            return ([(x0, top - 0.5)] +
+                    [(x0 + r - r * math.cos(a), top - r + r * math.sin(a)) for a in quarter] +
+                    [(x1 - r + r * math.sin(a), top - r + r * math.cos(a)) for a in quarter] + [(x1, top - 0.5)])
+
+        def end_drips(x0=x0, x1=x1, top=top, seed=i):
+            rnd = random.Random(40 + seed)
+            out = []
+            for side, ex in ((-1, x0), (1, x1)):
+                for k in range(2):
+                    dx = ex - side * (0.1 + 0.2 * k + 0.05 * rnd.random())
+                    ln = 0.18 + 0.2 * rnd.random()
+                    out.append([(dx - 0.07, top - 0.48), (dx + 0.07, top - 0.48), (dx + 0.06, top - 0.5 - ln),
+                                (dx, top - 0.56 - ln), (dx - 0.06, top - 0.5 - ln)])
+            return out
+        kit.obj('Scoop%d' % i, 'SCOOP%d' % i, mats, lambda bm, x0=x0, x1=x1, top=top, op=outline_pts,
+                ed=end_drips: (
+                    add_prism(bm, op(), -0.3, 0.3, XZ, 0),
+                    [add_prism(bm, p, -0.36, -0.33, XZ, 0) for p in ed()],
+                    _box(bm, x0 - 0.05, top - 0.64, x1 + 0.05, top - 0.5, -0.32, 0.32, 3)), outline=0.03)
+        kit.obj('ScoopShade%d' % i, 'SCOOP%d' % i, mats, lambda bm, x0=x0, x1=x1, top=top: (
+            _box(bm, x0 + 0.02, top - 0.48, x1 - 0.02, top - 0.36, -0.31, -0.3, 1),
+            _box(bm, x0 + 0.2, top - 0.05, x1 - 0.2, top, -0.32, -0.31, 2),
+            _box(bm, x0 - 0.03, top - 0.6, x1 + 0.03, top - 0.58, -0.34, -0.32, 4)))
+
+    # ---- sprites: fork tip, macaron bottom, lollipop sign and pendant lamp hang points
+    silver = flat_mat('Silver', '#E6EAF0')
+    silver_shade = flat_mat('SilverShade', '#AEB8C8')
+    shine = flat_mat('SilverShine', '#FFFFFF')
+    prongs = [[(px - 0.035, 0.44), (px - 0.035, 0.07), (px, 0.0), (px + 0.035, 0.07), (px + 0.035, 0.44)]
+              for px in (-0.14, 0.0, 0.14)]
+    head = [(-0.175, 0.4), (0.175, 0.4), (0.175, 0.47), (0.1, 0.56), (0.05, 0.64), (0.05, 0.95), (0.08, 1.08),
+            (0.06, 1.16), (0.0, 1.19), (-0.06, 1.16), (-0.08, 1.08), (-0.05, 0.95), (-0.05, 0.64), (-0.1, 0.56),
+            (-0.175, 0.47)]
+    kit.obj('Fork', 'FORK', [silver], lambda bm: ([add_prism(bm, p, -0.012, 0.012, XZ) for p in prongs],
+                                                  add_prism(bm, head, -0.012, 0.012, XZ)), outline=0.018, sprite=True)
+    kit.obj('ForkShade', 'FORK', [silver_shade, shine], lambda bm: (
+        add_prism(bm, [(0.02, 0.62), (0.05, 0.64), (0.05, 0.95), (0.08, 1.08), (0.06, 1.15), (0.03, 1.08),
+                       (0.02, 0.95)], -0.016, -0.013, XZ, 0),
+        [add_prism(bm, [(px + 0.01, 0.42), (px + 0.035, 0.42), (px + 0.035, 0.08), (px + 0.01, 0.06)],
+                   -0.016, -0.013, XZ, 0) for px in (-0.14, 0.0, 0.14)],
+        add_prism(bm, [(-0.04, 0.7), (-0.025, 0.7), (-0.03, 1.06), (-0.05, 1.06)], -0.017, -0.016, XZ, 1)))
+    shell = toon_mat('Shell', '#B58FCC', '#7E5E98', rim=0.3, rim_col='#D2B6E2')
+    foot = flat_mat('ShellFoot', '#93709F')
+    cream = flat_mat('Filling', '#E4D2B4')
+    kit.obj('Macaron', 'MACARON', [shell, foot, cream], lambda bm: (
+        add_prism(bm, [(-0.48, 0.06), (-0.46, 0.0), (0.46, 0.0), (0.48, 0.06), (0.48, 0.24), (0.42, 0.29),
+                       (-0.42, 0.29), (-0.48, 0.24)], -0.3, 0.3, XZ, 0),
+        _box(bm, -0.49, 0.02, 0.49, 0.1, -0.31, -0.3, 1),
+        _box(bm, -0.43, 0.28, 0.43, 0.43, -0.25, 0.25, 2),
+        add_prism(bm, ellipse_pts(0.0, 0.42, 0.48, 0.28, 24, 0.0, math.pi) + [(-0.48, 0.42)], -0.3, 0.3, XZ, 0),
+        _box(bm, -0.49, 0.42, 0.49, 0.49, -0.31, -0.3, 1)), outline=0.018, sprite=True)
+    string = flat_mat('String', '#4A4044')
+    kit.obj('SignStrings', 'LOLLIPOP', [string], lambda bm: [
+        add_tube(bm, [(0, 0.02, 0.0), (sx, 0.02, -0.4)], 0.013) for sx in (-0.26, 0.26)], outline=0.012, sprite=True)
+    rings = [flat_mat('Swirl%d' % k, c) for k, c in enumerate(('#C9879E', '#E2CDB0', '#C9879E', '#E2CDB0'))]
+    stick = flat_mat('Stick', '#D8C8A8')
+    kit.obj('Lollipop', 'LOLLIPOP', rings + [stick], lambda bm: (
+        [add_prism(bm, ellipse_pts(0.0, -0.8, rr, rr, 40), -0.02 - 0.004 * k, -0.016 - 0.004 * k, XZ, k)
+         for k, rr in enumerate((0.45, 0.33, 0.21, 0.09))],
+        _box(bm, -0.035, -1.47, 0.035, -1.2, 0.0, 0.02, 4)), outline=0.018, sprite=True)
+    shade_m = toon_mat('PendantShade', '#C8B48C', '#8A7858', mid=0.6)
+    bulb = flat_mat('PendantBulb', '#F0C27A')
+    kit.obj('PendantCord', 'PENDANT', [string], lambda bm: add_tube(bm, [(0, 0, 0.0), (0, 0, -0.97)], 0.014),
+            outline=0.012, sprite=True)
+    kit.obj('Pendant', 'PENDANT', [shade_m, bulb], lambda bm: (
+        add_prism(bm, ellipse_pts(0.0, -1.4, 0.1, 0.1, 16), 0.0, 0.02, XZ, 1),
+        add_prism(bm, [(-0.07, -0.95), (0.07, -0.95), (0.16, -1.08), (0.26, -1.3)] +
+                  [p for k in range(5) for p in ((0.26 - 0.104 * k - 0.052, -1.37), (0.26 - 0.104 * (k + 1), -1.31))]
+                  [:-1] + [(-0.26, -1.3), (-0.16, -1.08)], -0.04, -0.02, XZ, 0)), outline=0.018, sprite=True)
+
+
+def target_dessert():
+    pieces = [('dessert_bg.png', 'BG', BG_RECT, {}),
+              ('dessert_floor.png', 'FLOOR', FLOOR_RECT, dict(note='top y = 0'))]
+    for i, (fname, cx, w, top, *_) in enumerate(D_SCOOPS):
+        pieces.append((fname, 'SCOOP%d' % i, scoop_rect(cx, w, top), dict(
+            nine_slice=dict(left_px=round(D_SLICE * MAP_PPU), right_px=round(D_SLICE * MAP_PPU)),
+            top_from_image_top_px=round(0.25 * MAP_PPU), centre_x=cx, start_width=w, top_y=top,
+            note='world_rect at start width; melt by shrinking the middle around centre_x')))
+    render_map_set('dessert', build_dessert, pieces, [
+        ('fork.png', 'FORK', (80, 176), (40, 8), 'pivot = fork tip. Hit box 0.5 x 1.2 above the tip'),
+        ('macaron.png', 'MACARON', (144, 106), (72, 8), 'pivot = bottom centre. Hit box 1.0 x 0.7'),
+        ('lollipop_sign.png', 'LOLLIPOP', (192, 200), (96, 192), 'pivot = hang point (top); sway around it'),
+        ('pendant_lamp.png', 'PENDANT', (96, 216), (48, 208), 'pivot = hang point (top); sway around it'),
+    ], ('BG', 'FLOOR', 'SCOOP0', 'SCOOP1', 'SCOOP2', 'SCOOP3'))
+
+
+# ---------------------------------------------------------------- new map previews (game scale, 72 px per unit)
+
+MAP_CASTS = {   # id, anim, frame, x, y, flip
+    'winter': [(1, 'idle', 0, 3.0, 2.4, False), (2, 'run', 1, 9.2, 0.0, False), (3, 'idle', 0, 16.2, 4.8, True),
+               (4, 'jump', 0, 14.8, 2.2, False), (5, 'dash', 0, 18.4, 0.0, True), (6, 'idle', 0, 11.0, 1.6, False),
+               (7, 'fall', 0, 22.6, 3.6, True), (8, 'knockback', 1, 20.4, 2.4, False)],
+    'warehouse': [(1, 'idle', 0, 3.0, 2.4, False), (2, 'run', 1, 6.0, 0.0, False), (3, 'idle', 0, 16.0, 1.2, True),
+                  (4, 'jump', 0, 9.6, 2.2, False), (5, 'dash', 0, 13.6, 0.0, True), (6, 'idle', 0, 21.0, 4.8, True),
+                  (7, 'fall', 0, 18.2, 3.2, True), (8, 'idle', 0, 10.6, 3.6, False)],
+    'dessert': [(1, 'idle', 0, 3.0, 2.0, False), (2, 'run', 1, 9.4, 0.0, False), (3, 'idle', 0, 12.0, 6.0, True),
+                (4, 'jump', 0, 7.4, 2.6, False), (5, 'dash', 0, 15.2, 0.0, True), (6, 'idle', 0, 21.0, 2.0, True),
+                (7, 'fall', 0, 23.0, 3.4, True), (8, 'idle', 0, 10.2, 3.6, False)],
+}
+MAP_PROPS = {   # sprite, x, y (pivot position)  — drawn behind the characters
+    'winter': [('lantern.png', 3.0, 13.0), ('lantern.png', 21.0, 13.0), ('snowball.png', 3.0, 0.0)],
+    'warehouse': [('crane_hook.png', 6.0, 13.2), ('crane_hook.png', 18.0, 13.2), ('crate.png', 8.0, 0.0),
+                  ('crate.png', 16.0, 0.0), ('crate_cracked.png', 21.0, 0.0)],
+    'dessert': [('lollipop_sign.png', 4.0, 13.5), ('pendant_lamp.png', 12.0, 13.5), ('pendant_lamp.png', 20.0, 13.5),
+                ('macaron.png', 12.0, 0.0)],
+}
+MAP_HAZARDS = {  # sprite, x, y, warning (hit width, landing y) or None — drawn in front of the characters
+    'winter': [('icicle.png', 6.5, 11.8, (0.4, 4.8)), ('icicle.png', 12.5, 6.4, (0.4, 1.6)),
+               ('icicle_shards.png', 20.0, 0.0, None)],
+    'warehouse': [('crate.png', 12.0, 8.2, (1.4, 3.6)), (None, 3.4, 0.0, (1.4, 4.8))],
+    'dessert': [('fork.png', 7.5, 8.0, (0.5, 0.0)), ('fork.png', 14.2, 3.45, None), (None, 20.0, 0.0, (0.5, 2.0))],
+}
+
+
+def target_map_previews():
+    reset_scene()
+    cdir = os.path.join(SPRITES, 'characters')
+    cmeta = json.load(open(os.path.join(cdir, 'jelly_sheet.json'), encoding='utf-8'))
+    rows = len(cmeta['animations'])
+    row_of = {a['name']: a['row'] for a in cmeta['animations']}
+    sheets = {int(k): load_png(os.path.join(cdir, v)) for k, v in cmeta['sheets'].items()}
+    s = MAP_PPU / CHAR_PPU
+    for name in ('winter', 'warehouse', 'dessert'):
+        mdir = os.path.join(SPRITES, 'map_' + name)
+        meta = json.load(open(os.path.join(mdir, 'map.json'), encoding='utf-8'))
+        full = load_png(os.path.join(mdir, name + '_full.png'))
+
+        def to_px(x, y):
+            return round((x - BG_RECT[0]) * MAP_PPU), round((y - BG_RECT[1]) * MAP_PPU)
+
+        def put(img, piv, x, y, flip=False):
+            w, h = round(img.shape[1] * s), round(img.shape[0] * s)
+            im = resize(img, w, h)
+            if flip:
+                im = im[:, ::-1].copy()
+            ox = round(piv[0] * s)
+            if flip:
+                ox = w - ox
+            px, py = to_px(x, y)
+            over(full, im, px - ox, py - round(piv[1] * s))
+
+        def sprite(fname, x, y):
+            put(load_png(os.path.join(mdir, fname)), meta['sprites'][fname]['pivot_px_from_bottom_left'], x, y)
+
+        for fname, x, y in MAP_PROPS[name]:
+            sprite(fname, x, y)
+        for pid, anim, fi, x, y, flip in MAP_CASTS[name]:
+            put(_frame(sheets[pid], row_of[anim], fi, rows), CHAR_PIVOT, x, y, flip)
+        for fname, x, y, warn in MAP_HAZARDS[name]:
+            if warn:
+                hw, land = warn
+                x0, y0 = to_px(x - hw / 2, land)
+                x1, y1 = to_px(x + hw / 2, 14.0)
+                col = np.zeros((y1 - y0, x1 - x0, 4), np.float32)
+                col[...] = (*WARN_RGB, 0.22)
+                over(full, col, x0, y0)
+                mk = np.zeros((round(0.12 * MAP_PPU), round((hw + 0.3) * MAP_PPU), 4), np.float32)
+                mk[...] = (*WARN_RGB, 1.0)
+                over(full, mk, to_px(x - hw / 2 - 0.15, 0)[0], y0 - mk.shape[0] // 2)
+            if fname:
+                sprite(fname, x, y)
+        if name == 'winter':
+            eave = load_png(os.path.join(mdir, 'winter_eave.png'))
+            rect = meta['pieces']['winter_eave.png']['world_rect']
+            over(full, eave, *to_px(rect[0], rect[1]))
+        save_png(full, os.path.join(PREVIEW, name + '_preview.png'))
+    print('map previews done')
+
+
 # ================================================================ entry
 
 def target_probe(out_dir):
@@ -1430,14 +2189,16 @@ def target_probe(out_dir):
 
 
 TARGETS = dict(characters=target_characters, knife=target_knife, map=target_map, preview=target_preview,
-               probe=lambda: target_probe(os.environ['PROBE_DIR']))
+               winter=target_winter, warehouse=target_warehouse, dessert=target_dessert,
+               map_previews=target_map_previews, probe=lambda: target_probe(os.environ['PROBE_DIR']))
 
 
 def main():
     args = sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else []
     target = args[0] if args else 'all'
-    if target == 'all':
-        for t in ('characters', 'knife', 'map', 'preview'):
+    if target in ('all', 'maps'):
+        order = ('characters', 'knife', 'map', 'preview') if target == 'all' else ()
+        for t in order + ('winter', 'warehouse', 'dessert', 'map_previews'):
             subprocess.run([bpy.app.binary_path, '-b', '--factory-startup', '--python', os.path.abspath(__file__),
                             '--', t], check=True)
         return
