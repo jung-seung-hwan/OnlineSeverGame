@@ -28,9 +28,9 @@ Unity generates `.meta` files inside `Shared/`; commit them together with `Share
 - Build: `dotnet build`
 - Tests: `dotnet test`
 - Run server: `dotnet run --project Server/GameServer -- --port 7777 --min-players 2`
-  - options: `--port N`, `--min-players N` (1..8, default 2), `--seed N`, `--exit-after-rounds N`
+  - options: `--port N`, `--min-players N` (1..8, default 2), `--seed N`, `--exit-after-rounds N`, `--verbose` (log every dash push; default logs only the per-round count)
 - Run 8 bots: `dotnet run --project Tools/BotClient -- --count 8`
-  - options: `--host`, `--port`, `--count N`, `--name Bot`, `--seed N`, `--rounds N` (exit after N rounds), `--drop-one-after SECONDS` (abruptly disconnect the last bot that many seconds into the first round), `--duration SECONDS`
+  - options: `--host`, `--port`, `--count N`, `--name Bot`, `--seed N`, `--rounds N` (exit after N rounds), `--drop-one-after SECONDS` (abruptly disconnect the last bot that many seconds into the first round), `--duration SECONDS`, `--ai dodge|random` (default `dodge`: bots notice knife warnings after a 2-8 tick reaction time and get out from under them)
 - Scripted check (two terminals): server with `--exit-after-rounds 2`, bots with `--rounds 2 --drop-one-after 5`.
 
 Build output goes to `artifacts/` (see `Directory.Build.props`), never into `Shared/`, so Unity does not pick up generated files.

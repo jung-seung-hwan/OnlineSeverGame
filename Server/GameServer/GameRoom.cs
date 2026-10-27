@@ -13,6 +13,8 @@ public sealed class RoomConfig
     public int MaxQueuedInputs = 8;
     /// <summary>Grace period after Playing begins before the first knife warning.</summary>
     public int FirstKnifeDelayTicks = GameConstants.TickRate;
+    /// <summary>Log every dash push. Off by default: the round summary carries the count.</summary>
+    public bool LogPushes;
 }
 
 /// <summary>A frame to send: Target 0 = everyone in the room.</summary>
@@ -56,6 +58,7 @@ public sealed class GameRoom
     private readonly List<DashHit> _hits = new();
     private ushort _nextKnifeId = 1;
     private uint _nextSpawnTick;
+    private int _roundPushes;
     private readonly Action<string> _log;
 
     public GameRoom(RoomConfig config, Action<string> log = null)
@@ -213,8 +216,10 @@ public sealed class GameRoom
         _hits.Clear();
         DashCollision.Resolve(states, active, n, _hits);
         for (int i = 0; i < n; i++) list[i].State = states[i];
-        foreach (var hit in _hits)
-            _log($"push  #{list[hit.Attacker].Id} -> #{list[hit.Target].Id}");
+        _roundPushes += _hits.Count;
+        if (_config.LogPushes)
+            foreach (var hit in _hits)
+                _log($"push  #{list[hit.Attacker].Id} -> #{list[hit.Target].Id}");
     }
 
     private void SpawnKnivesOnSchedule()
@@ -319,7 +324,7 @@ public sealed class GameRoom
 
         string names = winners.Count == 0 ? "none" : string.Join(", ", winners.Select(w => $"#{w.Id} '{w.Name}'"));
         _log($"round {RoundNumber} END after {RoundTick} ticks ({RoundTick / (float)GameConstants.TickRate:0.0}s)" +
-             $"{(timeUp ? " [time limit]" : "")} winners: {names}");
+             $"{(timeUp ? " [time limit]" : "")} winners: {names}, pushes: {_roundPushes}");
         foreach (var r in packet.Results)
             _log($"    place {r.Place}: #{r.PlayerId} survived {r.SurvivedTicks} ticks ({r.Cause})");
     }
@@ -365,6 +370,7 @@ public sealed class GameRoom
         State = RoomState.Countdown;
         StateTimer = GameConstants.CountdownTicks;
         RoundTick = 0;
+        _roundPushes = 0;
         _knives.Clear();
         _round.Clear();
         foreach (var p in _players.Values)

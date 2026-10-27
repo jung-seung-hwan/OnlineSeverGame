@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using OnlineSeverGame.Shared.Protocol;
@@ -13,6 +12,8 @@ public sealed class ServerOptions
     public int Seed = Environment.TickCount;
     /// <summary>Stop the server after this many rounds (0 = run forever). For scripted checks.</summary>
     public int ExitAfterRounds;
+    /// <summary>Log every dash push instead of only the per-round count.</summary>
+    public bool Verbose;
 }
 
 /// <summary>
@@ -37,7 +38,7 @@ public sealed class GameServer
     public GameServer(ServerOptions options)
     {
         _options = options;
-        _room = new GameRoom(new RoomConfig { MinPlayers = options.MinPlayers, Seed = options.Seed }, msg => Log.Info(msg));
+        _room = new GameRoom(new RoomConfig { MinPlayers = options.MinPlayers, Seed = options.Seed, LogPushes = options.Verbose }, msg => Log.Info(msg));
         _listener = new TcpListener(IPAddress.Any, options.Port);
     }
 
@@ -92,9 +93,8 @@ public sealed class GameServer
     private void GameLoop()
     {
         var events = new List<NetEvent>();
-        var clock = Stopwatch.StartNew();
-        double next = clock.Elapsed.TotalMilliseconds;
-        double worstLate = 0;
+        using var timer = new TickTimer(GameConstants.TickMilliseconds);
+        Log.Info($"game loop timer: {(timer.HighResolution ? "1 ms system timer resolution" : "default system timer resolution")}");
         int stopCountdown = -1;
 
         while (_running)
@@ -115,25 +115,12 @@ public sealed class GameServer
 
             if (_room.ServerTick % (GameConstants.TickRate * 30) == 0)
             {
-                Log.Info($"tick {_room.ServerTick}: {_room.PlayerCount} players, state {_room.State}, worst late {worstLate:0.0} ms");
-                worstLate = 0;
+                var (avg, max) = timer.TakeStats();
+                Log.Info($"tick {_room.ServerTick}: {_room.PlayerCount} players, state {_room.State}, " +
+                         $"tick late avg {avg:0.00} ms / max {max:0.00} ms, skipped {timer.SkippedTicks}");
             }
 
-            // Fixed 50 ms schedule on absolute time so sleep jitter does not accumulate.
-            next += GameConstants.TickMilliseconds;
-            double now = clock.Elapsed.TotalMilliseconds;
-            if (now - next > 5 * GameConstants.TickMilliseconds)
-            {
-                Log.Info($"game loop {now - next:0} ms behind, skipping ahead");
-                next = now;
-            }
-            double wait;
-            while ((wait = next - clock.Elapsed.TotalMilliseconds) > 0)
-            {
-                if (wait > 2) Thread.Sleep((int)(wait - 1));
-                else Thread.Yield();
-            }
-            worstLate = Math.Max(worstLate, -wait);
+            timer.WaitNext();
         }
 
         Shutdown();

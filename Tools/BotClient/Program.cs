@@ -9,6 +9,7 @@ int seed = Environment.TickCount;
 int rounds = 0;            // exit after this many rounds (0 = never)
 double dropOneAfter = -1;  // seconds into the first Playing phase; then the last bot disconnects abruptly
 double duration = 0;       // give up after this many seconds (0 = never)
+string ai = "dodge";       // dodge | random
 
 for (int i = 0; i < args.Length; i++)
 {
@@ -22,11 +23,15 @@ for (int i = 0; i < args.Length; i++)
         case "--seed": seed = int.Parse(Next()); break;
         case "--rounds": rounds = int.Parse(Next()); break;
         case "--drop-one-after": dropOneAfter = double.Parse(Next(), System.Globalization.CultureInfo.InvariantCulture); break;
+        case "--ai":
+            ai = Next();
+            if (ai != "dodge" && ai != "random") throw new ArgumentException("--ai must be dodge or random");
+            break;
         case "--duration": duration = double.Parse(Next(), System.Globalization.CultureInfo.InvariantCulture); break;
         case "-h":
         case "--help":
             Console.WriteLine("OnlineSeverGame.BotClient [--host 127.0.0.1] [--port 7777] [--count 8] [--name Bot] [--seed N]\n" +
-                              "                          [--rounds N] [--drop-one-after SECONDS] [--duration SECONDS]");
+                              "                          [--rounds N] [--drop-one-after SECONDS] [--duration SECONDS] [--ai dodge|random]");
             return 0;
         default:
             Console.Error.WriteLine($"unknown option {args[i]} (see --help)");
@@ -38,7 +43,7 @@ var bots = new List<Bot>();
 for (int i = 0; i < count; i++)
 {
     // Bot 0 reports round events for everyone.
-    var bot = new Bot(i, $"{baseName}{i + 1}", seed + i * 7919, verbose: i == 0);
+    var bot = new Bot(i, $"{baseName}{i + 1}", seed + i * 7919, verbose: i == 0, dodge: ai == "dodge");
     try
     {
         bot.Start(host, port);
@@ -49,7 +54,8 @@ for (int i = 0; i < count; i++)
         Console.WriteLine($"[{bot.Name}] connect failed: {ex.Message}");
     }
 }
-Console.WriteLine($"{bots.Count}/{count} bots connected to {host}:{port}");
+Console.WriteLine($"{bots.Count}/{count} bots connected to {host}:{port}, ai={ai}" +
+                  (ai == "dodge" ? $", reaction ticks: {string.Join(",", bots.Select(b => b.ReactionTicks))}" : ""));
 if (bots.Count == 0) return 1;
 
 var reporter = bots[0];

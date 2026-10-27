@@ -18,6 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\GameServer\GameServer.csproj" />
     <ProjectReference Include="..\..\Shared\OnlineSeverGame.Shared.csproj" />
+    <ProjectReference Include="..\..\Tools\BotClient\BotClient.csproj" />
   </ItemGroup>
 
   <ItemGroup>

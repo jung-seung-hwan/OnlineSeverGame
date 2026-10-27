@@ -6,8 +6,9 @@ using OnlineSeverGame.Shared.Simulation;
 namespace OnlineSeverGame.BotClient;
 
 /// <summary>
-/// One fake player: a receive thread that decodes frames and an input thread that sends random buttons
-/// every 50 ms with an increasing seq, like a real client would.
+/// One fake player: a receive thread that decodes frames and an input thread that sends buttons every
+/// 50 ms with an increasing seq, like a real client would. Buttons are a random wander, overridden by
+/// DodgeBrain (when dodging is on) to get out from under knives it has noticed.
 /// </summary>
 public sealed class Bot
 {
@@ -15,6 +16,9 @@ public sealed class Bot
     private readonly string _name;
     private readonly Random _random;
     private readonly bool _verbose;
+    private readonly bool _dodge;
+    private readonly int _reactionTicks;
+    private volatile SnapshotPacket _latest;
     private TcpClient _client;
     private NetworkStream _stream;
     private volatile bool _running;
@@ -23,13 +27,17 @@ public sealed class Bot
     private int _dir;
     private int _dirTicksLeft;
 
-    public Bot(int index, string name, int seed, bool verbose)
+    public Bot(int index, string name, int seed, bool verbose, bool dodge)
     {
         _index = index;
         _name = name;
         _random = new Random(seed);
         _verbose = verbose;
+        _dodge = dodge;
+        _reactionTicks = _random.Next(2, 9); // 0.1 - 0.4 s to notice a warning
     }
+
+    public int ReactionTicks => _reactionTicks;
 
     public string Name => _name;
     public volatile byte PlayerId;
@@ -106,6 +114,20 @@ public sealed class Bot
 
     private InputButtons NextButtons()
     {
+        InputButtons wander = Wander();
+        var snap = _latest;
+        if (!_dodge || snap == null || snap.RoomState != RoomState.Playing) return wander;
+        foreach (var p in snap.Players)
+        {
+            if (p.PlayerId != PlayerId) continue;
+            if (!p.Alive) return wander;
+            return DodgeBrain.Decide(p.State, snap.Knives, Stage.Default, _reactionTicks, wander);
+        }
+        return wander;
+    }
+
+    private InputButtons Wander()
+    {
         if (--_dirTicksLeft <= 0)
         {
             _dir = _random.Next(-1, 2);
@@ -166,6 +188,7 @@ public sealed class Bot
                 break;
 
             case SnapshotPacket s:
+                _latest = s;
                 if (s.RoomState == RoomState.Playing && RoomState != RoomState.Playing)
                     Interlocked.Exchange(ref PlayingSinceMs, Clock.ElapsedMilliseconds);
                 RoomState = s.RoomState;
