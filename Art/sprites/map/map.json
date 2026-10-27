@@ -1,0 +1,60 @@
+{
+  "ppu": 72,
+  "note": "world_rect = [x0, y0, x1, y1] in game units covered by the image; pivot bottom-left at (x0, y0). kitchen_full has only the left shelf: draw shelf.png again at the right shelf rect.",
+  "pieces": {
+    "kitchen_bg.png": {
+      "world_rect": [
+        -1.5,
+        -1.5,
+        25.5,
+        14.0
+      ]
+    },
+    "floor_board.png": {
+      "world_rect": [
+        -1.5,
+        -1.5,
+        25.5,
+        0.25
+      ]
+    },
+    "shelf.png": {
+      "world_rect": [
+        2.75,
+        1.4,
+        9.25,
+        2.525
+      ],
+      "instances": [
+        [
+          2.75,
+          1.4,
+          9.25,
+          2.525
+        ],
+        [
+          14.75,
+          1.4,
+          21.25,
+          2.525
+        ]
+      ]
+    },
+    "pot_lid.png": {
+      "world_rect": [
+        8.75,
+        3.55,
+        15.25,
+        5.05
+      ]
+    },
+    "kitchen_full.png": {
+      "world_rect": [
+        -1.5,
+        -1.5,
+        25.5,
+        14.0
+      ]
+    }
+  }
+}

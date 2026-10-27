@@ -1,0 +1,16 @@
+{
+  "ppu": 128,
+  "size": [
+    64,
+    144
+  ],
+  "pivot_px_from_bottom_left": [
+    32,
+    8
+  ],
+  "pivot_normalized": [
+    0.5,
+    0.05555555555555555
+  ],
+  "note": "pivot = knife tip (game position). Tip down. Hit box 0.4 x 1.0 above the tip."
+}

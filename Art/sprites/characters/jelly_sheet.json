@@ -1,0 +1,95 @@
+{
+  "ppu": 128,
+  "frame_size": [
+    256,
+    256
+  ],
+  "pivot_px_from_bottom_left": [
+    128,
+    8
+  ],
+  "pivot_normalized": [
+    0.5,
+    0.03125
+  ],
+  "layout": "one row per animation, top row first; frames left to right; empty cells are transparent",
+  "facing": "right (flip X for left)",
+  "sheets": {
+    "1": "jelly_1_strawberry.png",
+    "2": "jelly_2_blueberry.png",
+    "3": "jelly_3_lime.png",
+    "4": "jelly_4_lemon.png",
+    "5": "jelly_5_grape.png",
+    "6": "jelly_6_tangerine.png",
+    "7": "jelly_7_soda.png",
+    "8": "jelly_8_peach.png"
+  },
+  "decorations": {
+    "1": "leaves",
+    "2": "bow",
+    "3": "crown",
+    "4": "flag",
+    "5": "cherry",
+    "6": "chef_hat",
+    "7": "umbrella",
+    "8": "cream"
+  },
+  "animations": [
+    {
+      "name": "idle",
+      "row": 0,
+      "frames": 4,
+      "fps": 6,
+      "loop": true
+    },
+    {
+      "name": "run",
+      "row": 1,
+      "frames": 6,
+      "fps": 12,
+      "loop": true
+    },
+    {
+      "name": "jump",
+      "row": 2,
+      "frames": 2,
+      "fps": 10,
+      "loop": true
+    },
+    {
+      "name": "fall",
+      "row": 3,
+      "frames": 2,
+      "fps": 10,
+      "loop": true
+    },
+    {
+      "name": "dash",
+      "row": 4,
+      "frames": 3,
+      "fps": 15,
+      "loop": true
+    },
+    {
+      "name": "knockback",
+      "row": 5,
+      "frames": 3,
+      "fps": 12,
+      "loop": false
+    },
+    {
+      "name": "death",
+      "row": 6,
+      "frames": 4,
+      "fps": 10,
+      "loop": false
+    },
+    {
+      "name": "victory",
+      "row": 7,
+      "frames": 4,
+      "fps": 8,
+      "loop": true
+    }
+  ]
+}
