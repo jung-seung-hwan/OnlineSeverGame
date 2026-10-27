@@ -15,6 +15,7 @@
 | 핵심 게임 서버 | [work/server-core.md](work/server-core.md) | 핵심 게임 서버 · 01 | 핵심 완료, 클라이언트 연동 확인, 다듬기 1차 완료 |
 | Unity 클라이언트 | [work/unity-client.md](work/unity-client.md) | Unity 클라이언트 · 01 | 핵심 완료, 서버·봇과 라운드 확인. 다듬기 남음 |
 | 캐릭터·맵 아트 | [work/art.md](work/art.md) | 캐릭터·맵 아트 · 01, 02 | 콘셉트 완료, Blender 모델·스프라이트 시트·맵 렌더 완료(`Art/sprites/`), Unity 클라이언트 임시 도형을 스프라이트로 교체 완료 |
+| 신규 맵 아트 | [work/art-maps.md](work/art-maps.md) | 신규 맵 아트 · 01 | 겨울 처마·창고·디저트 가게 콘셉트 6장 완료. 스프라이트는 maps.md 배치 문서 대기 |
 
 ### 작업 문서에 들어갈 것
 
