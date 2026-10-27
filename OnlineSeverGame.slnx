@@ -1,0 +1,5 @@
+<Solution>
+  <Folder Name="/Shared/">
+    <Project Path="Shared/OnlineSeverGame.Shared.csproj" />
+  </Folder>
+</Solution>

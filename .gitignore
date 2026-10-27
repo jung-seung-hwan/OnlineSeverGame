@@ -1,2 +1,11 @@
+# .NET build output (Directory.Build.props sends everything to artifacts/)
+artifacts/
+bin/
+obj/
+*.user
+.vs/
+TestResults/
+
+# Legacy Python
 __pycache__/
 *.pyc

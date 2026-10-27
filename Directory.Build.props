@@ -1,0 +1,11 @@
+<Project>
+  <!--
+    Put every bin/obj under artifacts/ so that Shared/ stays a clean Unity package
+    (Unity would otherwise compile the generated .cs files in Shared/obj).
+    Client/ is excluded so Unity-generated IDE projects keep their own layout.
+  -->
+  <PropertyGroup Condition="!$(MSBuildProjectDirectory.Replace('\', '/').Contains('/Client/'))">
+    <UseArtifactsOutput>true</UseArtifactsOutput>
+    <ArtifactsPath>$(MSBuildThisFileDirectory)artifacts</ArtifactsPath>
+  </PropertyGroup>
+</Project>
