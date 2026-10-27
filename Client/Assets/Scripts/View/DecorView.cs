@@ -108,9 +108,20 @@ namespace OnlineSeverGame.Client.View
         }
 
         // 종류별 단순 도형. up = +1 이면 축에서 위로, -1 이면 아래로 자란다.
+        // 새 맵 장식(등불·갈고리·간판·조명)은 그림(피벗 = 매달린 점)이 있으면 그것으로.
         static void Draw(Transform pivot, string kind, Vector2 size, float up)
         {
             const int order = 4;
+            var art = ArtSprites.DecorSprite(kind);
+            if (art != null)
+            {
+                var go = new GameObject("Art");
+                go.transform.SetParent(pivot, false);
+                var sr = go.AddComponent<SpriteRenderer>();
+                sr.sprite = art;
+                sr.sortingOrder = order;
+                return;
+            }
             switch (kind)
             {
                 case "towel":

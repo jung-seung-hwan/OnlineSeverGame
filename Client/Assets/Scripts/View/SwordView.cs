@@ -5,7 +5,8 @@ using UnityEngine;
 namespace OnlineSeverGame.Client.View
 {
     // 떨어지는 위험물과 낙하 예고. 예고 중에는 낙하 지점 기둥(위험물 폭 + 0.6)과 위쪽 경고 표시를 깜빡이며 보여준다.
-    // 칼은 ArtSprites.Knife(피벗 = 칼끝). 고드름·상자·포크는 그림이 나올 때까지 단색 도형이고 위치는 모두 아래쪽 가운데.
+    // 그림은 ArtSprites.Hazard(피벗 = 끝, 아래 가운데). 착지 뒤에는 HazardLanded(고드름 조각, 금 간 상자).
+    // 그림이 없는 종류는 단색 도형으로 그린다.
     // 고드름은 예고 중에도 처마 아래 제자리에 매달려 점점 세게 떨린다.
     public sealed class SwordView : MonoBehaviour
     {
@@ -17,6 +18,8 @@ namespace OnlineSeverGame.Client.View
         SpriteRenderer _warnMark;
         SpriteRenderer _warnGround;
         HazardKind _kind;
+        SpriteRenderer _art;   // 그림 한 장으로 그릴 때
+        bool _showingLanded;
         float _columnWidth;
         float _stageHeight;
 
@@ -34,7 +37,17 @@ namespace OnlineSeverGame.Client.View
             v._warnGround = Shapes.Rect(go.transform, "WarnGround", WarnColor, new Vector2(size.x + 1.2f, 0.12f), 8);
             v._body = new GameObject("Body").transform;
             v._body.SetParent(go.transform, false);
-            v._bodyParts = BuildBody(v._body, kind, size);
+            var art = ArtSprites.Hazard(kind);
+            if (art != null)
+            {
+                var go2 = new GameObject("Art");
+                go2.transform.SetParent(v._body, false);
+                v._art = go2.AddComponent<SpriteRenderer>();
+                v._art.sprite = art;
+                v._art.sortingOrder = 15;
+                v._bodyParts = new[] { v._art };
+            }
+            else v._bodyParts = BuildBody(v._body, kind, size);
             return v;
         }
 
@@ -135,6 +148,12 @@ namespace OnlineSeverGame.Client.View
             // 끝이 Position 이다. 꽂히거나 부서진 것은 해가 없으므로 흐리게.
             transform.localPosition = new Vector3(s.Position.x, s.Position.y, 0);
             _body.localPosition = Vector3.zero;
+            bool landed = s.Phase == SwordPhase.Landed;
+            if (_art != null && landed != _showingLanded)
+            {
+                _showingLanded = landed;
+                _art.sprite = landed ? ArtSprites.HazardLanded(_kind) ?? _art.sprite : ArtSprites.Hazard(_kind);
+            }
             SetAlpha(s.Phase == SwordPhase.Landed ? 0.6f : 1f);
         }
 

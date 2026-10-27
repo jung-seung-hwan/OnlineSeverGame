@@ -7,8 +7,9 @@ namespace OnlineSeverGame.Client.View
 {
     // 맵 그리기. 주방(id 1)은 ArtSprites 그림: 배경, 도마 바닥, 선반 발판, 가장 높은 발판은 매단 냄비 뚜껑.
     // 그림은 Stage.Default 좌표로 렌더했고, 발판 그림은 각 발판 윗면 가운데에 놓는다.
-    // 겨울 처마·창고·디저트 가게는 아직 그림이 없어 단색 임시 도형(docs/work/maps.md 배치 그대로)으로 그린다.
-    // 녹는 아이스크림 발판은 Refresh 가 매 프레임 지금 폭으로 줄인다.
+    // 겨울 처마·창고·디저트 가게는 신규 맵 아트 세션 그림(Resources/Art/map_<이름>/, map.json world_rect 그대로).
+    // 그림이 없으면 단색 임시 도형(docs/work/maps.md 배치 그대로)으로 그린다.
+    // 녹는 아이스크림 발판은 Refresh 가 매 프레임 지금 폭으로 줄인다(그림은 9-slice 로 가운데만 줄어듦).
     public sealed class StageView : MonoBehaviour
     {
         static readonly Color Backdrop = new Color(0.08f, 0.09f, 0.11f);   // 배경 그림 밖(넓은 화면)
@@ -53,6 +54,7 @@ namespace OnlineSeverGame.Client.View
             public SpriteRenderer Body;
             public SpriteRenderer Top;
             public float Height;
+            public SpriteRenderer Sliced; // 그림일 때: 9-slice, 피벗 = 윗면 가운데
         }
 
         readonly List<Melting> _melting = new List<Melting>();
@@ -91,6 +93,12 @@ namespace OnlineSeverGame.Client.View
             {
                 Platform p = now.Platforms[m.Index];
                 float w = StageLayout.ToWorld(p.Width), cx = StageLayout.ToWorld(p.CenterX), top = StageLayout.ToWorld(p.Top);
+                if (m.Sliced != null)
+                {
+                    // 그림 폭 = 발판 폭 + 양쪽 여백 0.25
+                    m.Sliced.size = new Vector2(w + 0.5f, m.Sliced.size.y);
+                    continue;
+                }
                 Shapes.Resize(m.Body, new Vector2(w, m.Height));
                 m.Body.transform.localPosition = new Vector3(cx, top - m.Height / 2f, 0);
                 Shapes.Resize(m.Top, new Vector2(w, 0.12f));
@@ -116,6 +124,18 @@ namespace OnlineSeverGame.Client.View
 
         void BuildWinter(StageLayout layout)
         {
+            if (ArtSprites.MapPiece("map_winter", "winter_bg") != null)
+            {
+                Piece("map_winter", "winter_bg", -1.5f, -1.5f, -100);
+                Piece("map_winter", "winter_floor", -1.5f, -1.5f, -10);
+                Piece("map_winter", "winter_ice_sill", 1.25f, 1.525f, -9);
+                Piece("map_winter", "winter_ice_sill", 17.25f, 1.525f, -9);
+                Piece("map_winter", "winter_bench", 9.75f, 0f, -9);
+                Piece("map_winter", "winter_beam", 4.75f, 4.3f, -9);
+                Piece("map_winter", "winter_beam", 14.25f, 4.3f, -9);
+                Piece("map_winter", "winter_eave", -1.5f, 12.875f, 30); // 처마는 매달린 고드름보다 앞
+                return;
+            }
             Palette c = Winter;
             Wall(layout, c);
             Floor(layout, c);
@@ -134,6 +154,15 @@ namespace OnlineSeverGame.Client.View
 
         void BuildWarehouse(StageLayout layout)
         {
+            if (ArtSprites.MapPiece("map_warehouse", "warehouse_bg") != null)
+            {
+                Piece("map_warehouse", "warehouse_bg", -1.5f, -1.5f, -100); // 크레인 레일·팔레트 사슬 포함
+                Piece("map_warehouse", "warehouse_floor", -1.5f, -1.5f, -10);
+                Piece("map_warehouse", "warehouse_rack", 0.75f, 0f, -9);
+                Piece("map_warehouse", "warehouse_rack", 18.75f, 0f, -9);
+                Piece("map_warehouse", "warehouse_pallet", 9.25f, 3.1f, -9);
+                return;
+            }
             Palette c = Warehouse;
             Wall(layout, c);
             Floor(layout, c);
@@ -156,12 +185,33 @@ namespace OnlineSeverGame.Client.View
             Platforms(layout, c, 0.2f);
         }
 
+        static readonly string[] IceCreamArt = { "icecream_strawberry", "icecream_mint", "icecream_vanilla", "icecream_chocolate" };
+
         void BuildDessert(StageLayout layout)
         {
+            var platforms = layout.Source.Platforms;
+            if (ArtSprites.MapPiece("map_dessert", "dessert_bg") != null)
+            {
+                Piece("map_dessert", "dessert_bg", -1.5f, -1.5f, -100);
+                Piece("map_dessert", "dessert_floor", -1.5f, -1.5f, -10);
+                for (int i = 0; i < platforms.Count && i < IceCreamArt.Length; i++)
+                {
+                    Platform p = platforms[i];
+                    var go = new GameObject(IceCreamArt[i]);
+                    go.transform.SetParent(transform, false);
+                    go.transform.localPosition = new Vector3(StageLayout.ToWorld(p.CenterX), StageLayout.ToWorld(p.Top), 0);
+                    var sr = go.AddComponent<SpriteRenderer>();
+                    sr.sprite = ArtSprites.IceCream(IceCreamArt[i]);
+                    sr.drawMode = SpriteDrawMode.Sliced;
+                    sr.size = sr.sprite.bounds.size;
+                    sr.sortingOrder = -9;
+                    if (p.MeltPerTick > 0) _melting.Add(new Melting { Index = i, Sliced = sr });
+                }
+                return;
+            }
             Palette c = Dessert;
             Wall(layout, c);
             Floor(layout, c);
-            var platforms = layout.Source.Platforms;
             for (int i = 0; i < platforms.Count; i++)
             {
                 Platform p = platforms[i];
@@ -194,6 +244,18 @@ namespace OnlineSeverGame.Client.View
                 Box("Platform", p.Ice ? c.Ice : c.Platform, cx, top - thickness / 2f, w, thickness, -9);
                 Box("PlatformTop", p.Ice ? c.IceTop : c.PlatformTop, cx, top - 0.04f, w, 0.08f, -8);
             }
+        }
+
+        // 새 맵 정지 조각: 그림 왼쪽 아래를 world_rect 의 (x0, y0)에 놓는다.
+        SpriteRenderer Piece(string folder, string name, float x0, float y0, int order)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(transform, false);
+            go.transform.localPosition = new Vector3(x0, y0, 0);
+            var sr = go.AddComponent<SpriteRenderer>();
+            sr.sprite = ArtSprites.MapPiece(folder, name);
+            sr.sortingOrder = order;
+            return sr;
         }
 
         SpriteRenderer Box(string name, Color color, float cx, float cy, float w, float h, int order)

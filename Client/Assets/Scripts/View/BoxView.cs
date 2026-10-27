@@ -11,6 +11,9 @@ namespace OnlineSeverGame.Client.View
         SpriteRenderer _edge;
         SpriteRenderer _body;
         SpriteRenderer _top;
+        SpriteRenderer _art;   // 맵 그림(눈덩이·상자·마카롱)이 있으면 도형 대신
+        int _stageId;
+        bool _cracked;
         Vector2 _size;
 
         // 맵 id 순서: (테두리, 몸통, 윗면)
@@ -31,6 +34,17 @@ namespace OnlineSeverGame.Client.View
             v._edge = Shapes.Rect(go.transform, "Edge", Colors[c, 0], Vector2.one, 6);
             v._body = Shapes.Rect(go.transform, "Body", Colors[c, 1], Vector2.one, 7);
             v._top = Shapes.Rect(go.transform, "Top", Colors[c, 2], Vector2.one, 8);
+            v._stageId = stageId;
+            var art = ArtSprites.Box(stageId, false);
+            if (art != null)
+            {
+                var a = new GameObject("Art");
+                a.transform.SetParent(go.transform, false);
+                v._art = a.AddComponent<SpriteRenderer>();
+                v._art.sprite = art;
+                v._art.sortingOrder = 7;
+                v._edge.enabled = v._body.enabled = v._top.enabled = false;
+            }
             return v;
         }
 
@@ -38,6 +52,16 @@ namespace OnlineSeverGame.Client.View
         {
             transform.localPosition = new Vector3(b.Position.x, b.Position.y, 0);
             float alpha = b.Crumbling ? 0.35f + 0.65f * Mathf.PingPong(Time.time * 8f, 1f) : 1f;
+            if (_art != null)
+            {
+                if (b.Crumbling != _cracked)
+                {
+                    _cracked = b.Crumbling;
+                    _art.sprite = ArtSprites.Box(_stageId, _cracked) ?? _art.sprite;
+                }
+                _art.color = new Color(1f, 1f, 1f, alpha);
+                return;
+            }
             if (!Mathf.Approximately(_body.color.a, alpha))
             {
                 foreach (var sr in new[] { _edge, _body, _top })
