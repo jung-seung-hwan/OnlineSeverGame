@@ -14,7 +14,7 @@
 |---|---|---|---|
 | 핵심 게임 서버 | [work/server-core.md](work/server-core.md) | 핵심 게임 서버 · 01 | 핵심 완료, 클라이언트 연동 확인, 다듬기 1차 완료 |
 | Unity 클라이언트 | [work/unity-client.md](work/unity-client.md) | Unity 클라이언트 · 01 | 핵심 완료, 서버·봇과 라운드 확인. 다듬기 남음 |
-| 캐릭터·맵 아트 | [work/art.md](work/art.md) | 캐릭터·맵 아트 · 01 | 레퍼런스·콘셉트 이미지 1차 완료, Blender 기준 이미지 선택 대기 |
+| 캐릭터·맵 아트 | [work/art.md](work/art.md) | 캐릭터·맵 아트 · 01 | 콘셉트 완료, Blender 기준 이미지 확정. 다음은 Blender 모델·스프라이트 |
 
 ### 작업 문서에 들어갈 것
 
