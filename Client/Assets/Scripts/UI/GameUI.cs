@@ -98,79 +98,87 @@ namespace OnlineSeverGame.Client.UI
             GUILayout.EndArea();
         }
 
+        // 대기·카운트다운 중에는 움직일 수 있으므로 가운데를 가리지 않는 위쪽 띠와 왼쪽 명단만 그린다.
         void DrawLobby(SessionState s)
         {
-            var r = Panel(420, 190 + 30 * s.Capacity);
-            GUILayout.BeginArea(r);
-            GUILayout.Space(8);
-            string head = s.Screen == ClientScreen.Countdown || s.CountdownSeconds > 0f
-                ? $"곧 시작합니다  {Mathf.CeilToInt(Mathf.Max(0f, s.CountdownSeconds))}"
-                : "라운드 대기 중";
-            GUILayout.Label(head, _big, GUILayout.Height(40));
-            GUILayout.Label($"참가자 {s.Roster.Count}/{s.Capacity}", _center);
-            GUILayout.Space(6);
-            foreach (var p in s.Roster) RosterRow(p, p.Id == s.LocalId, null);
-            GUILayout.FlexibleSpace();
-            if (GUILayout.Button("나가기", GUILayout.Height(32))) Game.Disconnect("");
+            var top = Filled(new Rect(UnityEngine.Screen.width / 2f - 230, 40, 460, 96));
+            GUILayout.BeginArea(top);
+            string head = s.Screen == ClientScreen.Countdown
+                ? $"{Mathf.CeilToInt(Mathf.Max(0f, s.CountdownSeconds))}초 후 라운드 시작"
+                : "다른 플레이어를 기다리는 중";
+            GUILayout.Label(head, _big, GUILayout.Height(36));
+            string sub = s.Screen == ClientScreen.Countdown
+                ? $"라운드 {s.RoundNumber} · 참가 {s.ParticipantCount}명 · 칼이 떨어지기 전까지 자유롭게 움직이세요"
+                : $"접속 {s.Roster.Count}/{s.Capacity} · 2명 이상이면 시작합니다";
+            GUILayout.Label(sub, _center);
             GUILayout.EndArea();
+
+            var side = Filled(new Rect(12, 48, 240, 64 + 32 * s.Roster.Count));
+            GUILayout.BeginArea(side);
+            GUILayout.Label($"접속자 {s.Roster.Count}/{s.Capacity}", _label);
+            foreach (var p in s.Roster) RosterRow(p, p.Id == s.LocalId, null);
+            GUILayout.EndArea();
+            DrawTopBar(s, showRound: false);
         }
 
         void DrawHud(SessionState s)
         {
-            GUI.Label(new Rect(16, 10, 400, 30), $"생존 {s.AliveCount}/{s.Roster.Count}    {s.RoundSeconds:0.0}초", _label);
+            GUI.Label(new Rect(16, 10, 400, 30), $"생존 {s.AliveCount}/{s.ParticipantCount}    {s.RoundSeconds:0.0}초", _label);
+            DrawTopBar(s, showRound: true);
+            if (s.Screen == ClientScreen.Playing) DrawHint();
+        }
+
+        void DrawTopBar(SessionState s, bool showRound)
+        {
             string right = s.PingMs >= 0 ? $"핑 {s.PingMs}ms" : "";
+            if (showRound && s.RoundNumber > 0) right = $"라운드 {s.RoundNumber}    " + right;
             var rs = new GUIStyle(_label) { alignment = TextAnchor.UpperRight };
-            GUI.Label(new Rect(UnityEngine.Screen.width - 316, 10, 200, 30), right, rs);
+            GUI.Label(new Rect(UnityEngine.Screen.width - 416, 10, 300, 30), right, rs);
             if (GUI.Button(new Rect(UnityEngine.Screen.width - 106, 8, 90, 30), "나가기")) Game.Disconnect("");
-            if (s.Screen == ClientScreen.Playing)
-            {
-                var hint = new GUIStyle(_label) { fontSize = 14, alignment = TextAnchor.LowerCenter };
-                hint.normal.textColor = new Color(1, 1, 1, 0.6f);
-                GUI.Label(new Rect(0, UnityEngine.Screen.height - 30, UnityEngine.Screen.width, 24),
-                    "←/→ 이동   ↑·Space 점프   Shift 대시(부딪히면 밀치기)", hint);
-            }
+            if (!showRound) DrawHint();
+        }
+
+        void DrawHint()
+        {
+            var hint = new GUIStyle(_label) { fontSize = 14, alignment = TextAnchor.LowerCenter };
+            hint.normal.textColor = new Color(1, 1, 1, 0.6f);
+            GUI.Label(new Rect(0, UnityEngine.Screen.height - 30, UnityEngine.Screen.width, 24),
+                "←/→ 이동   ↑·Space 점프   Shift 대시(부딪히면 밀치기)   ↓ 발판 아래로", hint);
         }
 
         void DrawSpectating(SessionState s)
         {
             var r = Filled(new Rect(UnityEngine.Screen.width / 2f - 220, 48, 440, 100));
             GUILayout.BeginArea(r);
-            GUILayout.Label("탈락! 관전 중", _big, GUILayout.Height(36));
-            GUILayout.Label($"남은 생존자 {s.AliveCount}명", _center);
+            GUILayout.Label(s.LocalInRound ? "탈락! 관전 중" : "관전 중", _big, GUILayout.Height(36));
+            GUILayout.Label(s.LocalInRound ? $"남은 생존자 {s.AliveCount}명" : "다음 라운드부터 참가합니다", _center);
             GUILayout.EndArea();
         }
 
         void DrawResult(SessionState s)
         {
             _ranking.Clear();
-            _ranking.AddRange(s.Roster);
-            // 승자 → 생존 시간이 긴 순
-            _ranking.Sort((a, b) =>
-            {
-                if (a.Id == s.WinnerId) return -1;
-                if (b.Id == s.WinnerId) return 1;
-                return b.SurvivedSeconds.CompareTo(a.SurvivedSeconds);
-            });
+            foreach (var p in s.Roster) if (p.Place > 0) _ranking.Add(p);
+            _ranking.Sort((a, b) => a.Place != b.Place ? a.Place.CompareTo(b.Place) : b.SurvivedSeconds.CompareTo(a.SurvivedSeconds));
 
-            var r = Panel(440, 220 + 30 * _ranking.Count);
+            var r = Panel(460, 210 + 30 * _ranking.Count);
             GUILayout.BeginArea(r);
             GUILayout.Space(8);
-            string winner = s.WinnerId < 0 ? "승자 없음" : (s.WinnerId == s.LocalId ? "승리!" : $"승자: {s.WinnerName}");
+            string winner;
+            if (s.WinnerIds.Count == 0) winner = "승자 없음";
+            else if (s.WinnerIds.Contains(s.LocalId)) winner = s.WinnerIds.Count > 1 ? "공동 승리!" : "승리!";
+            else winner = (s.WinnerIds.Count > 1 ? "공동 승자: " : "승자: ") + s.WinnerName;
             GUILayout.Label(winner, _title, GUILayout.Height(48));
-            GUILayout.Label($"라운드 {s.RoundSeconds:0.0}초", _center);
+            GUILayout.Label($"라운드 {s.RoundNumber} · {s.RoundSeconds:0.0}초", _center);
             GUILayout.Space(6);
-            int rank = 1;
             foreach (var p in _ranking)
             {
-                string tail = p.Id == s.WinnerId ? "생존" : (p.Connected ? $"{p.SurvivedSeconds:0.0}초" : "끊김");
-                RosterRow(p, p.Id == s.LocalId, $"{rank}위  ", tail);
-                rank++;
+                string tail = p.LeftGame ? "끊김" : (p.Survived ? "생존" : $"{p.SurvivedSeconds:0.0}초");
+                RosterRow(p, p.Id == s.LocalId, $"{p.Place}위  ", tail);
             }
             GUILayout.FlexibleSpace();
-            GUILayout.BeginHorizontal();
-            if (GUILayout.Button("다음 라운드", GUILayout.Height(34))) Game.Session?.RequestReady();
+            GUILayout.Label($"{Mathf.CeilToInt(Mathf.Max(0f, s.CountdownSeconds))}초 후 다음 라운드", _center);
             if (GUILayout.Button("나가기", GUILayout.Height(34))) Game.Disconnect("");
-            GUILayout.EndHorizontal();
             GUILayout.EndArea();
         }
 

@@ -1,5 +1,11 @@
 {
   "dependencies": {
+    "com.onlinesevergame.shared": {
+      "version": "file:../../Shared",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {}
+    },
     "com.unity.ext.nunit": {
       "version": "2.1.0",
       "depth": 1,

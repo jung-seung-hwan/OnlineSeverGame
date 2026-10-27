@@ -3,6 +3,7 @@ using OnlineSeverGame.Client.Input;
 using OnlineSeverGame.Client.Model;
 using OnlineSeverGame.Client.UI;
 using OnlineSeverGame.Client.View;
+using OnlineSeverGame.Shared.Simulation;
 using UnityEngine;
 
 namespace OnlineSeverGame.Client.Game
@@ -10,7 +11,7 @@ namespace OnlineSeverGame.Client.Game
     // 씬에 하나만 둔다. 카메라·스테이지·뷰·UI를 코드로 만들고 세션을 바꿔 끼운다.
     //
     // 명령줄 인자(빌드·테스트용):
-    //   -name <이름>  -server <host:port>  -autoconnect  -preview
+    //   -name <이름>  -server <host:port>  -autoconnect  -preview  -autoplay [chase](무작위 입력 / 가까운 상대 쫓아 대시)
     //   -screenshot <파일경로> -screenshotDelay <초> [-screenshotEvery <초>]  -quitAfter <초>
     //   (-screenshotEvery 를 주면 파일경로의 {n} 을 번호로 바꿔 여러 장 찍는다)
     public sealed class GameBootstrap : MonoBehaviour
@@ -31,6 +32,7 @@ namespace OnlineSeverGame.Client.Game
         float _screenshotEvery = -1f;
         int _screenshotCount;
         float _quitAt = -1f;
+        ClientScreen _loggedScreen = ClientScreen.Connect;
 
         void Awake()
         {
@@ -41,7 +43,7 @@ namespace OnlineSeverGame.Client.Game
             PlayerName = PlayerPrefs.GetString("name", "Player" + UnityEngine.Random.Range(100, 1000));
             ServerAddress = PlayerPrefs.GetString("server", ServerAddress);
 
-            Layout = StageLayout.Placeholder();
+            Layout = StageLayout.FromShared(Stage.Default);
             WorldCamera = CreateCamera();
             _stage = new GameObject("Stage").AddComponent<StageView>();
             _stage.Build(Layout);
@@ -68,6 +70,10 @@ namespace OnlineSeverGame.Client.Game
                     case "-server": if (next != null) ServerAddress = next; break;
                     case "-autoconnect": autoConnect = true; break;
                     case "-preview": preview = true; break;
+                    case "-autoplay":
+                        _input.AutoPlay = true;
+                        _input.AutoChase = next == "chase";
+                        break;
                     case "-screenshot": _screenshotPath = next; break;
                     case "-screenshotDelay": if (float.TryParse(next, out var d)) _screenshotAt = d; break;
                     case "-screenshotEvery": if (float.TryParse(next, out var e)) _screenshotEvery = e; break;
@@ -102,7 +108,7 @@ namespace OnlineSeverGame.Client.Game
             float halfH = Layout.Height / 2f + margin;
             float halfWAsH = (Layout.Width / 2f + margin) / aspect;
             WorldCamera.orthographicSize = Mathf.Max(halfH, halfWAsH);
-            WorldCamera.transform.position = new Vector3(0, Layout.Height / 2f - 0.5f, -10);
+            WorldCamera.transform.position = new Vector3(Layout.Width / 2f, Layout.Height / 2f - 0.5f, -10);
         }
 
         void Update()
@@ -110,12 +116,19 @@ namespace OnlineSeverGame.Client.Game
             FitCamera();
 
             var screen = Session?.State.Screen ?? ClientScreen.Connect;
-            _input.Enabled = screen == ClientScreen.Playing;
+            // 대기·카운트다운 중에도 서버가 이동을 허용한다.
+            _input.Enabled = screen == ClientScreen.Lobby || screen == ClientScreen.Countdown || screen == ClientScreen.Playing;
 
             if (Session != null)
             {
+                if (_input.AutoChase) UpdateChaseTarget();
                 Session.Update(Time.deltaTime, _input);
                 _world.Apply(Session.World);
+                if (Session.State.Screen != _loggedScreen)
+                {
+                    _loggedScreen = Session.State.Screen;
+                    Debug.Log($"[Client] screen {_loggedScreen} round={Session.State.RoundNumber} alive={Session.State.AliveCount}/{Session.State.ParticipantCount}");
+                }
                 if (!string.IsNullOrEmpty(Session.State.Status) && Session.State.Screen == ClientScreen.Connect)
                 {
                     // 세션이 스스로 끊긴 경우(서버 종료 등)
@@ -134,6 +147,23 @@ namespace OnlineSeverGame.Client.Game
             if (_quitAt >= 0f && t >= _quitAt) Application.Quit();
         }
 
+        void UpdateChaseTarget()
+        {
+            _input.HasChaseTarget = false;
+            Vector2 me = default;
+            bool found = false;
+            foreach (var p in Session.World.Players)
+                if (p.IsLocal && p.Alive) { me = p.Position; found = true; }
+            if (!found) return;
+            float best = float.MaxValue;
+            foreach (var p in Session.World.Players)
+            {
+                if (p.IsLocal || !p.Alive) continue;
+                float d = (p.Position - me).sqrMagnitude;
+                if (d < best) { best = d; _input.ChaseDelta = p.Position - me; _input.HasChaseTarget = true; }
+            }
+        }
+
         public void StartPreview()
         {
             CloseSession();
@@ -146,8 +176,8 @@ namespace OnlineSeverGame.Client.Game
         {
             CloseSession();
             SavePrefs();
-            // 네트워크 세션은 Shared/ 와 docs/protocol.md 커밋 후 붙인다.
-            LastStatus = "서버 연결은 아직 구현 전입니다 (Shared/ 프로토콜 대기). 오프라인 미리보기를 쓰세요.";
+            LastStatus = "";
+            Session = new NetworkSession(Layout, PlayerName, ServerAddress);
         }
 
         public void Disconnect(string reason)

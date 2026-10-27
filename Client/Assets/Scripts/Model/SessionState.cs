@@ -6,10 +6,10 @@ namespace OnlineSeverGame.Client.Model
     {
         Connect,     // 이름·서버 주소 입력
         Connecting,
-        Lobby,       // 라운드 대기
+        Lobby,       // 라운드 대기(인원 부족). 자유 이동 가능
         Countdown,   // 라운드 시작 직전
         Playing,
-        Spectating,  // 내가 죽은 뒤 관전
+        Spectating,  // 내가 죽었거나 라운드 도중 들어와 관전
         Result,      // 승자 표시
     }
 
@@ -19,8 +19,12 @@ namespace OnlineSeverGame.Client.Model
         public string Name;
         public int ColorIndex;
         public bool Alive;
+        public bool InRound;
         public bool Connected;
-        public float SurvivedSeconds; // 사망·탈락 시점 기록(결과 화면용), 생존 중이면 0
+        public int Place;             // 결과 순위(1 = 승자), 0 = 없음
+        public float SurvivedSeconds; // 결과 화면용 생존 시간
+        public bool LeftGame;         // 연결 끊김으로 탈락
+        public bool Survived;         // 라운드 끝까지 살아남음(동시 사망 공동 승자는 false)
     }
 
     // UI 가 읽는 세션 상태. 네트워크 세션과 오프라인 미리보기가 같은 형태로 채운다.
@@ -29,12 +33,14 @@ namespace OnlineSeverGame.Client.Model
         public ClientScreen Screen = ClientScreen.Connect;
         public int LocalId = -1;
         public int Capacity = 8;
+        public int RoundNumber;
         public readonly List<RosterEntry> Roster = new List<RosterEntry>();
         public float RoundSeconds;
-        public float CountdownSeconds;
-        public int WinnerId = -1;
-        public string WinnerName = "";
-        public string Status = "";     // 연결 오류·끊김 등 사용자에게 보일 한 줄
+        public float CountdownSeconds;  // Countdown: 시작까지, Result: 다음 라운드까지
+        public readonly List<int> WinnerIds = new List<int>();
+        public string WinnerName = "";  // 공동 승자는 쉼표로
+        public bool LocalInRound = true;
+        public string Status = "";      // 연결 오류·끊김 등 사용자에게 보일 한 줄
         public int PingMs = -1;
 
         public int AliveCount
@@ -42,7 +48,17 @@ namespace OnlineSeverGame.Client.Model
             get
             {
                 int n = 0;
-                foreach (var r in Roster) if (r.Alive) n++;
+                foreach (var r in Roster) if (r.Alive && r.InRound) n++;
+                return n;
+            }
+        }
+
+        public int ParticipantCount
+        {
+            get
+            {
+                int n = 0;
+                foreach (var r in Roster) if (r.InRound) n++;
                 return n;
             }
         }
@@ -64,8 +80,6 @@ namespace OnlineSeverGame.Client.Model
         WorldRender World { get; }
         // 매 Update 호출. 입력 전송·수신 처리·보간을 여기서 한다.
         void Update(float deltaTime, Input.InputCollector input);
-        // 결과 화면에서 다음 라운드 대기로 돌아가기 등 UI 요청
-        void RequestReady();
         void Close();
     }
 }

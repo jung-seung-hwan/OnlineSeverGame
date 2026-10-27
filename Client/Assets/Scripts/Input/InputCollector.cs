@@ -9,13 +9,14 @@ namespace OnlineSeverGame.Client.Input
         public bool JumpHeld;
         public bool JumpPressed;
         public bool DashPressed;
+        public bool DownHeld;     // 누르고 있으면 발판 통과
 
         public override string ToString() =>
-            $"move={MoveX} jumpHeld={JumpHeld} jump={JumpPressed} dash={DashPressed}";
+            $"move={MoveX} jumpHeld={JumpHeld} jump={JumpPressed} dash={DashPressed} down={DownHeld}";
     }
 
     // 매 프레임 키보드를 읽고, 틱마다 Consume() 으로 한 번에 가져간다.
-    // 조작: ←/→ 또는 A/D 이동, ↑·W·Space 점프, Shift·J 대시.
+    // 조작: ←/→ 또는 A/D 이동, ↑·W·Space 점프, Shift·J 대시, ↓·S 발판 아래로.
     public sealed class InputCollector : MonoBehaviour
     {
         bool _jumpLatch;
@@ -23,9 +24,41 @@ namespace OnlineSeverGame.Client.Input
 
         public bool Enabled { get; set; } = true;
 
+        // 시험용: 키보드 대신 무작위로 움직이고 점프·대시한다(-autoplay).
+        public bool AutoPlay { get; set; }
+        // 시험용: 가장 가까운 상대에게 다가가 가까우면 대시한다(-autoplay chase). 상대 위치는 매 프레임 바깥에서 넣는다.
+        public bool AutoChase { get; set; }
+        public bool HasChaseTarget { get; set; }
+        public Vector2 ChaseDelta { get; set; }
+        readonly System.Random _rng = new System.Random();
+        int _autoMove = 1;
+        float _autoTurnAt;
+
         void Update()
         {
             if (!Enabled) return;
+            if (AutoPlay && AutoChase)
+            {
+                _autoMove = 0;
+                if (HasChaseTarget)
+                {
+                    if (Mathf.Abs(ChaseDelta.x) > 0.5f) _autoMove = ChaseDelta.x > 0 ? 1 : -1;
+                    if (Mathf.Abs(ChaseDelta.x) < 3f && Mathf.Abs(ChaseDelta.y) < 0.8f && _rng.NextDouble() < Time.deltaTime * 4) _dashLatch = true;
+                    if (ChaseDelta.y > 1.5f && _rng.NextDouble() < Time.deltaTime * 3) _jumpLatch = true;
+                }
+                return;
+            }
+            if (AutoPlay)
+            {
+                if (Time.time >= _autoTurnAt)
+                {
+                    _autoMove = _rng.Next(3) - 1;
+                    _autoTurnAt = Time.time + 0.4f + (float)_rng.NextDouble() * 1.2f;
+                }
+                if (_rng.NextDouble() < Time.deltaTime * 1.2) _jumpLatch = true;
+                if (_rng.NextDouble() < Time.deltaTime * 0.6) _dashLatch = true;
+                return;
+            }
             if (JumpDown()) _jumpLatch = true;
             if (DashDown()) _dashLatch = true;
         }
@@ -33,6 +66,8 @@ namespace OnlineSeverGame.Client.Input
         public InputFrame Peek()
         {
             if (!Enabled) return default;
+            if (AutoPlay)
+                return new InputFrame { MoveX = _autoMove, JumpPressed = _jumpLatch, DashPressed = _dashLatch };
             int x = 0;
             if (UnityEngine.Input.GetKey(KeyCode.LeftArrow) || UnityEngine.Input.GetKey(KeyCode.A)) x -= 1;
             if (UnityEngine.Input.GetKey(KeyCode.RightArrow) || UnityEngine.Input.GetKey(KeyCode.D)) x += 1;
@@ -42,6 +77,7 @@ namespace OnlineSeverGame.Client.Input
                 JumpHeld = UnityEngine.Input.GetKey(KeyCode.UpArrow) || UnityEngine.Input.GetKey(KeyCode.W) || UnityEngine.Input.GetKey(KeyCode.Space),
                 JumpPressed = _jumpLatch || JumpDown(),
                 DashPressed = _dashLatch || DashDown(),
+                DownHeld = UnityEngine.Input.GetKey(KeyCode.DownArrow) || UnityEngine.Input.GetKey(KeyCode.S),
             };
         }
 

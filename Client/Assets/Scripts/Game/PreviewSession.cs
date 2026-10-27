@@ -44,7 +44,6 @@ namespace OnlineSeverGame.Client.Game
         readonly List<Body> _bodies = new List<Body>();
         readonly List<Sword> _swords = new List<Sword>();
         float _spawnTimer;
-        float _resultTimer;
         int _nextSwordId = 1;
 
         public SessionState State { get; } = new SessionState();
@@ -57,7 +56,7 @@ namespace OnlineSeverGame.Client.Game
             string[] names = { localName, "봇-1", "봇-2", "봇-3", "봇-4", "봇-5", "봇-6", "봇-7" };
             for (int i = 0; i < names.Length; i++)
             {
-                State.Roster.Add(new RosterEntry { Id = i, Name = names[i], ColorIndex = i, Alive = true, Connected = true });
+                State.Roster.Add(new RosterEntry { Id = i, Name = names[i], ColorIndex = i, Alive = true, InRound = true, Connected = true });
             }
             EnterLobby();
         }
@@ -67,7 +66,8 @@ namespace OnlineSeverGame.Client.Game
             State.Screen = ClientScreen.Lobby;
             State.CountdownSeconds = 3f;
             State.RoundSeconds = 0f;
-            State.WinnerId = -1;
+            State.RoundNumber++;
+            State.WinnerIds.Clear();
             State.WinnerName = "";
             _swords.Clear();
             _bodies.Clear();
@@ -76,8 +76,10 @@ namespace OnlineSeverGame.Client.Game
                 var r = State.Roster[i];
                 r.Alive = true;
                 r.SurvivedSeconds = 0;
+                r.Place = 0;
+                r.Survived = false;
                 State.Roster[i] = r;
-                float x = Mathf.Lerp(-_layout.Width / 2f + 2f, _layout.Width / 2f - 2f, i / 7f);
+                float x = Mathf.Lerp(1.5f, _layout.Width - 1.5f, i / 7f);
                 _bodies.Add(new Body { Id = r.Id, Pos = new Vector2(x, 0), Facing = x < 0 ? 1 : -1, BotTurn = Random.Range(0.5f, 2f) });
             }
         }
@@ -87,6 +89,9 @@ namespace OnlineSeverGame.Client.Game
             switch (State.Screen)
             {
                 case ClientScreen.Lobby:
+                    State.Screen = ClientScreen.Countdown;
+                    goto case ClientScreen.Countdown;
+                case ClientScreen.Countdown:
                     State.CountdownSeconds -= dt;
                     if (State.CountdownSeconds <= 0f)
                     {
@@ -99,8 +104,8 @@ namespace OnlineSeverGame.Client.Game
                     Simulate(dt, input);
                     break;
                 case ClientScreen.Result:
-                    _resultTimer -= dt;
-                    if (_resultTimer <= 0f) EnterLobby();
+                    State.CountdownSeconds -= dt;
+                    if (State.CountdownSeconds <= 0f) EnterLobby();
                     break;
             }
             Fill();
@@ -147,9 +152,9 @@ namespace OnlineSeverGame.Client.Game
 
                 float prevY = b.Pos.y;
                 b.Pos += b.Vel * dt;
-                float half = _layout.Width / 2f - _layout.PlayerSize.x / 2f;
-                if (b.Pos.x < -half) { b.Pos.x = -half; if (b.Id != State.LocalId) b.Facing = 1; }
-                if (b.Pos.x > half) { b.Pos.x = half; if (b.Id != State.LocalId) b.Facing = -1; }
+                float minX = _layout.PlayerSize.x / 2f, maxX = _layout.Width - minX;
+                if (b.Pos.x < minX) { b.Pos.x = minX; if (b.Id != State.LocalId) b.Facing = 1; }
+                if (b.Pos.x > maxX) { b.Pos.x = maxX; if (b.Id != State.LocalId) b.Facing = -1; }
 
                 b.Grounded = false;
                 if (b.Vel.y <= 0f)
@@ -191,9 +196,11 @@ namespace OnlineSeverGame.Client.Game
             if (alive <= 1)
             {
                 State.Screen = ClientScreen.Result;
-                State.WinnerId = last != null ? last.Id : -1;
-                State.WinnerName = last != null && State.TryGet(last.Id, out var w) ? w.Name : "없음";
-                _resultTimer = 5f;
+                State.WinnerIds.Clear();
+                if (last != null) State.WinnerIds.Add(last.Id);
+                State.WinnerName = last != null && State.TryGet(last.Id, out var w) ? w.Name : "";
+                State.CountdownSeconds = 5f;
+                AssignPlaces();
             }
         }
 
@@ -204,8 +211,7 @@ namespace OnlineSeverGame.Client.Game
             if (_spawnTimer <= 0f)
             {
                 _spawnTimer = Mathf.Max(0.25f, 1.2f - State.RoundSeconds * 0.03f);
-                float half = _layout.Width / 2f - 0.5f;
-                _swords.Add(new Sword { Id = _nextSwordId++, X = Random.Range(-half, half), Y = _layout.SwordSpawnY, Warn = WarnTime, Phase = SwordPhase.Warning });
+                _swords.Add(new Sword { Id = _nextSwordId++, X = Random.Range(0.5f, _layout.Width - 0.5f), Y = _layout.SwordSpawnY, Warn = WarnTime, Phase = SwordPhase.Warning });
             }
 
             for (int i = _swords.Count - 1; i >= 0; i--)
@@ -286,13 +292,24 @@ namespace OnlineSeverGame.Client.Game
                     Phase = s.Phase,
                     Position = new Vector2(s.X, s.Y),
                     WarningProgress = 1f - s.Warn / WarnTime,
+                    LandingY = _layout.SwordLandingY(s.X),
                 });
             }
         }
 
-        public void RequestReady()
+        void AssignPlaces()
         {
-            if (State.Screen == ClientScreen.Result) EnterLobby();
+            // 승자 1위, 나머지는 오래 버틴 순
+            for (int i = 0; i < State.Roster.Count; i++)
+            {
+                var r = State.Roster[i];
+                if (State.WinnerIds.Contains(r.Id)) { r.Place = 1; r.Survived = r.Alive; r.SurvivedSeconds = State.RoundSeconds; State.Roster[i] = r; continue; }
+                int place = 1 + State.WinnerIds.Count;
+                foreach (var o in State.Roster)
+                    if (!State.WinnerIds.Contains(o.Id) && o.SurvivedSeconds > r.SurvivedSeconds) place++;
+                r.Place = place;
+                State.Roster[i] = r;
+            }
         }
 
         public void Close() { }

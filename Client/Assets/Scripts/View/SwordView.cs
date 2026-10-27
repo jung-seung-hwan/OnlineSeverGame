@@ -15,6 +15,7 @@ namespace OnlineSeverGame.Client.View
         SpriteRenderer _hilt;
         SpriteRenderer _warnColumn;
         SpriteRenderer _warnMark;
+        SpriteRenderer _warnGround;
         Vector2 _size;
         float _stageHeight;
 
@@ -27,6 +28,7 @@ namespace OnlineSeverGame.Client.View
             v._stageHeight = stageHeight;
             v._warnColumn = Shapes.Rect(go.transform, "WarnColumn", WarnColor, new Vector2(size.x * 2.5f, stageHeight), -5);
             v._warnMark = Shapes.Rect(go.transform, "WarnMark", WarnColor, new Vector2(0.7f, 0.7f), 20);
+            v._warnGround = Shapes.Rect(go.transform, "WarnGround", WarnColor, new Vector2(size.x * 4f, 0.12f), 8);
             v._blade = Shapes.Rect(go.transform, "Blade", BladeColor, new Vector2(size.x, size.y * 0.72f), 15);
             v._guard = Shapes.Rect(go.transform, "Guard", HiltColor, new Vector2(size.x * 2.6f, size.y * 0.08f), 16);
             v._hilt = Shapes.Rect(go.transform, "Hilt", HiltColor, new Vector2(size.x * 0.7f, size.y * 0.2f), 16);
@@ -38,6 +40,7 @@ namespace OnlineSeverGame.Client.View
             bool warning = s.Phase == SwordPhase.Warning;
             _warnColumn.enabled = warning;
             _warnMark.enabled = warning;
+            _warnGround.enabled = warning;
             _blade.enabled = _guard.enabled = _hilt.enabled = !warning;
 
             if (warning)
@@ -47,7 +50,12 @@ namespace OnlineSeverGame.Client.View
                 float p = Mathf.Clamp01(s.WarningProgress);
                 float blink = Mathf.PingPong(Time.time * Mathf.Lerp(2f, 10f, p), 1f);
                 _warnColumn.color = new Color(WarnColor.r, WarnColor.g, WarnColor.b, Mathf.Lerp(0.06f, 0.22f, p) * (0.5f + 0.5f * blink));
-                _warnColumn.transform.localPosition = new Vector3(0, _stageHeight / 2f, 0);
+                // 기둥은 꽂힐 면부터 화면 위까지
+                float columnH = Mathf.Max(0.1f, _stageHeight - s.LandingY);
+                Shapes.Resize(_warnColumn, new Vector2(_size.x * 2.5f, columnH));
+                _warnColumn.transform.localPosition = new Vector3(0, s.LandingY + columnH / 2f, 0);
+                _warnGround.color = new Color(WarnColor.r, WarnColor.g, WarnColor.b, 0.4f + 0.6f * blink);
+                _warnGround.transform.localPosition = new Vector3(0, s.LandingY + 0.06f, 0);
                 _warnMark.color = new Color(WarnColor.r, WarnColor.g, WarnColor.b, 0.5f + 0.5f * blink);
                 _warnMark.transform.localPosition = new Vector3(0, _stageHeight - 0.6f, 0);
                 _warnMark.transform.localRotation = Quaternion.Euler(0, 0, 45f);

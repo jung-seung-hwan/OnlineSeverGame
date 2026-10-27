@@ -1,9 +1,10 @@
 using System.Collections.Generic;
+using OnlineSeverGame.Shared.Simulation;
 using UnityEngine;
 
 namespace OnlineSeverGame.Client.Model
 {
-    // 스테이지 지형(바닥·발판)과 화면 크기. 모든 값은 월드 단위, 발판은 중심 x와 윗면 y 기준.
+    // Shared Stage 를 Unity 월드 단위로 옮긴 그리기용 지형. x 는 0(왼쪽 벽) ~ Width, 바닥 윗면 y = 0.
     public sealed class StageLayout
     {
         public struct Solid
@@ -14,29 +15,46 @@ namespace OnlineSeverGame.Client.Model
             public float Height;
         }
 
-        public float Width;        // 스테이지 좌우 폭 (x: -Width/2 .. +Width/2)
-        public float Height;       // 화면에 보일 높이 (y: 0 .. Height)
-        public float SwordSpawnY;  // 칼이 생기는 높이
+        public Stage Source;
+        public float Width;
+        public float Height;       // 카메라에 보일 높이
+        public float SwordSpawnY;
         public Vector2 PlayerSize;
         public Vector2 SwordSize;
-        public readonly List<Solid> Solids = new List<Solid>();
+        public readonly List<Solid> Solids = new List<Solid>(); // [0] = 바닥
 
-        // Shared/ 스테이지 정의가 커밋되기 전까지 쓰는 임시 배치.
-        public static StageLayout Placeholder()
+        public static float ToWorld(int milli) => milli / (float)GameConstants.UnitsPerWorldUnit;
+
+        public static StageLayout FromShared(Stage stage)
         {
             var s = new StageLayout
             {
-                Width = 24f,
-                Height = 13.5f,
-                SwordSpawnY = 13f,
-                PlayerSize = new Vector2(0.8f, 1.0f),
-                SwordSize = new Vector2(0.3f, 1.6f),
+                Source = stage,
+                Width = ToWorld(stage.Width),
+                Height = ToWorld(stage.ViewHeight),
+                SwordSpawnY = ToWorld(stage.KnifeSpawnY),
+                PlayerSize = new Vector2(ToWorld(GameConstants.PlayerWidth), ToWorld(GameConstants.PlayerHeight)),
+                SwordSize = new Vector2(ToWorld(GameConstants.KnifeWidth), ToWorld(GameConstants.KnifeHeight)),
             };
-            s.Solids.Add(new Solid { CenterX = 0f, TopY = 0f, Width = 24f, Height = 1f });   // 바닥
-            s.Solids.Add(new Solid { CenterX = -6f, TopY = 3f, Width = 5f, Height = 0.4f });
-            s.Solids.Add(new Solid { CenterX = 6f, TopY = 3f, Width = 5f, Height = 0.4f });
-            s.Solids.Add(new Solid { CenterX = 0f, TopY = 6f, Width = 6f, Height = 0.4f });
+            s.Solids.Add(new Solid { CenterX = s.Width / 2f, TopY = 0f, Width = s.Width, Height = 1f });
+            foreach (var p in stage.Platforms)
+            {
+                s.Solids.Add(new Solid
+                {
+                    CenterX = ToWorld(p.Left + p.Right) / 2f,
+                    TopY = ToWorld(p.Top),
+                    Width = ToWorld(p.Right - p.Left),
+                    Height = 0.35f,
+                });
+            }
             return s;
+        }
+
+        // 칼이 꽂힐 높이(예고 표시용)
+        public float SwordLandingY(float x)
+        {
+            int mx = Mathf.RoundToInt(x * GameConstants.UnitsPerWorldUnit);
+            return ToWorld(Source.KnifeLandingY(mx, Source.KnifeSpawnY));
         }
     }
 }

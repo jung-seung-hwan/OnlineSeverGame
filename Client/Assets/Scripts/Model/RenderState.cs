@@ -28,7 +28,8 @@ namespace OnlineSeverGame.Client.Model
         public int Id;
         public SwordPhase Phase;
         public Vector2 Position;   // 칼끝 기준
-        public float WarningProgress; // 0..1, 예고 중 낙하까지 남은 비율
+        public float WarningProgress; // 0..1, 예고 시작 0 → 낙하 직전 1
+        public float LandingY;        // 꽂힐 면의 높이(예고 기둥 아래 끝)
     }
 
     public sealed class WorldRender

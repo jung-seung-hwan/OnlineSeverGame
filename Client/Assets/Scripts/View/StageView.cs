@@ -17,11 +17,11 @@ namespace OnlineSeverGame.Client.View
 
             // 배경과 좌우 벽 표시
             Shapes.Rect(transform, "Background", Background, new Vector2(layout.Width + 40f, layout.Height + 40f), -100)
-                .transform.localPosition = new Vector3(0, layout.Height / 2f, 0);
+                .transform.localPosition = new Vector3(layout.Width / 2f, layout.Height / 2f, 0);
             for (int side = -1; side <= 1; side += 2)
             {
                 var wall = Shapes.Rect(transform, side < 0 ? "WallL" : "WallR", Wall, new Vector2(10f, layout.Height + 40f), -90);
-                wall.transform.localPosition = new Vector3(side * (layout.Width / 2f + 5f), layout.Height / 2f, 0);
+                wall.transform.localPosition = new Vector3(layout.Width / 2f + side * (layout.Width / 2f + 5f), layout.Height / 2f, 0);
             }
 
             for (int i = 0; i < layout.Solids.Count; i++)
