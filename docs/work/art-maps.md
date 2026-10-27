@@ -43,11 +43,52 @@
 - 배치는 주방 v2와 같은 방향으로 어긋난다(이미지 생성이 화면을 확대해 그림). 배경 그림의 발판 위치는 쓰지 않고 Blender에서 좌표로 만든다.
 - 다시 생성하지 않았다. 남은 문제(디저트 배경 명도, 창고 바닥 vs 상자, 얼음 발판 밝기)는 콘셉트를 다시 뽑기보다 Blender 렌더에서 색 값으로 바로잡는 것이 확실하다.
 
-## 4. 스프라이트 (다음 단계, 대기)
+## 4. 스프라이트 출력 규칙 (다중 맵 세션이 그대로 쓰는 규칙)
 
-`docs/work/maps.md`가 커밋되면 시작한다(2026-10-27 확인 시 아직 없음). 계획:
-- `Art/blender/build_sprites.py`의 주방 맵 방식(같은 72 px/유닛, 같은 툰 셰이딩·외곽선·절차 텍스처, 맵 조각 + `world_rect` json)을 맵별로 확장한다. 위험물은 칼과 같은 128 px/유닛·피벗 규칙.
-- 출력 위치와 파일 이름 규칙은 이 문서에 적어 다중 맵 세션이 그대로 쓰게 한다.
+기준 문서: `docs/work/maps.md` 5장 아트 목록(64b0adb). **파일 이름·픽셀 크기·world_rect·피벗은 그 표와 글자 그대로 같다.** 이 장은 폴더와 json 형식만 더한다. 숫자가 바뀌면 maps.md를 먼저 고치고 다시 렌더한다.
+
+### 4.1 폴더
+
+| 맵 | 폴더 | 파일 (maps.md 5장 표 그대로) |
+|---|---|---|
+| 주방 (기존, 바꾸지 않음) | `Art/sprites/map/` + 칼 `Art/sprites/knife/` | art.md 6.2 |
+| 겨울 처마 | `Art/sprites/map_winter/` | winter_bg, winter_eave, winter_floor, winter_ice_sill, winter_bench, winter_beam, icicle, icicle_shards, snowball, lantern (+ `winter_full`) |
+| 창고 | `Art/sprites/map_warehouse/` | warehouse_bg, warehouse_floor, warehouse_rack, warehouse_pallet, crate, crate_cracked, crane_hook (+ `warehouse_full`) |
+| 디저트 가게 | `Art/sprites/map_dessert/` | dessert_bg, dessert_floor, icecream_strawberry, icecream_mint, icecream_vanilla, icecream_chocolate, fork, macaron, lollipop_sign, pendant_lamp (+ `dessert_full`) |
+
+- 모두 `.png`(RGBA, 투명 배경, 배경 그림만 불투명). 맵의 모든 그림(정지 조각 + 위험물 + 밀리는 오브젝트 + 흔들리는 장식)이 그 맵 폴더 하나에 있다.
+- `<맵>_full.png`(1944 × 1116, world_rect −1.5, −1.5, 25.5, 14.0)는 배경 + 바닥 + 발판(모든 위치, 아이스크림은 처음 폭) + 처마를 합친 한 장. 확인용·간단히 쓸 때용이며, 게임에서는 조각을 따로 쓰는 것을 권한다(아이스크림은 줄어들고, 처마는 위험물 앞에 그려야 함).
+- 확인용 합성 그림(게임 배율로 캐릭터·위험물·예고를 얹은 것): `Art/preview/<맵>_preview.png`. 게임에서는 쓰지 않는다.
+
+### 4.2 맵 폴더의 `map.json`
+
+주방 `Art/sprites/map/map.json` 형식을 그대로 쓰고 `sprites`만 더한다.
+
+```json
+{
+  "ppu": 72,
+  "pieces": {
+    "winter_bg.png":       { "world_rect": [-1.5, -1.5, 25.5, 14.0] },
+    "winter_ice_sill.png": { "world_rect": [1.25, 1.525, 6.75, 2.525],
+                             "instances": [[1.25, 1.525, 6.75, 2.525], [17.25, 1.525, 22.75, 2.525]] },
+    "icecream_vanilla.png": { "world_rect": [8.25, 2.6, 15.75, 3.85],
+                              "nine_slice": { "left_px": 54, "right_px": 54 }, "top_from_image_top_px": 18 }
+  },
+  "sprites": {
+    "icicle.png": { "ppu": 128, "size": [64, 176], "pivot_px_from_bottom_left": [32, 8],
+                    "pivot_normalized": [0.5, 0.04545], "note": "pivot = icicle tip" }
+  }
+}
+```
+
+- `pieces`: 72 px/유닛 정지 그림. 그림 왼쪽 아래를 `world_rect`의 (x0, y0)에 놓는다. `instances`가 있으면 같은 그림을 그 사각형들에 모두 놓는다(뒤집지 않음). 아이스크림은 `nine_slice`(양 끝 54 px 고정, 가운데만 늘이고 줄임)와 윗면 위치(그림 위에서 18 px 아래)를 함께 적는다.
+- `sprites`: 128 px/유닛 움직이는 그림. `pivot_px_from_bottom_left`(px, 그림 왼쪽 아래 기준)와 `pivot_normalized`(Unity 피벗 값). 위험물은 아래 가운데(끝·아랫면), 밀리는 오브젝트는 아래 가운데, 흔들리는 장식은 매달린 점(위). 흔들 때 이 점을 축으로 돌린다.
+- 그리는 순서(뒤 → 앞): bg → 흔들리는 장식 → 발판·바닥 → 밀리는 오브젝트·쉬는 상자 → 캐릭터 → 위험물·예고 → winter_eave(겨울만, 매달린 고드름 윗끝을 가림).
+- 위험물 그림은 예고(겨울 고드름은 처마 아래 매달림)·낙하·착지 모두 같은 그림. 착지 후 효과는 `icicle_shards`(6틱), `crate_cracked`(사라지기 전 20틱).
+
+### 4.3 다시 렌더
+
+저장소 루트에서 `"C:/Program Files/Blender Foundation/Blender 5.2/blender.exe" -b --factory-startup --python Art/blender/build_sprites.py -- winter` (대상 `winter` / `warehouse` / `dessert` / `maps`(셋 다) / 기존 `all`·`characters`·`knife`·`map`·`preview`). 스크립트가 기준이고 `.blend`는 보기용이다.
 
 ## 5. 직접 보기
 
@@ -57,10 +98,11 @@
 
 확인한 것: 6장을 직접 열어 대비 규칙, 옆면 시점, 발판 아래 비움, 주방 맵과의 화풍 통일, 발판 높이(눈 측정)를 보았다.
 확인 안 한 것: 캐릭터·위험물을 새 배경 위에 겹친 게임 화면(스프라이트 단계에서 합성 그림으로 확인할 일), 색약 시뮬레이션.
-남은 일: `maps.md` 커밋 대기 → 스프라이트 렌더 → 출력 규칙 기록.
+남은 일: 스프라이트 렌더(4장 규칙대로) → 평가 기록.
 
 ## 7. 변경 기록
 
 | 날짜 | 커밋 | 내용 |
 |---|---|---|
-| 2026-10-27 | (이 커밋) | 세 맵 콘셉트 6장(배경 3, 위험물·소품 시트 3) 생성과 평가. 스프라이트는 맵 배치 문서 대기 |
+| 2026-10-27 | dbecb09 | 세 맵 콘셉트 6장(배경 3, 위험물·소품 시트 3) 생성과 평가. 스프라이트는 맵 배치 문서 대기 |
+| 2026-10-27 | (이 커밋) | maps.md(64b0adb) 커밋 확인. 스프라이트 출력 폴더·map.json 형식·그리는 순서 규칙 확정(4장), 렌더 시작 |
