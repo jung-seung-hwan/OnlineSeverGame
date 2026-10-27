@@ -40,6 +40,7 @@ namespace OnlineSeverGame.Client.Game
         readonly Dictionary<byte, string> _departedNames = new Dictionary<byte, string>(); // 결과 화면에 남길 이름
         readonly HashSet<byte> _participants = new HashSet<byte>();
         RoundEndPacket _lastRoundEnd;
+        ushort _lastRoundStartNumber;
         double _lastPacketTime;
 
         // 스냅샷 보간
@@ -250,9 +251,16 @@ namespace OnlineSeverGame.Client.Game
         {
             _participants.Clear();
             foreach (var id in rs.Participants) _participants.Add(id);
+            State.RoundNumber = rs.RoundNumber;
+            // Countdown 중 누가 들어오면 같은 번호로 다시 온다. 그때는 참가자 목록만 갱신한다.
+            if (rs.RoundNumber == _lastRoundStartNumber)
+            {
+                Debug.Log($"[Net] round {rs.RoundNumber} participants updated: {rs.Participants.Count}");
+                return;
+            }
+            _lastRoundStartNumber = rs.RoundNumber;
             _lastRoundEnd = null;
             _departedNames.Clear();
-            State.RoundNumber = rs.RoundNumber;
             // 서버가 스폰 지점으로 순간이동시키므로 보정 연출 없이 바로 옮긴다.
             _teleportNext = true;
             Debug.Log($"[Net] round {rs.RoundNumber} countdown, {rs.Participants.Count} participants");

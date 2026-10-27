@@ -13,7 +13,7 @@
 | 작업 | 문서 | 담당 세션 | 상태 |
 |---|---|---|---|
 | 핵심 게임 서버 | [work/server-core.md](work/server-core.md) | 핵심 게임 서버 · 01 | 핵심 완료, 클라이언트 연동 대응 |
-| Unity 클라이언트 | `work/unity-client.md` (작성 예정) | Unity 클라이언트 · 01 | 진행 중 |
+| Unity 클라이언트 | [work/unity-client.md](work/unity-client.md) | Unity 클라이언트 · 01 | 핵심 완료, 서버·봇과 라운드 확인. 다듬기 남음 |
 
 ### 작업 문서에 들어갈 것
 
