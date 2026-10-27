@@ -7,7 +7,8 @@ namespace OnlineSeverGame.BotClient;
 
 /// <summary>
 /// One fake player: a receive thread that decodes frames and an input thread that sends buttons every
-/// 50 ms with an increasing seq, like a real client would. Buttons are a random wander, overridden by
+/// 50 ms with an increasing seq, like a real client would. Buttons are a random wander (walk, jump, dash,
+/// crouch for a while, drop off platforms), overridden by
 /// DodgeBrain (when dodging is on) to get out from under knives it has noticed.
 /// </summary>
 public sealed class Bot
@@ -26,6 +27,7 @@ public sealed class Bot
     // Random input policy state (input thread only)
     private int _dir;
     private int _dirTicksLeft;
+    private int _crouchTicksLeft;
 
     public Bot(int index, string name, int seed, bool verbose, bool dodge)
     {
@@ -136,9 +138,13 @@ public sealed class Bot
         var b = InputButtons.None;
         if (_dir < 0) b |= InputButtons.Left;
         if (_dir > 0) b |= InputButtons.Right;
+        // Sometimes hold Down for a while (crouch, crawling slowly); sometimes Down + Jump (drop off a platform).
+        if (_crouchTicksLeft > 0) _crouchTicksLeft--;
+        else if (_random.Next(100) < 2) _crouchTicksLeft = _random.Next(10, 41);
+        if (_crouchTicksLeft > 0) return b | InputButtons.Down;
         if (_random.Next(100) < 12) b |= InputButtons.Jump;
         if (_random.Next(100) < 6) b |= InputButtons.Dash;
-        if (_random.Next(100) < 3) b |= InputButtons.Down;
+        if (_random.Next(100) < 2) b |= InputButtons.Down | InputButtons.Jump;
         return b;
     }
 

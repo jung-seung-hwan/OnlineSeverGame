@@ -143,7 +143,7 @@ namespace OnlineSeverGame.Client.UI
             var hint = new GUIStyle(_label) { fontSize = 14, alignment = TextAnchor.LowerCenter };
             hint.normal.textColor = new Color(1, 1, 1, 0.6f);
             GUI.Label(new Rect(0, UnityEngine.Screen.height - 30, UnityEngine.Screen.width, 24),
-                "←/→ 이동   ↑·Space 점프   Shift 대시(부딪히면 밀치기)   ↓ 발판 아래로", hint);
+                "←/→ 이동   ↑·Space 점프   Shift 대시(2초마다, 부딪히면 밀치기)   ↓ 엎드리기   ↓+점프 발판 아래로   머리 밟기 = 기절", hint);
         }
 
         void DrawSpectating(SessionState s)
@@ -210,7 +210,22 @@ namespace OnlineSeverGame.Client.UI
                 var c = PlayerColors.Get(p.ColorIndex);
                 _nameTag.normal.textColor = p.Alive ? Color.Lerp(c, Color.white, 0.5f) : new Color(1, 1, 1, 0.3f);
                 GUI.Label(rect, p.IsLocal ? "▼ " + p.Name : p.Name, _nameTag);
+                if (p.IsLocal && p.Alive) DrawDashGauge(sp, p.DashCooldown);
             }
+        }
+
+        // 내 캐릭터 이름표 아래 대시 게이지: 차오르는 동안 회색, 다 차면(대시 가능) 밝은 하늘색.
+        static void DrawDashGauge(Vector3 tagScreenPos, float cooldown)
+        {
+            const float w = 56f, h = 7f;
+            var back = new Rect(tagScreenPos.x - w / 2f, UnityEngine.Screen.height - tagScreenPos.y + 1f, w, h);
+            float fill = 1f - Mathf.Clamp01(cooldown);
+            var old = GUI.color;
+            GUI.color = new Color(0f, 0f, 0f, 0.6f);
+            GUI.DrawTexture(back, Texture2D.whiteTexture);
+            GUI.color = fill >= 1f ? new Color(0.45f, 0.95f, 1f, 0.95f) : new Color(0.75f, 0.75f, 0.78f, 0.85f);
+            GUI.DrawTexture(new Rect(back.x + 1f, back.y + 1f, (w - 2f) * fill, h - 2f), Texture2D.whiteTexture);
+            GUI.color = old;
         }
 
         static readonly Color PanelColor = new Color(0.06f, 0.06f, 0.08f, 0.92f);

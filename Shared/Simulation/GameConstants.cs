@@ -28,12 +28,27 @@ namespace OnlineSeverGame.Shared.Simulation
         // Dash: fixed speed along facing, no gravity while dashing.
         public const int DashSpeed = 1200;         // 24 u/s
         public const int DashTicks = 4;            // 0.2 s, ~4.8 u
-        public const int DashCooldownTicks = 20;   // 1 s, counted from dash start
+        public const int DashCooldownTicks = 40;   // 2 s, counted from dash start
 
         // Dash hit: the target is knocked back and loses control for a moment.
         public const int KnockbackSpeed = 900;
         public const int KnockbackLift = 500;
         public const int StunTicks = 8;
+
+        // Stomp: falling onto another player's head stuns them (flattened) and bounces the stomper up.
+        public const int StompStunTicks = 30;      // 1.5 s
+        public const int StompBounce = 700;        // vy after the bounce, apex ~2.45 u
+
+        // Crouch: hold Down while standing. Proposed starting values, tune after play tests.
+        public const int CrouchHeight = PlayerHeight * 60 / 100;          // 720
+        public const int CrouchMoveSpeed = MoveSpeed * 40 / 100;          // 160 = 3.2 u/s
+        public const int CrouchKnockbackSpeed = KnockbackSpeed / 2;       // dash hits push half as far
+        public const int CrouchKnockbackLift = KnockbackLift / 2;
+
+        // Pushable boxes (server-simulated, sent in snapshots).
+        public const int PushableWalkSpeed = 200;  // 4 u/s while a player walks into it
+        public const int PushableDashSpeed = 700;  // 14 u/s after a dash hits it
+        public const int PushableFriction = 50;    // vx loses this much per grounded tick (dash push slides ~4.9 u)
 
         // Knife
         public const int KnifeWidth = 400;

@@ -11,7 +11,8 @@ namespace OnlineSeverGame.Client.Game
     // 씬에 하나만 둔다. 카메라·스테이지·뷰·UI를 코드로 만들고 세션을 바꿔 끼운다.
     //
     // 명령줄 인자(빌드·테스트용):
-    //   -name <이름>  -server <host:port>  -autoconnect  -preview  -autoplay [chase](무작위 입력 / 가까운 상대 쫓아 대시)
+    //   -name <이름>  -server <host:port>  -autoconnect  -preview  -autoplay [chase|stomp|mash](무작위 입력 / 가까운 상대 쫓아 대시 / 쫓아 밟기 / 대시 연타)
+    //   -nostomppredict(밟기 튕김 예측 끄기, 비교 시험용)
     //   -screenshot <파일경로> -screenshotDelay <초> [-screenshotEvery <초>]  -quitAfter <초>
     //   (-screenshotEvery 를 주면 파일경로의 {n} 을 번호로 바꿔 여러 장 찍는다)
     public sealed class GameBootstrap : MonoBehaviour
@@ -72,11 +73,14 @@ namespace OnlineSeverGame.Client.Game
                     case "-preview": preview = true; break;
                     case "-autoplay":
                         _input.AutoPlay = true;
-                        _input.AutoChase = next == "chase";
+                        _input.AutoChase = next == "chase" || next == "stomp";
+                        _input.AutoStomp = next == "stomp";
+                        _input.AutoMash = next == "mash";
                         break;
                     case "-screenshot": _screenshotPath = next; break;
                     case "-screenshotDelay": if (float.TryParse(next, out var d)) _screenshotAt = d; break;
                     case "-screenshotEvery": if (float.TryParse(next, out var e)) _screenshotEvery = e; break;
+                    case "-nostomppredict": NetworkSession.StompPrediction = false; break;
                     case "-quitAfter": if (float.TryParse(next, out var q)) _quitAt = q; break;
                 }
             }

@@ -21,6 +21,17 @@ namespace OnlineSeverGame.Client.Model
         public bool Stunned;       // 밀려나는 중
         public bool Winner;        // 결과 화면의 승자
         public bool Spectator;     // 라운드 도중 들어와 관전 중
+        public bool Crouching;     // 아래키로 엎드림(세로로 눌러 그린다)
+        public bool Stomped;       // 밟혀서 납작해진 스턴(더 세게 눌러 그린다)
+        public float DashCooldown; // 내 캐릭터만: 0 = 대시 가능, 1 = 막 썼음. 다른 플레이어는 0
+    }
+
+    // 밀리는 오브젝트(서버 계산, 스냅샷 보간). 위치는 아래쪽 가운데.
+    public struct BoxRender
+    {
+        public int Id;
+        public Vector2 Position;
+        public Vector2 Size;
     }
 
     public enum SwordPhase
@@ -43,11 +54,13 @@ namespace OnlineSeverGame.Client.Model
     {
         public readonly List<PlayerRender> Players = new List<PlayerRender>();
         public readonly List<SwordRender> Swords = new List<SwordRender>();
+        public readonly List<BoxRender> Boxes = new List<BoxRender>();
 
         public void Clear()
         {
             Players.Clear();
             Swords.Clear();
+            Boxes.Clear();
         }
     }
 

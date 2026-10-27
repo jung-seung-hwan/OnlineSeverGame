@@ -30,6 +30,11 @@ public sealed class RoomPlayer
     public uint LastInputSeq;
     public uint LastReceivedSeq;
     public InputButtons LastButtons;
+    /// <summary>Dashes started this round and the server tick of the last one (0 = none yet). For logs and tests.</summary>
+    public int RoundDashes;
+    public uint LastDashTick;
+    /// <summary>Shortest gap between two dash starts this round, in ticks (0 = fewer than two dashes).</summary>
+    public int MinDashGap;
     internal readonly Queue<(uint Seq, InputButtons Buttons)> Inputs = new();
 }
 
@@ -56,9 +61,17 @@ public sealed class GameRoom
     private readonly List<RoundEntry> _round = new();
     private readonly List<KnifeState> _knives = new();
     private readonly List<DashHit> _hits = new();
+    private readonly List<StompHit> _stomps = new();
+    private readonly PushableState[] _boxes;
     private ushort _nextKnifeId = 1;
     private uint _nextSpawnTick;
     private int _roundPushes;
+    private int _roundDashes;
+    private int _roundStomps;
+    private int _roundCrouchTicks;
+    private int _roundBoxHits;
+    private int _roundBoxPushTicks;
+    private long _roundBoxTravel;
     private readonly Action<string> _log;
 
     public GameRoom(RoomConfig config, Action<string> log = null)
@@ -67,6 +80,8 @@ public sealed class GameRoom
         _stage = config.Stage;
         _random = new Random(config.Seed);
         _log = log ?? (_ => { });
+        _boxes = new PushableState[_stage.Pushables.Count];
+        ResetPushables();
     }
 
     public RoomState State { get; private set; } = RoomState.Waiting;
@@ -81,6 +96,9 @@ public sealed class GameRoom
 
     public List<Outgoing> Outbox { get; } = new();
     public IReadOnlyList<KnifeState> Knives => _knives;
+    /// <summary>Boxes, writable so tests can place them.</summary>
+    public PushableState[] Pushables => _boxes;
+    public int RoundStomps => _roundStomps;
     public int PlayerCount => _players.Count;
     public IEnumerable<RoomPlayer> Players => _players.Values;
 
@@ -171,8 +189,7 @@ public sealed class GameRoom
         ServerTick++;
         if (State == RoomState.Playing) RoundTick++;
 
-        StepPlayers();
-        ResolveDashes();
+        StepWorld();
 
         if (State == RoomState.Playing)
         {
@@ -185,11 +202,28 @@ public sealed class GameRoom
         Broadcast(BuildSnapshot());
     }
 
-    private void StepPlayers()
+    /// <summary>
+    /// Players step (each sees the boxes as they were at the start of the tick), then dash pushes, then
+    /// stomps, then boxes take the pushes, slide and carry whoever stands on them.
+    /// </summary>
+    private void StepWorld()
     {
-        foreach (var p in _players.Values)
+        int n = _players.Count;
+        var list = new RoomPlayer[n];
+        _players.Values.CopyTo(list, 0);
+        var before = new PlayerState[n];
+        var states = new PlayerState[n];
+        var active = new bool[n];
+        var contacts = new BoxContact[n];
+
+        for (int i = 0; i < n; i++)
         {
-            if (p.Inputs.Count > 0)
+            var p = list[i];
+            before[i] = p.State;
+            active[i] = p.Alive;
+            contacts[i] = BoxContact.None;
+            bool repeated = p.Inputs.Count == 0;
+            if (!repeated)
             {
                 var input = p.Inputs.Dequeue();
                 p.LastInputSeq = input.Seq;
@@ -197,29 +231,77 @@ public sealed class GameRoom
             }
             // Empty queue: repeat the last held buttons. Press edges come from PrevButtons, so this
             // never re-triggers a jump or dash.
-            if (p.Alive) PlayerPhysics.Step(ref p.State, p.LastButtons, _stage);
+            if (p.Alive)
+            {
+                PlayerPhysics.Step(ref p.State, p.LastButtons, _stage, _boxes, out contacts[i]);
+                // DashTicks is still at its full value only on the tick the dash started.
+                if (p.State.DashTicks == GameConstants.DashTicks) RecordDash(p, repeated);
+                if (p.State.Crouching) _roundCrouchTicks++;
+            }
+            states[i] = p.State;
         }
-    }
 
-    private void ResolveDashes()
-    {
-        int n = _players.Count;
-        var list = new RoomPlayer[n];
-        _players.Values.CopyTo(list, 0);
-        var states = new PlayerState[n];
-        var active = new bool[n];
-        for (int i = 0; i < n; i++)
-        {
-            states[i] = list[i].State;
-            active[i] = list[i].Alive;
-        }
         _hits.Clear();
         DashCollision.Resolve(states, active, n, _hits);
-        for (int i = 0; i < n; i++) list[i].State = states[i];
         _roundPushes += _hits.Count;
         if (_config.LogPushes)
             foreach (var hit in _hits)
-                _log($"push  #{list[hit.Attacker].Id} -> #{list[hit.Target].Id}");
+                _log($"push  #{list[hit.Attacker].Id} -> #{list[hit.Target].Id}" +
+                     (before[hit.Target].Crouching ? " (crouching, half knockback)" : ""));
+
+        _stomps.Clear();
+        StompCollision.Resolve(before, states, active, n, _stomps);
+        _roundStomps += _stomps.Count;
+        if (_config.LogPushes)
+            foreach (var st in _stomps)
+                _log($"stomp #{list[st.Stomper].Id} -> #{list[st.Target].Id}" + (st.Stunned ? " stun" : " (already stunned)"));
+
+        for (int i = 0; i < n; i++)
+        {
+            var c = contacts[i];
+            if (!active[i] || c.PushBox < 0) continue;
+            PushablePhysics.ApplyPush(ref _boxes[c.PushBox], c.PushDir, c.PushDashing);
+            if (c.PushDashing)
+            {
+                _roundBoxHits++;
+                if (_config.LogPushes) _log($"box   #{list[i].Id} dashed box#{_boxes[c.PushBox].Id} dir {c.PushDir}");
+            }
+            else _roundBoxPushTicks++;
+        }
+        if (_boxes.Length > 0)
+        {
+            var moved = new int[_boxes.Length];
+            PushablePhysics.Step(_boxes, _boxes.Length, _stage, states, active, n, moved);
+            int minX = GameConstants.PlayerHalfWidth, maxX = _stage.Width - GameConstants.PlayerHalfWidth;
+            for (int i = 0; i < n; i++)
+            {
+                int g = contacts[i].GroundBox;
+                if (!active[i] || g < 0 || !states[i].Grounded || moved[g] == 0) continue;
+                states[i].X = Math.Clamp(states[i].X + moved[g], minX, maxX); // ride along
+            }
+            for (int i = 0; i < _boxes.Length; i++)
+                _roundBoxTravel += Math.Abs(moved[i]);
+        }
+
+        for (int i = 0; i < n; i++) list[i].State = states[i];
+    }
+
+    private void RecordDash(RoomPlayer p, bool repeated)
+    {
+        int gap = p.LastDashTick == 0 ? 0 : (int)(ServerTick - p.LastDashTick);
+        if (gap > 0 && (p.MinDashGap == 0 || gap < p.MinDashGap)) p.MinDashGap = gap;
+        p.LastDashTick = ServerTick;
+        p.RoundDashes++;
+        _roundDashes++;
+        if (_config.LogPushes)
+            _log($"dash  #{p.Id} tick {ServerTick} seq {p.LastInputSeq}" + (gap > 0 ? $" gap {gap}" : "") +
+                 (repeated ? " (repeated input)" : ""));
+    }
+
+    private void ResetPushables()
+    {
+        for (int i = 0; i < _boxes.Length; i++)
+            _boxes[i] = PushableState.Spawn((ushort)(i + 1), _stage.Pushables[i]);
     }
 
     private void SpawnKnivesOnSchedule()
@@ -238,7 +320,7 @@ public sealed class GameRoom
         for (int i = _knives.Count - 1; i >= 0; i--)
         {
             var k = _knives[i];
-            bool keep = KnifePhysics.Step(ref k, _stage, out bool dangerous, out Aabb swept);
+            bool keep = KnifePhysics.Step(ref k, _stage, _boxes, out bool dangerous, out Aabb swept);
             if (!keep)
             {
                 _knives.RemoveAt(i);
@@ -324,9 +406,20 @@ public sealed class GameRoom
 
         string names = winners.Count == 0 ? "none" : string.Join(", ", winners.Select(w => $"#{w.Id} '{w.Name}'"));
         _log($"round {RoundNumber} END after {RoundTick} ticks ({RoundTick / (float)GameConstants.TickRate:0.0}s)" +
-             $"{(timeUp ? " [time limit]" : "")} winners: {names}, pushes: {_roundPushes}");
+             $"{(timeUp ? " [time limit]" : "")} winners: {names}, pushes: {_roundPushes}, dashes: {_roundDashes}" +
+             $" (min gap {MinDashGapOfRound()} ticks), stomps: {_roundStomps}, crouch ticks: {_roundCrouchTicks}, " +
+             $"box dash hits: {_roundBoxHits}, box walk-push ticks: {_roundBoxPushTicks}, box travel: {_roundBoxTravel / 1000.0:0.0} u" +
+             (_boxes.Length > 0 ? $" (box#1 now x={_boxes[0].X})" : ""));
         foreach (var r in packet.Results)
             _log($"    place {r.Place}: #{r.PlayerId} survived {r.SurvivedTicks} ticks ({r.Cause})");
+    }
+
+    private int MinDashGapOfRound()
+    {
+        int min = 0;
+        foreach (var p in _players.Values)
+            if (p.MinDashGap > 0 && (min == 0 || p.MinDashGap < min)) min = p.MinDashGap;
+        return min;
     }
 
     private void AdvanceRoomState()
@@ -371,6 +464,13 @@ public sealed class GameRoom
         StateTimer = GameConstants.CountdownTicks;
         RoundTick = 0;
         _roundPushes = 0;
+        _roundDashes = 0;
+        _roundStomps = 0;
+        _roundCrouchTicks = 0;
+        _roundBoxHits = 0;
+        _roundBoxPushTicks = 0;
+        _roundBoxTravel = 0;
+        ResetPushables();
         _knives.Clear();
         _round.Clear();
         foreach (var p in _players.Values)
@@ -378,6 +478,9 @@ public sealed class GameRoom
             p.Alive = true;
             p.InRound = true;
             p.State = SpawnState(p.Id);
+            p.RoundDashes = 0;
+            p.LastDashTick = 0;
+            p.MinDashGap = 0;
             _round.Add(new RoundEntry { Id = p.Id, Name = p.Name });
         }
         Broadcast(BuildRoundStart());
@@ -390,6 +493,7 @@ public sealed class GameRoom
         StateTimer = 0;
         RoundTick = 0;
         _knives.Clear();
+        ResetPushables();
         _round.Clear();
         foreach (var p in _players.Values)
         {
@@ -438,6 +542,7 @@ public sealed class GameRoom
         }
         int knives = Math.Min(_knives.Count, 255);
         for (int i = 0; i < knives; i++) s.Knives.Add(_knives[i]);
+        for (int i = 0; i < _boxes.Length && i < 255; i++) s.Pushables.Add(_boxes[i]);
         return s;
     }
 

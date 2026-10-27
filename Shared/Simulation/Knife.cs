@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace OnlineSeverGame.Shared.Simulation
 {
     public enum KnifePhase : byte
@@ -34,8 +36,15 @@ namespace OnlineSeverGame.Shared.Simulation
         /// <summary>
         /// Advances one tick. Returns false when the knife should be removed. When the knife was falling
         /// during this tick, dangerous is true and swept is the whole area it passed through (no tunneling).
+        /// Knives also stick into the top of a pushable box.
         /// </summary>
         public static bool Step(ref KnifeState k, Stage stage, out bool dangerous, out Aabb swept)
+        {
+            return Step(ref k, stage, null, out dangerous, out swept);
+        }
+
+        public static bool Step(ref KnifeState k, Stage stage, IReadOnlyList<PushableState> boxes, out bool dangerous,
+            out Aabb swept)
         {
             dangerous = false;
             swept = default;
@@ -56,7 +65,14 @@ namespace OnlineSeverGame.Shared.Simulation
                     int newY = k.Y - GameConstants.KnifeFallSpeed;
                     int left = k.X - GameConstants.KnifeHalfWidth;
                     int right = k.X + GameConstants.KnifeHalfWidth;
-                    if (stage.TryFindLanding(left, right, prevY, newY, true, out int top))
+                    bool landed = stage.TryFindLanding(left, right, prevY, newY, true, out int top);
+                    if (PushablePhysics.TryFindBoxLanding(boxes, left, right, prevY, newY, out int boxTop, out _) &&
+                        (!landed || boxTop > top))
+                    {
+                        top = boxTop;
+                        landed = true;
+                    }
+                    if (landed)
                     {
                         k.Y = top;
                         k.Phase = KnifePhase.Landed;

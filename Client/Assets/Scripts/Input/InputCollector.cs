@@ -9,14 +9,14 @@ namespace OnlineSeverGame.Client.Input
         public bool JumpHeld;
         public bool JumpPressed;
         public bool DashPressed;
-        public bool DownHeld;     // 누르고 있으면 발판 통과
+        public bool DownHeld;     // 누르고 있으면 엎드림, 이때 점프를 누르면 발판 아래로
 
         public override string ToString() =>
             $"move={MoveX} jumpHeld={JumpHeld} jump={JumpPressed} dash={DashPressed} down={DownHeld}";
     }
 
     // 매 프레임 키보드를 읽고, 틱마다 Consume() 으로 한 번에 가져간다.
-    // 조작: ←/→ 또는 A/D 이동, ↑·W·Space 점프, Shift·J 대시, ↓·S 발판 아래로.
+    // 조작: ←/→ 또는 A/D 이동, ↑·W·Space 점프, Shift·J 대시, ↓·S 엎드리기(↓ + 점프 = 발판 아래로).
     public sealed class InputCollector : MonoBehaviour
     {
         bool _jumpLatch;
@@ -29,6 +29,11 @@ namespace OnlineSeverGame.Client.Input
         // 시험용: 가장 가까운 상대에게 다가가 가까우면 대시한다(-autoplay chase). 상대 위치는 매 프레임 바깥에서 넣는다.
         public bool AutoChase { get; set; }
         public bool HasChaseTarget { get; set; }
+        // 시험용: 사람이 대시 키를 연타하듯 0.1초마다 대시를 눌렀다 뗀다(-autoplay mash).
+        public bool AutoMash { get; set; }
+        // 시험용: 상대를 쫓다 가까우면 뛰어올라 머리를 밟으려 한다(-autoplay stomp). AutoChase 와 같이 켠다.
+        public bool AutoStomp { get; set; }
+        float _mashAt;
         public Vector2 ChaseDelta { get; set; }
         readonly System.Random _rng = new System.Random();
         int _autoMove = 1;
@@ -43,10 +48,19 @@ namespace OnlineSeverGame.Client.Input
                 if (HasChaseTarget)
                 {
                     if (Mathf.Abs(ChaseDelta.x) > 0.5f) _autoMove = ChaseDelta.x > 0 ? 1 : -1;
-                    if (Mathf.Abs(ChaseDelta.x) < 3f && Mathf.Abs(ChaseDelta.y) < 0.8f && _rng.NextDouble() < Time.deltaTime * 4) _dashLatch = true;
+                    if (AutoStomp)
+                    {
+                        if (Mathf.Abs(ChaseDelta.x) < 1.6f && Mathf.Abs(ChaseDelta.y) < 0.5f && _rng.NextDouble() < Time.deltaTime * 6) _jumpLatch = true;
+                    }
+                    else if (Mathf.Abs(ChaseDelta.x) < 3f && Mathf.Abs(ChaseDelta.y) < 0.8f && _rng.NextDouble() < Time.deltaTime * 4) _dashLatch = true;
                     if (ChaseDelta.y > 1.5f && _rng.NextDouble() < Time.deltaTime * 3) _jumpLatch = true;
                 }
                 return;
+            }
+            if (AutoPlay && AutoMash && Time.time >= _mashAt)
+            {
+                _dashLatch = true;
+                _mashAt = Time.time + 0.1f;
             }
             if (AutoPlay)
             {
@@ -56,7 +70,7 @@ namespace OnlineSeverGame.Client.Input
                     _autoTurnAt = Time.time + 0.4f + (float)_rng.NextDouble() * 1.2f;
                 }
                 if (_rng.NextDouble() < Time.deltaTime * 1.2) _jumpLatch = true;
-                if (_rng.NextDouble() < Time.deltaTime * 0.6) _dashLatch = true;
+                if (!AutoMash && _rng.NextDouble() < Time.deltaTime * 0.6) _dashLatch = true;
                 return;
             }
             if (JumpDown()) _jumpLatch = true;

@@ -60,11 +60,11 @@ namespace OnlineSeverGame.Client.Model
             return ToWorld(top);
         }
 
-        // 칼이 꽂힐 높이(예고 표시용)
-        public float SwordLandingY(float x)
+        // 칼이 꽂힐 높이(예고 표시용). 밀리는 상자 윗면에도 꽂힌다.
+        public float SwordLandingY(float x, IReadOnlyList<PushableState> boxes = null)
         {
             int mx = Mathf.RoundToInt(x * GameConstants.UnitsPerWorldUnit);
-            return ToWorld(Source.KnifeLandingY(mx, Source.KnifeSpawnY));
+            return ToWorld(PushablePhysics.KnifeLandingY(Source, boxes, mx, Source.KnifeSpawnY));
         }
     }
 }

@@ -14,6 +14,7 @@
 |---|---|---|---|
 | 핵심 게임 서버 | [work/server-core.md](work/server-core.md) | 핵심 게임 서버 · 01 | 핵심 완료, 클라이언트 연동 확인, 다듬기 1차 완료 |
 | Unity 클라이언트 | [work/unity-client.md](work/unity-client.md) | Unity 클라이언트 · 01 | 핵심 완료, 서버·봇과 라운드 확인. 다듬기 남음 |
+| 2차 게임플레이(대시 쿨다운·밟기·엎드리기·움직이는 오브젝트) | [work/gameplay-2.md](work/gameplay-2.md) | 조작·상호작용 추가 · 01 | 구현·테스트·서버+봇 확인 완료, 프로토콜 v2 |
 | 캐릭터·맵 아트 | [work/art.md](work/art.md) | 캐릭터·맵 아트 · 01, 02 | 콘셉트 완료, Blender 모델·스프라이트 시트·맵 렌더 완료(`Art/sprites/`), Unity 클라이언트 임시 도형을 스프라이트로 교체 완료 |
 | 다중 맵 | [work/maps.md](work/maps.md) | 다중 맵 · 01 | 단계 A 완료: 겨울 처마·창고·디저트 가게 배치·위험물·고유 규칙·아트 목록·맵 순서 확정. 구현(단계 B)은 조작·상호작용 세션 뒤 |
 | 신규 맵 아트 | [work/art-maps.md](work/art-maps.md) | 신규 맵 아트 · 01 | 겨울 처마·창고·디저트 가게 콘셉트 6장 완료. 스프라이트는 maps.md 배치 문서 대기 |

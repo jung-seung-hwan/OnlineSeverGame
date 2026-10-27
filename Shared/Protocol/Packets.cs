@@ -133,6 +133,9 @@ namespace OnlineSeverGame.Shared.Protocol
         InRound = 1 << 1,
         Grounded = 1 << 2,
         FacingRight = 1 << 3,
+        Crouching = 1 << 4,
+        /// <summary>The current stun came from a stomp (draw flattened).</summary>
+        Stomped = 1 << 5,
     }
 
     public struct PlayerSnapshot
@@ -151,6 +154,8 @@ namespace OnlineSeverGame.Shared.Protocol
             if (InRound) flags |= PlayerFlags.InRound;
             if (State.Grounded) flags |= PlayerFlags.Grounded;
             if (State.Facing > 0) flags |= PlayerFlags.FacingRight;
+            if (State.Crouching) flags |= PlayerFlags.Crouching;
+            if (State.Stomped) flags |= PlayerFlags.Stomped;
             w.WriteByte(PlayerId);
             w.WriteByte((byte)flags);
             w.WriteInt32(State.X);
@@ -172,6 +177,8 @@ namespace OnlineSeverGame.Shared.Protocol
             p.InRound = (flags & PlayerFlags.InRound) != 0;
             p.State.Grounded = (flags & PlayerFlags.Grounded) != 0;
             p.State.Facing = (flags & PlayerFlags.FacingRight) != 0 ? (sbyte)1 : (sbyte)-1;
+            p.State.Crouching = (flags & PlayerFlags.Crouching) != 0;
+            p.State.Stomped = (flags & PlayerFlags.Stomped) != 0;
             p.State.X = r.ReadInt32();
             p.State.Y = r.ReadInt32();
             p.State.Vx = r.ReadInt32();
@@ -197,12 +204,13 @@ namespace OnlineSeverGame.Shared.Protocol
         public ushort StateTimer;
         public List<PlayerSnapshot> Players = new List<PlayerSnapshot>();
         public List<KnifeState> Knives = new List<KnifeState>();
+        public List<PushableState> Pushables = new List<PushableState>();
 
         public PacketType Type => PacketType.Snapshot;
 
         public void Write(PacketWriter w)
         {
-            if (Players.Count > 255 || Knives.Count > 255) throw new InvalidOperationException("Too many entries");
+            if (Players.Count > 255 || Knives.Count > 255 || Pushables.Count > 255) throw new InvalidOperationException("Too many entries");
             w.WriteUInt32(ServerTick);
             w.WriteByte((byte)RoomState);
             w.WriteUInt16(RoundNumber);
@@ -219,6 +227,18 @@ namespace OnlineSeverGame.Shared.Protocol
                 w.WriteInt32(k.X);
                 w.WriteInt32(k.Y);
                 w.WriteUInt16(k.Timer);
+            }
+            w.WriteByte((byte)Pushables.Count);
+            for (int i = 0; i < Pushables.Count; i++)
+            {
+                PushableState b = Pushables[i];
+                w.WriteUInt16(b.Id);
+                w.WriteInt32(b.X);
+                w.WriteInt32(b.Y);
+                w.WriteInt32(b.Vx);
+                w.WriteInt32(b.Vy);
+                w.WriteUInt16(b.Width);
+                w.WriteUInt16(b.Height);
             }
         }
 
@@ -239,6 +259,17 @@ namespace OnlineSeverGame.Shared.Protocol
                     Id = r.ReadUInt16(), Phase = (KnifePhase)r.ReadByte(), X = r.ReadInt32(), Y = r.ReadInt32(),
                     Timer = r.ReadUInt16(),
                 });
+            }
+            int boxes = r.ReadByte();
+            for (int i = 0; i < boxes; i++)
+            {
+                var b = new PushableState
+                {
+                    Id = r.ReadUInt16(), X = r.ReadInt32(), Y = r.ReadInt32(), Vx = r.ReadInt32(), Vy = r.ReadInt32(),
+                    Width = r.ReadUInt16(), Height = r.ReadUInt16(),
+                };
+                b.Grounded = b.Vy == 0;
+                s.Pushables.Add(b);
             }
             return s;
         }

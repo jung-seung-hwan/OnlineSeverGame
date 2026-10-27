@@ -58,7 +58,7 @@ public class ProtocolTests
         var state = new PlayerState
         {
             X = 12345, Y = -7, Vx = -1200, Vy = 800, Facing = 1, Grounded = true, DashTicks = 3, DashCooldown = 19,
-            StunTicks = 2, PrevButtons = InputButtons.Right | InputButtons.Jump,
+            StunTicks = 2, PrevButtons = InputButtons.Right | InputButtons.Jump, Crouching = true, Stomped = true,
         };
         var snap = new SnapshotPacket
         {
@@ -71,6 +71,8 @@ public class ProtocolTests
         });
         snap.Knives.Add(new KnifeState { Id = 9, Phase = KnifePhase.Falling, X = 500, Y = 9000, Timer = 0 });
         snap.Knives.Add(new KnifeState { Id = 10, Phase = KnifePhase.Warning, X = 700, Y = 14000, Timer = 20 });
+        snap.Pushables.Add(new PushableState { Id = 1, X = 12000, Y = 0, Vx = -650, Vy = 0, Width = 1200, Height = 1000, Grounded = true });
+        snap.Pushables.Add(new PushableState { Id = 7, X = 300, Y = 4800, Vx = 0, Vy = -300, Width = 600, Height = 600 });
 
         var r = RoundTrip(snap);
         Assert.Equal((1000u, RoomState.Playing, (ushort)4, 321u), (r.ServerTick, r.RoomState, r.RoundNumber, r.RoundTick));
@@ -81,6 +83,7 @@ public class ProtocolTests
         Assert.False(r.Players[1].Alive || r.Players[1].InRound);
         Assert.Equal(-1, r.Players[1].State.Facing);
         Assert.Equal(snap.Knives, r.Knives);
+        Assert.Equal(snap.Pushables, r.Pushables);
     }
 
     [Fact]
@@ -92,9 +95,12 @@ public class ProtocolTests
         onePlayer.Players.Add(new PlayerSnapshot());
         var oneKnife = new SnapshotPacket();
         oneKnife.Knives.Add(new KnifeState());
-        Assert.Equal(2 + 1 + 4 + 1 + 2 + 4 + 2 + 1 + 1, Size(empty));
+        var oneBox = new SnapshotPacket();
+        oneBox.Pushables.Add(new PushableState());
+        Assert.Equal(2 + 1 + 4 + 1 + 2 + 4 + 2 + 1 + 1 + 1, Size(empty));
         Assert.Equal(26, Size(onePlayer) - Size(empty));
         Assert.Equal(13, Size(oneKnife) - Size(empty));
+        Assert.Equal(22, Size(oneBox) - Size(empty));
     }
 
     [Fact]

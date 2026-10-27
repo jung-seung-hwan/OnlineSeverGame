@@ -93,14 +93,21 @@ public class PhysicsTests
     }
 
     [Fact]
-    public void Holding_down_drops_through_a_platform_but_not_the_floor()
+    public void Down_plus_jump_drops_through_a_platform_but_not_the_floor()
     {
         var s = new PlayerState { X = 6000, Y = 2400, Grounded = true, Facing = 1 };
-        s = Run(s, InputButtons.None, 5);
+        s = Run(s, InputButtons.Down, 30); // holding Down alone only crouches
         Assert.Equal(2400, s.Y);
-        s = Run(s, InputButtons.Down, 30);
+        Assert.True(s.Crouching);
+        s = Run(s, InputButtons.Down | InputButtons.Jump, 1);
+        Assert.False(s.Grounded);
+        s = Run(s, InputButtons.None, 30);
         Assert.Equal(0, s.Y);
         Assert.True(s.Grounded);
+
+        // On the floor Down + Jump is an ordinary jump.
+        s = Run(s, InputButtons.Down | InputButtons.Jump, 1);
+        Assert.Equal(JumpVelocity - Gravity, s.Vy);
     }
 
     [Fact]

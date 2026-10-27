@@ -47,7 +47,7 @@ public class DodgeBrainTests
     {
         var me = new PlayerState { X = 6000, Y = 2400, Grounded = true, Facing = 1 };
         var b = DodgeBrain.Decide(me, new[] { Warning(6000) }, S, Reaction, InputButtons.None);
-        Assert.Equal(InputButtons.Down, b & InputButtons.Down);
+        Assert.Equal(InputButtons.Down | InputButtons.Jump, b & (InputButtons.Down | InputButtons.Jump));
     }
 
     [Fact]

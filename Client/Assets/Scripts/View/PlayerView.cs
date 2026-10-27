@@ -5,8 +5,14 @@ namespace OnlineSeverGame.Client.View
 {
     // 젤리 캐릭터 스프라이트(ArtSprites). 상태로 동작을 고르고 프레임을 넘긴다.
     // 대시 잔상을 가진다(내 캐릭터 표시는 UI 이름표의 ▼). 시트는 오른쪽을 보므로 왼쪽은 뒤집는다.
+    // 엎드림·밟혀 납작해짐은 새 그림 없이 발밑(피벗)을 기준으로 세로로 누르고 가로로 조금 넓혀 그린다.
     public sealed class PlayerView : MonoBehaviour
     {
+        static readonly Vector2 CrouchScale = new Vector2(1.15f, 0.6f);   // 판정 높이 60%에 맞춤
+        static readonly Vector2 StompedScale = new Vector2(1.35f, 0.4f);
+        const float SquashSpeed = 18f;                                    // 클수록 빨리 눌리고 빨리 펴진다
+
+        Vector2 _scale = Vector2.one;
         SpriteRenderer _body;
         SpriteRenderer _trail;
         string _anim;
@@ -38,6 +44,7 @@ namespace OnlineSeverGame.Client.View
             if (s.Spectator) return "idle";
             if (!s.Alive) return "death";
             if (s.Winner) return "victory";
+            if (s.Stomped) return "knockback";
             if (s.Stunned) return "knockback";
             if (s.Dashing) return "dash";
             if (!s.Grounded) return s.VelocityY > 0f ? "jump" : "fall";
@@ -60,6 +67,10 @@ namespace OnlineSeverGame.Client.View
                 _animTime += Time.deltaTime;
             }
             var sprite = ArtSprites.Character(s.ColorIndex, anim).At(_animTime);
+
+            Vector2 target = !s.Alive ? Vector2.one : s.Stomped ? StompedScale : s.Crouching ? CrouchScale : Vector2.one;
+            _scale = Vector2.Lerp(_scale, target, 1f - Mathf.Exp(-SquashSpeed * Time.deltaTime));
+            transform.localScale = new Vector3(_scale.x, _scale.y, 1f);
             bool flip = s.Facing < 0;
 
             _body.sprite = sprite;

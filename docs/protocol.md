@@ -1,9 +1,10 @@
-# OnlineSeverGame 프로토콜 v1
+# OnlineSeverGame 프로토콜 v2
 
 서버(C# .NET 10)와 Unity 클라이언트가 같은 `Shared/` 소스를 쓴다. 이 문서는 그 소스의 설명이며, 바이트 배치가 바뀌면 `ProtocolConstants.Version`을 올리고 이 문서를 함께 고친다.
 
 - 패킷 정의·직렬화: `Shared/Protocol/` (`Packets.cs`, `PacketCodec.cs`, `FrameDecoder.cs`)
-- 물리·스테이지·상수: `Shared/Simulation/` (`GameConstants.cs`, `PlayerPhysics.cs`, `Stage.cs`, `Knife.cs`, `DashCollision.cs`)
+- 물리·스테이지·상수: `Shared/Simulation/` (`GameConstants.cs`, `PlayerPhysics.cs`, `Stage.cs`, `Knife.cs`, `DashCollision.cs`, `StompCollision.cs`, `Pushable.cs`)
+- 버전 기록: v1 첫 버전 → **v2**(2026-10-27) 스냅샷 플레이어 flags에 Crouching·Stomped 비트, 스냅샷 끝에 밀리는 상자 목록 추가. 대시 쿨다운 40틱, 아래키 의미 변경(엎드리기, 아래+점프 = 발판 통과).
 
 ## 1. 전송과 프레이밍
 
@@ -53,7 +54,7 @@ C = 클라이언트→서버, S = 서버→클라이언트. 크기는 타입 바
 | 1 | 2 | Right |
 | 2 | 4 | Jump (눌린 순간에만 발동) |
 | 3 | 8 | Dash (눌린 순간에만 발동) |
-| 4 | 16 | Down (누르고 있으면 발판을 통과해 떨어짐) |
+| 4 | 16 | Down (땅·발판·상자 위에서 누르고 있으면 엎드림. 발판 위에서 Down을 누른 채 Jump를 누르면 그 발판 아래로 떨어짐) |
 
 "눌린 순간"은 이전 틱 버튼(`PlayerState.PrevButtons`)과 비교해 판정한다. 클라이언트는 매 틱 **현재 누르고 있는 상태**를 그대로 보내면 된다.
 
@@ -69,18 +70,21 @@ u8  playerCount
     플레이어 × playerCount (각 26바이트)
 u8  knifeCount
     칼 × knifeCount (각 13바이트)
+u8  boxCount
+    밀리는 상자 × boxCount (각 22바이트)
 ```
 
 플레이어 항목 (26바이트):
 
 ```
 u8  playerId
-u8  flags            bit0 Alive, bit1 InRound(이번 라운드 참가자), bit2 Grounded, bit3 FacingRight
+u8  flags            bit0 Alive, bit1 InRound(이번 라운드 참가자), bit2 Grounded, bit3 FacingRight,
+                     bit4 Crouching(엎드림), bit5 Stomped(지금 스턴이 밟기 때문 = 납작하게 그림)
 i32 x, i32 y         밀리유닛
 i32 vx, i32 vy       밀리유닛/틱
 u8  dashTicks        남은 대시 틱(이번 틱 포함). >0이면 대시 중
 u8  dashCooldown
-u8  stunTicks        >0이면 밀려나는 중(입력 무시)
+u8  stunTicks        >0이면 밀려나거나 밟혀서 기절 중(입력 무시)
 u8  prevButtons      마지막으로 적용된 버튼 (눌림 판정용)
 u32 lastInputSeq     서버가 이 플레이어에게 마지막으로 적용한 입력 seq (없으면 0)
 ```
@@ -96,6 +100,17 @@ i32 x                칼 가운데
 i32 y                칼끝. Warning 중에는 Stage.KnifeSpawnY
 u16 timer            Warning: 낙하까지 남은 틱 / Landed: 사라질 때까지 남은 틱 / Falling: 0
 ```
+
+밀리는 상자 항목 (22바이트):
+
+```
+u16 boxId            스테이지 정의 순서 + 1 (맵이 실행 중에 만드는 상자도 같은 목록에 들어간다)
+i32 x, i32 y         아래쪽 가운데, 밀리유닛
+i32 vx, i32 vy       밀리유닛/틱
+u16 width, u16 height
+```
+
+크기가 상자 항목에 들어 있으므로 클라이언트는 스테이지 정의 없이도 상자를 그릴 수 있다. Grounded는 보내지 않는다(디코더는 `vy == 0`으로 채운다, 그리기 전용).
 
 ### RoundEnd 결과 항목 (7바이트)
 
@@ -151,18 +166,40 @@ u8  cause            0 생존, 1 칼, 2 연결 끊김
 모든 플레이어가 한 스텝 움직인 뒤 `DashCollision.Resolve`가 처리한다.
 
 - 대시 중인 플레이어의 몸이 다른 살아 있는 플레이어와 겹치면, 상대는 대시 방향으로 `vx = ±900`, `vy = +500`을 받고 8틱 동안 조작 불가(stun). 공격자는 대시가 끝나고 `vx = 0`.
+- 상대가 **엎드려 있으면** 넉백이 절반(`vx = ±450`, `vy = +250`)이다. 스턴 길이는 같다.
 - 둘 다 대시 중이면 둘 다 서로 반대쪽으로 튕겨 나간다.
 - 한 틱에 한 사람은 한 번만 밀린다.
 - 서버만 판정한다. 클라이언트는 예측하지 않고 다음 스냅샷으로 보정된다.
 
+### 밟기
+
+`DashCollision` 다음에 `StompCollision.Resolve`가 처리한다.
+
+- 스스로 떨어지던(이번 틱에 y가 줄었고 스턴 중이 아닌) 플레이어 A의 발이 틱 전에는 B의 머리 높이 이상, 틱 후에는 머리 높이 이하이고 가로로 겹치면 A가 B를 밟은 것이다. 여러 명이면 머리가 가장 높은 쪽.
+- B: 30틱(1.5초) 스턴, `Stomped` 표시(납작하게 그림), `vx = 0`, 대시·엎드림 취소. **이미 스턴 중이면 스턴을 새로 걸지 않는다**(계속 밟아 영원히 묶어 두지 못하게).
+- A: B의 머리 위에 놓이고 `vy = +700`으로 튕겨 오른다(최고 약 2.45유닛).
+- 판정은 서버. 단 클라이언트는 **밟은 쪽(자기) 튕김만** `StompCollision.PredictBounce`로 예측한다: 최신 스냅샷의 살아 있는 다른 플레이어를 각자 마지막으로 누른 버튼(`prevButtons`)으로 내 예측과 같은 틱만큼 함께 `Step`하고, 그 틱의 전/후 위치로 서버와 같은 조건(`StompCollision.Lands`)을 검사한다. 예측하지 않으면 상대를 지나쳐 바닥까지 떨어졌다가 다음 스냅샷에서 약 2유닛 위로 끌려 올라간다. 상대 기절은 예측하지 않는다(내가 밟힌 경우는 다음 스냅샷에서 멈춤으로 보정, 보정 거리가 작다).
+
+### 밀리는 상자
+
+스테이지 정의의 `Pushables`(아래쪽 가운데·크기)에서 라운드마다(Countdown 시작, Waiting 복귀) 다시 놓인다.
+
+- 플레이어에게는 단단한 상자다: 옆면은 막고, 윗면은 설 수 있다(한 방향 발판이 아니므로 Down+Jump로 통과하지 않는다). 이미 겹쳐 있으면 막지 않아 빠져나갈 수 있다(갇힘 없음).
+- 걸어서 옆면에 닿으면 상자 `vx = ±200`(같은 방향으로 더 빠르면 그대로). 플레이어는 그 면에서 멈추므로 미는 동안 초당 4유닛으로 느려진다.
+- 대시로 옆면에 닿으면 대시가 거기서 끝나고 상자 `vx = ±700`. 땅에 닿아 있으면 매 틱 `vx`가 50씩 줄어 약 4.9유닛 미끄러진 뒤 멈춘다.
+- 상자는 중력을 받고 바닥·발판(위에서)·다른 상자 윗면에 착지, 벽과 다른 상자 옆면에서 멈춘다. 미끄러지다 플레이어 옆면에 닿으면 그 플레이어를 앞으로 밀어낸다(벽에 끼면 상자가 멈춤). 상자 위에 서 있던 플레이어는 상자가 움직인 만큼 같이 옮겨진다.
+- 칼은 상자 윗면에도 꽂힌다(`PushablePhysics.KnifeLandingY`).
+
 ### 한 틱의 처리 순서 (서버)
 
 1. 네트워크 이벤트(접속, 입력, 끊김)를 큐에서 꺼내 반영
-2. 살아 있는 플레이어마다 입력 하나를 꺼내 `PlayerPhysics.Step`
+2. 살아 있는 플레이어마다 입력 하나를 꺼내 `PlayerPhysics.Step`(틱 시작 시점의 상자를 고정된 단단한 물체로 봄)
 3. `DashCollision.Resolve`
-4. (Playing) 칼 생성 → `KnifePhysics.Step` → 칼 판정 → 사망 처리 → 종료 검사
-5. 상태 타이머 진행(Countdown/Ended)
-6. Snapshot 전송
+4. `StompCollision.Resolve`
+5. 상자: 이번 틱에 옆면을 민 플레이어의 힘 적용 → `PushablePhysics.Step` → 위에 선 플레이어 같이 옮기기
+6. (Playing) 칼 생성 → `KnifePhysics.Step`(상자 윗면 포함) → 칼 판정 → 사망 처리 → 종료 검사
+7. 상태 타이머 진행(Countdown/Ended)
+8. Snapshot 전송
 
 ## 6. 물리 상수 (`GameConstants`)
 
@@ -174,20 +211,27 @@ u8  cause            0 생존, 1 칼, 2 연결 끊김
 | MaxFallSpeed | 1000 /틱 | 20 u/s |
 | JumpVelocity | 800 /틱 | 최고 높이 2.8 유닛 (낮은 발판 2.4에 오를 수 있음) |
 | DashSpeed / DashTicks | 1200 /틱, 4틱 | 0.2초 동안 4.8 유닛, 중력 없음 |
-| DashCooldownTicks | 20 | 대시 시작부터 1초 |
+| DashCooldownTicks | 40 | 대시 시작부터 2초 |
 | KnockbackSpeed / Lift / StunTicks | 900 / 500 / 8 | 수평 속도는 매 틱 1/4씩 줄어듦 |
+| StompStunTicks / StompBounce | 30 / 700 | 밟힌 쪽 1.5초 기절, 밟은 쪽 튕김 |
+| CrouchHeight / CrouchMoveSpeed | 720 / 160 | 엎드리면 판정 높이 60%, 이동 40% (제안값, 플레이 후 조정) |
+| CrouchKnockbackSpeed / Lift | 450 / 250 | 엎드린 채 대시에 맞으면 넉백 절반 |
+| PushableWalkSpeed / DashSpeed / Friction | 200 / 700 / 50 | 상자: 걸어 밀기, 대시로 치기, 땅 마찰(틱당) |
 | KnifeWidth × KnifeHeight | 400 × 1000 | |
 | KnifeWarningTicks / FallSpeed / LandedTicks | 20 / 700 / 10 | |
 
 ### `PlayerPhysics.Step(ref state, buttons, stage)` 순서
 
+`Step(ref state, buttons, stage, boxes, out contact)`: boxes는 상자 목록(없으면 null). 서버는 현재 상자, 클라이언트 예측은 최신 스냅샷의 상자를 넘긴다.
+
 1. `pressed = buttons & ~PrevButtons`. dashTicks, dashCooldown 1 감소.
-2. stun 중이면: stun 1 감소, 대시 취소, `vx -= vx / 4`. 입력 무시.
-3. 아니면: Left/Right로 방향(dir) 계산, 대시 중이 아니면 facing 갱신. Dash가 눌렸고 대시·쿨다운이 0이면 대시 시작(dashTicks=4, cooldown=20). 대시 중이면 `vx = facing × 1200`, `vy = 0`. 아니면 `vx = dir × 400`이고, Jump가 눌렸고 땅 위면 `vy = 800`.
+2. stun 중이면: stun 1 감소(0이 되면 Stomped 해제), 대시 취소, `vx -= vx / 4`. 입력 무시.
+3. 아니면: Left/Right로 방향(dir) 계산, 대시 중이 아니면 facing 갱신. Dash가 눌렸고 대시·쿨다운이 0이면 대시 시작(dashTicks=4, cooldown=40). 대시 중이면 `vx = facing × 1200`, `vy = 0`. 아니면 `vx = dir × (땅 위에서 Down이면 160, 아니면 400)`이고, Jump가 눌렸고 땅 위면: Down도 누르고 있고 발판 위면 **이번 틱만 발판을 무시**(아래로 떨어짐), 아니면 `vy = 800`.
 4. 대시 중이 아니면 `vy -= 100`, 최소 -1000.
-5. `x += vx`, 벽(0.4 ~ 너비-0.4)에서 멈춤(stun 중 벽에 닿으면 vx = 0).
-6. `y += vy`. 내려가는 중(vy ≤ 0)이면 이전 y ~ 새 y 사이에 있는 가장 높은 면에 착지: 바닥은 항상, 발판은 Down을 누르지 않았고 몸이 가로로 겹칠 때만. 착지하면 `vy = 0`, Grounded. 발판은 아래에서 위로 통과한다.
-7. `PrevButtons = buttons`.
+5. `x += vx`, 벽(0.4 ~ 너비-0.4)에서 멈춤(stun 중 벽에 닿으면 vx = 0). 이어서 상자 옆면: 이번 이동으로 새로 겹치면 그 면에 멈추고 contact에 기록, 대시 중이었으면 대시가 끝남(`vx = 0`).
+6. `y += vy`. 내려가는 중(vy ≤ 0)이면 이전 y ~ 새 y 사이에 있는 가장 높은 면에 착지: 바닥은 항상, 발판은 (3의 발판 통과 틱이 아니고) 몸이 가로로 겹칠 때만, 상자 윗면은 항상. 착지하면 `vy = 0`, Grounded. 발판은 아래에서 위로 통과한다.
+7. `Crouching = Grounded && Down && 대시·스턴 아님`. 엎드리면 몸 높이가 720(판정·칼·밟기 모두 이 높이).
+8. `PrevButtons = buttons`.
 
 ## 7. 스테이지 1 (`Stage.Default`, id 1)
 
@@ -202,6 +246,21 @@ u8  cause            0 생존, 1 칼, 2 연결 끊김
 | 가운데 높은 | 9000 ~ 15000 | 4800 |
 
 - 스폰 지점(참가자 순서대로): x = 1500, 22500, 4500, 19500, 7500, 16500, 10500, 13500 (모두 y = 0, 왼쪽 절반은 오른쪽을, 오른쪽 절반은 왼쪽을 봄).
+- 밀리는 상자 1개(버터 블록): 아래 가운데 (12000, 0), 1200 × 1000. 높은 발판 아래.
+- 흔들리는 장식(클라이언트 전용, 서버는 무시): 수건(4300, 2050 매달림), 국자(19700, 2050 매달림), 마늘(12000, 4450 매달림), 허브(8300, 0 서 있음).
+
+### 맵 데이터에 오브젝트 넣기
+
+`Stage` 생성자의 선택 인자 두 개로 넣는다. 다른 맵도 같은 방식으로 배치하면 서버·클라이언트가 그대로 처리한다.
+
+```csharp
+new Stage(id, name, width, viewHeight, knifeSpawnY, platforms, spawnPoints,
+    pushables: new[] { new PushableSpawn(x, y, width, height) },               // 서버가 계산, 스냅샷으로 전송
+    decorations: new[] { new Decoration("towel", x, y, width, height, hanging: true) }); // 클라이언트만
+```
+
+- `Decoration.Kind`는 클라이언트가 그림을 고르는 이름이다(`DecorView.Draw`). 모르는 이름은 회색 사각형으로 그린다. 매단 장식은 (x, y)가 윗변 가운데, 서 있는 장식은 아랫변 가운데이며 그 점을 축으로 흔들린다.
+- 실행 중에 상자를 새로 만들려면(예: 떨어져 멈춘 화물 상자) 서버 `GameRoom`의 상자 배열에 `PushableState`를 추가하면 된다. 스냅샷 항목에 크기가 실려 있어 클라이언트는 따로 알 필요가 없다(지금은 고정 개수 배열이라 그 기능은 다중 맵 작업에서 목록으로 바꿔야 한다).
 
 ## 8. 입력 시퀀스와 예측·보정 규칙
 
@@ -210,12 +269,12 @@ u8  cause            0 생존, 1 칼, 2 연결 끊김
 1. 자신의 고정 20Hz 틱을 돈다. 매 틱:
    - 현재 버튼을 읽고 `seq`를 1 올린다(연결마다 1부터 시작, 0은 "없음").
    - `Input(seq, buttons)`을 보낸다.
-   - 내가 살아 있으면 `PlayerPhysics.Step(ref predicted, buttons, stage)`로 내 캐릭터를 바로 움직인다.
+   - 내가 살아 있으면 `PlayerPhysics.Step(ref predicted, buttons, stage, 최신 스냅샷의 상자, out _)`로 내 캐릭터를 바로 움직이고, 다른 플레이어도 마지막 버튼으로 한 스텝 굴린 뒤 `StompCollision.PredictBounce(이전 상태, ref predicted, 다른 플레이어 전, 후)`로 머리 밟기 튕김을 반영한다.
    - `(seq, buttons)`를 미확인 목록에 넣는다.
 2. 스냅샷을 받으면 내 항목에서:
    - `predicted = snapshot.State`
    - 미확인 목록에서 `seq <= lastInputSeq`를 버린다.
-   - 남은 입력을 순서대로 다시 `Step` 한다(재시뮬레이션).
+   - 남은 입력을 순서대로 다시 `Step` + `PredictBounce` 한다(재시뮬레이션. 상자는 최신 스냅샷 값 고정, 다른 플레이어는 최신 스냅샷에서 다시 굴리기 시작).
    - 화면 위치는 이전 예측 위치에서 새 예측 위치로 짧게 보정해 튀지 않게 한다.
 3. 다른 플레이어와 칼은 스냅샷 두 개 사이를 보간해서 그린다(예: 2~3틱 = 100~150ms 늦게).
 4. 죽었거나(Alive=0) 관전자면 예측을 멈추고 스냅샷만 그린다. 입력은 계속 보내도 된다.

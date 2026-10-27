@@ -8,7 +8,7 @@ namespace OnlineSeverGame.BotClient;
 ///     (knife width + my width + a margin). Knives that land on a platform above me are ignored: the
 ///     platform is a roof.
 ///  2. If I stand inside an interval, walk to the nearest x outside all of them; dash when walking
-///     cannot get there before impact; drop through the platform when the knife would land on it.
+///     cannot get there before impact; drop through the platform (Down + Jump) when the knife would land on it.
 ///  3. Otherwise follow the wander input, but do not walk into an interval.
 /// Bots only notice a warning after their reaction time, so some still get hit.
 /// </summary>
@@ -111,8 +111,8 @@ public static class DodgeBrain
             if (dist > soonest * GameConstants.MoveSpeed) buttons |= InputButtons.Dash;
         }
 
-        // Standing on a platform the knife would land on: dropping below turns the platform into a roof.
-        if (me.Grounded && me.Y > 0 && soonest > 6) buttons |= InputButtons.Down;
+        // Standing on a platform the knife would land on: dropping below (Down + Jump) turns the platform into a roof.
+        if (me.Grounded && me.Y > 0 && soonest > 6) buttons |= InputButtons.Down | InputButtons.Jump;
         return buttons;
     }
 

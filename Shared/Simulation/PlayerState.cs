@@ -14,10 +14,14 @@ namespace OnlineSeverGame.Shared.Simulation
         public bool Grounded;
         public byte DashTicks;     // > 0 while dashing
         public byte DashCooldown;  // > 0 until the next dash is allowed
-        public byte StunTicks;     // > 0 while knocked back (input ignored)
+        public byte StunTicks;     // > 0 while knocked back or stomped (input ignored)
         public InputButtons PrevButtons; // for press-edge detection
+        public bool Crouching;     // holding Down on the ground: lower body, slower, half knockback
+        public bool Stomped;       // the current stun came from a stomp (drawn flattened)
 
         public bool IsDashing => DashTicks > 0;
+
+        public int Height => Crouching ? GameConstants.CrouchHeight : GameConstants.PlayerHeight;
 
         public static PlayerState SpawnAt(int x, int y, sbyte facing)
         {
@@ -25,9 +29,10 @@ namespace OnlineSeverGame.Shared.Simulation
         }
 
         public Aabb Bounds => new Aabb(X - GameConstants.PlayerHalfWidth, Y,
-            X + GameConstants.PlayerHalfWidth, Y + GameConstants.PlayerHeight);
+            X + GameConstants.PlayerHalfWidth, Y + Height);
 
         public override string ToString() =>
-            $"({X},{Y}) v=({Vx},{Vy}) f={Facing} g={Grounded} dash={DashTicks} cd={DashCooldown} stun={StunTicks}";
+            $"({X},{Y}) v=({Vx},{Vy}) f={Facing} g={Grounded} dash={DashTicks} cd={DashCooldown} stun={StunTicks}" +
+            (Crouching ? " crouch" : "") + (Stomped ? " stomped" : "");
     }
 }

@@ -11,7 +11,7 @@ namespace OnlineSeverGame.Shared.Simulation
         Right = 1 << 1,
         Jump = 1 << 2,
         Dash = 1 << 3,
-        /// <summary>Held: fall through one-way platforms.</summary>
+        /// <summary>Held on the ground: crouch. Down + Jump press on a platform: drop below it.</summary>
         Down = 1 << 4,
     }
 }

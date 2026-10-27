@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using OnlineSeverGame.Client.Input;
 using OnlineSeverGame.Client.Model;
+using OnlineSeverGame.Shared.Simulation;
 using UnityEngine;
 
 namespace OnlineSeverGame.Client.Game
@@ -14,6 +15,8 @@ namespace OnlineSeverGame.Client.Game
         const float JumpSpeed = 13f;
         const float DashSpeed = 18f;
         const float DashTime = 0.18f;
+        const float DashCooldown = GameConstants.DashCooldownTicks * GameConstants.TickMilliseconds / 1000f; // 서버와 같은 2초
+        const float CrouchSpeedFactor = GameConstants.CrouchMoveSpeed / (float)GameConstants.MoveSpeed;
         const float WarnTime = 1.0f;
         const float FallSpeed = 16f;
         const float LandLinger = 0.5f;
@@ -25,6 +28,9 @@ namespace OnlineSeverGame.Client.Game
             public Vector2 Vel;
             public int Facing = 1;
             public float DashLeft;
+            public float DashCool;      // 남은 대시 쿨다운(초). 예전 미리보기에는 없어서 연타하면 계속 대시됐다.
+            public bool Crouching;
+            public float DropLeft;      // ↓+점프로 발판을 통과하는 중
             public bool Alive = true;
             public bool Grounded;
             public float BotTurn;
@@ -122,12 +128,13 @@ namespace OnlineSeverGame.Client.Game
                 if (!b.Alive) continue;
                 if (b.Stun > 0f) b.Stun -= dt;
                 int move;
-                bool jump, dash;
+                bool jump, dash, down = false;
                 if (b.Id == State.LocalId)
                 {
                     move = frame.MoveX;
                     jump = frame.JumpPressed;
                     dash = frame.DashPressed;
+                    down = frame.DownHeld;
                 }
                 else
                 {
@@ -139,7 +146,14 @@ namespace OnlineSeverGame.Client.Game
                 }
 
                 if (move != 0) b.Facing = move;
-                if (dash && b.DashLeft <= 0f) b.DashLeft = DashTime;
+                b.DashCool -= dt;
+                b.DropLeft -= dt;
+                if (dash && b.DashLeft <= 0f && b.DashCool <= 0f)
+                {
+                    b.DashLeft = DashTime;
+                    b.DashCool = DashCooldown;
+                }
+                b.Crouching = b.Grounded && down && b.DashLeft <= 0f;
                 if (b.DashLeft > 0f)
                 {
                     b.DashLeft -= dt;
@@ -147,9 +161,13 @@ namespace OnlineSeverGame.Client.Game
                 }
                 else
                 {
-                    b.Vel.x = move * MoveSpeed;
+                    b.Vel.x = move * MoveSpeed * (b.Crouching ? CrouchSpeedFactor : 1f);
                 }
-                if (jump && b.Grounded) b.Vel.y = JumpSpeed;
+                if (jump && b.Grounded)
+                {
+                    if (down && b.Pos.y > 0.01f) { b.DropLeft = 0.15f; b.Crouching = false; }
+                    else b.Vel.y = JumpSpeed;
+                }
                 b.Vel.y += Gravity * dt;
 
                 float prevY = b.Pos.y;
@@ -163,6 +181,7 @@ namespace OnlineSeverGame.Client.Game
                 {
                     foreach (var s in _layout.Solids)
                     {
+                        if (b.DropLeft > 0f && s.TopY > 0f) continue;
                         bool overX = Mathf.Abs(b.Pos.x - s.CenterX) <= s.Width / 2f + _layout.PlayerSize.x / 2f - 0.05f;
                         if (overX && prevY >= s.TopY - 0.001f && b.Pos.y <= s.TopY)
                         {
@@ -290,6 +309,8 @@ namespace OnlineSeverGame.Client.Game
                     VelocityY = b.Vel.y,
                     Moving = Mathf.Abs(b.Vel.x) > 0.01f,
                     Stunned = b.Stun > 0f,
+                    Crouching = b.Crouching && b.Grounded,
+                    DashCooldown = b.Id == State.LocalId ? Mathf.Clamp01(b.DashCool / DashCooldown) : 0f,
                     Winner = State.Screen == ClientScreen.Result && State.WinnerIds.Contains(b.Id),
                 });
             }

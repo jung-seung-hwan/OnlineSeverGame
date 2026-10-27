@@ -16,7 +16,7 @@ namespace OnlineSeverGame.Shared.Simulation
 
     /// <summary>
     /// Run after every active player has stepped. A dashing player whose box overlaps another player
-    /// knocks that player back along the dasher's facing and stops dashing. Two dashers that meet both
+    /// knocks that player back along the dasher's facing and stops dashing (half as far if the target crouches). Two dashers that meet both
     /// bounce away from each other. A player is knocked at most once per tick (lowest index pair wins).
     /// Server-authoritative: clients do not predict it, the next snapshot corrects them.
     /// </summary>
@@ -68,11 +68,15 @@ namespace OnlineSeverGame.Shared.Simulation
             {
                 if (knock[i] != 0)
                 {
-                    states[i].Vx = knock[i] * GameConstants.KnockbackSpeed;
-                    states[i].Vy = GameConstants.KnockbackLift;
+                    // A crouching target is braced and flies half as far.
+                    bool braced = states[i].Crouching;
+                    states[i].Vx = knock[i] * (braced ? GameConstants.CrouchKnockbackSpeed : GameConstants.KnockbackSpeed);
+                    states[i].Vy = braced ? GameConstants.CrouchKnockbackLift : GameConstants.KnockbackLift;
                     states[i].StunTicks = GameConstants.StunTicks;
                     states[i].DashTicks = 0;
                     states[i].Grounded = false;
+                    states[i].Crouching = false;
+                    states[i].Stomped = false;
                 }
                 else if (stopDash[i])
                 {

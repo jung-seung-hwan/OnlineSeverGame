@@ -15,7 +15,10 @@ namespace OnlineSeverGame.Client.Game
     // 서버 접속 세션 (docs/protocol.md 8장 규칙).
     //   - 고정 20Hz 클라이언트 틱마다 Input(seq, buttons) 전송
     //   - 내 캐릭터: Shared PlayerPhysics.Step 으로 예측, 스냅샷의 lastInputSeq 이후 입력을 재시뮬레이션해 보정
-    //   - 다른 플레이어·칼: 스냅샷 두 개 사이 보간 (InterpDelayTicks 만큼 늦게)
+    //   - 다른 플레이어·칼·밀리는 상자: 스냅샷 두 개 사이 보간 (InterpDelayTicks 만큼 늦게)
+    //   - 예측은 최신 스냅샷의 상자 위치를 고정된 벽·발판으로 쓴다. 내가 남의 머리를 밟아 튕기는 것도 예측한다:
+    //     최신 스냅샷의 다른 플레이어를 마지막으로 누른 버튼 그대로 내 예측과 같은 틱만큼 함께 굴려(서버도 새 입력이
+    //     없으면 그렇게 한다) 그 위치로 검사한다. 상대 기절·밀치기·상자 이동은 서버만 판정하고 보정으로 따라간다.
     public sealed class NetworkSession : IGameSession
     {
         const float TickSeconds = GameConstants.TickMilliseconds / 1000f;
@@ -58,6 +61,11 @@ namespace OnlineSeverGame.Client.Game
         }
 
         readonly List<PendingInput> _pending = new List<PendingInput>();
+        // 밟기 예측용: 살아 있는 다른 플레이어를 내 예측과 같은 틱까지 굴린 상태(틱 전/후)
+        readonly List<PlayerState> _others = new List<PlayerState>();
+        readonly List<PlayerState> _othersBefore = new List<PlayerState>();
+        // 시험용(-nostomppredict): 밟기 튕김 예측을 끄고 비교한다
+        public static bool StompPrediction = true;
         uint _seq;
         float _tickAccum;
         bool _predicting;
@@ -70,6 +78,14 @@ namespace OnlineSeverGame.Client.Game
         int _reconcileCount;
         int _mispredictCount;   // 보정 거리가 0.01 유닛을 넘은 횟수
         float _maxCorrection;
+        // 대시 연타 진단: 예측이 시작한 대시, 서버 스냅샷이 확인한 대시, 화면에 대시 동작이 새로 시작된 횟수
+        int _predDashes;
+        int _predBounces;   // 예측(재시뮬레이션 포함)이 밟기 튕김을 적용한 횟수
+        int _snapCorrections; // 너무 커서(SnapCorrectionUnits 초과) 부드럽게 말고 바로 옮긴 보정
+        int _serverDashes;
+        int _shownDashes;
+        int _remoteShownDashes;
+        readonly HashSet<byte> _shownDashing = new HashSet<byte>();
         double _statsTimer = 5.0;
         double _pingTimer;
 
@@ -151,7 +167,9 @@ namespace OnlineSeverGame.Client.Game
                     _statsTimer = 5.0;
                     Debug.Log($"[Net] stats room={_latest?.RoomState} tick={_latest?.ServerTick} seq={_seq} pending={_pending.Count} " +
                               $"ping={State.PingMs}ms reconciles={_reconcileCount} mispredicts={_mispredictCount} " +
-                              $"maxCorrection={_maxCorrection:0.000} rx={_net.BytesReceived} tx={_net.BytesSent}");
+                              $"maxCorrection={_maxCorrection:0.000} rx={_net.BytesReceived} tx={_net.BytesSent} " +
+                              $"dashes pred={_predDashes} server={_serverDashes} shown={_shownDashes} remoteShown={_remoteShownDashes} " +
+                              $"snaps={_snapCorrections} predBounces={_predBounces}");
                 }
             }
 
@@ -287,7 +305,10 @@ namespace OnlineSeverGame.Client.Game
             if (s.RoomState == RoomState.Playing) State.RoundSeconds = s.RoundTick * TickSeconds;
 
             if (TryFindPlayer(s, _localId, out PlayerSnapshot me) && me.Alive)
+            {
+                if (me.State.DashTicks == GameConstants.DashTicks) _serverDashes++;
                 Reconcile(me);
+            }
             else
                 _predicting = false;
         }
@@ -307,8 +328,29 @@ namespace OnlineSeverGame.Client.Game
             if (_predicting)
             {
                 _predictedPrev = _predicted;
-                PlayerPhysics.Step(ref _predicted, buttons, _stage);
+                PredictStep(ref _predicted, buttons);
+                if (_predicted.DashTicks == GameConstants.DashTicks) _predDashes++;
             }
+        }
+
+        // 예측에 쓰는 상자: 최신 스냅샷 그대로(서버보다 조금 과거지만 멈춰 있는 상자는 정확하다)
+        IReadOnlyList<PushableState> PredictBoxes => _latest?.Pushables;
+
+        // 내 캐릭터 한 스텝 예측: 다른 플레이어를 마지막 버튼으로 한 스텝 굴리고, 나를 공용 물리로 굴린 뒤
+        // 남의 머리에 떨어졌으면 튕긴다(서버 StompCollision 과 같은 조건)
+        void PredictStep(ref PlayerState state, InputButtons buttons)
+        {
+            _othersBefore.Clear();
+            for (int i = 0; i < _others.Count; i++)
+            {
+                PlayerState o = _others[i];
+                _othersBefore.Add(o);
+                PlayerPhysics.Step(ref o, o.PrevButtons, _stage, PredictBoxes, out _);
+                _others[i] = o;
+            }
+            PlayerState before = state;
+            PlayerPhysics.Step(ref state, buttons, _stage, PredictBoxes, out _);
+            if (StompPrediction && StompCollision.PredictBounce(before, ref state, _othersBefore, _others)) _predBounces++;
         }
 
         static InputButtons ToButtons(InputFrame f)
@@ -330,13 +372,17 @@ namespace OnlineSeverGame.Client.Game
 
             PlayerState state = me.State;
             PlayerState prev = state;
+            // 다른 플레이어도 이 스냅샷 시점에서 다시 굴리기 시작한다.
+            _others.Clear();
+            foreach (var p in _latest.Players)
+                if (p.PlayerId != _localId && p.Alive) _others.Add(p.State);
             int write = 0;
             for (int i = 0; i < _pending.Count; i++)
             {
                 if (_pending[i].Seq <= me.LastInputSeq) continue;
                 _pending[write++] = _pending[i];
                 prev = state;
-                PlayerPhysics.Step(ref state, _pending[i].Buttons, _stage);
+                PredictStep(ref state, _pending[i].Buttons);
             }
             _pending.RemoveRange(write, _pending.Count - write);
 
@@ -349,12 +395,20 @@ namespace OnlineSeverGame.Client.Game
             Vector2 diff = before - after; // 이전 화면 위치를 유지하도록 보정 오프셋에 더한다
             if (!wasPredicting || _teleportNext || (diff + _correction).magnitude > SnapCorrectionUnits)
             {
+                if (wasPredicting && !_teleportNext)
+                {
+                    _snapCorrections++;
+                    Debug.Log($"[Net] correction snap {(diff + _correction).magnitude:0.00}u server={me.State} pending={_pending.Count}");
+                }
                 _correction = Vector2.zero;
                 _teleportNext = false;
             }
             else
             {
                 if (diff.magnitude > _maxCorrection) _maxCorrection = diff.magnitude;
+                // 큰 보정은 원인을 볼 수 있게 남긴다(밟기·밀치기·상자 등 서버만 아는 일)
+                if (diff.magnitude > 0.3f)
+                    Debug.Log($"[Net] correction {diff.magnitude:0.00}u server={me.State} pending={_pending.Count}");
                 if (diff.magnitude > 0.01f) _mispredictCount++;
                 _correction += diff;
             }
@@ -522,6 +576,7 @@ namespace OnlineSeverGame.Client.Game
                     render.Alive = true;
                     render.Dashing = _predicted.IsDashing;
                     render.Facing = _predicted.Facing;
+                    render.DashCooldown = _predicted.DashCooldown / (float)GameConstants.DashCooldownTicks;
                     SetMotion(ref render, _predicted);
                 }
                 else
@@ -545,6 +600,7 @@ namespace OnlineSeverGame.Client.Game
                 // 서버는 죽은 캐릭터를 죽은 자리(공중일 수 있음)에 멈춰 둔다. 웅덩이와 이름표는 아래 면 위에 그린다.
                 if (!render.Alive && !render.Spectator)
                     render.Position.y = _layout.SurfaceBelow(render.Position.x, render.Position.y);
+                CountShownDash(render);
                 World.Players.Add(render);
             }
 
@@ -578,9 +634,35 @@ namespace OnlineSeverGame.Client.Game
                         : phase == KnifePhase.Falling ? SwordPhase.Falling : SwordPhase.Landed,
                     Position = new Vector2(x, y),
                     WarningProgress = 1f - timer / GameConstants.KnifeWarningTicks,
-                    LandingY = _layout.SwordLandingY(x),
+                    LandingY = _layout.SwordLandingY(x, _latest.Pushables),
                 });
             }
+
+            foreach (var box in s0.Pushables)
+            {
+                PushableState a = box, b = box;
+                if (s1 != null && TryFindBox(s1, box.Id, out PushableState bb)) b = bb;
+                World.Boxes.Add(new BoxRender
+                {
+                    Id = box.Id,
+                    Position = Vector2.Lerp(
+                        new Vector2(StageLayout.ToWorld(a.X), StageLayout.ToWorld(a.Y)),
+                        new Vector2(StageLayout.ToWorld(b.X), StageLayout.ToWorld(b.Y)), t),
+                    Size = new Vector2(StageLayout.ToWorld(a.Width), StageLayout.ToWorld(a.Height)),
+                });
+            }
+        }
+
+        void CountShownDash(PlayerRender r)
+        {
+            byte id = (byte)r.Id;
+            bool dashing = r.Alive && r.Dashing;
+            if (dashing && _shownDashing.Add(id))
+            {
+                if (r.IsLocal) _shownDashes++;
+                else _remoteShownDashes++;
+            }
+            else if (!dashing) _shownDashing.Remove(id);
         }
 
         // 동작 고르기에 쓰는 물리 상태(PlayerView 가 대기·달리기·점프·낙하·대시·밀려남을 고른다)
@@ -590,6 +672,19 @@ namespace OnlineSeverGame.Client.Game
             r.VelocityY = StageLayout.ToWorld(s.Vy) / TickSeconds;
             r.Moving = s.Vx != 0;
             r.Stunned = s.StunTicks > 0;
+            r.Crouching = s.Crouching;
+            r.Stomped = s.Stomped && s.StunTicks > 0;
+        }
+
+        static bool TryFindBox(SnapshotPacket s, ushort id, out PushableState b)
+        {
+            var list = s.Pushables;
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (list[i].Id == id) { b = list[i]; return true; }
+            }
+            b = default;
+            return false;
         }
 
         static bool TryFindPlayer(SnapshotPacket s, byte id, out PlayerSnapshot p)

@@ -1,14 +1,29 @@
+using System.Collections.Generic;
+
 namespace OnlineSeverGame.Shared.Simulation
 {
     /// <summary>
     /// One fixed tick of player movement. Pure integer math with no hidden state, so the server and the
-    /// client's prediction produce identical results for the same (state, buttons, stage).
+    /// client's prediction produce identical results for the same (state, buttons, stage, boxes).
     /// </summary>
     public static class PlayerPhysics
     {
         public static void Step(ref PlayerState s, InputButtons buttons, Stage stage)
         {
+            Step(ref s, buttons, stage, null, out _);
+        }
+
+        /// <summary>
+        /// boxes are solid: their sides block, their tops can be stood on (they are not one-way). They do
+        /// not move here; contact tells the caller which box was pushed or stood on.
+        /// </summary>
+        public static void Step(ref PlayerState s, InputButtons buttons, Stage stage, IReadOnlyList<PushableState> boxes,
+            out BoxContact contact)
+        {
+            contact = BoxContact.None;
             InputButtons pressed = buttons & ~s.PrevButtons;
+            bool down = (buttons & InputButtons.Down) != 0;
+            bool dropThrough = false;
 
             // DashTicks counts the dash ticks still owed, including the one performed in this step.
             if (s.DashTicks > 0) s.DashTicks--;
@@ -16,8 +31,9 @@ namespace OnlineSeverGame.Shared.Simulation
 
             if (s.StunTicks > 0)
             {
-                // Knocked back: no control, horizontal speed bleeds off.
+                // Knocked back or stomped: no control, horizontal speed bleeds off.
                 s.StunTicks--;
+                if (s.StunTicks == 0) s.Stomped = false;
                 s.DashTicks = 0;
                 s.Vx -= s.Vx / 4;
             }
@@ -41,11 +57,17 @@ namespace OnlineSeverGame.Shared.Simulation
                 }
                 else
                 {
-                    s.Vx = dir * GameConstants.MoveSpeed;
+                    bool crouch = s.Grounded && down;
+                    s.Vx = dir * (crouch ? GameConstants.CrouchMoveSpeed : GameConstants.MoveSpeed);
                     if ((pressed & InputButtons.Jump) != 0 && s.Grounded)
                     {
-                        s.Vy = GameConstants.JumpVelocity;
-                        s.Grounded = false;
+                        // Down + Jump on a platform drops below it; anywhere else it is a normal jump.
+                        if (down && OnPlatform(s, stage, boxes)) dropThrough = true;
+                        else
+                        {
+                            s.Vy = GameConstants.JumpVelocity;
+                            s.Grounded = false;
+                        }
                     }
                 }
             }
@@ -56,7 +78,8 @@ namespace OnlineSeverGame.Shared.Simulation
                 if (s.Vy < -GameConstants.MaxFallSpeed) s.Vy = -GameConstants.MaxFallSpeed;
             }
 
-            // Horizontal: walls at both stage edges.
+            // Horizontal: walls at both stage edges, then box sides.
+            int oldX = s.X;
             s.X += s.Vx;
             int minX = GameConstants.PlayerHalfWidth;
             int maxX = stage.Width - GameConstants.PlayerHalfWidth;
@@ -65,16 +88,25 @@ namespace OnlineSeverGame.Shared.Simulation
                 s.X = s.X < minX ? minX : maxX;
                 if (s.StunTicks > 0) s.Vx = 0;
             }
+            if (boxes != null && s.X != oldX) BlockAtBoxSides(ref s, oldX, boxes, ref contact);
 
-            // Vertical: land on the floor, or on a platform when coming from above (unless Down is held).
+            // Vertical: land on the floor, on a platform when coming from above (unless dropping through
+            // it this tick), or on a box top.
             int prevY = s.Y;
             s.Y += s.Vy;
             s.Grounded = false;
             if (s.Vy <= 0)
             {
-                bool includePlatforms = (buttons & InputButtons.Down) == 0;
-                if (stage.TryFindLanding(s.X - GameConstants.PlayerHalfWidth, s.X + GameConstants.PlayerHalfWidth,
-                        prevY, s.Y, includePlatforms, out int top))
+                int left = s.X - GameConstants.PlayerHalfWidth, right = s.X + GameConstants.PlayerHalfWidth;
+                bool found = stage.TryFindLanding(left, right, prevY, s.Y, !dropThrough, out int top);
+                if (PushablePhysics.TryFindBoxLanding(boxes, left, right, prevY, s.Y, out int boxTop, out int boxIndex) &&
+                    (!found || boxTop >= top))
+                {
+                    top = boxTop;
+                    found = true;
+                    contact.GroundBox = boxIndex;
+                }
+                if (found)
                 {
                     s.Y = top;
                     s.Vy = 0;
@@ -82,7 +114,47 @@ namespace OnlineSeverGame.Shared.Simulation
                 }
             }
 
+            s.Crouching = s.Grounded && down && s.DashTicks == 0 && s.StunTicks == 0;
             s.PrevButtons = buttons;
+        }
+
+        private static bool OnPlatform(in PlayerState s, Stage stage, IReadOnlyList<PushableState> boxes)
+        {
+            int left = s.X - GameConstants.PlayerHalfWidth, right = s.X + GameConstants.PlayerHalfWidth;
+            if (!stage.IsOnPlatform(left, right, s.Y)) return false;
+            if (boxes != null)
+            {
+                // Standing on a box whose top is level with the platform: the box holds us up.
+                for (int i = 0; i < boxes.Count; i++)
+                    if (boxes[i].Top == s.Y && PushablePhysics.Overlaps1D(left, right, boxes[i].Left, boxes[i].Right))
+                        return false;
+            }
+            return true;
+        }
+
+        private static void BlockAtBoxSides(ref PlayerState s, int oldX, IReadOnlyList<PushableState> boxes, ref BoxContact contact)
+        {
+            int half = GameConstants.PlayerHalfWidth;
+            int bottom = s.Y, top = s.Y + s.Height;
+            for (int i = 0; i < boxes.Count; i++)
+            {
+                PushableState b = boxes[i];
+                if (!(bottom < b.Top && b.Y < top)) continue;                            // not level with it
+                if (PushablePhysics.Overlaps1D(oldX - half, oldX + half, b.Left, b.Right)) continue; // already inside: let it walk out
+                if (!PushablePhysics.Overlaps1D(s.X - half, s.X + half, b.Left, b.Right)) continue;
+                sbyte dir = s.X > oldX ? (sbyte)1 : (sbyte)-1;
+                s.X = dir > 0 ? b.Left - half : b.Right + half;
+                contact.PushBox = i;
+                contact.PushDir = dir;
+                contact.PushDashing = s.DashTicks > 0;
+                if (s.DashTicks > 0)
+                {
+                    // A dash spends itself on the box.
+                    s.DashTicks = 0;
+                    s.Vx = 0;
+                }
+                if (s.StunTicks > 0) s.Vx = 0;
+            }
         }
     }
 }
