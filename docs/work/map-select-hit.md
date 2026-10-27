@@ -177,4 +177,6 @@ Client/Build/Windows/Client.exe -server 127.0.0.1:7790 -autoconnect
 
 ## 7. 변경 기록
 
-- 2026-10-27 작업 시작. 스프라이트 실측, 판정 모양·비교 로그, 위험물 예측 시각 그리기, 방장 맵 선택(프로토콜 v4), 플레이 폴더 갱신.
+- 2026-10-27 `f0de4be` 스프라이트 실측, 그림 모양 판정(`HitShapes`)·비교 로그(`--legacy-hitbox`), 위험물을 예측 시각에 그리기·화면 진단(`HitViewStats`, `-touchshot`), 방장 맵 선택(프로토콜 v4), 봇 회피 폭. docs/README.md의 이 작업 행은 다른 세션 커밋 `d51fd30`에 함께 들어갔다.
+- 2026-10-27 플레이 폴더(`artifacts/play/OnlineSeverGame/`, Git 제외) Client·Server·Bots를 `f0de4be` 기준으로 교체, 읽어주세요.txt에 [맵 고르기]·[서버 옵션]·[칼 판정] 추가, `OnlineSeverGame.zip`(108.7MB) 다시 만듦. 패키지 exe로 서버(`--maps random`, 포트 7793) + 봇 3 + 클라이언트 2라운드: v4 접속, 1 → 4 무작위 교체, 방장이 아닌 클라이언트는 키를 눌러도 요청 안 보냄, 봇이 나가자 방장이 클라이언트로 넘어감(`host=#4`), 예외 0.
+  - 그때 7777에서 예전(v3) 플레이 폴더 서버(PID 37984, 이 세션이 띄운 것 아님, 접속자 없음)가 실행 중이어서 끄지 않았다. 실행 중인 exe는 `artifacts/play/_old_v3_server_in_use_pid37984.exe`로 이름만 옮기고 새 exe를 넣었다. 그 서버를 끄면(9_모두_종료.bat) 이 파일은 지워도 된다. 새 클라이언트(v4)는 그 v3 서버에 접속하면 버전이 달라 거부된다.
