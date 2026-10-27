@@ -16,6 +16,8 @@
 | `Server/GameServer.Tests/` | xUnit tests (protocol, framing, physics, knives, pushes, rounds) | Core game server |
 | `Tools/BotClient/` | Console bots that connect N times and send random input | Core game server |
 | `docs/protocol.md` | Protocol spec | Core game server |
+| `docs/README.md` | Doc index (each session edits only its own row) | Shared |
+| `docs/work/<task>.md` | Per-task work document | The session doing that task |
 | `Client/` | Unity project | Unity client |
 | `OnlineSeverGame.slnx`, `Directory.Build.props`, `.gitignore`, `CLAUDE.md` | Build / repo setup | Core game server |
 
@@ -41,4 +43,5 @@ Build output goes to `artifacts/` (see `Directory.Build.props`), never into `Sha
 - Changing a packet layout: bump `ProtocolConstants.Version` and update `docs/protocol.md` in the same commit.
 - `GameRoom` is pure game logic driven by the game-loop thread only; keep sockets and locks out of it so it stays unit-testable.
 - Tests live in `Server/GameServer.Tests/` (xUnit).
+- Every task keeps a work document in `docs/work/<task>.md` (Korean), created when the task starts and updated in the same commit as each change: how it plays, how it is implemented and why, how to run it, what was verified vs. not, and a dated change log. Register it in `docs/README.md` (each session edits only its own row). The user reads these to follow the work.
 - Commits: stage only your own paths (`git add <path>`), never `git add -A`; do not push unless the user asks.
