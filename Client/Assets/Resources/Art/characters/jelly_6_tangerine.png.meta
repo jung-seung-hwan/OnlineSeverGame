@@ -1,0 +1,832 @@
+fileFormatVersion: 2
+guid: 41ef646ba1df53047bf5763c9ecadf67
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -6546742485850245528
+    second: jelly_6_tangerine_0
+  - first:
+      213: 6525137512602017830
+    second: jelly_6_tangerine_1
+  - first:
+      213: -2584014797048931605
+    second: jelly_6_tangerine_2
+  - first:
+      213: 2455332179712209586
+    second: jelly_6_tangerine_3
+  - first:
+      213: -4876592691345425406
+    second: jelly_6_tangerine_4
+  - first:
+      213: 8805718326693452950
+    second: jelly_6_tangerine_5
+  - first:
+      213: 7453990315077190192
+    second: jelly_6_tangerine_6
+  - first:
+      213: 6609636602489731783
+    second: jelly_6_tangerine_7
+  - first:
+      213: -7412560262948092165
+    second: jelly_6_tangerine_8
+  - first:
+      213: -8744275323542425417
+    second: jelly_6_tangerine_9
+  - first:
+      213: -3288065588587935915
+    second: jelly_6_tangerine_10
+  - first:
+      213: -5319637434157720261
+    second: jelly_6_tangerine_11
+  - first:
+      213: 2177901088857474326
+    second: jelly_6_tangerine_12
+  - first:
+      213: -3160934609399947023
+    second: jelly_6_tangerine_13
+  - first:
+      213: -4167469486318260506
+    second: jelly_6_tangerine_14
+  - first:
+      213: -8229464233494946801
+    second: jelly_6_tangerine_15
+  - first:
+      213: -8621790157656263377
+    second: jelly_6_tangerine_16
+  - first:
+      213: 1987856895768591719
+    second: jelly_6_tangerine_17
+  - first:
+      213: 8254756068814179738
+    second: jelly_6_tangerine_18
+  - first:
+      213: -6634481910066339195
+    second: jelly_6_tangerine_19
+  - first:
+      213: -3691479206367406496
+    second: jelly_6_tangerine_20
+  - first:
+      213: -714914599165143865
+    second: jelly_6_tangerine_21
+  - first:
+      213: 3239392573377667486
+    second: jelly_6_tangerine_22
+  - first:
+      213: -6047833262895898715
+    second: jelly_6_tangerine_23
+  - first:
+      213: -6737361621878733404
+    second: jelly_6_tangerine_24
+  - first:
+      213: -1423507656091280646
+    second: jelly_6_tangerine_25
+  - first:
+      213: -6496955580517039182
+    second: jelly_6_tangerine_26
+  - first:
+      213: -1013420206375738777
+    second: jelly_6_tangerine_27
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: jelly_6_tangerine_0
+      rect:
+        serializedVersion: 2
+        x: 74
+        y: 1796
+        width: 108
+        height: 196
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 86630fe256c4525a0800000000000000
+      internalID: -6546742485850245528
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_6_tangerine_1
+      rect:
+        serializedVersion: 2
+        x: 329
+        y: 1796
+        width: 110
+        height: 194
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 620283dfef1fd8a50800000000000000
+      internalID: 6525137512602017830
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_6_tangerine_2
+      rect:
+        serializedVersion: 2
+        x: 585
+        y: 1796
+        width: 110
+        height: 193
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bea9b879b3cb32cd0800000000000000
+      internalID: -2584014797048931605
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_6_tangerine_3
+      rect:
+        serializedVersion: 2
+        x: 841
+        y: 1796
+        width: 110
+        height: 194
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2b2f459cb97131220800000000000000
+      internalID: 2455332179712209586
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_6_tangerine_4
+      rect:
+        serializedVersion: 2
+        x: 73
+        y: 1540
+        width: 117
+        height: 190
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 20cf616d8ccd25cb0800000000000000
+      internalID: -4876592691345425406
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_6_tangerine_5
+      rect:
+        serializedVersion: 2
+        x: 334
+        y: 1545
+        width: 110
+        height: 198
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 69cd5b6d922343a70800000000000000
+      internalID: 8805718326693452950
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_6_tangerine_6
+      rect:
+        serializedVersion: 2
+        x: 590
+        y: 1545
+        width: 110
+        height: 198
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 032c069d2b4e17760800000000000000
+      internalID: 7453990315077190192
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_6_tangerine_7
+      rect:
+        serializedVersion: 2
+        x: 845
+        y: 1540
+        width: 113
+        height: 190
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7caf1d978752abb50800000000000000
+      internalID: 6609636602489731783
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_6_tangerine_8
+      rect:
+        serializedVersion: 2
+        x: 1102
+        y: 1545
+        width: 110
+        height: 198
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bf68dcad6bb412990800000000000000
+      internalID: -7412560262948092165
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_6_tangerine_9
+      rect:
+        serializedVersion: 2
+        x: 1358
+        y: 1545
+        width: 110
+        height: 198
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7b03a022ce716a680800000000000000
+      internalID: -8744275323542425417
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_6_tangerine_10
+      rect:
+        serializedVersion: 2
+        x: 77
+        y: 1284
+        width: 102
+        height: 211
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 557c702a4c17e52d0800000000000000
+      internalID: -3288065588587935915
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_6_tangerine_11
+      rect:
+        serializedVersion: 2
+        x: 332
+        y: 1284
+        width: 104
+        height: 206
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b3d982330f9dc26b0800000000000000
+      internalID: -5319637434157720261
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_6_tangerine_12
+      rect:
+        serializedVersion: 2
+        x: 71
+        y: 1031
+        width: 114
+        height: 187
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 61549455085793e10800000000000000
+      internalID: 2177901088857474326
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_6_tangerine_13
+      rect:
+        serializedVersion: 2
+        x: 326
+        y: 1032
+        width: 116
+        height: 186
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1f06a7858ba1224d0800000000000000
+      internalID: -3160934609399947023
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_6_tangerine_14
+      rect:
+        serializedVersion: 2
+        x: 44
+        y: 772
+        width: 171
+        height: 129
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6ee68b7159c2a26c0800000000000000
+      internalID: -4167469486318260506
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_6_tangerine_15
+      rect:
+        serializedVersion: 2
+        x: 303
+        y: 772
+        width: 166
+        height: 134
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f0c50c691e11bcd80800000000000000
+      internalID: -8229464233494946801
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_6_tangerine_16
+      rect:
+        serializedVersion: 2
+        x: 554
+        y: 772
+        width: 175
+        height: 127
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f2570f4288f395880800000000000000
+      internalID: -8621790157656263377
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_6_tangerine_17
+      rect:
+        serializedVersion: 2
+        x: 47
+        y: 521
+        width: 124
+        height: 179
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 76df8988059469b10800000000000000
+      internalID: 1987856895768591719
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_6_tangerine_18
+      rect:
+        serializedVersion: 2
+        x: 276
+        y: 524
+        width: 146
+        height: 168
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a9d4b25b8e8ce8270800000000000000
+      internalID: 8254756068814179738
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_6_tangerine_19
+      rect:
+        serializedVersion: 2
+        x: 547
+        y: 522
+        width: 133
+        height: 177
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 582adb19ad59de3a0800000000000000
+      internalID: -6634481910066339195
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_6_tangerine_20
+      rect:
+        serializedVersion: 2
+        x: 76
+        y: 260
+        width: 104
+        height: 204
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 066dab8583b35ccc0800000000000000
+      internalID: -3691479206367406496
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_6_tangerine_21
+      rect:
+        serializedVersion: 2
+        x: 324
+        y: 260
+        width: 120
+        height: 193
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7c45508b5fc1416f0800000000000000
+      internalID: -714914599165143865
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_6_tangerine_22
+      rect:
+        serializedVersion: 2
+        x: 558
+        y: 260
+        width: 164
+        height: 120
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e91e638e162a4fc20800000000000000
+      internalID: 3239392573377667486
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_6_tangerine_23
+      rect:
+        serializedVersion: 2
+        x: 796
+        y: 260
+        width: 200
+        height: 75
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5af5c40b0b7c11ca0800000000000000
+      internalID: -6047833262895898715
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_6_tangerine_24
+      rect:
+        serializedVersion: 2
+        x: 71
+        y: 4
+        width: 114
+        height: 186
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4a5819c0d451082a0800000000000000
+      internalID: -6737361621878733404
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_6_tangerine_25
+      rect:
+        serializedVersion: 2
+        x: 332
+        y: 19
+        width: 104
+        height: 208
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: afa51af245fae3ce0800000000000000
+      internalID: -1423507656091280646
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_6_tangerine_26
+      rect:
+        serializedVersion: 2
+        x: 587
+        y: 24
+        width: 106
+        height: 201
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2b34ac5625d26d5a0800000000000000
+      internalID: -6496955580517039182
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_6_tangerine_27
+      rect:
+        serializedVersion: 2
+        x: 841
+        y: 9
+        width: 110
+        height: 194
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 76265ce01bb9fe1f0800000000000000
+      internalID: -1013420206375738777
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable: {}
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

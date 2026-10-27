@@ -3,14 +3,14 @@ using UnityEngine;
 
 namespace OnlineSeverGame.Client.View
 {
-    // 플레이어 사각형. 눈(방향 표시), 대시 잔상, 내 캐릭터 테두리를 가진다.
+    // 젤리 캐릭터 스프라이트(ArtSprites). 상태로 동작을 고르고 프레임을 넘긴다.
+    // 대시 잔상을 가진다(내 캐릭터 표시는 UI 이름표의 ▼). 시트는 오른쪽을 보므로 왼쪽은 뒤집는다.
     public sealed class PlayerView : MonoBehaviour
     {
-        SpriteRenderer _outline;
         SpriteRenderer _body;
-        SpriteRenderer _eye;
         SpriteRenderer _trail;
-        Vector2 _size;
+        string _anim;
+        float _animTime;
 
         public PlayerRender State { get; private set; }
 
@@ -19,12 +19,29 @@ namespace OnlineSeverGame.Client.View
             var go = new GameObject("Player");
             go.transform.SetParent(parent, false);
             var v = go.AddComponent<PlayerView>();
-            v._size = size;
-            v._trail = Shapes.Rect(go.transform, "Trail", Color.white, size, 9);
-            v._outline = Shapes.Rect(go.transform, "Outline", Color.white, size + new Vector2(0.16f, 0.16f), 10);
-            v._body = Shapes.Rect(go.transform, "Body", Color.white, size, 11);
-            v._eye = Shapes.Rect(go.transform, "Eye", new Color(0.1f, 0.1f, 0.1f), new Vector2(0.14f, 0.22f), 12);
+            v._trail = NewRenderer(go.transform, "Trail", 9);
+            v._body = NewRenderer(go.transform, "Body", 11);
             return v;
+        }
+
+        static SpriteRenderer NewRenderer(Transform parent, string name, int order)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(parent, false);
+            var sr = go.AddComponent<SpriteRenderer>();
+            sr.sortingOrder = order;
+            return sr;
+        }
+
+        static string PickAnimation(PlayerRender s)
+        {
+            if (s.Spectator) return "idle";
+            if (!s.Alive) return "death";
+            if (s.Winner) return "victory";
+            if (s.Stunned) return "knockback";
+            if (s.Dashing) return "dash";
+            if (!s.Grounded) return s.VelocityY > 0f ? "jump" : "fall";
+            return s.Moving ? "run" : "idle";
         }
 
         public void Apply(PlayerRender s)
@@ -32,22 +49,33 @@ namespace OnlineSeverGame.Client.View
             State = s;
             transform.localPosition = new Vector3(s.Position.x, s.Position.y, 0);
 
-            var color = PlayerColors.Get(s.ColorIndex);
-            if (!s.Alive) color = Color.Lerp(color, Color.gray, 0.7f) * new Color(1, 1, 1, 0.35f);
-            _body.color = color;
-            _body.transform.localPosition = new Vector3(0, _size.y / 2f, 0);
+            string anim = PickAnimation(s);
+            if (anim != _anim)
+            {
+                _anim = anim;
+                _animTime = 0f;
+            }
+            else
+            {
+                _animTime += Time.deltaTime;
+            }
+            var sprite = ArtSprites.Character(s.ColorIndex, anim).At(_animTime);
+            bool flip = s.Facing < 0;
 
-            _outline.enabled = s.IsLocal && s.Alive;
-            _outline.color = Color.white;
-            _outline.transform.localPosition = _body.transform.localPosition;
+            _body.sprite = sprite;
+            _body.flipX = flip;
+            // 내 캐릭터를 다른 캐릭터 위에 그린다. 도중 입장 관전자는 흐리게, 죽은 웅덩이는 조금 어둡게.
+            _body.sortingOrder = s.IsLocal ? 12 : 11;
+            if (s.Spectator) _body.color = new Color(1f, 1f, 1f, 0.35f);
+            else if (!s.Alive) _body.color = new Color(0.8f, 0.8f, 0.8f, 0.9f);
+            else _body.color = Color.white;
 
-            int facing = s.Facing < 0 ? -1 : 1;
-            _eye.enabled = s.Alive;
-            _eye.transform.localPosition = new Vector3(facing * _size.x * 0.22f, _size.y * 0.7f, 0);
-
+            int facing = flip ? -1 : 1;
             _trail.enabled = s.Alive && s.Dashing;
-            _trail.color = new Color(color.r, color.g, color.b, 0.35f);
-            _trail.transform.localPosition = new Vector3(-facing * _size.x * 0.6f, _size.y / 2f, 0);
+            _trail.sprite = sprite;
+            _trail.flipX = flip;
+            _trail.color = new Color(1f, 1f, 1f, 0.35f);
+            _trail.transform.localPosition = new Vector3(-facing * 0.45f, 0, 0);
         }
     }
 }

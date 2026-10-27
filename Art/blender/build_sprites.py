@@ -429,13 +429,13 @@ def at_xz(x, z, y=0.0):
 
 # ================================================================ characters
 
-BODY_R = 0.39
+BODY_R = float(os.environ.get('JELLY_BODY_R', '0.48'))   # drawn wider than the 0.8 hit box (user, 2026-10-27); JELLY_BODY_R overrides it for trials
 BODY_Z0 = 0.07
 BODY_Z1 = 1.19
 EYE_Z = 0.68
 EYE_YAWS = (-47.0, -13.0)      # local yaw (0 = forward, -60 = toward the camera)
 MOUTH_AT = (-29.0, 0.52)
-FEET = ((0.19, 0.03, 0.066), (-0.19, -0.03, 0.066))
+FEET = ((0.49 * BODY_R, 0.03, 0.066), (-0.49 * BODY_R, -0.03, 0.066))
 LAT_LOC = Vector((0.0, 0.0, 0.95))
 LAT_SIZE = Vector((1.7, 1.3, 2.0))
 

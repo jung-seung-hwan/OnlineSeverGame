@@ -28,6 +28,7 @@ namespace OnlineSeverGame.Client.Game
             public bool Alive = true;
             public bool Grounded;
             public float BotTurn;
+            public float Stun;          // 밀려나는 중(그리기용)
         }
 
         sealed class Sword
@@ -119,6 +120,7 @@ namespace OnlineSeverGame.Client.Game
             foreach (var b in _bodies)
             {
                 if (!b.Alive) continue;
+                if (b.Stun > 0f) b.Stun -= dt;
                 int move;
                 bool jump, dash;
                 if (b.Id == State.LocalId)
@@ -184,6 +186,7 @@ namespace OnlineSeverGame.Client.Game
                     {
                         o.Pos.x += a.Facing * 1.5f;
                         o.Vel.y = 6f;
+                        o.Stun = 0.3f;
                     }
                 }
             }
@@ -255,6 +258,7 @@ namespace OnlineSeverGame.Client.Game
         void Kill(Body b)
         {
             b.Alive = false;
+            b.Pos.y = _layout.SurfaceBelow(b.Pos.x, b.Pos.y);   // 웅덩이는 아래 면 위에
             for (int i = 0; i < State.Roster.Count; i++)
             {
                 if (State.Roster[i].Id != b.Id) continue;
@@ -282,6 +286,11 @@ namespace OnlineSeverGame.Client.Game
                     Dashing = b.DashLeft > 0f,
                     Facing = b.Facing,
                     IsLocal = b.Id == State.LocalId,
+                    Grounded = b.Grounded,
+                    VelocityY = b.Vel.y,
+                    Moving = Mathf.Abs(b.Vel.x) > 0.01f,
+                    Stunned = b.Stun > 0f,
+                    Winner = State.Screen == ClientScreen.Result && State.WinnerIds.Contains(b.Id),
                 });
             }
             foreach (var s in _swords)

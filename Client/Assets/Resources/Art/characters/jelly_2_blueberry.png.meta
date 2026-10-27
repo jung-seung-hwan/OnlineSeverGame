@@ -1,0 +1,832 @@
+fileFormatVersion: 2
+guid: 57996bcae0ce5ea4ea596f0406416933
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -2239276457698266469
+    second: jelly_2_blueberry_0
+  - first:
+      213: 552517888936081619
+    second: jelly_2_blueberry_1
+  - first:
+      213: -3706138666901267256
+    second: jelly_2_blueberry_2
+  - first:
+      213: -4265325064504726661
+    second: jelly_2_blueberry_3
+  - first:
+      213: 6272905006613323016
+    second: jelly_2_blueberry_4
+  - first:
+      213: -3021131424934239194
+    second: jelly_2_blueberry_5
+  - first:
+      213: 5061548491472678463
+    second: jelly_2_blueberry_6
+  - first:
+      213: 5528312959293042404
+    second: jelly_2_blueberry_7
+  - first:
+      213: 5790851205456362769
+    second: jelly_2_blueberry_8
+  - first:
+      213: 7749853979426472687
+    second: jelly_2_blueberry_9
+  - first:
+      213: 4983372609935649821
+    second: jelly_2_blueberry_10
+  - first:
+      213: -774064165698453856
+    second: jelly_2_blueberry_11
+  - first:
+      213: -116035641370941814
+    second: jelly_2_blueberry_12
+  - first:
+      213: -6343409317795019970
+    second: jelly_2_blueberry_13
+  - first:
+      213: -4730799019579139529
+    second: jelly_2_blueberry_14
+  - first:
+      213: 6802189302304348076
+    second: jelly_2_blueberry_15
+  - first:
+      213: 7962539869831207656
+    second: jelly_2_blueberry_16
+  - first:
+      213: -8394675185935591017
+    second: jelly_2_blueberry_17
+  - first:
+      213: -8672422522945757938
+    second: jelly_2_blueberry_18
+  - first:
+      213: 1005687066450667466
+    second: jelly_2_blueberry_19
+  - first:
+      213: -1503640232008050521
+    second: jelly_2_blueberry_20
+  - first:
+      213: -7875144117270774505
+    second: jelly_2_blueberry_21
+  - first:
+      213: 5910901200924203413
+    second: jelly_2_blueberry_22
+  - first:
+      213: -2331111401717772231
+    second: jelly_2_blueberry_23
+  - first:
+      213: 6316176381951164747
+    second: jelly_2_blueberry_24
+  - first:
+      213: 1681014108436523819
+    second: jelly_2_blueberry_25
+  - first:
+      213: 8127440994669895528
+    second: jelly_2_blueberry_26
+  - first:
+      213: -459130153711978190
+    second: jelly_2_blueberry_27
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: jelly_2_blueberry_0
+      rect:
+        serializedVersion: 2
+        x: 74
+        y: 1796
+        width: 108
+        height: 183
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b92fff80ded7ce0e0800000000000000
+      internalID: -2239276457698266469
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_2_blueberry_1
+      rect:
+        serializedVersion: 2
+        x: 329
+        y: 1796
+        width: 110
+        height: 181
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3d87516b710faa700800000000000000
+      internalID: 552517888936081619
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_2_blueberry_2
+      rect:
+        serializedVersion: 2
+        x: 585
+        y: 1796
+        width: 110
+        height: 180
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8cc9207b486219cc0800000000000000
+      internalID: -3706138666901267256
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_2_blueberry_3
+      rect:
+        serializedVersion: 2
+        x: 841
+        y: 1796
+        width: 110
+        height: 181
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b7b20a6d3758ec4c0800000000000000
+      internalID: -4265325064504726661
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_2_blueberry_4
+      rect:
+        serializedVersion: 2
+        x: 73
+        y: 1540
+        width: 117
+        height: 180
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 80dd4f44ed5dd0750800000000000000
+      internalID: 6272905006613323016
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_2_blueberry_5
+      rect:
+        serializedVersion: 2
+        x: 334
+        y: 1545
+        width: 110
+        height: 187
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6246605c9f8c216d0800000000000000
+      internalID: -3021131424934239194
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_2_blueberry_6
+      rect:
+        serializedVersion: 2
+        x: 590
+        y: 1545
+        width: 110
+        height: 187
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f3ea4a7298b3e3640800000000000000
+      internalID: 5061548491472678463
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_2_blueberry_7
+      rect:
+        serializedVersion: 2
+        x: 845
+        y: 1540
+        width: 113
+        height: 180
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4eea9d1a85388bc40800000000000000
+      internalID: 5528312959293042404
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_2_blueberry_8
+      rect:
+        serializedVersion: 2
+        x: 1102
+        y: 1545
+        width: 110
+        height: 187
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 11d7e587d7c3d5050800000000000000
+      internalID: 5790851205456362769
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_2_blueberry_9
+      rect:
+        serializedVersion: 2
+        x: 1358
+        y: 1545
+        width: 110
+        height: 187
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fe2ccd042230d8b60800000000000000
+      internalID: 7749853979426472687
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_2_blueberry_10
+      rect:
+        serializedVersion: 2
+        x: 77
+        y: 1284
+        width: 102
+        height: 198
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d1c20a65cfe782540800000000000000
+      internalID: 4983372609935649821
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_2_blueberry_11
+      rect:
+        serializedVersion: 2
+        x: 332
+        y: 1284
+        width: 104
+        height: 194
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0ae3f221eb8f145f0800000000000000
+      internalID: -774064165698453856
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_2_blueberry_12
+      rect:
+        serializedVersion: 2
+        x: 71
+        y: 1031
+        width: 114
+        height: 174
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a86eccee232c36ef0800000000000000
+      internalID: -116035641370941814
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_2_blueberry_13
+      rect:
+        serializedVersion: 2
+        x: 326
+        y: 1032
+        width: 116
+        height: 173
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e33cce395dea7f7a0800000000000000
+      internalID: -6343409317795019970
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_2_blueberry_14
+      rect:
+        serializedVersion: 2
+        x: 44
+        y: 772
+        width: 171
+        height: 123
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 73a18364b53d85eb0800000000000000
+      internalID: -4730799019579139529
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_2_blueberry_15
+      rect:
+        serializedVersion: 2
+        x: 303
+        y: 772
+        width: 166
+        height: 129
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ca710d2812b366e50800000000000000
+      internalID: 6802189302304348076
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_2_blueberry_16
+      rect:
+        serializedVersion: 2
+        x: 554
+        y: 772
+        width: 175
+        height: 120
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8ea9c2303df908e60800000000000000
+      internalID: 7962539869831207656
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_2_blueberry_17
+      rect:
+        serializedVersion: 2
+        x: 40
+        y: 521
+        width: 131
+        height: 174
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 799d581356f108b80800000000000000
+      internalID: -8394675185935591017
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_2_blueberry_18
+      rect:
+        serializedVersion: 2
+        x: 279
+        y: 524
+        width: 143
+        height: 165
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e0d98b1f9ad55a780800000000000000
+      internalID: -8672422522945757938
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_2_blueberry_19
+      rect:
+        serializedVersion: 2
+        x: 544
+        y: 522
+        width: 136
+        height: 173
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ac72ffefe0be4fd00800000000000000
+      internalID: 1005687066450667466
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_2_blueberry_20
+      rect:
+        serializedVersion: 2
+        x: 76
+        y: 260
+        width: 104
+        height: 191
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7a89c25fc2ff12be0800000000000000
+      internalID: -1503640232008050521
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_2_blueberry_21
+      rect:
+        serializedVersion: 2
+        x: 324
+        y: 260
+        width: 120
+        height: 188
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 71d711f462ed5b290800000000000000
+      internalID: -7875144117270774505
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_2_blueberry_22
+      rect:
+        serializedVersion: 2
+        x: 558
+        y: 260
+        width: 164
+        height: 115
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 599548f235db70250800000000000000
+      internalID: 5910901200924203413
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_2_blueberry_23
+      rect:
+        serializedVersion: 2
+        x: 796
+        y: 260
+        width: 200
+        height: 71
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 930dfb8e78a36afd0800000000000000
+      internalID: -2331111401717772231
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_2_blueberry_24
+      rect:
+        serializedVersion: 2
+        x: 71
+        y: 4
+        width: 114
+        height: 172
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b4149e074f097a750800000000000000
+      internalID: 6316176381951164747
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_2_blueberry_25
+      rect:
+        serializedVersion: 2
+        x: 332
+        y: 19
+        width: 104
+        height: 197
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b2b67cbdc69245710800000000000000
+      internalID: 1681014108436523819
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_2_blueberry_26
+      rect:
+        serializedVersion: 2
+        x: 587
+        y: 24
+        width: 106
+        height: 191
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 86f1f3c06887ac070800000000000000
+      internalID: 8127440994669895528
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_2_blueberry_27
+      rect:
+        serializedVersion: 2
+        x: 841
+        y: 9
+        width: 110
+        height: 181
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 239b35ace87d0a9f0800000000000000
+      internalID: -459130153711978190
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable: {}
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -522,6 +522,7 @@ namespace OnlineSeverGame.Client.Game
                     render.Alive = true;
                     render.Dashing = _predicted.IsDashing;
                     render.Facing = _predicted.Facing;
+                    SetMotion(ref render, _predicted);
                 }
                 else
                 {
@@ -532,10 +533,18 @@ namespace OnlineSeverGame.Client.Game
                     render.Alive = (t < 1f ? a : b).Alive;
                     render.Dashing = a.State.IsDashing;
                     render.Facing = a.State.Facing;
+                    SetMotion(ref render, a.State);
                 }
                 // 라운드 도중 들어온 관전자는 흐리게
                 if (!p.InRound && (_latest.RoomState == RoomState.Playing || _latest.RoomState == RoomState.Ended))
+                {
                     render.Alive = false;
+                    render.Spectator = true;
+                }
+                render.Winner = State.Screen == ClientScreen.Result && State.WinnerIds.Contains(p.PlayerId);
+                // 서버는 죽은 캐릭터를 죽은 자리(공중일 수 있음)에 멈춰 둔다. 웅덩이와 이름표는 아래 면 위에 그린다.
+                if (!render.Alive && !render.Spectator)
+                    render.Position.y = _layout.SurfaceBelow(render.Position.x, render.Position.y);
                 World.Players.Add(render);
             }
 
@@ -572,6 +581,15 @@ namespace OnlineSeverGame.Client.Game
                     LandingY = _layout.SwordLandingY(x),
                 });
             }
+        }
+
+        // 동작 고르기에 쓰는 물리 상태(PlayerView 가 대기·달리기·점프·낙하·대시·밀려남을 고른다)
+        static void SetMotion(ref PlayerRender r, PlayerState s)
+        {
+            r.Grounded = s.Grounded;
+            r.VelocityY = StageLayout.ToWorld(s.Vy) / TickSeconds;
+            r.Moving = s.Vx != 0;
+            r.Stunned = s.StunTicks > 0;
         }
 
         static bool TryFindPlayer(SnapshotPacket s, byte id, out PlayerSnapshot p)

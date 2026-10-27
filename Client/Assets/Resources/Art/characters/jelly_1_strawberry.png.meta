@@ -1,0 +1,857 @@
+fileFormatVersion: 2
+guid: e7b4cebcbee266f4ea76f9781f91fe7d
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -1347523643735346962
+    second: jelly_1_strawberry_0
+  - first:
+      213: -5663689924226027037
+    second: jelly_1_strawberry_1
+  - first:
+      213: 2370303115541002780
+    second: jelly_1_strawberry_2
+  - first:
+      213: -8567082807620020958
+    second: jelly_1_strawberry_3
+  - first:
+      213: 4719060625717218729
+    second: jelly_1_strawberry_4
+  - first:
+      213: -8273079358114374528
+    second: jelly_1_strawberry_5
+  - first:
+      213: 1355425288188077992
+    second: jelly_1_strawberry_6
+  - first:
+      213: -8083472725250264921
+    second: jelly_1_strawberry_7
+  - first:
+      213: -125185486648836300
+    second: jelly_1_strawberry_8
+  - first:
+      213: -6648991730386909961
+    second: jelly_1_strawberry_9
+  - first:
+      213: 108048897463939047
+    second: jelly_1_strawberry_10
+  - first:
+      213: 7696938531578891835
+    second: jelly_1_strawberry_11
+  - first:
+      213: 5706358023755584109
+    second: jelly_1_strawberry_12
+  - first:
+      213: 374079957221639158
+    second: jelly_1_strawberry_13
+  - first:
+      213: -9127612945697006338
+    second: jelly_1_strawberry_14
+  - first:
+      213: 3923500165309577298
+    second: jelly_1_strawberry_15
+  - first:
+      213: -8430203858114952065
+    second: jelly_1_strawberry_16
+  - first:
+      213: 2589167403833342571
+    second: jelly_1_strawberry_17
+  - first:
+      213: -3973657907304418566
+    second: jelly_1_strawberry_18
+  - first:
+      213: -4250509309914821472
+    second: jelly_1_strawberry_19
+  - first:
+      213: -6764427479133881926
+    second: jelly_1_strawberry_20
+  - first:
+      213: 6900454579109459716
+    second: jelly_1_strawberry_21
+  - first:
+      213: 4251275140648044314
+    second: jelly_1_strawberry_22
+  - first:
+      213: -6360319518463864279
+    second: jelly_1_strawberry_23
+  - first:
+      213: 994995434417593143
+    second: jelly_1_strawberry_24
+  - first:
+      213: 834013491042182456
+    second: jelly_1_strawberry_25
+  - first:
+      213: -8564198428582530610
+    second: jelly_1_strawberry_26
+  - first:
+      213: -8701054421983811116
+    second: jelly_1_strawberry_27
+  - first:
+      213: -3894947707141016811
+    second: jelly_1_strawberry_28
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: jelly_1_strawberry_0
+      rect:
+        serializedVersion: 2
+        x: 74
+        y: 1796
+        width: 108
+        height: 185
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ee0f6b0b262ac4de0800000000000000
+      internalID: -1347523643735346962
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_1_strawberry_1
+      rect:
+        serializedVersion: 2
+        x: 329
+        y: 1796
+        width: 110
+        height: 183
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3e17c8c75088661b0800000000000000
+      internalID: -5663689924226027037
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_1_strawberry_2
+      rect:
+        serializedVersion: 2
+        x: 585
+        y: 1796
+        width: 110
+        height: 181
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c1ab2db002205e020800000000000000
+      internalID: 2370303115541002780
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_1_strawberry_3
+      rect:
+        serializedVersion: 2
+        x: 841
+        y: 1796
+        width: 110
+        height: 183
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 225d37aa39b9b1980800000000000000
+      internalID: -8567082807620020958
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_1_strawberry_4
+      rect:
+        serializedVersion: 2
+        x: 73
+        y: 1540
+        width: 117
+        height: 185
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9ad486de2a87d7140800000000000000
+      internalID: 4719060625717218729
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_1_strawberry_5
+      rect:
+        serializedVersion: 2
+        x: 334
+        y: 1545
+        width: 110
+        height: 190
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 08cd9fc082e103d80800000000000000
+      internalID: -8273079358114374528
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_1_strawberry_6
+      rect:
+        serializedVersion: 2
+        x: 590
+        y: 1545
+        width: 110
+        height: 190
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8a728064e107fc210800000000000000
+      internalID: 1355425288188077992
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_1_strawberry_7
+      rect:
+        serializedVersion: 2
+        x: 845
+        y: 1540
+        width: 113
+        height: 185
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7a036eb626cb1df80800000000000000
+      internalID: -8083472725250264921
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_1_strawberry_8
+      rect:
+        serializedVersion: 2
+        x: 1102
+        y: 1545
+        width: 110
+        height: 190
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 43ff2419670434ef0800000000000000
+      internalID: -125185486648836300
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_1_strawberry_9
+      rect:
+        serializedVersion: 2
+        x: 1358
+        y: 1545
+        width: 110
+        height: 190
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7f447c3cf390ab3a0800000000000000
+      internalID: -6648991730386909961
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_1_strawberry_10
+      rect:
+        serializedVersion: 2
+        x: 77
+        y: 1284
+        width: 102
+        height: 199
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7efe5b756eddf7100800000000000000
+      internalID: 108048897463939047
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_1_strawberry_11
+      rect:
+        serializedVersion: 2
+        x: 332
+        y: 1284
+        width: 104
+        height: 195
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b3ec6c870d401da60800000000000000
+      internalID: 7696938531578891835
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_1_strawberry_12
+      rect:
+        serializedVersion: 2
+        x: 71
+        y: 1031
+        width: 114
+        height: 176
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d62d627936e013f40800000000000000
+      internalID: 5706358023755584109
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_1_strawberry_13
+      rect:
+        serializedVersion: 2
+        x: 326
+        y: 1032
+        width: 116
+        height: 175
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6f30ac73dbff03500800000000000000
+      internalID: 374079957221639158
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_1_strawberry_14
+      rect:
+        serializedVersion: 2
+        x: 44
+        y: 772
+        width: 171
+        height: 132
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: efc1974d264345180800000000000000
+      internalID: -9127612945697006338
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_1_strawberry_15
+      rect:
+        serializedVersion: 2
+        x: 303
+        y: 772
+        width: 166
+        height: 138
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 258b67ddc92137630800000000000000
+      internalID: 3923500165309577298
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_1_strawberry_16
+      rect:
+        serializedVersion: 2
+        x: 554
+        y: 772
+        width: 175
+        height: 128
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f744ee49146e10b80800000000000000
+      internalID: -8430203858114952065
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_1_strawberry_17
+      rect:
+        serializedVersion: 2
+        x: 48
+        y: 521
+        width: 123
+        height: 183
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b6ab18929029ee320800000000000000
+      internalID: 2589167403833342571
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_1_strawberry_18
+      rect:
+        serializedVersion: 2
+        x: 278
+        y: 524
+        width: 144
+        height: 177
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: af2b238cf2bbad8c0800000000000000
+      internalID: -3973657907304418566
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_1_strawberry_19
+      rect:
+        serializedVersion: 2
+        x: 548
+        y: 522
+        width: 132
+        height: 183
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0ac49048d482305c0800000000000000
+      internalID: -4250509309914821472
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_1_strawberry_20
+      rect:
+        serializedVersion: 2
+        x: 76
+        y: 260
+        width: 104
+        height: 193
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ab975551c0def12a0800000000000000
+      internalID: -6764427479133881926
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_1_strawberry_21
+      rect:
+        serializedVersion: 2
+        x: 348
+        y: 406
+        width: 54
+        height: 50
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 407798821e653cf50800000000000000
+      internalID: 6900454579109459716
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_1_strawberry_22
+      rect:
+        serializedVersion: 2
+        x: 324
+        y: 260
+        width: 120
+        height: 141
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a1786c857309ffa30800000000000000
+      internalID: 4251275140648044314
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_1_strawberry_23
+      rect:
+        serializedVersion: 2
+        x: 558
+        y: 260
+        width: 164
+        height: 125
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9225afba81b9bb7a0800000000000000
+      internalID: -6360319518463864279
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_1_strawberry_24
+      rect:
+        serializedVersion: 2
+        x: 796
+        y: 260
+        width: 200
+        height: 81
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 73b989d631feecd00800000000000000
+      internalID: 994995434417593143
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_1_strawberry_25
+      rect:
+        serializedVersion: 2
+        x: 71
+        y: 4
+        width: 114
+        height: 177
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 835e37fe9d2039b00800000000000000
+      internalID: 834013491042182456
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_1_strawberry_26
+      rect:
+        serializedVersion: 2
+        x: 332
+        y: 19
+        width: 104
+        height: 200
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ec1316e77ead52980800000000000000
+      internalID: -8564198428582530610
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_1_strawberry_27
+      rect:
+        serializedVersion: 2
+        x: 587
+        y: 24
+        width: 106
+        height: 194
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4d920567a15af3780800000000000000
+      internalID: -8701054421983811116
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_1_strawberry_28
+      rect:
+        serializedVersion: 2
+        x: 841
+        y: 9
+        width: 110
+        height: 184
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 513332952bd52f9c0800000000000000
+      internalID: -3894947707141016811
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable: {}
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

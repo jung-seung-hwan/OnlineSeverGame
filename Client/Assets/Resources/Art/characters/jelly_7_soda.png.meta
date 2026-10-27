@@ -1,0 +1,857 @@
+fileFormatVersion: 2
+guid: 581399d91f2e5ac4e92b46de8eb29c04
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -1692102145931972997
+    second: jelly_7_soda_0
+  - first:
+      213: -4738357708216035835
+    second: jelly_7_soda_1
+  - first:
+      213: 2826277816696912551
+    second: jelly_7_soda_2
+  - first:
+      213: 4785993476860099720
+    second: jelly_7_soda_3
+  - first:
+      213: 1384365386451152470
+    second: jelly_7_soda_4
+  - first:
+      213: 3671623699690440117
+    second: jelly_7_soda_5
+  - first:
+      213: -4781730443039538620
+    second: jelly_7_soda_6
+  - first:
+      213: -6552890225344000417
+    second: jelly_7_soda_7
+  - first:
+      213: -2154717598914625940
+    second: jelly_7_soda_8
+  - first:
+      213: 1853662527102343516
+    second: jelly_7_soda_9
+  - first:
+      213: -8078372114159926266
+    second: jelly_7_soda_10
+  - first:
+      213: -4936780758513207832
+    second: jelly_7_soda_11
+  - first:
+      213: -4788189334897139106
+    second: jelly_7_soda_12
+  - first:
+      213: -8536296837769330499
+    second: jelly_7_soda_13
+  - first:
+      213: -2267828916747286817
+    second: jelly_7_soda_14
+  - first:
+      213: 6486460859249455514
+    second: jelly_7_soda_15
+  - first:
+      213: -7501502892539767820
+    second: jelly_7_soda_16
+  - first:
+      213: 882169864929432099
+    second: jelly_7_soda_17
+  - first:
+      213: -1588270170557340024
+    second: jelly_7_soda_18
+  - first:
+      213: 4535543884794031578
+    second: jelly_7_soda_19
+  - first:
+      213: -1975817435517335280
+    second: jelly_7_soda_20
+  - first:
+      213: -7583656891798138602
+    second: jelly_7_soda_21
+  - first:
+      213: 6062647748254810560
+    second: jelly_7_soda_22
+  - first:
+      213: 3888333687011156816
+    second: jelly_7_soda_23
+  - first:
+      213: -2302210075101102638
+    second: jelly_7_soda_24
+  - first:
+      213: -1597570044566814326
+    second: jelly_7_soda_25
+  - first:
+      213: 3180740421250667027
+    second: jelly_7_soda_26
+  - first:
+      213: -1999341348880875295
+    second: jelly_7_soda_27
+  - first:
+      213: 4000036345815098279
+    second: jelly_7_soda_28
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: jelly_7_soda_0
+      rect:
+        serializedVersion: 2
+        x: 74
+        y: 1796
+        width: 108
+        height: 199
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b7e6c0c30127488e0800000000000000
+      internalID: -1692102145931972997
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_7_soda_1
+      rect:
+        serializedVersion: 2
+        x: 329
+        y: 1796
+        width: 110
+        height: 197
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5069c0fe4c8fd3eb0800000000000000
+      internalID: -4738357708216035835
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_7_soda_2
+      rect:
+        serializedVersion: 2
+        x: 585
+        y: 1796
+        width: 110
+        height: 195
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7aa39c433b4f83720800000000000000
+      internalID: 2826277816696912551
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_7_soda_3
+      rect:
+        serializedVersion: 2
+        x: 841
+        y: 1796
+        width: 110
+        height: 197
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 88c359db5b34b6240800000000000000
+      internalID: 4785993476860099720
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_7_soda_4
+      rect:
+        serializedVersion: 2
+        x: 73
+        y: 1540
+        width: 117
+        height: 192
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 65e64cafbf0463310800000000000000
+      internalID: 1384365386451152470
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_7_soda_5
+      rect:
+        serializedVersion: 2
+        x: 334
+        y: 1545
+        width: 110
+        height: 199
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5b544f04d4a34f230800000000000000
+      internalID: 3671623699690440117
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_7_soda_6
+      rect:
+        serializedVersion: 2
+        x: 590
+        y: 1545
+        width: 110
+        height: 199
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 44205fa2f71e3adb0800000000000000
+      internalID: -4781730443039538620
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_7_soda_7
+      rect:
+        serializedVersion: 2
+        x: 845
+        y: 1540
+        width: 113
+        height: 192
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f5ecd3a0f057f05a0800000000000000
+      internalID: -6552890225344000417
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_7_soda_8
+      rect:
+        serializedVersion: 2
+        x: 1102
+        y: 1545
+        width: 110
+        height: 199
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c6e396d82c7e812e0800000000000000
+      internalID: -2154717598914625940
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_7_soda_9
+      rect:
+        serializedVersion: 2
+        x: 1358
+        y: 1545
+        width: 110
+        height: 199
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c59536d4f3889b910800000000000000
+      internalID: 1853662527102343516
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_7_soda_10
+      rect:
+        serializedVersion: 2
+        x: 77
+        y: 1284
+        width: 102
+        height: 214
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 604831cfc5bd3ef80800000000000000
+      internalID: -8078372114159926266
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_7_soda_11
+      rect:
+        serializedVersion: 2
+        x: 332
+        y: 1284
+        width: 104
+        height: 209
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8e536da6e080d7bb0800000000000000
+      internalID: -4936780758513207832
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_7_soda_12
+      rect:
+        serializedVersion: 2
+        x: 71
+        y: 1031
+        width: 114
+        height: 190
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e5264283b2fec8db0800000000000000
+      internalID: -4788189334897139106
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_7_soda_13
+      rect:
+        serializedVersion: 2
+        x: 326
+        y: 1032
+        width: 116
+        height: 189
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: db00877d04bf88980800000000000000
+      internalID: -8536296837769330499
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_7_soda_14
+      rect:
+        serializedVersion: 2
+        x: 44
+        y: 772
+        width: 171
+        height: 135
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fd64bed9d9d0780e0800000000000000
+      internalID: -2267828916747286817
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_7_soda_15
+      rect:
+        serializedVersion: 2
+        x: 303
+        y: 772
+        width: 166
+        height: 141
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a91f905e8c9840a50800000000000000
+      internalID: 6486460859249455514
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_7_soda_16
+      rect:
+        serializedVersion: 2
+        x: 554
+        y: 772
+        width: 175
+        height: 132
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4f31a982dde45e790800000000000000
+      internalID: -7501502892539767820
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_7_soda_17
+      rect:
+        serializedVersion: 2
+        x: 34
+        y: 521
+        width: 137
+        height: 186
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3225ca671d81e3c00800000000000000
+      internalID: 882169864929432099
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_7_soda_18
+      rect:
+        serializedVersion: 2
+        x: 268
+        y: 524
+        width: 154
+        height: 173
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 886a494e1b455f9e0800000000000000
+      internalID: -1588270170557340024
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_7_soda_19
+      rect:
+        serializedVersion: 2
+        x: 536
+        y: 522
+        width: 144
+        height: 184
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: adde754022d71fe30800000000000000
+      internalID: 4535543884794031578
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_7_soda_20
+      rect:
+        serializedVersion: 2
+        x: 76
+        y: 260
+        width: 104
+        height: 207
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 01947feb28c7494e0800000000000000
+      internalID: -1975817435517335280
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_7_soda_21
+      rect:
+        serializedVersion: 2
+        x: 324
+        y: 260
+        width: 120
+        height: 141
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 611dde1ac3071c690800000000000000
+      internalID: -7583656891798138602
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_7_soda_22
+      rect:
+        serializedVersion: 2
+        x: 334
+        y: 401
+        width: 59
+        height: 58
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0c1cc09710ad22450800000000000000
+      internalID: 6062647748254810560
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_7_soda_23
+      rect:
+        serializedVersion: 2
+        x: 558
+        y: 260
+        width: 164
+        height: 126
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0532c7613e226f530800000000000000
+      internalID: 3888333687011156816
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_7_soda_24
+      rect:
+        serializedVersion: 2
+        x: 796
+        y: 260
+        width: 200
+        height: 81
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2ddf5436228ec00e0800000000000000
+      internalID: -2302210075101102638
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_7_soda_25
+      rect:
+        serializedVersion: 2
+        x: 71
+        y: 4
+        width: 114
+        height: 191
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a814acd328a44d9e0800000000000000
+      internalID: -1597570044566814326
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_7_soda_26
+      rect:
+        serializedVersion: 2
+        x: 332
+        y: 19
+        width: 104
+        height: 209
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3125f539f82442c20800000000000000
+      internalID: 3180740421250667027
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_7_soda_27
+      rect:
+        serializedVersion: 2
+        x: 587
+        y: 24
+        width: 106
+        height: 202
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1e0843bd2a9e044e0800000000000000
+      internalID: -1999341348880875295
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_7_soda_28
+      rect:
+        serializedVersion: 2
+        x: 841
+        y: 9
+        width: 110
+        height: 198
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7a3e5f80ddbf28730800000000000000
+      internalID: 4000036345815098279
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable: {}
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

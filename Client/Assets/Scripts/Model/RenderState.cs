@@ -14,6 +14,13 @@ namespace OnlineSeverGame.Client.Model
         public bool Dashing;
         public int Facing;         // -1 왼쪽, +1 오른쪽
         public bool IsLocal;
+        // 동작 고르기용(PlayerView)
+        public bool Grounded;
+        public float VelocityY;    // 위가 +
+        public bool Moving;        // 가로로 움직이는 중
+        public bool Stunned;       // 밀려나는 중
+        public bool Winner;        // 결과 화면의 승자
+        public bool Spectator;     // 라운드 도중 들어와 관전 중
     }
 
     public enum SwordPhase

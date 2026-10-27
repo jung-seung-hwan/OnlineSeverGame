@@ -3,16 +3,12 @@ using UnityEngine;
 
 namespace OnlineSeverGame.Client.View
 {
-    // 칼과 낙하 예고. 예고 중에는 낙하 지점 기둥과 위쪽 경고 삼각형(사각형)을 깜빡이며 보여준다.
+    // 칼(ArtSprites.Knife, 피벗 = 칼끝)과 낙하 예고. 예고 중에는 낙하 지점 기둥과 위쪽 경고 표시를 깜빡이며 보여준다.
     public sealed class SwordView : MonoBehaviour
     {
-        static readonly Color BladeColor = new Color(0.85f, 0.88f, 0.95f);
-        static readonly Color HiltColor = new Color(0.55f, 0.35f, 0.20f);
         static readonly Color WarnColor = new Color(1f, 0.25f, 0.2f);
 
-        SpriteRenderer _blade;
-        SpriteRenderer _guard;
-        SpriteRenderer _hilt;
+        SpriteRenderer _knife;
         SpriteRenderer _warnColumn;
         SpriteRenderer _warnMark;
         SpriteRenderer _warnGround;
@@ -29,9 +25,11 @@ namespace OnlineSeverGame.Client.View
             v._warnColumn = Shapes.Rect(go.transform, "WarnColumn", WarnColor, new Vector2(size.x * 2.5f, stageHeight), -5);
             v._warnMark = Shapes.Rect(go.transform, "WarnMark", WarnColor, new Vector2(0.7f, 0.7f), 20);
             v._warnGround = Shapes.Rect(go.transform, "WarnGround", WarnColor, new Vector2(size.x * 4f, 0.12f), 8);
-            v._blade = Shapes.Rect(go.transform, "Blade", BladeColor, new Vector2(size.x, size.y * 0.72f), 15);
-            v._guard = Shapes.Rect(go.transform, "Guard", HiltColor, new Vector2(size.x * 2.6f, size.y * 0.08f), 16);
-            v._hilt = Shapes.Rect(go.transform, "Hilt", HiltColor, new Vector2(size.x * 0.7f, size.y * 0.2f), 16);
+            var knife = new GameObject("Knife");
+            knife.transform.SetParent(go.transform, false);
+            v._knife = knife.AddComponent<SpriteRenderer>();
+            v._knife.sprite = ArtSprites.Knife;
+            v._knife.sortingOrder = 15;
             return v;
         }
 
@@ -41,7 +39,7 @@ namespace OnlineSeverGame.Client.View
             _warnColumn.enabled = warning;
             _warnMark.enabled = warning;
             _warnGround.enabled = warning;
-            _blade.enabled = _guard.enabled = _hilt.enabled = !warning;
+            _knife.enabled = !warning;
 
             if (warning)
             {
@@ -62,14 +60,9 @@ namespace OnlineSeverGame.Client.View
                 return;
             }
 
-            // 칼끝이 Position 이고 손잡이가 위쪽이다.
+            // 칼끝이 Position 이고 손잡이가 위쪽이다. 꽂힌 칼은 해가 없으므로 흐리게.
             transform.localPosition = new Vector3(s.Position.x, s.Position.y, 0);
-            float bladeH = _size.y * 0.72f;
-            _blade.transform.localPosition = new Vector3(0, bladeH / 2f, 0);
-            _guard.transform.localPosition = new Vector3(0, bladeH + _size.y * 0.04f, 0);
-            _hilt.transform.localPosition = new Vector3(0, bladeH + _size.y * 0.08f + _size.y * 0.1f, 0);
-            float alpha = s.Phase == SwordPhase.Landed ? 0.6f : 1f;
-            _blade.color = new Color(BladeColor.r, BladeColor.g, BladeColor.b, alpha);
+            _knife.color = new Color(1f, 1f, 1f, s.Phase == SwordPhase.Landed ? 0.6f : 1f);
         }
     }
 }

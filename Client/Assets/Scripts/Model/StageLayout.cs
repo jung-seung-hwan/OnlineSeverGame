@@ -50,6 +50,16 @@ namespace OnlineSeverGame.Client.Model
             return s;
         }
 
+        // 공중에서 죽은 캐릭터의 웅덩이를 그릴 높이: 발 아래 첫 바닥·발판 윗면
+        public float SurfaceBelow(float x, float y)
+        {
+            int mx = Mathf.RoundToInt(x * GameConstants.UnitsPerWorldUnit);
+            int my = Mathf.RoundToInt(y * GameConstants.UnitsPerWorldUnit);
+            Source.TryFindLanding(mx - GameConstants.PlayerHalfWidth, mx + GameConstants.PlayerHalfWidth, my, int.MinValue / 2,
+                true, out int top);
+            return ToWorld(top);
+        }
+
         // 칼이 꽂힐 높이(예고 표시용)
         public float SwordLandingY(float x)
         {

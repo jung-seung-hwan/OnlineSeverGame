@@ -1,0 +1,857 @@
+fileFormatVersion: 2
+guid: f10f691e0cd9e264b9d0e5d1112c4dcf
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -325040798248434889
+    second: jelly_3_lime_0
+  - first:
+      213: 7432652714352923478
+    second: jelly_3_lime_1
+  - first:
+      213: 7468467256103184063
+    second: jelly_3_lime_2
+  - first:
+      213: -3359851842818327453
+    second: jelly_3_lime_3
+  - first:
+      213: -3981287641371826217
+    second: jelly_3_lime_4
+  - first:
+      213: -367062206419110032
+    second: jelly_3_lime_5
+  - first:
+      213: 7901177634233637529
+    second: jelly_3_lime_6
+  - first:
+      213: 3088211094508147719
+    second: jelly_3_lime_7
+  - first:
+      213: -2432612542332611874
+    second: jelly_3_lime_8
+  - first:
+      213: -1109905917313214228
+    second: jelly_3_lime_9
+  - first:
+      213: 7478891708549832860
+    second: jelly_3_lime_10
+  - first:
+      213: -3376319788693907290
+    second: jelly_3_lime_11
+  - first:
+      213: -6988127869906348025
+    second: jelly_3_lime_12
+  - first:
+      213: 3299342219727265684
+    second: jelly_3_lime_13
+  - first:
+      213: -4083080258638738979
+    second: jelly_3_lime_14
+  - first:
+      213: 7379072493468030262
+    second: jelly_3_lime_15
+  - first:
+      213: 90019272091332732
+    second: jelly_3_lime_16
+  - first:
+      213: -8057931818162472139
+    second: jelly_3_lime_17
+  - first:
+      213: -544185977287334416
+    second: jelly_3_lime_18
+  - first:
+      213: -949510467692394486
+    second: jelly_3_lime_19
+  - first:
+      213: 9068419323649936532
+    second: jelly_3_lime_20
+  - first:
+      213: 6380879088858782195
+    second: jelly_3_lime_21
+  - first:
+      213: 2085137573459215976
+    second: jelly_3_lime_22
+  - first:
+      213: 113446859143744725
+    second: jelly_3_lime_23
+  - first:
+      213: -8891301997323113487
+    second: jelly_3_lime_24
+  - first:
+      213: -7261620259430920165
+    second: jelly_3_lime_25
+  - first:
+      213: 3131844131902724874
+    second: jelly_3_lime_26
+  - first:
+      213: 4452515034026498790
+    second: jelly_3_lime_27
+  - first:
+      213: -6885201206183549572
+    second: jelly_3_lime_28
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: jelly_3_lime_0
+      rect:
+        serializedVersion: 2
+        x: 74
+        y: 1796
+        width: 108
+        height: 187
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 73384eabd193d7bf0800000000000000
+      internalID: -325040798248434889
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_3_lime_1
+      rect:
+        serializedVersion: 2
+        x: 329
+        y: 1796
+        width: 110
+        height: 185
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 65359d98346162760800000000000000
+      internalID: 7432652714352923478
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_3_lime_2
+      rect:
+        serializedVersion: 2
+        x: 585
+        y: 1796
+        width: 110
+        height: 184
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fb6aaa8566355a760800000000000000
+      internalID: 7468467256103184063
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_3_lime_3
+      rect:
+        serializedVersion: 2
+        x: 841
+        y: 1796
+        width: 110
+        height: 185
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 36c3fdadc886f51d0800000000000000
+      internalID: -3359851842818327453
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_3_lime_4
+      rect:
+        serializedVersion: 2
+        x: 73
+        y: 1540
+        width: 117
+        height: 186
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7d72163ebff9fb8c0800000000000000
+      internalID: -3981287641371826217
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_3_lime_5
+      rect:
+        serializedVersion: 2
+        x: 334
+        y: 1545
+        width: 110
+        height: 192
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 077fae73edee7eaf0800000000000000
+      internalID: -367062206419110032
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_3_lime_6
+      rect:
+        serializedVersion: 2
+        x: 590
+        y: 1545
+        width: 110
+        height: 192
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 99ad1c3323f96ad60800000000000000
+      internalID: 7901177634233637529
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_3_lime_7
+      rect:
+        serializedVersion: 2
+        x: 845
+        y: 1540
+        width: 113
+        height: 186
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 704149fd0a78bda20800000000000000
+      internalID: 3088211094508147719
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_3_lime_8
+      rect:
+        serializedVersion: 2
+        x: 1102
+        y: 1545
+        width: 110
+        height: 192
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ed2da1208cf9d3ed0800000000000000
+      internalID: -2432612542332611874
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_3_lime_9
+      rect:
+        serializedVersion: 2
+        x: 1358
+        y: 1545
+        width: 110
+        height: 192
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ce81170e272d890f0800000000000000
+      internalID: -1109905917313214228
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_3_lime_10
+      rect:
+        serializedVersion: 2
+        x: 77
+        y: 1284
+        width: 102
+        height: 202
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c902ab1526c5ac760800000000000000
+      internalID: 7478891708549832860
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_3_lime_11
+      rect:
+        serializedVersion: 2
+        x: 332
+        y: 1284
+        width: 104
+        height: 198
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6a817ca6a07e421d0800000000000000
+      internalID: -3376319788693907290
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_3_lime_12
+      rect:
+        serializedVersion: 2
+        x: 71
+        y: 1031
+        width: 114
+        height: 178
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 708993d1abe250f90800000000000000
+      internalID: -6988127869906348025
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_3_lime_13
+      rect:
+        serializedVersion: 2
+        x: 326
+        y: 1032
+        width: 116
+        height: 177
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 49fda47a44e99cd20800000000000000
+      internalID: 3299342219727265684
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_3_lime_14
+      rect:
+        serializedVersion: 2
+        x: 44
+        y: 772
+        width: 171
+        height: 131
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dd98d6a432cf557c0800000000000000
+      internalID: -4083080258638738979
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_3_lime_15
+      rect:
+        serializedVersion: 2
+        x: 303
+        y: 772
+        width: 166
+        height: 137
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6359409365bb76660800000000000000
+      internalID: 7379072493468030262
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_3_lime_16
+      rect:
+        serializedVersion: 2
+        x: 554
+        y: 772
+        width: 175
+        height: 128
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c7071ff0d00df3100800000000000000
+      internalID: 90019272091332732
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_3_lime_17
+      rect:
+        serializedVersion: 2
+        x: 49
+        y: 521
+        width: 122
+        height: 182
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 53bbb1244b97c2090800000000000000
+      internalID: -8057931818162472139
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_3_lime_18
+      rect:
+        serializedVersion: 2
+        x: 277
+        y: 524
+        width: 145
+        height: 173
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0f52a04acb9a278f0800000000000000
+      internalID: -544185977287334416
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_3_lime_19
+      rect:
+        serializedVersion: 2
+        x: 548
+        y: 522
+        width: 132
+        height: 182
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a080ea6a249a2d2f0800000000000000
+      internalID: -949510467692394486
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_3_lime_20
+      rect:
+        serializedVersion: 2
+        x: 76
+        y: 260
+        width: 104
+        height: 196
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 49c417c045f79dd70800000000000000
+      internalID: 9068419323649936532
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_3_lime_21
+      rect:
+        serializedVersion: 2
+        x: 324
+        y: 260
+        width: 120
+        height: 141
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3f9552659bf6d8850800000000000000
+      internalID: 6380879088858782195
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_3_lime_22
+      rect:
+        serializedVersion: 2
+        x: 350
+        y: 399
+        width: 58
+        height: 56
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8664bd55395efec10800000000000000
+      internalID: 2085137573459215976
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_3_lime_23
+      rect:
+        serializedVersion: 2
+        x: 558
+        y: 260
+        width: 164
+        height: 124
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5dc852c315b039100800000000000000
+      internalID: 113446859143744725
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_3_lime_24
+      rect:
+        serializedVersion: 2
+        x: 796
+        y: 260
+        width: 200
+        height: 79
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1fba5da01ffbb9480800000000000000
+      internalID: -8891301997323113487
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_3_lime_25
+      rect:
+        serializedVersion: 2
+        x: 71
+        y: 4
+        width: 114
+        height: 178
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b1017d609da893b90800000000000000
+      internalID: -7261620259430920165
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_3_lime_26
+      rect:
+        serializedVersion: 2
+        x: 332
+        y: 19
+        width: 104
+        height: 202
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a0b14fd05ab867b20800000000000000
+      internalID: 3131844131902724874
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_3_lime_27
+      rect:
+        serializedVersion: 2
+        x: 587
+        y: 24
+        width: 106
+        height: 196
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6ea5c3045d28acd30800000000000000
+      internalID: 4452515034026498790
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jelly_3_lime_28
+      rect:
+        serializedVersion: 2
+        x: 841
+        y: 9
+        width: 110
+        height: 186
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c75a65a7bf9d270a0800000000000000
+      internalID: -6885201206183549572
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable: {}
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
