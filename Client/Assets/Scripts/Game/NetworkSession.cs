@@ -15,7 +15,10 @@ namespace OnlineSeverGame.Client.Game
     // 서버 접속 세션 (docs/protocol.md 8장 규칙).
     //   - 고정 20Hz 클라이언트 틱마다 Input(seq, buttons) 전송
     //   - 내 캐릭터: Shared PlayerPhysics.Step 으로 예측, 스냅샷의 lastInputSeq 이후 입력을 재시뮬레이션해 보정
-    //   - 다른 플레이어·칼·밀리는 상자: 스냅샷 두 개 사이 보간 (InterpDelayTicks 만큼 늦게)
+    //   - 다른 플레이어·밀리는 상자: 스냅샷 두 개 사이 보간 (InterpDelayTicks 만큼 늦게)
+    //   - 위험물: 내 캐릭터가 살아 있으면 내 예측 시각에 맞춰 그린다. 낙하는 Shared 물리로 결정적이라 최신 스냅샷에서
+    //     예측한 틱 수만큼 KnifePhysics.Step 으로 앞서 계산한다(보간 시각에 그리면 내 몸보다 약 3틱 늦어 빨리 떨어지는
+    //     칼이 2유닛쯤 위에 보였다. docs/work/map-select-hit.md). 죽었거나 관전 중이면 다른 플레이어와 같은 보간 시각.
     //   - 예측은 최신 스냅샷의 상자 위치를 고정된 벽·발판으로 쓴다. 내가 남의 머리를 밟아 튕기는 것도 예측한다:
     //     최신 스냅샷의 다른 플레이어를 마지막으로 누른 버튼 그대로 내 예측과 같은 틱만큼 함께 굴려(서버도 새 입력이
     //     없으면 그렇게 한다) 그 위치로 검사한다. 상대 기절·밀치기·상자 이동은 서버만 판정하고 보정으로 따라간다.
@@ -52,6 +55,12 @@ namespace OnlineSeverGame.Client.Game
         double _latestRecvTime;
         double _renderTick;
         bool _renderTickInit;
+        // 위험물을 그리는 서버 틱(예측 중이면 내 예측 시각, 아니면 _renderTick 을 따라감)
+        double _hazardTick;
+        bool _hazardTickInit;
+        readonly List<SwordRender> _interpSwords = new List<SwordRender>(); // 진단용: 예전 방식(보간 시각)
+        readonly HitViewStats _hitView = new HitViewStats();
+        bool _wasAlive;
 
         // 예측
         struct PendingInput
@@ -225,6 +234,7 @@ namespace OnlineSeverGame.Client.Game
                 case SnapshotPacket s: OnSnapshot(s); break;
                 case RoundStartPacket rs: OnRoundStart(rs); break;
                 case RoundEndPacket re: OnRoundEnd(re); break;
+                case RoomInfoPacket info: OnRoomInfo(info); break;
                 case PongPacket p:
                     State.PingMs = (int)((uint)_clock.ElapsedMilliseconds - p.ClientTime);
                     break;
@@ -302,6 +312,33 @@ namespace OnlineSeverGame.Client.Game
             foreach (var id in re.Winners) names.Add(NameOf(id));
             Debug.Log($"[Net] round {re.RoundNumber} end, winners=[{string.Join(", ", names)}] " +
                       $"reconciles={_reconcileCount} mispredicts={_mispredictCount} maxCorrection={_maxCorrection:0.000}");
+            // 마지막 두 명이 남았을 때 내가 죽으면 RoundEnd 가 그 스냅샷보다 먼저 온다.
+            foreach (var r in re.Results)
+            {
+                if (r.PlayerId != _localId || r.Cause != EliminationCause.Knife || !_wasAlive) continue;
+                _hitView.Death(Now);
+                _wasAlive = false;
+            }
+            Debug.Log($"[Net] round {re.RoundNumber} {_hitView.TakeSummary()}");
+        }
+
+        void OnRoomInfo(RoomInfoPacket info)
+        {
+            State.HostId = info.HostId;
+            State.NextMapId = info.NextStageId;
+            State.NextMapName = StageLayout.DisplayName(info.NextStageId);
+            State.Rotation = info.Rotation;
+            State.NextChosen = info.NextChosen;
+            Debug.Log($"[Net] room host=#{info.HostId} next map {info.NextStageId} '{State.NextMapName}' rotation={info.Rotation}" +
+                      (info.NextChosen ? " (host pick)" : ""));
+        }
+
+        // 방장만 보낸다(UI 가 막는다). 서버도 방장인지 확인하고, 바뀌면 RoomInfo 로 모두에게 알린다.
+        public void RequestMap(byte stageId, MapRotation rotation)
+        {
+            if (!_welcomed) return;
+            _net.Send(new MapRequestPacket { StageId = stageId, Rotation = rotation });
+            Debug.Log($"[Net] map request stage={stageId} rotation={rotation}");
         }
 
         void OnSnapshot(SnapshotPacket s)
@@ -322,6 +359,10 @@ namespace OnlineSeverGame.Client.Game
             }
             else
                 _predicting = false;
+            bool alive = TryFindPlayer(s, _localId, out me) && me.Alive && me.InRound;
+            if (_wasAlive && !alive && (s.RoomState == RoomState.Playing || s.RoomState == RoomState.Ended) && me.InRound)
+                _hitView.Death(Now);
+            _wasAlive = alive && s.RoomState == RoomState.Playing;
         }
 
         // ---------------------------------------------------------------- 예측·보정
@@ -563,15 +604,10 @@ namespace OnlineSeverGame.Client.Game
             }
             if (_renderTick > _latest.ServerTick) _renderTick = _latest.ServerTick; // 외삽하지 않는다
 
-            SnapshotPacket s0 = _snaps[0], s1 = null;
-            for (int i = 0; i < _snaps.Count; i++)
-            {
-                if (_snaps[i].ServerTick <= _renderTick) s0 = _snaps[i];
-                else { s1 = _snaps[i]; break; }
-            }
-            if (s1 != null && s1.ServerTick <= s0.ServerTick) s1 = null;
-            float t = s1 == null ? 0f : (float)((_renderTick - s0.ServerTick) / (s1.ServerTick - s0.ServerTick));
-            t = Mathf.Clamp01(t);
+            FindSnapshots(_renderTick, out SnapshotPacket s0, out SnapshotPacket s1, out float t);
+            AdvanceHazardClock(dt);
+            // 위험물이 내 예측 시각에 그려지는 동안에는 다른 플레이어의 탈락도 아는 즉시 보인다(칼이 지나간 뒤 늦게 죽지 않게).
+            bool hazardsAhead = _hazardTick > _renderTick + 0.5;
 
             // 플레이어 목록은 최신 스냅샷 기준(입장·퇴장이 바로 보이게)
             foreach (var p in _latest.Players)
@@ -606,8 +642,8 @@ namespace OnlineSeverGame.Client.Game
                     render.Position = Vector2.Lerp(
                         new Vector2(StageLayout.ToWorld(a.State.X), StageLayout.ToWorld(a.State.Y)),
                         new Vector2(StageLayout.ToWorld(b.State.X), StageLayout.ToWorld(b.State.Y)), t);
-                    // 생존 여부는 그리는 시점 기준(죽는 순간이 칼과 맞게)
-                    render.Alive = (t < 1f ? a : b).Alive;
+                    // 생존 여부는 그리는 시점 기준(죽는 순간이 칼과 맞게). 위험물이 앞서 그려지면 최신 스냅샷 기준.
+                    render.Alive = (t < 1f ? a : b).Alive && (!hazardsAhead || p.Alive);
                     render.Dashing = a.State.IsDashing;
                     render.Facing = a.State.Facing;
                     SetMotion(ref render, a.State);
@@ -629,40 +665,14 @@ namespace OnlineSeverGame.Client.Game
             // 그리는 시점의 지형(녹는 아이스크림 발판의 폭)
             _layout.RoundTick = s0.RoomState == RoomState.Playing ? s0.RoundTick : 0;
 
-            foreach (var k in s0.Knives)
+            CollectHazards(_hazardTick, World.Swords);
+            if (_predicting && _latest.RoomState == RoomState.Playing)
             {
-                KnifeState a = k, b = k;
-                if (s1 != null && TryFindKnife(s1, k.Id, out KnifeState kb)) b = kb;
-                float x = StageLayout.ToWorld(a.X);
-                // Warning → Falling 경계에서는 칼이 출발점에서부터 보이도록 b 단계로 바로 넘어간다.
-                KnifePhase phase = a.Phase;
-                float y;
-                if (a.Phase == KnifePhase.Warning && b.Phase != KnifePhase.Warning && t > 0.5f)
-                {
-                    phase = b.Phase;
-                    y = StageLayout.ToWorld(b.Y);
-                }
-                else if (a.Phase == KnifePhase.Warning)
-                {
-                    y = StageLayout.ToWorld(a.Y);
-                }
-                else
-                {
-                    y = Mathf.Lerp(StageLayout.ToWorld(a.Y), StageLayout.ToWorld(b.Y), t);
-                }
-
-                float timer = Mathf.Lerp(a.Timer, b.Phase == a.Phase ? b.Timer : 0, t);
-                World.Swords.Add(new SwordRender
-                {
-                    Id = k.Id,
-                    Kind = k.Kind,
-                    SpawnY = _layout.SwordSpawnY,
-                    Phase = phase == KnifePhase.Warning ? SwordPhase.Warning
-                        : phase == KnifePhase.Falling ? SwordPhase.Falling : SwordPhase.Landed,
-                    Position = new Vector2(x, y),
-                    WarningProgress = 1f - timer / k.Spec.WarningTicks,
-                    LandingY = _layout.SwordLandingY(k.Kind, x, _latest.Pushables),
-                });
+                _interpSwords.Clear();
+                CollectHazards(_renderTick, _interpSwords);
+                foreach (var pr in World.Players)
+                    if (pr.IsLocal) _hitView.Frame(Now, _predicted, pr.Position, _interpSwords, World.Swords, _hazardTick - _renderTick);
+                State.HazardTouches = _hitView.TouchCount;
             }
 
             foreach (var box in s0.Pushables)
@@ -679,6 +689,135 @@ namespace OnlineSeverGame.Client.Game
                     Crumbling = a.Crumble > 0,
                 });
             }
+            // 최신 스냅샷에 새로 생긴 상자(창고에서 착지한 화물)는 바로 그린다. 앞서 그린 위험물이 막 착지해
+            // 사라졌으므로, 보간 시각까지 기다리면 그 사이 상자가 없어 보인다.
+            foreach (var box in _latest.Pushables)
+            {
+                if (TryFindBox(s0, box.Id, out _)) continue;
+                World.Boxes.Add(new BoxRender
+                {
+                    Id = box.Id,
+                    Position = new Vector2(StageLayout.ToWorld(box.X), StageLayout.ToWorld(box.Y)),
+                    Size = new Vector2(StageLayout.ToWorld(box.Width), StageLayout.ToWorld(box.Height)),
+                    Crumbling = box.Crumble > 0,
+                });
+            }
+        }
+
+        void FindSnapshots(double tick, out SnapshotPacket s0, out SnapshotPacket s1, out float t)
+        {
+            s0 = _snaps[0];
+            s1 = null;
+            for (int i = 0; i < _snaps.Count; i++)
+            {
+                if (_snaps[i].ServerTick <= tick) s0 = _snaps[i];
+                else { s1 = _snaps[i]; break; }
+            }
+            if (s1 != null && s1.ServerTick <= s0.ServerTick) s1 = null;
+            t = s1 == null ? 0f : (float)((tick - s0.ServerTick) / (s1.ServerTick - s0.ServerTick));
+            t = Mathf.Clamp01(t);
+        }
+
+        // 내 화면 몸(LocalRenderPosition)과 같은 서버 틱: _predicted = 최신 스냅샷 + 미확인 입력 수, 그 사이를 alpha 로 보간.
+        double HazardTargetTick()
+        {
+            if (!_predicting || _latest.RoomState != RoomState.Playing) return _renderTick;
+            return _latest.ServerTick + _pending.Count - 1 + Mathf.Clamp01(_tickAccum / TickSeconds);
+        }
+
+        // 목표 시각을 실시간 속도로 따라간다. 조금 어긋나면 속도를 바꿔 흡수하고, 뒤로 가야 하면(내가 죽어 보간 시각으로
+        // 돌아갈 때) 되감지 않고 잠깐 멈춘다. 많이 어긋나면 바로 옮긴다.
+        void AdvanceHazardClock(float dt)
+        {
+            double target = HazardTargetTick();
+            if (!_hazardTickInit || Math.Abs(target - _hazardTick) > 8.0)
+            {
+                _hazardTick = target;
+                _hazardTickInit = true;
+                return;
+            }
+            double rate = Math.Max(0.0, Math.Min(3.0, 1.0 + (target - _hazardTick) * 4.0));
+            double next = _hazardTick + rate * dt / TickSeconds;
+            _hazardTick = rate > 1.0 ? Math.Min(next, target) : next;
+        }
+
+        // tick 시점의 위험물. 최신 스냅샷 이전이면 두 스냅샷 사이 보간, 이후면 최신 스냅샷에서 Shared 물리로 앞서 계산한다
+        // (같은 지형·최신 상자, 녹는 발판은 그 틱의 모양). 아직 서버가 만들지 않은 위험물은 알 수 없으므로 늦게 나타난다.
+        void CollectHazards(double tick, List<SwordRender> into)
+        {
+            if (tick <= _latest.ServerTick)
+            {
+                FindSnapshots(tick, out SnapshotPacket s0, out SnapshotPacket s1, out float t);
+                foreach (var k in s0.Knives)
+                {
+                    KnifeState b = k;
+                    if (s1 != null && TryFindKnife(s1, k.Id, out KnifeState kb)) b = kb;
+                    into.Add(ToSword(k, b, t, false));
+                }
+                return;
+            }
+
+            int steps = (int)Math.Floor(tick - _latest.ServerTick);
+            float frac = (float)(tick - _latest.ServerTick - steps);
+            uint roundTick = _latest.RoomState == RoomState.Playing ? _latest.RoundTick : 0;
+            foreach (var k in _latest.Knives)
+            {
+                KnifeState a = k;
+                bool wasFalling = false;
+                if (!StepHazard(ref a, steps, roundTick, ref wasFalling)) continue;
+                KnifeState b = a;
+                bool bFalling = wasFalling;
+                if (!StepHazard(ref b, 1, roundTick + (uint)steps, ref bFalling)) b = a;
+                // 창고 화물은 착지하면 서버에서 상자가 된다(금 간 그림이 아니라 상자 그림 그대로).
+                bool asBox = k.Kind == HazardKind.Crate && (wasFalling || k.Phase == KnifePhase.Falling);
+                into.Add(ToSword(a, b, frac, asBox));
+            }
+        }
+
+        bool StepHazard(ref KnifeState k, int steps, uint roundTick, ref bool fell)
+        {
+            for (int i = 0; i < steps; i++)
+            {
+                if (k.Phase == KnifePhase.Falling) fell = true;
+                roundTick = NextRoundTick(roundTick);
+                if (!KnifePhysics.Step(ref k, _stage.AtRoundTick(roundTick), _latest.Pushables, out _, out _)) return false;
+            }
+            return true;
+        }
+
+        SwordRender ToSword(KnifeState a, KnifeState b, float t, bool asBox)
+        {
+            float x = StageLayout.ToWorld(a.X);
+            // Warning → Falling 경계에서는 칼이 출발점에서부터 보이도록 b 단계로 바로 넘어간다.
+            KnifePhase phase = a.Phase;
+            float y;
+            if (a.Phase == KnifePhase.Warning && b.Phase != KnifePhase.Warning && t > 0.5f)
+            {
+                phase = b.Phase;
+                y = StageLayout.ToWorld(b.Y);
+            }
+            else if (a.Phase == KnifePhase.Warning)
+            {
+                y = StageLayout.ToWorld(a.Y);
+            }
+            else
+            {
+                y = Mathf.Lerp(StageLayout.ToWorld(a.Y), StageLayout.ToWorld(b.Y), t);
+            }
+
+            float timer = Mathf.Lerp(a.Timer, b.Phase == a.Phase ? b.Timer : 0, t);
+            return new SwordRender
+            {
+                Id = a.Id,
+                Kind = a.Kind,
+                SpawnY = _layout.SwordSpawnY,
+                Phase = phase == KnifePhase.Warning ? SwordPhase.Warning
+                    : phase == KnifePhase.Falling ? SwordPhase.Falling : SwordPhase.Landed,
+                Position = new Vector2(x, y),
+                WarningProgress = 1f - timer / a.Spec.WarningTicks,
+                LandingY = _layout.SwordLandingY(a.Kind, x, _latest.Pushables),
+                AsBox = asBox && phase == KnifePhase.Landed,
+            };
         }
 
         void CountShownDash(PlayerRender r)

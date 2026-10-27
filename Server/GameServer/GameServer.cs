@@ -18,6 +18,8 @@ public sealed class ServerOptions
     public MapRotation Rotation = MapRotation.Cycle;
     /// <summary>The only map when Rotation is Fixed (--map N).</summary>
     public Stage FixedMap = Stage.Default;
+    /// <summary>Judge hazards with the old boxes instead of the drawn shapes (before/after comparisons).</summary>
+    public bool LegacyHitbox;
 }
 
 /// <summary>
@@ -45,7 +47,7 @@ public sealed class GameServer
         _room = new GameRoom(new RoomConfig
         {
             MinPlayers = options.MinPlayers, Seed = options.Seed, LogPushes = options.Verbose,
-            Rotation = options.Rotation, Stage = options.FixedMap,
+            Rotation = options.Rotation, Stage = options.FixedMap, LegacyHitbox = options.LegacyHitbox,
         }, msg => Log.Info(msg));
         _listener = new TcpListener(IPAddress.Any, options.Port);
     }
@@ -161,6 +163,11 @@ public sealed class GameServer
             case NetEventKind.Input:
                 if (conn.PlayerId != 0 && _byPlayer.TryGetValue(conn.PlayerId, out var owner) && owner == conn)
                     _room.QueueInput(conn.PlayerId, e.Seq, e.Buttons);
+                break;
+
+            case NetEventKind.MapRequest:
+                if (conn.PlayerId != 0 && _byPlayer.TryGetValue(conn.PlayerId, out var requester) && requester == conn)
+                    _room.RequestMap(conn.PlayerId, e.StageId, e.Rotation);
                 break;
 
             case NetEventKind.Leave:

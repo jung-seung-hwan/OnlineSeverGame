@@ -41,6 +41,8 @@ namespace OnlineSeverGame.Shared.Protocol
                 case PacketType.RoundEnd: packet = RoundEndPacket.Read(r); break;
                 case PacketType.Ping: packet = PingPacket.Read(r); break;
                 case PacketType.Pong: packet = PongPacket.Read(r); break;
+                case PacketType.RoomInfo: packet = RoomInfoPacket.Read(r); break;
+                case PacketType.MapRequest: packet = MapRequestPacket.Read(r); break;
                 default: throw new PacketFormatException($"Unknown packet type {(byte)type}");
             }
             r.ExpectEnd();

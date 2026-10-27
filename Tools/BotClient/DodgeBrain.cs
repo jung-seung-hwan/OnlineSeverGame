@@ -5,8 +5,8 @@ namespace OnlineSeverGame.BotClient;
 /// <summary>
 /// Hazard avoidance for bots, as a pure function of what a client can see in a snapshot. Each tick:
 ///  1. Every warned or falling hazard (knife, icicle, crate, fork: each with its own width and fall speed)
-///     that would reach my body becomes a danger interval of x positions (hazard width + my width + a
-///     margin). Hazards that land on a platform or box above me are ignored: it is a roof. Icicles go
+///     that would reach my body becomes a danger interval of x positions (drawn hazard width + drawn body
+///     width + a margin). Hazards that land on a platform or box above me are ignored: it is a roof. Icicles go
 ///     through ice platforms, so those are no roof.
 ///  2. If I stand inside an interval, walk to the nearest x outside all of them; dash when walking
 ///     cannot get there before impact; drop through the platform (Down + Jump) when the knife would land on it.
@@ -44,7 +44,8 @@ public static class DodgeBrain
         foreach (var k in knives)
         {
             HazardSpec spec = k.Spec;
-            int halfWidth = spec.HalfWidth + GameConstants.PlayerHalfWidth + Margin;
+            // Hazards hit the drawn shapes (HitShapes), which are wider than the movement box.
+            int halfWidth = HitShapes.HazardHalfWidth(k.Kind) + HitShapes.BodyHalfWidth + Margin;
             int tipY;
             int ticks;
             if (k.Phase == KnifePhase.Warning)

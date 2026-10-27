@@ -1,11 +1,14 @@
 using System.Collections.Generic;
 using OnlineSeverGame.Client.Game;
 using OnlineSeverGame.Client.Model;
+using OnlineSeverGame.Shared.Protocol;
 using UnityEngine;
 
 namespace OnlineSeverGame.Client.UI
 {
     // IMGUI 로 그리는 임시 UI. 접속 → 대기 → 진행 → 관전 → 결과 화면.
+    // 맵 선택(방장만): 대기·카운트다운 화면 왼쪽 명단 아래와 결과 화면 패널 안의 버튼, 또는 키보드 1~4(다음 맵),
+    // R(교체 방식: 순환 → 무작위 → 고정). 키는 접속 중 어느 화면에서나 되고, 바꾼 맵은 다음 라운드부터 쓰인다.
     public sealed class GameUI : MonoBehaviour
     {
         public GameBootstrap Game;
@@ -41,7 +44,10 @@ namespace OnlineSeverGame.Client.UI
             var screen = state?.Screen ?? ClientScreen.Connect;
 
             if (screen != ClientScreen.Connect && screen != ClientScreen.Connecting)
+            {
                 DrawNameTags(session);
+                HandleMapKeys(session);
+            }
 
             switch (screen)
             {
@@ -113,10 +119,16 @@ namespace OnlineSeverGame.Client.UI
             GUILayout.Label(sub, _center);
             GUILayout.EndArea();
 
-            var side = Filled(new Rect(12, 48, 240, 64 + 32 * s.Roster.Count));
+            float sideH = 64 + 32 * s.Roster.Count;
+            var side = Filled(new Rect(12, 48, 240, sideH));
             GUILayout.BeginArea(side);
             GUILayout.Label($"접속자 {s.Roster.Count}/{s.Capacity}", _label);
-            foreach (var p in s.Roster) RosterRow(p, p.Id == s.LocalId, null);
+            foreach (var p in s.Roster) RosterRow(p, p.Id == s.LocalId, null, null, p.Id == s.HostId);
+            GUILayout.EndArea();
+
+            var map = Filled(new Rect(12, 48 + sideH + 8, 430, MapPanelHeight(s)));
+            GUILayout.BeginArea(map);
+            DrawMapChoice(Game.Session, s);
             GUILayout.EndArea();
             DrawTopBar(s, showRound: false);
         }
@@ -153,6 +165,9 @@ namespace OnlineSeverGame.Client.UI
             GUILayout.Label(s.LocalInRound ? "탈락! 관전 중" : "관전 중", _big, GUILayout.Height(36));
             GUILayout.Label(s.LocalInRound ? $"남은 생존자 {s.AliveCount}명" : "다음 라운드부터 참가합니다", _center);
             GUILayout.EndArea();
+            var next = new GUIStyle(_center) { fontSize = 14 };
+            next.normal.textColor = new Color(1, 1, 1, 0.7f);
+            GUI.Label(new Rect(r.x, r.yMax + 16, r.width, 22), $"다음 맵: {s.NextMapName} ({RotationName(s.Rotation)})", next);
         }
 
         void DrawResult(SessionState s)
@@ -161,7 +176,7 @@ namespace OnlineSeverGame.Client.UI
             foreach (var p in s.Roster) if (p.Place > 0) _ranking.Add(p);
             _ranking.Sort((a, b) => a.Place != b.Place ? a.Place.CompareTo(b.Place) : b.SurvivedSeconds.CompareTo(a.SurvivedSeconds));
 
-            var r = Panel(460, 210 + 30 * _ranking.Count);
+            var r = Panel(460, 210 + 30 * _ranking.Count + MapPanelHeight(s));
             GUILayout.BeginArea(r);
             GUILayout.Space(8);
             string winner;
@@ -177,12 +192,69 @@ namespace OnlineSeverGame.Client.UI
                 RosterRow(p, p.Id == s.LocalId, $"{p.Place}위  ", tail);
             }
             GUILayout.FlexibleSpace();
+            DrawMapChoice(Game.Session, s);
             GUILayout.Label($"{Mathf.CeilToInt(Mathf.Max(0f, s.CountdownSeconds))}초 후 다음 라운드", _center);
             if (GUILayout.Button("나가기", GUILayout.Height(34))) Game.Disconnect("");
             GUILayout.EndArea();
         }
 
-        void RosterRow(RosterEntry p, bool isLocal, string prefix, string tail = null)
+        static readonly string[] MapNames = { "주방", "겨울 처마", "창고", "디저트 가게" };
+        static readonly MapRotation[] Rotations = { MapRotation.Cycle, MapRotation.Random, MapRotation.Fixed };
+
+        static string RotationName(MapRotation r) =>
+            r == MapRotation.Random ? "무작위" : r == MapRotation.Fixed ? "고정" : "순환";
+
+        static float MapPanelHeight(SessionState s) => s.IsHost ? 150 : 76;
+
+        // 다음 라운드 맵과 교체 방식. 방장에게는 버튼(맵 4개, 방식 3개)을 보여준다. 누르면 서버에 요청만 하고,
+        // 화면 값은 서버가 돌려주는 RoomInfo 로 바뀐다.
+        void DrawMapChoice(IGameSession session, SessionState s)
+        {
+            string host = s.TryGet(s.HostId, out RosterEntry h) ? h.Name + (s.IsHost ? " (나)" : "") : "-";
+            GUILayout.Label($"다음 라운드 맵: {s.NextMapName}{(s.NextChosen ? " (방장 지정)" : "")}", _label);
+            GUILayout.Label($"교체 방식: {RotationName(s.Rotation)}    방장: {host}", _label);
+            if (!s.IsHost) return;
+            var button = new GUIStyle(GUI.skin.button) { fontSize = 15 };
+            GUILayout.BeginHorizontal();
+            for (int i = 0; i < MapNames.Length; i++)
+            {
+                bool current = s.NextMapId == i + 1;
+                GUI.color = current ? new Color(1f, 0.85f, 0.4f) : Color.white;
+                if (GUILayout.Button($"{i + 1} {MapNames[i]}", button, GUILayout.Height(28))) session.RequestMap((byte)(i + 1), 0);
+            }
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            foreach (var r in Rotations)
+            {
+                GUI.color = s.Rotation == r ? new Color(1f, 0.85f, 0.4f) : Color.white;
+                if (GUILayout.Button(RotationName(r), button, GUILayout.Height(28))) session.RequestMap(0, r);
+            }
+            GUI.color = Color.white;
+            GUILayout.EndHorizontal();
+            var hint = new GUIStyle(_label) { fontSize = 13 };
+            hint.normal.textColor = new Color(1, 1, 1, 0.6f);
+            GUILayout.Label("키 1~4 다음 맵, R 교체 방식 · 다음 라운드부터", hint);
+        }
+
+        void HandleMapKeys(IGameSession session)
+        {
+            var e = Event.current;
+            if (e.type != EventType.KeyDown || session == null || !session.State.IsHost) return;
+            var s = session.State;
+            if (e.keyCode >= KeyCode.Alpha1 && e.keyCode <= KeyCode.Alpha4)
+                session.RequestMap((byte)(e.keyCode - KeyCode.Alpha1 + 1), 0);
+            else if (e.keyCode >= KeyCode.Keypad1 && e.keyCode <= KeyCode.Keypad4)
+                session.RequestMap((byte)(e.keyCode - KeyCode.Keypad1 + 1), 0);
+            else if (e.keyCode == KeyCode.R)
+            {
+                int i = System.Array.IndexOf(Rotations, s.Rotation);
+                session.RequestMap(0, Rotations[(i + 1) % Rotations.Length]);
+            }
+            else return;
+            e.Use();
+        }
+
+        void RosterRow(RosterEntry p, bool isLocal, string prefix, string tail = null, bool host = false)
         {
             GUILayout.BeginHorizontal(GUILayout.Height(26));
             var swatch = GUILayoutUtility.GetRect(20, 20, GUILayout.Width(20), GUILayout.Height(20));
@@ -191,7 +263,7 @@ namespace OnlineSeverGame.Client.UI
             GUI.DrawTexture(swatch, Texture2D.whiteTexture);
             GUI.color = old;
             GUILayout.Space(8);
-            string name = (prefix ?? "") + p.Name + (isLocal ? "  (나)" : "");
+            string name = (prefix ?? "") + p.Name + (isLocal ? "  (나)" : "") + (host ? "  ★방장" : "");
             GUILayout.Label(name, _label);
             GUILayout.FlexibleSpace();
             if (tail != null) GUILayout.Label(tail, _label);

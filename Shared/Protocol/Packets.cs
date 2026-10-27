@@ -397,4 +397,57 @@ namespace OnlineSeverGame.Shared.Protocol
         public static PongPacket Read(PacketReader r) =>
             new PongPacket { ClientTime = r.ReadUInt32(), ServerTick = r.ReadUInt32() };
     }
+
+    /// <summary>
+    /// S: who the host is (the earliest-joined player still connected; 0 = nobody) and which map the next new round
+    /// uses. Sent to a newcomer after the roster and to everyone whenever any of it changes.
+    /// </summary>
+    public sealed class RoomInfoPacket : IPacket
+    {
+        public byte HostId;
+        public byte NextStageId;
+        public MapRotation Rotation = MapRotation.Cycle;
+        /// <summary>The host picked NextStageId (it is not just what the rotation gives).</summary>
+        public bool NextChosen;
+
+        public PacketType Type => PacketType.RoomInfo;
+
+        public void Write(PacketWriter w)
+        {
+            w.WriteByte(HostId);
+            w.WriteByte(NextStageId);
+            w.WriteByte((byte)Rotation);
+            w.WriteByte(NextChosen ? (byte)1 : (byte)0);
+        }
+
+        public static RoomInfoPacket Read(PacketReader r) => new RoomInfoPacket
+        {
+            HostId = r.ReadByte(), NextStageId = r.ReadByte(), Rotation = (MapRotation)r.ReadByte(),
+            NextChosen = (r.ReadByte() & 1) != 0,
+        };
+
+        public bool SameAs(RoomInfoPacket o) =>
+            o != null && o.HostId == HostId && o.NextStageId == NextStageId && o.Rotation == Rotation && o.NextChosen == NextChosen;
+    }
+
+    /// <summary>
+    /// C: the host asks for the next map and/or the rotation. StageId 0 = keep, Rotation 0 = keep. The server
+    /// ignores it from anyone else; a change takes effect at the next new round and comes back as RoomInfo.
+    /// </summary>
+    public sealed class MapRequestPacket : IPacket
+    {
+        public byte StageId;
+        public MapRotation Rotation;
+
+        public PacketType Type => PacketType.MapRequest;
+
+        public void Write(PacketWriter w)
+        {
+            w.WriteByte(StageId);
+            w.WriteByte((byte)Rotation);
+        }
+
+        public static MapRequestPacket Read(PacketReader r) =>
+            new MapRequestPacket { StageId = r.ReadByte(), Rotation = (MapRotation)r.ReadByte() };
+    }
 }

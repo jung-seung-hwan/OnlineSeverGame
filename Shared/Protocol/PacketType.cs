@@ -12,8 +12,21 @@ namespace OnlineSeverGame.Shared.Protocol
         Snapshot = 20,    // S
         RoundStart = 30,  // S
         RoundEnd = 31,    // S
+        RoomInfo = 32,    // S
         Ping = 40,        // C
         Pong = 41,        // S
+        MapRequest = 50,  // C
+    }
+
+    /// <summary>How the map changes between rounds (RoomInfo, MapRequest). 0 on the wire = none / keep.</summary>
+    public enum MapRotation : byte
+    {
+        /// <summary>Kitchen, winter eaves, warehouse, dessert shop, kitchen, ... from wherever it is now.</summary>
+        Cycle = 1,
+        /// <summary>A random map, never the one just played.</summary>
+        Random = 2,
+        /// <summary>The same map every round.</summary>
+        Fixed = 3,
     }
 
     public enum RejectReason : byte

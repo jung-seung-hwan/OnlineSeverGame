@@ -15,6 +15,7 @@ namespace OnlineSeverGame.Client.Game
     //   -nostomppredict(밟기 튕김 예측 끄기, 비교 시험용)
     //   -screenshot <파일경로> -screenshotDelay <초> [-screenshotEvery <초>]  -quitAfter <초>
     //   (-screenshotEvery 를 주면 파일경로의 {n} 을 번호로 바꿔 여러 장 찍는다)
+    //   -touchshot <파일경로>: 위험물이 처음 내 몸에 닿아 보이는 프레임마다 찍는다({n} = 번호, 최대 12장. 칼 판정 확인용)
     public sealed class GameBootstrap : MonoBehaviour
     {
         public string PlayerName = "Player";
@@ -33,6 +34,9 @@ namespace OnlineSeverGame.Client.Game
         float _screenshotEvery = -1f;
         int _screenshotCount;
         float _quitAt = -1f;
+        string _touchShotPath;
+        int _touchShots;
+        int _seenTouches;
         ClientScreen _loggedScreen = ClientScreen.Connect;
         int _builtLayoutVersion;
 
@@ -84,6 +88,7 @@ namespace OnlineSeverGame.Client.Game
                     case "-screenshotEvery": if (float.TryParse(next, out var e)) _screenshotEvery = e; break;
                     case "-nostomppredict": NetworkSession.StompPrediction = false; break;
                     case "-quitAfter": if (float.TryParse(next, out var q)) _quitAt = q; break;
+                    case "-touchshot": _touchShotPath = next; break;
                 }
             }
             if (_screenshotPath != null && _screenshotAt < 0f) _screenshotAt = 3f;
@@ -141,6 +146,17 @@ namespace OnlineSeverGame.Client.Game
                 {
                     // 세션이 스스로 끊긴 경우(서버 종료 등)
                     Disconnect(Session.State.Status);
+                }
+            }
+
+            if (_touchShotPath != null && Session != null && Session.State.HazardTouches != _seenTouches)
+            {
+                _seenTouches = Session.State.HazardTouches;
+                if (_touchShots < 12)
+                {
+                    string path = _touchShotPath.Replace("{n}", (++_touchShots).ToString("00"));
+                    ScreenCapture.CaptureScreenshot(path);
+                    Debug.Log($"[Client] touchshot {path} touch={_seenTouches} round={Session.State.RoundNumber}");
                 }
             }
 

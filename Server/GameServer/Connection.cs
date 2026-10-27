@@ -9,12 +9,15 @@ public enum NetEventKind
     Join,
     Input,
     Leave,
+    /// <summary>MapRequest from the client (the room checks that it is the host).</summary>
+    MapRequest,
 }
 
 /// <summary>What a receive thread hands to the game loop.</summary>
 public readonly record struct NetEvent(
     NetEventKind Kind, Connection Connection, string Name = null, ushort Version = 0,
-    uint Seq = 0, InputButtons Buttons = InputButtons.None, LeaveReason Reason = LeaveReason.Disconnected);
+    uint Seq = 0, InputButtons Buttons = InputButtons.None, LeaveReason Reason = LeaveReason.Disconnected,
+    byte StageId = 0, MapRotation Rotation = 0);
 
 /// <summary>
 /// One TCP client. Two threads of its own:
@@ -131,6 +134,9 @@ public sealed class Connection
                     {
                         case InputPacket input:
                             _server.Events.Enqueue(new NetEvent(NetEventKind.Input, this, Seq: input.Seq, Buttons: input.Buttons));
+                            break;
+                        case MapRequestPacket map:
+                            _server.Events.Enqueue(new NetEvent(NetEventKind.MapRequest, this, StageId: map.StageId, Rotation: map.Rotation));
                             break;
                         case PingPacket ping:
                             Send(PacketCodec.EncodeFrame(new PongPacket { ClientTime = ping.ClientTime, ServerTick = _server.CurrentTick }));

@@ -53,6 +53,7 @@ namespace OnlineSeverGame.Client.Model
         public float WarningProgress; // 0..1, 예고 시작 0 → 낙하 직전 1
         public float LandingY;        // 꽂힐 면의 높이(예고 기둥 아래 끝)
         public float SpawnY;          // 떨어지기 시작하는 높이(고드름은 예고 중 여기 매달려 떨린다)
+        public bool AsBox;            // 앞서 계산한 창고 화물이 막 착지함: 서버에서 상자가 되므로 금 간 그림 대신 상자 그림
     }
 
     public sealed class WorldRender

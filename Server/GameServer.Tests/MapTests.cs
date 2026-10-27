@@ -462,7 +462,7 @@ public class MapTests
         var crate = new KnifeState { Id = 1, Kind = HazardKind.Crate, Phase = KnifePhase.Warning, X = 6000, Y = 14000, Timer = 10 };
         var me = PlayerState.SpawnAt(7000, 0, 1);
         var d = Assert.Single(DodgeBrain.FindDangers(me, new[] { crate }, Stage.Warehouse, 2));
-        Assert.Equal(6000 - 700 - PlayerHalfWidth - DodgeBrain.Margin, d.Left);
+        Assert.Equal(6000 - 720 - HitShapes.BodyHalfWidth - DodgeBrain.Margin, d.Left);
         Assert.True(d.Contains(7000));
 
         // On the icy window sill an icicle goes through it: no Down + Jump, walk out instead.

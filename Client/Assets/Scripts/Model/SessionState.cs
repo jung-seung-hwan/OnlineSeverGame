@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using OnlineSeverGame.Shared.Protocol;
 
 namespace OnlineSeverGame.Client.Model
 {
@@ -43,6 +44,16 @@ namespace OnlineSeverGame.Client.Model
         public bool LocalInRound = true;
         public string Status = "";      // 연결 오류·끊김 등 사용자에게 보일 한 줄
         public int PingMs = -1;
+        // 방 정보(RoomInfo): 방장 = 가장 먼저 들어와 아직 남은 사람. 다음 맵은 새 라운드(카운트다운)부터 쓰인다.
+        public int HostId;
+        public int NextMapId;
+        public string NextMapName = "";
+        public MapRotation Rotation = MapRotation.Cycle;
+        public bool NextChosen;         // 방장이 직접 고른 다음 맵
+
+        public bool IsHost => HostId != 0 && HostId == LocalId;
+        // 시험용(-touchshot): 위험물이 처음 내 몸에 닿아 보인 횟수(예측 시각 그리기 기준)
+        public int HazardTouches;
 
         public int AliveCount
         {
@@ -81,6 +92,8 @@ namespace OnlineSeverGame.Client.Model
         WorldRender World { get; }
         // 매 Update 호출. 입력 전송·수신 처리·보간을 여기서 한다.
         void Update(float deltaTime, Input.InputCollector input);
+        // 방장만 의미가 있다: 다음 맵(0 = 그대로)·교체 방식(0 = 그대로). 미리보기는 무시한다.
+        void RequestMap(byte stageId, MapRotation rotation);
         void Close();
     }
 }

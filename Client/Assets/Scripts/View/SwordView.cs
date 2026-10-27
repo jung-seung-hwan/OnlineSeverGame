@@ -148,13 +148,13 @@ namespace OnlineSeverGame.Client.View
             // 끝이 Position 이다. 꽂히거나 부서진 것은 해가 없으므로 흐리게.
             transform.localPosition = new Vector3(s.Position.x, s.Position.y, 0);
             _body.localPosition = Vector3.zero;
-            bool landed = s.Phase == SwordPhase.Landed;
+            bool landed = s.Phase == SwordPhase.Landed && !s.AsBox;
             if (_art != null && landed != _showingLanded)
             {
                 _showingLanded = landed;
                 _art.sprite = landed ? ArtSprites.HazardLanded(_kind) ?? _art.sprite : ArtSprites.Hazard(_kind);
             }
-            SetAlpha(s.Phase == SwordPhase.Landed ? 0.6f : 1f);
+            SetAlpha(landed ? 0.6f : 1f);
         }
 
         void SetAlpha(float a)

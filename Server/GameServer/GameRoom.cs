@@ -3,23 +3,14 @@ using OnlineSeverGame.Shared.Simulation;
 
 namespace OnlineSeverGame.Server;
 
-/// <summary>How the map changes between rounds.</summary>
-public enum MapRotation
-{
-    /// <summary>Always RoomConfig.Stage.</summary>
-    Fixed,
-    /// <summary>RoomConfig.Maps in order, starting with the first.</summary>
-    Cycle,
-    /// <summary>A random map from RoomConfig.Maps, never the one just played.</summary>
-    Random,
-}
-
 public sealed class RoomConfig
 {
     public int MinPlayers = 2;
-    /// <summary>The map when Rotation is Fixed.</summary>
+    /// <summary>The first map when Rotation starts as Fixed (otherwise Maps[0]).</summary>
     public Stage Stage = Stage.Default;
+    /// <summary>The starting rotation; the host may change it (MapRequest).</summary>
     public MapRotation Rotation = MapRotation.Fixed;
+    /// <summary>Maps in cycle order; also the ones the host may pick.</summary>
     public IReadOnlyList<Stage> Maps = Stage.All;
     public int Seed = Environment.TickCount;
     /// <summary>Off in tests that place knives by hand.</summary>
@@ -29,6 +20,11 @@ public sealed class RoomConfig
     public int FirstKnifeDelayTicks = GameConstants.TickRate;
     /// <summary>Log every dash push. Off by default: the round summary carries the count.</summary>
     public bool LogPushes;
+    /// <summary>
+    /// Judge hazards with the old boxes (hazard spec box vs the 800 x 1200 movement box) instead of the drawn
+    /// shapes (HitShapes). Only for before/after comparisons (--legacy-hitbox).
+    /// </summary>
+    public bool LegacyHitbox;
 }
 
 /// <summary>A frame to send: Target 0 = everyone in the room.</summary>
@@ -43,6 +39,8 @@ public sealed class RoomPlayer
     public bool InRound;
     public uint LastInputSeq;
     public uint LastReceivedSeq;
+    /// <summary>Order of arrival (1, 2, ...). The host is the lowest one still here.</summary>
+    public long JoinOrder;
     public InputButtons LastButtons;
     /// <summary>Dashes started this round and the server tick of the last one (0 = none yet). For logs and tests.</summary>
     public int RoundDashes;
@@ -72,9 +70,15 @@ public sealed class GameRoom
     private Stage _stage;
     private readonly Random _random;
     private readonly Random _mapRandom;
-    private int _mapIndex;
-    /// <summary>A round has been played on the current map, so the next countdown moves on.</summary>
+    private MapRotation _rotation;
+    /// <summary>The map the next new countdown switches to (the current one until a round on it starts playing).</summary>
+    private Stage _nextStage;
+    /// <summary>The host picked _nextStage; the rotation does not overwrite it.</summary>
+    private bool _nextChosen;
+    /// <summary>A round has started playing on the current map, so the next countdown moves on.</summary>
     private bool _mapPlayed;
+    private long _joinCounter;
+    private RoomInfoPacket _sentRoomInfo;
     private readonly SortedDictionary<byte, RoomPlayer> _players = new();
     private readonly List<RoundEntry> _round = new();
     private readonly List<KnifeState> _knives = new();
@@ -95,12 +99,15 @@ public sealed class GameRoom
     private int _roundCratesLanded;
     private int _roundCratesCrumbled;
     private int _roundCratesShattered;
+    private readonly HitStats _hitStats = new();
     private readonly Action<string> _log;
 
     public GameRoom(RoomConfig config, Action<string> log = null)
     {
         _config = config;
+        _rotation = config.Rotation;
         _stage = config.Rotation == MapRotation.Fixed ? config.Stage : config.Maps[0];
+        _nextStage = _stage;
         _random = new Random(config.Seed);
         _mapRandom = new Random(config.Seed ^ 0x5EED);
         _log = log ?? (_ => { });
@@ -120,6 +127,21 @@ public sealed class GameRoom
     /// <summary>The current map's shape this tick (melting platforms shrink during Playing).</summary>
     public Stage CurrentStage => _stage.AtRoundTick(State == RoomState.Playing ? RoundTick : 0);
     public int RoundCratesLanded => _roundCratesLanded;
+    /// <summary>The map the next new round will use.</summary>
+    public Stage NextStage => _nextStage;
+    public MapRotation Rotation => _rotation;
+    public bool NextChosen => _nextChosen;
+    /// <summary>The earliest-joined player still connected (0 = empty room). Only the host may change maps.</summary>
+    public byte HostId
+    {
+        get
+        {
+            RoomPlayer host = null;
+            foreach (var p in _players.Values)
+                if (host == null || p.JoinOrder < host.JoinOrder) host = p;
+            return host?.Id ?? 0;
+        }
+    }
 
     public List<Outgoing> Outbox { get; } = new();
     public IReadOnlyList<KnifeState> Knives => _knives;
@@ -142,7 +164,7 @@ public sealed class GameRoom
 
         name = (name ?? "").Trim();
         if (name.Length == 0) name = "Player" + id;
-        var player = new RoomPlayer { Id = id, Name = name, State = SpawnState(id) };
+        var player = new RoomPlayer { Id = id, Name = name, State = SpawnState(id), JoinOrder = ++_joinCounter };
         _players.Add(id, player);
 
         switch (State)
@@ -167,6 +189,8 @@ public sealed class GameRoom
         foreach (var p in _players.Values)
             if (p.Id != id) Send(p.Id, new PlayerJoinedPacket { PlayerId = id, Name = name });
         if (State == RoomState.Countdown) Broadcast(BuildRoundStart());
+        // Everyone else learns about a host change at the end of the tick; the newcomer needs it now.
+        Send(id, BuildRoomInfo());
 
         _log($"join  #{id} '{name}' ({_players.Count}/{ProtocolConstants.MaxPlayers}) state={State}");
         return id;
@@ -199,6 +223,50 @@ public sealed class GameRoom
         }
     }
 
+    /// <summary>
+    /// The host asks for the next map (stageId 0 = keep) and/or the rotation (0 = keep). Anyone else is ignored,
+    /// as are maps not in RoomConfig.Maps. It never changes the round in progress: the map switches at the next new
+    /// countdown (a countdown counts as the round in progress). Returns true when accepted.
+    /// </summary>
+    public bool RequestMap(byte playerId, byte stageId, MapRotation rotation)
+    {
+        if (!_players.ContainsKey(playerId)) return false;
+        if (playerId != HostId)
+        {
+            _log($"map   request from #{playerId} ignored: not the host (#{HostId})");
+            return false;
+        }
+        Stage pick = null;
+        if (stageId != 0)
+        {
+            foreach (var m in _config.Maps)
+                if (m.Id == stageId) pick = m;
+            if (pick == null)
+            {
+                _log($"map   request from #{playerId} ignored: no map {stageId}");
+                return false;
+            }
+        }
+        bool validRotation = rotation == MapRotation.Cycle || rotation == MapRotation.Random || rotation == MapRotation.Fixed;
+        if (rotation != 0 && !validRotation)
+        {
+            _log($"map   request from #{playerId} ignored: no rotation {(byte)rotation}");
+            return false;
+        }
+        if (validRotation) _rotation = rotation;
+        if (pick != null)
+        {
+            _nextStage = pick;
+            _nextChosen = true;
+        }
+        else if (!_nextChosen)
+        {
+            _nextStage = _mapPlayed ? MapAfter(_stage) : _stage;
+        }
+        _log($"map   host #{playerId} set next map {_nextStage.Id} '{_nextStage.Name}', rotation {_rotation} (now on {_stage.Id} '{_stage.Name}', state {State})");
+        return true;
+    }
+
     /// <summary>Starts a warning for the map's hazard (knife, icicle, crate, fork) at x. Used by the spawner and by tests.</summary>
     public void SpawnKnife(int x)
     {
@@ -227,7 +295,16 @@ public sealed class GameRoom
         }
 
         AdvanceRoomState();
+        BroadcastRoomInfoIfChanged();
         Broadcast(BuildSnapshot());
+    }
+
+    private void BroadcastRoomInfoIfChanged()
+    {
+        var info = BuildRoomInfo();
+        if (info.SameAs(_sentRoomInfo)) return;
+        _sentRoomInfo = info;
+        Broadcast(info);
     }
 
     /// <summary>
@@ -357,7 +434,8 @@ public sealed class GameRoom
         {
             var k = _knives[i];
             KnifePhase before = k.Phase;
-            bool keep = KnifePhysics.Step(ref k, stage, _boxes, out bool dangerous, out Aabb swept);
+            int fromY = k.Y;
+            bool keep = KnifePhysics.Step(ref k, stage, _boxes, out bool dangerous, out _);
             if (!keep)
             {
                 _knives.RemoveAt(i);
@@ -367,12 +445,20 @@ public sealed class GameRoom
             if (!dangerous) continue;
             foreach (var p in _players.Values)
             {
-                if (p.Alive && p.InRound && swept.Overlaps(p.State.Bounds))
+                if (!p.Alive || !p.InRound) continue;
+                // Both rules are measured every tick so the round summary can compare them; only one decides.
+                int visual = HitShapes.Separation(p.State, k.Kind, k.X, fromY, k.Y);
+                int legacy = HitShapes.LegacySeparation(p.State, k.Kind, k.X, fromY, k.Y);
+                bool hit = _config.LegacyHitbox ? legacy < 0 : visual < 0;
+                _hitStats.Record(k.Id, p.Id, hit, visual, legacy, _config.LegacyHitbox);
+                if (hit)
                 {
                     Eliminate(p, EliminationCause.Knife);
-                    _log($"death #{p.Id} '{p.Name}' by {k.Kind.ToString().ToLowerInvariant()}#{k.Id} at roundTick {RoundTick}");
+                    _log($"death #{p.Id} '{p.Name}' by {k.Kind.ToString().ToLowerInvariant()}#{k.Id} at roundTick {RoundTick}" +
+                         $" (drawn-shape gap {visual / 1000.0:0.00} u, old-box gap {legacy / 1000.0:0.00} u)");
                 }
             }
+            if (k.Phase != KnifePhase.Falling) _hitStats.Finish(k.Id, k.Kind, _config.LegacyHitbox, _config.LogPushes ? _log : null);
             if (k.Kind == HazardKind.Crate && before == KnifePhase.Falling && k.Phase == KnifePhase.Landed && LandCrate(k))
                 _knives.RemoveAt(i);
         }
@@ -533,6 +619,7 @@ public sealed class GameRoom
              (_stage.Hazard == HazardKind.Crate
                  ? $", crates landed: {_roundCratesLanded}, crumbled: {_roundCratesCrumbled}, shattered: {_roundCratesShattered}, boxes now: {_boxes.Length}"
                  : ""));
+        _log("    " + _hitStats.TakeSummary(_config.LegacyHitbox));
         foreach (var r in packet.Results)
             _log($"    place {r.Place}: #{r.PlayerId} survived {r.SurvivedTicks} ticks ({r.Cause})");
     }
@@ -567,6 +654,8 @@ public sealed class GameRoom
                     RoundTick = 0;
                     _nextSpawnTick = (uint)_config.FirstKnifeDelayTicks;
                     _mapPlayed = true;
+                    // Decided now so the waiting room and the results can show it (random included).
+                    if (!_nextChosen) _nextStage = MapAfter(_stage);
                     _log($"round {RoundNumber} PLAYING with {_round.Count} players");
                 }
                 break;
@@ -583,7 +672,9 @@ public sealed class GameRoom
 
     private void StartCountdown()
     {
-        if (_mapPlayed && _config.Rotation != MapRotation.Fixed) NextMap();
+        // A cancelled countdown never played, so _nextStage is still this map unless the host picked another.
+        _stage = _nextStage;
+        _nextChosen = false;
         _mapPlayed = false;
         RoundNumber++;
         State = RoomState.Countdown;
@@ -617,21 +708,24 @@ public sealed class GameRoom
         _log($"round {RoundNumber} countdown on map {_stage.Id} '{_stage.Name}', players: {string.Join(", ", _round.Select(e => "#" + e.Id))}");
     }
 
-    /// <summary>Moves to the next map: in order (Cycle) or at random but never the same one twice (Random).</summary>
-    private void NextMap()
+    /// <summary>What the rotation gives after a round on this map: the next in order, a random other one, or the same.</summary>
+    private Stage MapAfter(Stage current)
     {
         var maps = _config.Maps;
-        if (maps.Count <= 1) return;
-        if (_config.Rotation == MapRotation.Cycle)
+        if (maps.Count <= 1) return maps.Count == 1 ? maps[0] : current;
+        int index = 0;
+        for (int i = 0; i < maps.Count; i++)
+            if (maps[i] == current) index = i;
+        switch (_rotation)
         {
-            _mapIndex = (_mapIndex + 1) % maps.Count;
+            case MapRotation.Cycle:
+                return maps[(index + 1) % maps.Count];
+            case MapRotation.Random:
+                int pick = _mapRandom.Next(maps.Count - 1);
+                return maps[pick >= index ? pick + 1 : pick];
+            default:
+                return current;
         }
-        else
-        {
-            int pick = _mapRandom.Next(maps.Count - 1);
-            _mapIndex = pick >= _mapIndex ? pick + 1 : pick;
-        }
-        _stage = maps[_mapIndex];
     }
 
     private void EnterWaiting()
@@ -670,6 +764,11 @@ public sealed class GameRoom
         foreach (var e in _round) packet.Participants.Add(e.Id);
         return packet;
     }
+
+    private RoomInfoPacket BuildRoomInfo() => new()
+    {
+        HostId = HostId, NextStageId = _nextStage.Id, Rotation = _rotation, NextChosen = _nextChosen,
+    };
 
     private SnapshotPacket BuildSnapshot()
     {

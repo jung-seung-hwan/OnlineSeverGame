@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using OnlineSeverGame.Client.Input;
 using OnlineSeverGame.Client.Model;
+using OnlineSeverGame.Shared.Protocol;
 using OnlineSeverGame.Shared.Simulation;
 using UnityEngine;
 
@@ -341,6 +342,8 @@ namespace OnlineSeverGame.Client.Game
                 State.Roster[i] = r;
             }
         }
+
+        public void RequestMap(byte stageId, MapRotation rotation) { } // 미리보기는 주방 하나
 
         public void Close() { }
     }
