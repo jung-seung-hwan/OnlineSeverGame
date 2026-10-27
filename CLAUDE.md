@@ -1,12 +1,44 @@
 # OnlineSeverGame
 
-Python 3.15, standard library only (no pip packages).
+8-player 2D side-view survival game: knives fall from above (with a warning marker), players dodge by moving, jumping and dashing; a dash that hits another player knocks them back. Last survivor wins.
 
-## Commands
-- Unit tests (quiet): `python -m unittest discover -s tests -q`
-- Unit tests (verbose): `python -m unittest discover -s tests -v`
+- Server: C# .NET 10 console app, raw TCP sockets + threads, 20 ticks/s, server-authoritative.
+- Client: Unity 6000.6.3f1 (2D) in `Client/`. Sends inputs only; predicts its own player, interpolates others.
+- Shared: `Shared/` holds packets, framing, stage data and the deterministic physics step used by both sides.
+- Protocol, units, physics constants, round rules and the prediction/sequence rules: `docs/protocol.md`.
+
+## Layout and ownership
+
+| Path | What | Owner session |
+|---|---|---|
+| `Shared/` | Packets, framing, stage, physics. Unity local package (`package.json`, `.asmdef`) | Core game server |
+| `Server/GameServer/` | Server: accept thread, per-connection receive/send threads, game loop, `GameRoom` | Core game server |
+| `Server/GameServer.Tests/` | xUnit tests (protocol, framing, physics, knives, pushes, rounds) | Core game server |
+| `Tools/BotClient/` | Console bots that connect N times and send random input | Core game server |
+| `docs/protocol.md` | Protocol spec | Core game server |
+| `Client/` | Unity project | Unity client |
+| `OnlineSeverGame.slnx`, `Directory.Build.props`, `.gitignore`, `CLAUDE.md` | Build / repo setup | Core game server |
+
+Unity generates `.meta` files inside `Shared/`; commit them together with `Shared/`.
+
+## Commands (repo root)
+
+- Build: `dotnet build`
+- Tests: `dotnet test`
+- Run server: `dotnet run --project Server/GameServer -- --port 7777 --min-players 2`
+  - options: `--port N`, `--min-players N` (1..8, default 2), `--seed N`, `--exit-after-rounds N`
+- Run 8 bots: `dotnet run --project Tools/BotClient -- --count 8`
+  - options: `--host`, `--port`, `--count N`, `--name Bot`, `--seed N`, `--rounds N` (exit after N rounds), `--drop-one-after SECONDS` (abruptly disconnect the last bot that many seconds into the first round), `--duration SECONDS`
+- Scripted check (two terminals): server with `--exit-after-rounds 2`, bots with `--rounds 2 --drop-one-after 5`.
+
+Build output goes to `artifacts/` (see `Directory.Build.props`), never into `Shared/`, so Unity does not pick up generated files.
 
 ## Rules
-- No third-party dependencies.
-- Tests live in `tests/`, named `test_*.py`, using `unittest`.
-- Source packages live at the repo root (e.g. `game/`).
+
+- No high-level networking libraries: sockets, framing, threads and queues are hand-written. NuGet is used only for the test framework.
+- `Shared/` must stay Unity-compatible: C# 9, netstandard2.1 APIs only, no `record`/`init`/global usings/file-scoped namespaces, no `UnityEngine`. The csproj enforces the language version and target.
+- Physics is integer milli-units (1 world unit = 1000) so server and client results are bit-identical. Never introduce floats into `Shared/Simulation`.
+- Changing a packet layout: bump `ProtocolConstants.Version` and update `docs/protocol.md` in the same commit.
+- `GameRoom` is pure game logic driven by the game-loop thread only; keep sockets and locks out of it so it stays unit-testable.
+- Tests live in `Server/GameServer.Tests/` (xUnit).
+- Commits: stage only your own paths (`git add <path>`), never `git add -A`; do not push unless the user asks.

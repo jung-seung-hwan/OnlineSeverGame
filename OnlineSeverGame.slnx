@@ -1,5 +1,12 @@
 <Solution>
+  <Folder Name="/Server/">
+    <Project Path="Server/GameServer.Tests/GameServer.Tests.csproj" />
+    <Project Path="Server/GameServer/GameServer.csproj" />
+  </Folder>
   <Folder Name="/Shared/">
     <Project Path="Shared/OnlineSeverGame.Shared.csproj" />
+  </Folder>
+  <Folder Name="/Tools/">
+    <Project Path="Tools/BotClient/BotClient.csproj" />
   </Folder>
 </Solution>
