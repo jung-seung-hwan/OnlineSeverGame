@@ -3,10 +3,24 @@ using OnlineSeverGame.Shared.Simulation;
 
 namespace OnlineSeverGame.Server;
 
+/// <summary>How the map changes between rounds.</summary>
+public enum MapRotation
+{
+    /// <summary>Always RoomConfig.Stage.</summary>
+    Fixed,
+    /// <summary>RoomConfig.Maps in order, starting with the first.</summary>
+    Cycle,
+    /// <summary>A random map from RoomConfig.Maps, never the one just played.</summary>
+    Random,
+}
+
 public sealed class RoomConfig
 {
     public int MinPlayers = 2;
+    /// <summary>The map when Rotation is Fixed.</summary>
     public Stage Stage = Stage.Default;
+    public MapRotation Rotation = MapRotation.Fixed;
+    public IReadOnlyList<Stage> Maps = Stage.All;
     public int Seed = Environment.TickCount;
     /// <summary>Off in tests that place knives by hand.</summary>
     public bool AutoSpawnKnives = true;
@@ -55,14 +69,19 @@ internal sealed class RoundEntry
 public sealed class GameRoom
 {
     private readonly RoomConfig _config;
-    private readonly Stage _stage;
+    private Stage _stage;
     private readonly Random _random;
+    private readonly Random _mapRandom;
+    private int _mapIndex;
+    /// <summary>A round has been played on the current map, so the next countdown moves on.</summary>
+    private bool _mapPlayed;
     private readonly SortedDictionary<byte, RoomPlayer> _players = new();
     private readonly List<RoundEntry> _round = new();
     private readonly List<KnifeState> _knives = new();
     private readonly List<DashHit> _hits = new();
     private readonly List<StompHit> _stomps = new();
-    private readonly PushableState[] _boxes;
+    private PushableState[] _boxes;
+    private ushort _nextBoxId;
     private ushort _nextKnifeId = 1;
     private uint _nextSpawnTick;
     private int _roundPushes;
@@ -72,15 +91,19 @@ public sealed class GameRoom
     private int _roundBoxHits;
     private int _roundBoxPushTicks;
     private long _roundBoxTravel;
+    private int _roundHazards;
+    private int _roundCratesLanded;
+    private int _roundCratesCrumbled;
+    private int _roundCratesShattered;
     private readonly Action<string> _log;
 
     public GameRoom(RoomConfig config, Action<string> log = null)
     {
         _config = config;
-        _stage = config.Stage;
+        _stage = config.Rotation == MapRotation.Fixed ? config.Stage : config.Maps[0];
         _random = new Random(config.Seed);
+        _mapRandom = new Random(config.Seed ^ 0x5EED);
         _log = log ?? (_ => { });
-        _boxes = new PushableState[_stage.Pushables.Count];
         ResetPushables();
     }
 
@@ -92,7 +115,11 @@ public sealed class GameRoom
     public int StateTimer { get; private set; }
     public int CompletedRounds { get; private set; }
     public RoundEndPacket LastRoundEnd { get; private set; }
+    /// <summary>The current map as defined.</summary>
     public Stage Stage => _stage;
+    /// <summary>The current map's shape this tick (melting platforms shrink during Playing).</summary>
+    public Stage CurrentStage => _stage.AtRoundTick(State == RoomState.Playing ? RoundTick : 0);
+    public int RoundCratesLanded => _roundCratesLanded;
 
     public List<Outgoing> Outbox { get; } = new();
     public IReadOnlyList<KnifeState> Knives => _knives;
@@ -172,11 +199,12 @@ public sealed class GameRoom
         }
     }
 
-    /// <summary>Starts a knife warning at x. Used by the spawner and by tests.</summary>
+    /// <summary>Starts a warning for the map's hazard (knife, icicle, crate, fork) at x. Used by the spawner and by tests.</summary>
     public void SpawnKnife(int x)
     {
-        int min = GameConstants.KnifeHalfWidth;
-        int max = _stage.Width - GameConstants.KnifeHalfWidth;
+        int half = HazardSpec.Of(_stage.Hazard).HalfWidth;
+        int min = half;
+        int max = _stage.Width - half;
         x = Math.Clamp(x, min, max);
         _knives.Add(KnifeState.Warn(_nextKnifeId, x, _stage));
         _nextKnifeId = (ushort)(_nextKnifeId == ushort.MaxValue ? 1 : _nextKnifeId + 1);
@@ -208,6 +236,8 @@ public sealed class GameRoom
     /// </summary>
     private void StepWorld()
     {
+        Stage stage = CurrentStage;
+        TickCrumblingBoxes();
         int n = _players.Count;
         var list = new RoomPlayer[n];
         _players.Values.CopyTo(list, 0);
@@ -233,7 +263,7 @@ public sealed class GameRoom
             // never re-triggers a jump or dash.
             if (p.Alive)
             {
-                PlayerPhysics.Step(ref p.State, p.LastButtons, _stage, _boxes, out contacts[i]);
+                PlayerPhysics.Step(ref p.State, p.LastButtons, stage, _boxes, out contacts[i]);
                 // DashTicks is still at its full value only on the tick the dash started.
                 if (p.State.DashTicks == GameConstants.DashTicks) RecordDash(p, repeated);
                 if (p.State.Crouching) _roundCrouchTicks++;
@@ -242,7 +272,7 @@ public sealed class GameRoom
         }
 
         _hits.Clear();
-        DashCollision.Resolve(states, active, n, _hits);
+        DashCollision.Resolve(states, active, n, _hits, stage);
         _roundPushes += _hits.Count;
         if (_config.LogPushes)
             foreach (var hit in _hits)
@@ -271,7 +301,7 @@ public sealed class GameRoom
         if (_boxes.Length > 0)
         {
             var moved = new int[_boxes.Length];
-            PushablePhysics.Step(_boxes, _boxes.Length, _stage, states, active, n, moved);
+            PushablePhysics.Step(_boxes, _boxes.Length, stage, states, active, n, moved);
             int minX = GameConstants.PlayerHalfWidth, maxX = _stage.Width - GameConstants.PlayerHalfWidth;
             for (int i = 0; i < n; i++)
             {
@@ -298,29 +328,36 @@ public sealed class GameRoom
                  (repeated ? " (repeated input)" : ""));
     }
 
+    /// <summary>Puts the map's boxes back where they start; crates that landed during the round vanish.</summary>
     private void ResetPushables()
     {
+        _boxes = new PushableState[_stage.Pushables.Count];
         for (int i = 0; i < _boxes.Length; i++)
             _boxes[i] = PushableState.Spawn((ushort)(i + 1), _stage.Pushables[i]);
+        _nextBoxId = (ushort)(_boxes.Length + 1);
     }
 
     private void SpawnKnivesOnSchedule()
     {
         if (RoundTick < _nextSpawnTick) return;
-        int count = Math.Min(GameConstants.KnivesPerSpawnMax, 1 + (int)(RoundTick / GameConstants.KnivesPerSpawnStepTicks));
+        HazardSchedule schedule = _stage.Schedule;
+        int count = schedule.CountAt(RoundTick);
+        int half = HazardSpec.Of(_stage.Hazard).HalfWidth;
+        var slots = _stage.HazardSlots;
         for (int i = 0; i < count; i++)
-            SpawnKnife(_random.Next(GameConstants.KnifeHalfWidth, _stage.Width - GameConstants.KnifeHalfWidth + 1));
-        int interval = Math.Max(GameConstants.KnifeSpawnIntervalMin,
-            GameConstants.KnifeSpawnIntervalStart - (int)(RoundTick / GameConstants.KnifeSpawnIntervalStepTicks));
-        _nextSpawnTick = RoundTick + (uint)interval;
+            SpawnKnife(slots.Count > 0 ? slots[_random.Next(slots.Count)] : _random.Next(half, _stage.Width - half + 1));
+        _roundHazards += count;
+        _nextSpawnTick = RoundTick + (uint)schedule.IntervalAt(RoundTick);
     }
 
     private void StepKnives()
     {
+        Stage stage = CurrentStage;
         for (int i = _knives.Count - 1; i >= 0; i--)
         {
             var k = _knives[i];
-            bool keep = KnifePhysics.Step(ref k, _stage, _boxes, out bool dangerous, out Aabb swept);
+            KnifePhase before = k.Phase;
+            bool keep = KnifePhysics.Step(ref k, stage, _boxes, out bool dangerous, out Aabb swept);
             if (!keep)
             {
                 _knives.RemoveAt(i);
@@ -333,10 +370,92 @@ public sealed class GameRoom
                 if (p.Alive && p.InRound && swept.Overlaps(p.State.Bounds))
                 {
                     Eliminate(p, EliminationCause.Knife);
-                    _log($"death #{p.Id} '{p.Name}' by knife#{k.Id} at roundTick {RoundTick}");
+                    _log($"death #{p.Id} '{p.Name}' by {k.Kind.ToString().ToLowerInvariant()}#{k.Id} at roundTick {RoundTick}");
                 }
             }
+            if (k.Kind == HazardKind.Crate && before == KnifePhase.Falling && k.Phase == KnifePhase.Landed && LandCrate(k))
+                _knives.RemoveAt(i);
         }
+    }
+
+    /// <summary>
+    /// A falling crate touched down. It becomes a pushable box there unless it hit a stack that is already
+    /// two high, where it shatters (stays a harmless Landed hazard for a moment). Returns true when the
+    /// hazard became a box and should be removed.
+    /// </summary>
+    private bool LandCrate(KnifeState k)
+    {
+        HazardSpec spec = HazardSpec.Crate;
+        int left = k.X - spec.HalfWidth, right = k.X + spec.HalfWidth;
+        for (int i = 0; i < _boxes.Length; i++)
+        {
+            var b = _boxes[i];
+            if (b.Top == k.Y && b.Left < right && left < b.Right && StackHeight(i) >= GameConstants.CrateStackLimit)
+            {
+                _roundCratesShattered++;
+                if (_config.LogPushes) _log($"crate {k.Id} shattered on a full stack at x={k.X}");
+                return false;
+            }
+        }
+
+        var box = new PushableState
+        {
+            Id = _nextBoxId, X = k.X, Y = k.Y, Width = (ushort)spec.Width, Height = (ushort)spec.Height, Grounded = true,
+        };
+        _nextBoxId = (ushort)(_nextBoxId == ushort.MaxValue ? _stage.Pushables.Count + 1 : _nextBoxId + 1);
+        Array.Resize(ref _boxes, _boxes.Length + 1);
+        _boxes[^1] = box;
+        _roundCratesLanded++;
+        if (_config.LogPushes) _log($"crate {k.Id} landed at ({k.X},{k.Y}) -> box#{box.Id}");
+
+        // Too many crates resting: the oldest ones start to crumble. Boxes are kept oldest first.
+        int solid = 0;
+        foreach (var b in _boxes)
+            if (b.Crumble == 0) solid++;
+        for (int i = 0; i < _boxes.Length && solid > GameConstants.MaxRestingCrates; i++)
+        {
+            if (_boxes[i].Crumble != 0) continue;
+            _boxes[i].Crumble = GameConstants.CrateCrumbleTicks;
+            solid--;
+        }
+        return true;
+    }
+
+    /// <summary>How many boxes high box i stands: 1 on the ground or a platform, 2 on another box, ...</summary>
+    private int StackHeight(int i)
+    {
+        int height = 1;
+        for (int guard = 0; guard < _boxes.Length; guard++)
+        {
+            var b = _boxes[i];
+            int below = -1;
+            for (int j = 0; j < _boxes.Length; j++)
+            {
+                var o = _boxes[j];
+                if (j != i && o.Top == b.Y && o.Left < b.Right && b.Left < o.Right) below = j;
+            }
+            if (below < 0) break;
+            height++;
+            i = below;
+        }
+        return height;
+    }
+
+    /// <summary>Counts down crumbling crates and removes the ones whose time is up (boxes above them fall).</summary>
+    private void TickCrumblingBoxes()
+    {
+        int kept = 0;
+        for (int i = 0; i < _boxes.Length; i++)
+        {
+            var b = _boxes[i];
+            if (b.Crumble > 0 && --b.Crumble == 0)
+            {
+                _roundCratesCrumbled++;
+                continue;
+            }
+            _boxes[kept++] = b;
+        }
+        if (kept != _boxes.Length) Array.Resize(ref _boxes, kept);
     }
 
     private void Eliminate(RoomPlayer p, EliminationCause cause)
@@ -405,11 +524,15 @@ public sealed class GameRoom
         Broadcast(packet);
 
         string names = winners.Count == 0 ? "none" : string.Join(", ", winners.Select(w => $"#{w.Id} '{w.Name}'"));
-        _log($"round {RoundNumber} END after {RoundTick} ticks ({RoundTick / (float)GameConstants.TickRate:0.0}s)" +
+        _log($"round {RoundNumber} END on map {_stage.Id} '{_stage.Name}' after {RoundTick} ticks ({RoundTick / (float)GameConstants.TickRate:0.0}s)" +
              $"{(timeUp ? " [time limit]" : "")} winners: {names}, pushes: {_roundPushes}, dashes: {_roundDashes}" +
              $" (min gap {MinDashGapOfRound()} ticks), stomps: {_roundStomps}, crouch ticks: {_roundCrouchTicks}, " +
              $"box dash hits: {_roundBoxHits}, box walk-push ticks: {_roundBoxPushTicks}, box travel: {_roundBoxTravel / 1000.0:0.0} u" +
-             (_boxes.Length > 0 ? $" (box#1 now x={_boxes[0].X})" : ""));
+             (_boxes.Length > 0 ? $" (box#1 now x={_boxes[0].X})" : "") +
+             $", hazards: {_roundHazards} {_stage.Hazard.ToString().ToLowerInvariant()}" +
+             (_stage.Hazard == HazardKind.Crate
+                 ? $", crates landed: {_roundCratesLanded}, crumbled: {_roundCratesCrumbled}, shattered: {_roundCratesShattered}, boxes now: {_boxes.Length}"
+                 : ""));
         foreach (var r in packet.Results)
             _log($"    place {r.Place}: #{r.PlayerId} survived {r.SurvivedTicks} ticks ({r.Cause})");
     }
@@ -443,6 +566,7 @@ public sealed class GameRoom
                     StateTimer = 0;
                     RoundTick = 0;
                     _nextSpawnTick = (uint)_config.FirstKnifeDelayTicks;
+                    _mapPlayed = true;
                     _log($"round {RoundNumber} PLAYING with {_round.Count} players");
                 }
                 break;
@@ -459,6 +583,8 @@ public sealed class GameRoom
 
     private void StartCountdown()
     {
+        if (_mapPlayed && _config.Rotation != MapRotation.Fixed) NextMap();
+        _mapPlayed = false;
         RoundNumber++;
         State = RoomState.Countdown;
         StateTimer = GameConstants.CountdownTicks;
@@ -470,6 +596,10 @@ public sealed class GameRoom
         _roundBoxHits = 0;
         _roundBoxPushTicks = 0;
         _roundBoxTravel = 0;
+        _roundHazards = 0;
+        _roundCratesLanded = 0;
+        _roundCratesCrumbled = 0;
+        _roundCratesShattered = 0;
         ResetPushables();
         _knives.Clear();
         _round.Clear();
@@ -484,7 +614,24 @@ public sealed class GameRoom
             _round.Add(new RoundEntry { Id = p.Id, Name = p.Name });
         }
         Broadcast(BuildRoundStart());
-        _log($"round {RoundNumber} countdown, players: {string.Join(", ", _round.Select(e => "#" + e.Id))}");
+        _log($"round {RoundNumber} countdown on map {_stage.Id} '{_stage.Name}', players: {string.Join(", ", _round.Select(e => "#" + e.Id))}");
+    }
+
+    /// <summary>Moves to the next map: in order (Cycle) or at random but never the same one twice (Random).</summary>
+    private void NextMap()
+    {
+        var maps = _config.Maps;
+        if (maps.Count <= 1) return;
+        if (_config.Rotation == MapRotation.Cycle)
+        {
+            _mapIndex = (_mapIndex + 1) % maps.Count;
+        }
+        else
+        {
+            int pick = _mapRandom.Next(maps.Count - 1);
+            _mapIndex = pick >= _mapIndex ? pick + 1 : pick;
+        }
+        _stage = maps[_mapIndex];
     }
 
     private void EnterWaiting()
@@ -518,6 +665,7 @@ public sealed class GameRoom
             RoundNumber = RoundNumber,
             CountdownTicks = (ushort)StateTimer,
             PlayStartTick = ServerTick + (uint)StateTimer,
+            StageId = _stage.Id,
         };
         foreach (var e in _round) packet.Participants.Add(e.Id);
         return packet;

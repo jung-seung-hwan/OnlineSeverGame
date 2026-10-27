@@ -34,6 +34,7 @@ namespace OnlineSeverGame.Client.Game
         int _screenshotCount;
         float _quitAt = -1f;
         ClientScreen _loggedScreen = ClientScreen.Connect;
+        int _builtLayoutVersion;
 
         void Awake()
         {
@@ -50,6 +51,7 @@ namespace OnlineSeverGame.Client.Game
             _stage.Build(Layout);
             _world = new GameObject("World").AddComponent<WorldView>();
             _world.Init(Layout);
+            _builtLayoutVersion = Layout.Version;
             _input = gameObject.AddComponent<InputCollector>();
             var ui = gameObject.AddComponent<GameUI>();
             ui.Game = this;
@@ -127,7 +129,9 @@ namespace OnlineSeverGame.Client.Game
             {
                 if (_input.AutoChase) UpdateChaseTarget();
                 Session.Update(Time.deltaTime, _input);
+                RebuildIfMapChanged();
                 _world.Apply(Session.World);
+                _stage.Refresh(Layout);
                 if (Session.State.Screen != _loggedScreen)
                 {
                     _loggedScreen = Session.State.Screen;
@@ -168,9 +172,21 @@ namespace OnlineSeverGame.Client.Game
             }
         }
 
+        // 세션이 새 맵을 받으면(Welcome, RoundStart) 레이아웃 Version 이 오른다. 지형·장식·뷰를 다시 만든다.
+        void RebuildIfMapChanged()
+        {
+            if (Layout.Version == _builtLayoutVersion) return;
+            _builtLayoutVersion = Layout.Version;
+            _stage.Build(Layout);
+            _world.Init(Layout);
+            Debug.Log($"[Client] map {Layout.Source.Id} '{Layout.Source.Name}' built");
+        }
+
         public void StartPreview()
         {
             CloseSession();
+            Layout.SetStage(Stage.Default); // 미리보기는 주방만
+            RebuildIfMapChanged();
             SavePrefs();
             LastStatus = "";
             Session = new PreviewSession(Layout, PlayerName);

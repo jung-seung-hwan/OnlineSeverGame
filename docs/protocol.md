@@ -1,10 +1,10 @@
-# OnlineSeverGame 프로토콜 v2
+# OnlineSeverGame 프로토콜 v3
 
 서버(C# .NET 10)와 Unity 클라이언트가 같은 `Shared/` 소스를 쓴다. 이 문서는 그 소스의 설명이며, 바이트 배치가 바뀌면 `ProtocolConstants.Version`을 올리고 이 문서를 함께 고친다.
 
 - 패킷 정의·직렬화: `Shared/Protocol/` (`Packets.cs`, `PacketCodec.cs`, `FrameDecoder.cs`)
 - 물리·스테이지·상수: `Shared/Simulation/` (`GameConstants.cs`, `PlayerPhysics.cs`, `Stage.cs`, `Knife.cs`, `DashCollision.cs`, `StompCollision.cs`, `Pushable.cs`)
-- 버전 기록: v1 첫 버전 → **v2**(2026-10-27) 스냅샷 플레이어 flags에 Crouching·Stomped 비트, 스냅샷 끝에 밀리는 상자 목록 추가. 대시 쿨다운 40틱, 아래키 의미 변경(엎드리기, 아래+점프 = 발판 통과).
+- 버전 기록: v1 첫 버전 → **v2**(2026-10-27) 스냅샷 플레이어 flags에 Crouching·Stomped 비트, 스냅샷 끝에 밀리는 상자 목록 추가. 대시 쿨다운 40틱, 아래키 의미 변경(엎드리기, 아래+점프 = 발판 통과). → **v3**(2026-10-27, 다중 맵) `RoundStart`에 `stageId`, 스냅샷 위험물 항목에 `kind`, 상자 항목에 `crumble` 추가. 맵 4개(주방·겨울 처마·창고·디저트 가게)와 라운드마다 맵 교체, 위험물 4종, 얼음·녹는 발판. 설계 문서는 `docs/work/maps.md`.
 
 ## 1. 전송과 프레이밍
 
@@ -41,7 +41,7 @@ C = 클라이언트→서버, S = 서버→클라이언트. 크기는 타입 바
 | 5 | PlayerLeft | S | `u8 playerId`, `u8 reason` (1 연결 끊김, 2 시간 초과, 3 프로토콜 오류) |
 | 10 | Input | C | `u32 seq`, `u8 buttons` |
 | 20 | Snapshot | S | 아래 참고 |
-| 30 | RoundStart | S | `u16 roundNumber`, `u16 countdownTicks`, `u32 playStartTick`, `u8 n`, `u8 participantId × n` |
+| 30 | RoundStart | S | `u16 roundNumber`, `u16 countdownTicks`, `u32 playStartTick`, `u8 stageId`, `u8 n`, `u8 participantId × n`. 맵은 여기서만 바뀐다(Welcome의 stageId는 접속 시점의 맵) |
 | 31 | RoundEnd | S | `u16 roundNumber`, `u32 endTick`, `u8 w`, `u8 winnerId × w`, `u8 r`, 결과 × r |
 | 40 | Ping | C | `u32 clientTime` (아무 클라이언트 시계 값) |
 | 41 | Pong | S | `u32 clientTime`(그대로 반사), `u32 serverTick` |
@@ -69,9 +69,9 @@ u16 stateTimer       Countdown/Ended 남은 틱 (그 외 0)
 u8  playerCount
     플레이어 × playerCount (각 26바이트)
 u8  knifeCount
-    칼 × knifeCount (각 13바이트)
+    위험물 × knifeCount (각 14바이트)
 u8  boxCount
-    밀리는 상자 × boxCount (각 22바이트)
+    밀리는 상자 × boxCount (각 23바이트)
 ```
 
 플레이어 항목 (26바이트):
@@ -91,23 +91,25 @@ u32 lastInputSeq     서버가 이 플레이어에게 마지막으로 적용한 
 
 FacingRight가 0이면 facing = -1(왼쪽). 이 필드들이 `PlayerState` 전체이므로 클라이언트는 스냅샷 값으로 상태를 그대로 복원할 수 있다.
 
-칼 항목 (13바이트):
+위험물 항목 (14바이트, 코드 이름은 첫 맵에서 온 `KnifeState`):
 
 ```
 u16 knifeId
-u8  phase            1 Warning(예고), 2 Falling(낙하), 3 Landed(착지)
-i32 x                칼 가운데
-i32 y                칼끝. Warning 중에는 Stage.KnifeSpawnY
-u16 timer            Warning: 낙하까지 남은 틱 / Landed: 사라질 때까지 남은 틱 / Falling: 0
+u8  kind             1 식칼, 2 고드름, 3 화물 상자, 4 포크 (HazardKind, 0은 식칼로 읽음)
+u8  phase            1 Warning(예고), 2 Falling(낙하), 3 Landed(착지·부서짐)
+i32 x                가운데
+i32 y                끝(아래쪽 가운데). Warning 중에는 Stage.KnifeSpawnY
+u16 timer            Warning: 낙하까지 남은 틱 / Landed: 사라질 때까지 남은 틱 / Falling: 떨어진 틱 수(고드름 가속에 씀)
 ```
 
-밀리는 상자 항목 (22바이트):
+밀리는 상자 항목 (23바이트):
 
 ```
-u16 boxId            스테이지 정의 순서 + 1 (맵이 실행 중에 만드는 상자도 같은 목록에 들어간다)
+u16 boxId            스테이지 정의 순서 + 1. 창고에서 착지해 상자가 된 화물 상자는 그 뒤 번호
 i32 x, i32 y         아래쪽 가운데, 밀리유닛
 i32 vx, i32 vy       밀리유닛/틱
 u16 width, u16 height
+u8  crumble          0 = 보통. >0 = 개수 제한으로 사라지기까지 남은 틱(그동안도 단단함, 클라이언트는 깜빡임)
 ```
 
 크기가 상자 항목에 들어 있으므로 클라이언트는 스테이지 정의 없이도 상자를 그릴 수 있다. Grounded는 보내지 않는다(디코더는 `vy == 0`으로 채운다, 그리기 전용).
@@ -152,14 +154,56 @@ u8  cause            0 생존, 1 칼, 2 연결 끊김
 - 연결 끊김으로 탈락한 사람은 승자가 될 수 없다. 마지막 생존자들이 모두 연결을 끊으면 승자 없음(winner 0명).
 - 순위: 승자 1위, 나머지는 늦게 탈락한 순. 같은 틱 탈락은 같은 순위(1, 2, 2, 4 방식).
 
-### 칼
+### 맵 교체
 
-- 스폰 간격(틱) = `max(4, 30 - roundTick / 100)` → 처음 1.5초마다, 5초마다 1틱씩 짧아져 최소 0.2초.
-- 한 번에 떨어지는 개수 = `min(4, 1 + roundTick / 600)` → 30초마다 1개씩 늘어 최대 4개.
-- x는 `[KnifeHalfWidth, Width - KnifeHalfWidth]`에서 무작위.
-- Warning 20틱(1초) → Falling: `KnifeSpawnY`(14.0)에서 매 틱 700씩 낙하 → 처음 닿는 면(발판 윗면 또는 바닥)에 꽂혀 Landed 10틱 후 제거.
-- 판정: Falling인 칼이 **그 틱에 지나간 영역 전체**(이전 위치 칼 윗부분 ~ 새 칼끝, 폭 0.4)와 살아 있는 플레이어 몸 상자가 겹치면 그 플레이어 사망. Warning/Landed는 무해. 칼은 처음 닿는 면에 꽂히므로 **발판 아래에 있으면 그 칼에 맞지 않는다**.
-- 클라이언트는 `Stage.KnifeLandingY(x, KnifeSpawnY)`로 칼이 꽂힐 높이를 미리 그릴 수 있다.
+- 맵 4개: 1 주방, 2 겨울 처마, 3 창고, 4 디저트 가게(`Stage.All`, `Stage.ById`). 모두 24 × 13.5 유닛.
+- 맵은 **새 라운드 번호의 Countdown이 시작될 때** 바뀐다(`RoundStart.stageId`). 같은 번호 RoundStart 재전송에서는 그대로. Countdown이 인원 부족으로 취소되면 다음 Countdown도 같은 맵. Waiting 중에는 마지막 맵.
+- 서버 옵션 `--maps cycle`(기본, 1→2→3→4→1…, 서버 시작 후 첫 라운드는 주방) / `--maps random`(직전 맵 제외 무작위) / `--map N`(한 맵 고정). `GameRoom` 기본값(테스트)은 주방 고정.
+
+### 위험물 (칼·고드름·화물 상자·포크)
+
+맵마다 한 종류(`Stage.Hazard`). 크기·움직임은 `HazardSpec`.
+
+| kind | 판정 폭 × 높이 | 예고 | 낙하 | 착지 |
+|---|---|---|---|---|
+| 1 식칼 | 400 × 1000 | 20틱 | 등속 700/틱 | 처음 닿는 면에 꽂혀 10틱 뒤 제거 |
+| 2 고드름 | 400 × 1200 | 25틱 | 0에서 매 틱 +70, 최대 1000 (timer = 떨어진 틱 수, 속도 = min(1000, 70 × timer)) | **얼음 발판은 통과**, 다른 면에서 부서져 6틱 뒤 제거 |
+| 3 화물 상자 | 1400 × 1200 | 25틱 | 등속 600/틱 | 멈춘 자리에서 밀리는 상자가 됨(아래 '창고 상자'). 이미 2단인 상자 위면 부서져 6틱 뒤 제거 |
+| 4 포크 | 500 × 1200 | 20틱 | 등속 700/틱 | 꽂혀 10틱 뒤 제거 |
+
+- 스폰: 간격(틱) = `max(IntervalMin, IntervalStart - roundTick / IntervalStepTicks)`, 한 번에 개수 = `min(CountMax, 1 + roundTick / CountStepTicks)` (`Stage.Schedule`). 첫 위험물은 Playing 1초 뒤.
+
+| 맵 | Start | Min | Step | CountMax | CountStep |
+|---|---|---|---|---|---|
+| 주방 | 30 | 4 | 100 | 4 | 600 |
+| 겨울 처마 | 30 | 5 | 100 | 4 | 600 |
+| 창고 | 40 | 10 | 60 | 2 | 900 |
+| 디저트 가게 | 30 | 5 | 100 | 4 | 600 |
+
+- x: `Stage.HazardSlots`가 있으면 그중 하나(겨울 처마: 0.5, 1.5, …, 23.5), 없으면 `[반폭, Width - 반폭]`에서 무작위.
+- 낙하 시작 높이 `Stage.KnifeSpawnY`: 14.0, 겨울 처마만 11.8(처마 아랫면 13.0에 매달린 고드름 끝).
+- 판정: Falling인 위험물이 **그 틱에 지나간 영역 전체**(이전 위치 윗부분 ~ 새 끝, 종류별 폭)와 살아 있는 플레이어 몸 상자가 겹치면 사망(결과 cause는 1). Warning/Landed는 무해. 처음 닿는 면(발판 윗면, 상자 윗면, 바닥)에서 멈추므로 **발판 아래에 있으면 맞지 않는다**. 단 고드름은 얼음 발판을 뚫는다.
+- 클라이언트는 `PushablePhysics.HazardLandingY(stage, boxes, kind, x, KnifeSpawnY)`로 멈출 높이를 미리 그릴 수 있다(`stage`는 그 틱의 `Stage.AtRoundTick`).
+
+### 얼음 (겨울 처마)
+
+- 얼음 면: `Platform.Ice` 발판 위, 또는 바닥의 `Stage.FloorIce` 구간 위(몸 가운데 x 기준). `Stage.IsIceAt`.
+- 틱 시작에 얼음 위에 서 있으면(`Grounded`): 걷기 `vx`를 목표 속도로 **틱당 최대 50**(`IceAccel`)씩 바꾼다. 그 전에 `vx`를 ±400으로 자른다(대시·넉백 뒤에도 걷는 속도에서 미끄러지기 시작). 손을 떼면 약 1.4유닛 미끄러진다. 공중은 그대로 즉시.
+- 스턴 중 얼음 위면 `vx -= vx / 8`(보통 /4).
+- 얼음 위에 서 있다 대시에 맞으면 `vy = 0`, Grounded 유지(들리지 않고 미끄러짐). 약 5유닛 밀린다(보통 약 2.4).
+- 상자도 얼음 위 마찰이 25(보통 50).
+
+### 녹는 발판 (디저트 가게)
+
+- `Platform.MeltPerTick > 0`인 발판은 Playing 200틱(10초)부터 양 끝이 틱마다 그만큼 가운데로 줄어 `MinWidth`에서 멈춘다. `Stage.AtRoundTick(roundTick)`이 그 틱의 모양을 준다(정수 계산, 서버·클라이언트 같음). 스냅샷의 roundTick만으로 계산되므로 따로 보내지 않는다.
+- 서버는 매 틱 `AtRoundTick(Playing이면 RoundTick, 아니면 0)`으로 플레이어·상자·위험물을 계산한다. 클라이언트 예측은 최신 스냅샷의 roundTick부터 재시뮬레이션 스텝마다 1씩 올려 쓴다.
+
+### 창고 상자
+
+- 착지한 화물 상자는 그 자리(아래쪽 가운데 = 위험물 x, 착지 높이)에 1400 × 1200 밀리는 상자로 추가된다(아래 '밀리는 상자' 규칙 그대로). 시작 상자 2개도 같은 크기.
+- 상자 위 상자는 2단까지. 이미 2단 위에 떨어지면 부서진다.
+- 단단한(crumble 0) 상자가 6개(`MaxRestingCrates`)를 넘으면 가장 오래된 것부터 `crumble = 20` → 20틱 뒤 사라진다. 그 위에 있던 상자·플레이어는 떨어진다(떨어지는 상자는 무해).
+- Countdown 시작·Waiting 복귀 때 맵의 시작 상자만 남기고 모두 없앤다.
 
 ### 대시 밀치기
 
@@ -197,7 +241,9 @@ u8  cause            0 생존, 1 칼, 2 연결 끊김
 3. `DashCollision.Resolve`
 4. `StompCollision.Resolve`
 5. 상자: 이번 틱에 옆면을 민 플레이어의 힘 적용 → `PushablePhysics.Step` → 위에 선 플레이어 같이 옮기기
-6. (Playing) 칼 생성 → `KnifePhysics.Step`(상자 윗면 포함) → 칼 판정 → 사망 처리 → 종료 검사
+6. (Playing) 위험물 생성 → `KnifePhysics.Step`(상자 윗면 포함) → 판정 → 사망 처리 → 착지한 화물 상자를 상자로 → 종료 검사
+
+(틱 맨 앞, 2보다 먼저: 사라지는 중인 상자의 crumble을 줄이고 0이 된 것을 없앤다.)
 7. 상태 타이머 진행(Countdown/Ended)
 8. Snapshot 전송
 
@@ -218,22 +264,30 @@ u8  cause            0 생존, 1 칼, 2 연결 끊김
 | CrouchKnockbackSpeed / Lift | 450 / 250 | 엎드린 채 대시에 맞으면 넉백 절반 |
 | PushableWalkSpeed / DashSpeed / Friction | 200 / 700 / 50 | 상자: 걸어 밀기, 대시로 치기, 땅 마찰(틱당) |
 | KnifeWidth × KnifeHeight | 400 × 1000 | |
-| KnifeWarningTicks / FallSpeed / LandedTicks | 20 / 700 / 10 | |
+| KnifeWarningTicks / FallSpeed / LandedTicks | 20 / 700 / 10 | 다른 위험물은 `HazardSpec`(5장 표) |
+| IceAccel / IceStunDecayDivisor / IceBoxFriction | 50 / 8 / 25 | 얼음 위 걷기 가감속, 스턴 감속, 상자 마찰 |
+| MeltDelayTicks | 200 | 녹는 발판이 줄기 시작하는 roundTick |
+| MaxRestingCrates / CrateStackLimit / CrateCrumbleTicks | 6 / 2 / 20 | 창고 상자 |
 
 ### `PlayerPhysics.Step(ref state, buttons, stage)` 순서
 
 `Step(ref state, buttons, stage, boxes, out contact)`: boxes는 상자 목록(없으면 null). 서버는 현재 상자, 클라이언트 예측은 최신 스냅샷의 상자를 넘긴다.
 
 1. `pressed = buttons & ~PrevButtons`. dashTicks, dashCooldown 1 감소.
-2. stun 중이면: stun 1 감소(0이 되면 Stomped 해제), 대시 취소, `vx -= vx / 4`. 입력 무시.
-3. 아니면: Left/Right로 방향(dir) 계산, 대시 중이 아니면 facing 갱신. Dash가 눌렸고 대시·쿨다운이 0이면 대시 시작(dashTicks=4, cooldown=40). 대시 중이면 `vx = facing × 1200`, `vy = 0`. 아니면 `vx = dir × (땅 위에서 Down이면 160, 아니면 400)`이고, Jump가 눌렸고 땅 위면: Down도 누르고 있고 발판 위면 **이번 틱만 발판을 무시**(아래로 떨어짐), 아니면 `vy = 800`.
+0. 틱 시작에 얼음 위에 서 있는지(`onIce`) 본다.
+2. stun 중이면: stun 1 감소(0이 되면 Stomped 해제), 대시 취소, `vx -= vx / 4`(얼음이면 `/ 8`). 입력 무시.
+3. 아니면: Left/Right로 방향(dir) 계산, 대시 중이 아니면 facing 갱신. Dash가 눌렸고 대시·쿨다운이 0이면 대시 시작(dashTicks=4, cooldown=40). 대시 중이면 `vx = facing × 1200`, `vy = 0`. 아니면 목표 `want = dir × (땅 위에서 Down이면 160, 아니면 400)`, `vx = want`(얼음이면 ±400으로 자른 뒤 want 쪽으로 최대 50)이고, Jump가 눌렸고 땅 위면: Down도 누르고 있고 발판 위면 **이번 틱만 발판을 무시**(아래로 떨어짐), 아니면 `vy = 800`.
 4. 대시 중이 아니면 `vy -= 100`, 최소 -1000.
 5. `x += vx`, 벽(0.4 ~ 너비-0.4)에서 멈춤(stun 중 벽에 닿으면 vx = 0). 이어서 상자 옆면: 이번 이동으로 새로 겹치면 그 면에 멈추고 contact에 기록, 대시 중이었으면 대시가 끝남(`vx = 0`).
 6. `y += vy`. 내려가는 중(vy ≤ 0)이면 이전 y ~ 새 y 사이에 있는 가장 높은 면에 착지: 바닥은 항상, 발판은 (3의 발판 통과 틱이 아니고) 몸이 가로로 겹칠 때만, 상자 윗면은 항상. 착지하면 `vy = 0`, Grounded. 발판은 아래에서 위로 통과한다.
 7. `Crouching = Grounded && Down && 대시·스턴 아님`. 엎드리면 몸 높이가 720(판정·칼·밟기 모두 이 높이).
 8. `PrevButtons = buttons`.
 
-## 7. 스테이지 1 (`Stage.Default`, id 1)
+## 7. 스테이지
+
+겨울 처마(id 2)·창고(id 3)·디저트 가게(id 4)의 좌표·스폰·상자·장식은 `Shared/Simulation/Stage.cs`와 `docs/work/maps.md` 2장(같은 수치)에 있다. 아래는 주방.
+
+### 스테이지 1 주방 (`Stage.Default`, id 1, 이름 "Kitchen")
 
 - 너비 24000(24 유닛), 카메라용 높이 13500, 칼 시작 높이 14000.
 - 바닥: y = 0, 0 ~ 24000, 단단함. 양 끝은 벽.
@@ -260,7 +314,8 @@ new Stage(id, name, width, viewHeight, knifeSpawnY, platforms, spawnPoints,
 ```
 
 - `Decoration.Kind`는 클라이언트가 그림을 고르는 이름이다(`DecorView.Draw`). 모르는 이름은 회색 사각형으로 그린다. 매단 장식은 (x, y)가 윗변 가운데, 서 있는 장식은 아랫변 가운데이며 그 점을 축으로 흔들린다.
-- 실행 중에 상자를 새로 만들려면(예: 떨어져 멈춘 화물 상자) 서버 `GameRoom`의 상자 배열에 `PushableState`를 추가하면 된다. 스냅샷 항목에 크기가 실려 있어 클라이언트는 따로 알 필요가 없다(지금은 고정 개수 배열이라 그 기능은 다중 맵 작업에서 목록으로 바꿔야 한다).
+- 실행 중에 상자를 새로 만들려면(예: 떨어져 멈춘 화물 상자) 서버 `GameRoom`의 상자 배열에 `PushableState`를 추가한다(`LandCrate`). 스냅샷 항목에 크기가 실려 있어 클라이언트는 따로 알 필요가 없다.
+- 그 밖의 선택 인자: `hazard`(위험물 종류), `schedule`(스폰 곡선), `hazardSlots`(위험물 x 후보), `floorIce`(얼음 바닥 구간). 발판은 `new Platform(l, r, top, ice: true)`, 녹는 발판은 `Platform.Melting(centerX, width, minWidth, top, meltPerTick)`.
 
 ## 8. 입력 시퀀스와 예측·보정 규칙
 

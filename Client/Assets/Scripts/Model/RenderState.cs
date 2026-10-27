@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using OnlineSeverGame.Shared.Simulation;
 using UnityEngine;
 
 namespace OnlineSeverGame.Client.Model
@@ -32,6 +33,7 @@ namespace OnlineSeverGame.Client.Model
         public int Id;
         public Vector2 Position;
         public Vector2 Size;
+        public bool Crumbling;     // 창고 상자 개수 제한으로 곧 사라짐(깜빡인다)
     }
 
     public enum SwordPhase
@@ -41,13 +43,16 @@ namespace OnlineSeverGame.Client.Model
         Landed,   // 바닥·발판에 꽂힘(사라지기 전 잠깐)
     }
 
+    // 떨어지는 위험물(칼·고드름·상자·포크). 이름은 첫 맵의 칼에서 왔다.
     public struct SwordRender
     {
         public int Id;
+        public HazardKind Kind;
         public SwordPhase Phase;
         public Vector2 Position;   // 칼끝 기준
         public float WarningProgress; // 0..1, 예고 시작 0 → 낙하 직전 1
         public float LandingY;        // 꽂힐 면의 높이(예고 기둥 아래 끝)
+        public float SpawnY;          // 떨어지기 시작하는 높이(고드름은 예고 중 여기 매달려 떨린다)
     }
 
     public sealed class WorldRender

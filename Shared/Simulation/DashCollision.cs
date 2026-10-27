@@ -22,7 +22,8 @@ namespace OnlineSeverGame.Shared.Simulation
     /// </summary>
     public static class DashCollision
     {
-        public static void Resolve(PlayerState[] states, bool[] active, int count, List<DashHit> hits = null)
+        public static void Resolve(PlayerState[] states, bool[] active, int count, List<DashHit> hits = null,
+            Stage stage = null)
         {
             var knock = new sbyte[count];
             var stopDash = new bool[count];
@@ -70,11 +71,14 @@ namespace OnlineSeverGame.Shared.Simulation
                 {
                     // A crouching target is braced and flies half as far.
                     bool braced = states[i].Crouching;
+                    // Hit while standing on ice: no lift, the target slides along the ice instead.
+                    bool onIce = stage != null && states[i].Grounded &&
+                                 stage.IsIceAt(states[i].X - GameConstants.PlayerHalfWidth, states[i].X + GameConstants.PlayerHalfWidth, states[i].Y);
                     states[i].Vx = knock[i] * (braced ? GameConstants.CrouchKnockbackSpeed : GameConstants.KnockbackSpeed);
-                    states[i].Vy = braced ? GameConstants.CrouchKnockbackLift : GameConstants.KnockbackLift;
+                    states[i].Vy = onIce ? 0 : braced ? GameConstants.CrouchKnockbackLift : GameConstants.KnockbackLift;
                     states[i].StunTicks = GameConstants.StunTicks;
                     states[i].DashTicks = 0;
-                    states[i].Grounded = false;
+                    states[i].Grounded = onIce;
                     states[i].Crouching = false;
                     states[i].Stomped = false;
                 }

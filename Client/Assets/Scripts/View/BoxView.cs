@@ -3,8 +3,9 @@ using UnityEngine;
 
 namespace OnlineSeverGame.Client.View
 {
-    // 밀리는 오브젝트(버터 블록). 그림이 없어 단순 도형: 어두운 테두리 + 노란 몸통 + 밝은 윗면 띠.
-    // 위치는 아래쪽 가운데(서버 PushableState 와 같음).
+    // 밀리는 오브젝트. 그림이 없어 단순 도형: 어두운 테두리 + 몸통 + 밝은 윗면 띠. 색은 맵마다
+    // (주방 버터 블록, 겨울 눈덩이, 창고 화물 상자, 디저트 마카롱). 위치는 아래쪽 가운데(서버 PushableState 와 같음).
+    // 창고에서 개수 제한으로 사라지기 직전인 상자는 깜빡인다.
     public sealed class BoxView : MonoBehaviour
     {
         SpriteRenderer _edge;
@@ -12,20 +13,36 @@ namespace OnlineSeverGame.Client.View
         SpriteRenderer _top;
         Vector2 _size;
 
-        public static BoxView Create(Transform parent)
+        // 맵 id 순서: (테두리, 몸통, 윗면)
+        static readonly Color[,] Colors =
+        {
+            { new Color(0.45f, 0.33f, 0.12f), new Color(0.98f, 0.84f, 0.42f), new Color(1f, 0.95f, 0.72f) },   // 1 버터
+            { new Color(0.55f, 0.62f, 0.72f), new Color(0.92f, 0.95f, 1f), new Color(1f, 1f, 1f) },             // 2 눈덩이
+            { new Color(0.30f, 0.19f, 0.10f), new Color(0.66f, 0.46f, 0.26f), new Color(0.85f, 0.68f, 0.45f) }, // 3 상자
+            { new Color(0.55f, 0.30f, 0.38f), new Color(0.96f, 0.66f, 0.76f), new Color(1f, 0.92f, 0.86f) },    // 4 마카롱
+        };
+
+        public static BoxView Create(Transform parent, int stageId = 1)
         {
             var go = new GameObject("Box");
             go.transform.SetParent(parent, false);
             var v = go.AddComponent<BoxView>();
-            v._edge = Shapes.Rect(go.transform, "Edge", new Color(0.45f, 0.33f, 0.12f), Vector2.one, 6);
-            v._body = Shapes.Rect(go.transform, "Body", new Color(0.98f, 0.84f, 0.42f), Vector2.one, 7);
-            v._top = Shapes.Rect(go.transform, "Top", new Color(1f, 0.95f, 0.72f), Vector2.one, 8);
+            int c = Mathf.Clamp(stageId - 1, 0, Colors.GetLength(0) - 1);
+            v._edge = Shapes.Rect(go.transform, "Edge", Colors[c, 0], Vector2.one, 6);
+            v._body = Shapes.Rect(go.transform, "Body", Colors[c, 1], Vector2.one, 7);
+            v._top = Shapes.Rect(go.transform, "Top", Colors[c, 2], Vector2.one, 8);
             return v;
         }
 
         public void Apply(BoxRender b)
         {
             transform.localPosition = new Vector3(b.Position.x, b.Position.y, 0);
+            float alpha = b.Crumbling ? 0.35f + 0.65f * Mathf.PingPong(Time.time * 8f, 1f) : 1f;
+            if (!Mathf.Approximately(_body.color.a, alpha))
+            {
+                foreach (var sr in new[] { _edge, _body, _top })
+                    sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, alpha);
+            }
             if (b.Size == _size) return;
             _size = b.Size;
             const float edge = 0.06f;

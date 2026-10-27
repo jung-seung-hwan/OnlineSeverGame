@@ -70,9 +70,9 @@ public class ProtocolTests
             PlayerId = 2, Alive = false, InRound = false, State = new PlayerState { Facing = -1 }, LastInputSeq = 0,
         });
         snap.Knives.Add(new KnifeState { Id = 9, Phase = KnifePhase.Falling, X = 500, Y = 9000, Timer = 0 });
-        snap.Knives.Add(new KnifeState { Id = 10, Phase = KnifePhase.Warning, X = 700, Y = 14000, Timer = 20 });
+        snap.Knives.Add(new KnifeState { Id = 10, Kind = HazardKind.Icicle, Phase = KnifePhase.Warning, X = 700, Y = 14000, Timer = 20 });
         snap.Pushables.Add(new PushableState { Id = 1, X = 12000, Y = 0, Vx = -650, Vy = 0, Width = 1200, Height = 1000, Grounded = true });
-        snap.Pushables.Add(new PushableState { Id = 7, X = 300, Y = 4800, Vx = 0, Vy = -300, Width = 600, Height = 600 });
+        snap.Pushables.Add(new PushableState { Id = 7, X = 300, Y = 4800, Vx = 0, Vy = -300, Width = 600, Height = 600, Crumble = 12 });
 
         var r = RoundTrip(snap);
         Assert.Equal((1000u, RoomState.Playing, (ushort)4, 321u), (r.ServerTick, r.RoomState, r.RoundNumber, r.RoundTick));
@@ -99,17 +99,17 @@ public class ProtocolTests
         oneBox.Pushables.Add(new PushableState());
         Assert.Equal(2 + 1 + 4 + 1 + 2 + 4 + 2 + 1 + 1 + 1, Size(empty));
         Assert.Equal(26, Size(onePlayer) - Size(empty));
-        Assert.Equal(13, Size(oneKnife) - Size(empty));
-        Assert.Equal(22, Size(oneBox) - Size(empty));
+        Assert.Equal(14, Size(oneKnife) - Size(empty));
+        Assert.Equal(23, Size(oneBox) - Size(empty));
     }
 
     [Fact]
     public void Round_start_and_end_round_trip()
     {
-        var rs = new RoundStartPacket { RoundNumber = 2, CountdownTicks = 60, PlayStartTick = 5000 };
+        var rs = new RoundStartPacket { RoundNumber = 2, CountdownTicks = 60, PlayStartTick = 5000, StageId = 3 };
         rs.Participants.AddRange(new byte[] { 1, 2, 5 });
         var rs2 = RoundTrip(rs);
-        Assert.Equal((2, 60, 5000u), (rs2.RoundNumber, rs2.CountdownTicks, rs2.PlayStartTick));
+        Assert.Equal((2, 60, 5000u, (byte)3), (rs2.RoundNumber, rs2.CountdownTicks, rs2.PlayStartTick, rs2.StageId));
         Assert.Equal(rs.Participants, rs2.Participants);
 
         var re = new RoundEndPacket { RoundNumber = 2, EndTick = 9000 };

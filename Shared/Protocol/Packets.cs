@@ -223,6 +223,7 @@ namespace OnlineSeverGame.Shared.Protocol
             {
                 KnifeState k = Knives[i];
                 w.WriteUInt16(k.Id);
+                w.WriteByte((byte)k.Kind);
                 w.WriteByte((byte)k.Phase);
                 w.WriteInt32(k.X);
                 w.WriteInt32(k.Y);
@@ -239,6 +240,7 @@ namespace OnlineSeverGame.Shared.Protocol
                 w.WriteInt32(b.Vy);
                 w.WriteUInt16(b.Width);
                 w.WriteUInt16(b.Height);
+                w.WriteByte(b.Crumble);
             }
         }
 
@@ -256,7 +258,8 @@ namespace OnlineSeverGame.Shared.Protocol
             {
                 s.Knives.Add(new KnifeState
                 {
-                    Id = r.ReadUInt16(), Phase = (KnifePhase)r.ReadByte(), X = r.ReadInt32(), Y = r.ReadInt32(),
+                    Id = r.ReadUInt16(), Kind = (HazardKind)r.ReadByte(), Phase = (KnifePhase)r.ReadByte(),
+                    X = r.ReadInt32(), Y = r.ReadInt32(),
                     Timer = r.ReadUInt16(),
                 });
             }
@@ -266,7 +269,7 @@ namespace OnlineSeverGame.Shared.Protocol
                 var b = new PushableState
                 {
                     Id = r.ReadUInt16(), X = r.ReadInt32(), Y = r.ReadInt32(), Vx = r.ReadInt32(), Vy = r.ReadInt32(),
-                    Width = r.ReadUInt16(), Height = r.ReadUInt16(),
+                    Width = r.ReadUInt16(), Height = r.ReadUInt16(), Crumble = r.ReadByte(),
                 };
                 b.Grounded = b.Vy == 0;
                 s.Pushables.Add(b);
@@ -281,6 +284,8 @@ namespace OnlineSeverGame.Shared.Protocol
         public ushort RoundNumber;
         public ushort CountdownTicks;
         public uint PlayStartTick;
+        /// <summary>Map of this round (Stage.ById). The map changes only here.</summary>
+        public byte StageId;
         public List<byte> Participants = new List<byte>();
 
         public PacketType Type => PacketType.RoundStart;
@@ -290,6 +295,7 @@ namespace OnlineSeverGame.Shared.Protocol
             w.WriteUInt16(RoundNumber);
             w.WriteUInt16(CountdownTicks);
             w.WriteUInt32(PlayStartTick);
+            w.WriteByte(StageId);
             w.WriteByte((byte)Participants.Count);
             for (int i = 0; i < Participants.Count; i++) w.WriteByte(Participants[i]);
         }
@@ -299,6 +305,7 @@ namespace OnlineSeverGame.Shared.Protocol
             var p = new RoundStartPacket
             {
                 RoundNumber = r.ReadUInt16(), CountdownTicks = r.ReadUInt16(), PlayStartTick = r.ReadUInt32(),
+                StageId = r.ReadByte(),
             };
             int n = r.ReadByte();
             for (int i = 0; i < n; i++) p.Participants.Add(r.ReadByte());

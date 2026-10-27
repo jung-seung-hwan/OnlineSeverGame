@@ -244,6 +244,8 @@ namespace OnlineSeverGame.Client.Game
                 Fail($"모르는 스테이지 id {w.StageId}");
                 return;
             }
+            _layout.SetStage(_stage);
+            State.MapName = StageLayout.DisplayName(_stage.Id);
             _welcomed = true;
             _localId = w.PlayerId;
             State.LocalId = w.PlayerId;
@@ -270,6 +272,15 @@ namespace OnlineSeverGame.Client.Game
             _participants.Clear();
             foreach (var id in rs.Participants) _participants.Add(id);
             State.RoundNumber = rs.RoundNumber;
+            // 맵은 라운드 시작 때만 바뀐다. 화면(GameBootstrap)은 레이아웃 Version 을 보고 다시 만든다.
+            Stage stage = Stage.ById(rs.StageId);
+            if (stage != null && stage != _stage)
+            {
+                _stage = stage;
+                _layout.SetStage(stage);
+                Debug.Log($"[Net] map {stage.Id} '{stage.Name}'");
+            }
+            State.MapName = StageLayout.DisplayName(_stage.Id);
             // Countdown 중 누가 들어오면 같은 번호로 다시 온다. 그때는 참가자 목록만 갱신한다.
             if (rs.RoundNumber == _lastRoundStartNumber)
             {
@@ -328,7 +339,8 @@ namespace OnlineSeverGame.Client.Game
             if (_predicting)
             {
                 _predictedPrev = _predicted;
-                PredictStep(ref _predicted, buttons);
+                _predRoundTick = NextRoundTick(_predRoundTick);
+                PredictStep(ref _predicted, buttons, _predRoundTick);
                 if (_predicted.DashTicks == GameConstants.DashTicks) _predDashes++;
             }
         }
@@ -336,20 +348,27 @@ namespace OnlineSeverGame.Client.Game
         // 예측에 쓰는 상자: 최신 스냅샷 그대로(서버보다 조금 과거지만 멈춰 있는 상자는 정확하다)
         IReadOnlyList<PushableState> PredictBoxes => _latest?.Pushables;
 
+        // 예측한 마지막 스텝의 라운드 틱(녹는 발판 모양). Playing 이 아니면 0 그대로.
+        uint _predRoundTick;
+
+        uint NextRoundTick(uint roundTick) =>
+            _latest != null && _latest.RoomState == RoomState.Playing ? roundTick + 1 : 0;
+
         // 내 캐릭터 한 스텝 예측: 다른 플레이어를 마지막 버튼으로 한 스텝 굴리고, 나를 공용 물리로 굴린 뒤
         // 남의 머리에 떨어졌으면 튕긴다(서버 StompCollision 과 같은 조건)
-        void PredictStep(ref PlayerState state, InputButtons buttons)
+        void PredictStep(ref PlayerState state, InputButtons buttons, uint roundTick)
         {
+            Stage stage = _stage.AtRoundTick(roundTick);
             _othersBefore.Clear();
             for (int i = 0; i < _others.Count; i++)
             {
                 PlayerState o = _others[i];
                 _othersBefore.Add(o);
-                PlayerPhysics.Step(ref o, o.PrevButtons, _stage, PredictBoxes, out _);
+                PlayerPhysics.Step(ref o, o.PrevButtons, stage, PredictBoxes, out _);
                 _others[i] = o;
             }
             PlayerState before = state;
-            PlayerPhysics.Step(ref state, buttons, _stage, PredictBoxes, out _);
+            PlayerPhysics.Step(ref state, buttons, stage, PredictBoxes, out _);
             if (StompPrediction && StompCollision.PredictBounce(before, ref state, _othersBefore, _others)) _predBounces++;
         }
 
@@ -377,13 +396,16 @@ namespace OnlineSeverGame.Client.Game
             foreach (var p in _latest.Players)
                 if (p.PlayerId != _localId && p.Alive) _others.Add(p.State);
             int write = 0;
+            uint roundTick = _latest.RoomState == RoomState.Playing ? _latest.RoundTick : 0;
             for (int i = 0; i < _pending.Count; i++)
             {
                 if (_pending[i].Seq <= me.LastInputSeq) continue;
                 _pending[write++] = _pending[i];
                 prev = state;
-                PredictStep(ref state, _pending[i].Buttons);
+                roundTick = NextRoundTick(roundTick);
+                PredictStep(ref state, _pending[i].Buttons, roundTick);
             }
+            _predRoundTick = roundTick;
             _pending.RemoveRange(write, _pending.Count - write);
 
             _predicted = state;
@@ -604,6 +626,9 @@ namespace OnlineSeverGame.Client.Game
                 World.Players.Add(render);
             }
 
+            // 그리는 시점의 지형(녹는 아이스크림 발판의 폭)
+            _layout.RoundTick = s0.RoomState == RoomState.Playing ? s0.RoundTick : 0;
+
             foreach (var k in s0.Knives)
             {
                 KnifeState a = k, b = k;
@@ -630,11 +655,13 @@ namespace OnlineSeverGame.Client.Game
                 World.Swords.Add(new SwordRender
                 {
                     Id = k.Id,
+                    Kind = k.Kind,
+                    SpawnY = _layout.SwordSpawnY,
                     Phase = phase == KnifePhase.Warning ? SwordPhase.Warning
                         : phase == KnifePhase.Falling ? SwordPhase.Falling : SwordPhase.Landed,
                     Position = new Vector2(x, y),
-                    WarningProgress = 1f - timer / GameConstants.KnifeWarningTicks,
-                    LandingY = _layout.SwordLandingY(x, _latest.Pushables),
+                    WarningProgress = 1f - timer / k.Spec.WarningTicks,
+                    LandingY = _layout.SwordLandingY(k.Kind, x, _latest.Pushables),
                 });
             }
 
@@ -649,6 +676,7 @@ namespace OnlineSeverGame.Client.Game
                         new Vector2(StageLayout.ToWorld(a.X), StageLayout.ToWorld(a.Y)),
                         new Vector2(StageLayout.ToWorld(b.X), StageLayout.ToWorld(b.Y)), t),
                     Size = new Vector2(StageLayout.ToWorld(a.Width), StageLayout.ToWorld(a.Height)),
+                    Crumbling = a.Crumble > 0,
                 });
             }
         }

@@ -50,6 +50,21 @@ namespace OnlineSeverGame.Shared.Simulation
         public const int PushableDashSpeed = 700;  // 14 u/s after a dash hits it
         public const int PushableFriction = 50;    // vx loses this much per grounded tick (dash push slides ~4.9 u)
 
+        // Ice (winter eaves): standing on ice, vx eases toward the wanted speed by IceAccel per tick
+        // (letting go slides ~1.4 u). A dash hit on ice slides instead of lifting and bleeds vx/8 per stun tick.
+        public const int IceAccel = 50;
+        public const int IceStunDecayDivisor = 8;
+        public const int IceBoxFriction = 25;      // boxes slide farther on ice too
+
+        // Melting platforms (dessert shop) start shrinking this long after Playing begins.
+        public const int MeltDelayTicks = 10 * TickRate;
+
+        // Crates (warehouse): landed crates stay as boxes, at most this many (oldest crumbles first),
+        // stacked at most two high.
+        public const int MaxRestingCrates = 6;
+        public const int CrateStackLimit = 2;
+        public const int CrateCrumbleTicks = 20;
+
         // Knife
         public const int KnifeWidth = 400;
         public const int KnifeHalfWidth = KnifeWidth / 2;

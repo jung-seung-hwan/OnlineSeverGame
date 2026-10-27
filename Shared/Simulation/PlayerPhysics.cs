@@ -24,6 +24,7 @@ namespace OnlineSeverGame.Shared.Simulation
             InputButtons pressed = buttons & ~s.PrevButtons;
             bool down = (buttons & InputButtons.Down) != 0;
             bool dropThrough = false;
+            bool onIce = s.Grounded && stage.IsIceAt(s.X - GameConstants.PlayerHalfWidth, s.X + GameConstants.PlayerHalfWidth, s.Y);
 
             // DashTicks counts the dash ticks still owed, including the one performed in this step.
             if (s.DashTicks > 0) s.DashTicks--;
@@ -35,7 +36,7 @@ namespace OnlineSeverGame.Shared.Simulation
                 s.StunTicks--;
                 if (s.StunTicks == 0) s.Stomped = false;
                 s.DashTicks = 0;
-                s.Vx -= s.Vx / 4;
+                s.Vx -= s.Vx / (onIce ? GameConstants.IceStunDecayDivisor : 4);
             }
             else
             {
@@ -58,7 +59,8 @@ namespace OnlineSeverGame.Shared.Simulation
                 else
                 {
                     bool crouch = s.Grounded && down;
-                    s.Vx = dir * (crouch ? GameConstants.CrouchMoveSpeed : GameConstants.MoveSpeed);
+                    int want = dir * (crouch ? GameConstants.CrouchMoveSpeed : GameConstants.MoveSpeed);
+                    s.Vx = onIce ? Slide(s.Vx, want) : want;
                     if ((pressed & InputButtons.Jump) != 0 && s.Grounded)
                     {
                         // Down + Jump on a platform drops below it; anywhere else it is a normal jump.
@@ -116,6 +118,16 @@ namespace OnlineSeverGame.Shared.Simulation
 
             s.Crouching = s.Grounded && down && s.DashTicks == 0 && s.StunTicks == 0;
             s.PrevButtons = buttons;
+        }
+
+        /// <summary>On ice: drop any dash or knockback speed to walking speed, then ease toward want.</summary>
+        private static int Slide(int vx, int want)
+        {
+            if (vx > GameConstants.MoveSpeed) vx = GameConstants.MoveSpeed;
+            else if (vx < -GameConstants.MoveSpeed) vx = -GameConstants.MoveSpeed;
+            if (vx < want) return vx + GameConstants.IceAccel < want ? vx + GameConstants.IceAccel : want;
+            if (vx > want) return vx - GameConstants.IceAccel > want ? vx - GameConstants.IceAccel : want;
+            return vx;
         }
 
         private static bool OnPlatform(in PlayerState s, Stage stage, IReadOnlyList<PushableState> boxes)

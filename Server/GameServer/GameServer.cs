@@ -14,6 +14,10 @@ public sealed class ServerOptions
     public int ExitAfterRounds;
     /// <summary>Log every dash push instead of only the per-round count.</summary>
     public bool Verbose;
+    /// <summary>Map order between rounds. Cycle = kitchen, winter eaves, warehouse, dessert shop, kitchen, ...</summary>
+    public MapRotation Rotation = MapRotation.Cycle;
+    /// <summary>The only map when Rotation is Fixed (--map N).</summary>
+    public Stage FixedMap = Stage.Default;
 }
 
 /// <summary>
@@ -38,7 +42,11 @@ public sealed class GameServer
     public GameServer(ServerOptions options)
     {
         _options = options;
-        _room = new GameRoom(new RoomConfig { MinPlayers = options.MinPlayers, Seed = options.Seed, LogPushes = options.Verbose }, msg => Log.Info(msg));
+        _room = new GameRoom(new RoomConfig
+        {
+            MinPlayers = options.MinPlayers, Seed = options.Seed, LogPushes = options.Verbose,
+            Rotation = options.Rotation, Stage = options.FixedMap,
+        }, msg => Log.Info(msg));
         _listener = new TcpListener(IPAddress.Any, options.Port);
     }
 

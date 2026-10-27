@@ -61,7 +61,7 @@ namespace OnlineSeverGame.Client.View
             {
                 if (!_swords.TryGetValue(s.Id, out var view))
                 {
-                    view = SwordView.Create(transform, _layout.SwordSize, _layout.Height);
+                    view = SwordView.Create(transform, s.Kind, _layout.Height);
                     view.name = "Sword " + s.Id;
                     _swords.Add(s.Id, view);
                 }
@@ -75,7 +75,7 @@ namespace OnlineSeverGame.Client.View
             {
                 if (!_boxes.TryGetValue(b.Id, out var view))
                 {
-                    view = BoxView.Create(transform);
+                    view = BoxView.Create(transform, _layout.Source.Id);
                     view.name = "Box " + b.Id;
                     _boxes.Add(b.Id, view);
                 }

@@ -34,6 +34,7 @@ namespace OnlineSeverGame.Client.Model
         public int LocalId = -1;
         public int Capacity = 8;
         public int RoundNumber;
+        public string MapName = "";   // 이번 라운드 맵(화면 표시용)
         public readonly List<RosterEntry> Roster = new List<RosterEntry>();
         public float RoundSeconds;
         public float CountdownSeconds;  // Countdown: 시작까지, Result: 다음 라운드까지

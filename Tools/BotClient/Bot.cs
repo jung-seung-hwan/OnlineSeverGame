@@ -114,6 +114,9 @@ public sealed class Bot
         }
     }
 
+    /// <summary>Map of the current round (Welcome, then every RoundStart). Read by the input thread.</summary>
+    private volatile byte _stageId = 1;
+
     private InputButtons NextButtons()
     {
         InputButtons wander = Wander();
@@ -123,7 +126,8 @@ public sealed class Bot
         {
             if (p.PlayerId != PlayerId) continue;
             if (!p.Alive) return wander;
-            return DodgeBrain.Decide(p.State, snap.Knives, Stage.Default, _reactionTicks, wander);
+            Stage stage = (Stage.ById(_stageId) ?? Stage.Default).AtRoundTick(snap.RoundTick);
+            return DodgeBrain.Decide(p.State, snap.Knives, stage, _reactionTicks, wander, snap.Pushables);
         }
         return wander;
     }
@@ -179,6 +183,7 @@ public sealed class Bot
         {
             case WelcomePacket w:
                 PlayerId = w.PlayerId;
+                _stageId = w.StageId;
                 Console.WriteLine($"[{_name}] welcome: player #{w.PlayerId}, server tick {w.ServerTick}");
                 break;
 
@@ -188,9 +193,10 @@ public sealed class Bot
                 break;
 
             case RoundStartPacket rs:
+                _stageId = rs.StageId;
                 if (_verbose)
                     Console.WriteLine($"[{_name}] round {rs.RoundNumber} countdown {rs.CountdownTicks} ticks, " +
-                                      $"participants {string.Join(",", rs.Participants)}");
+                                      $"participants {string.Join(",", rs.Participants)}, map {rs.StageId}");
                 break;
 
             case SnapshotPacket s:

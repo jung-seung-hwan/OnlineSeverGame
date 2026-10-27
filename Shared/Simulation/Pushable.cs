@@ -18,6 +18,8 @@ namespace OnlineSeverGame.Shared.Simulation
         public ushort Width;
         public ushort Height;
         public bool Grounded;
+        /// <summary>&gt; 0: a crate about to vanish (warehouse limit); ticks left. Still solid meanwhile.</summary>
+        public byte Crumble;
 
         public int Left => X - Width / 2;
         public int Right => X + Width / 2;
@@ -77,8 +79,9 @@ namespace OnlineSeverGame.Shared.Simulation
 
                 if (b.Grounded)
                 {
-                    if (b.Vx > 0) b.Vx = b.Vx > GameConstants.PushableFriction ? b.Vx - GameConstants.PushableFriction : 0;
-                    else if (b.Vx < 0) b.Vx = -b.Vx > GameConstants.PushableFriction ? b.Vx + GameConstants.PushableFriction : 0;
+                    int friction = stage.IsIceAt(b.Left, b.Right, b.Y) ? GameConstants.IceBoxFriction : GameConstants.PushableFriction;
+                    if (b.Vx > 0) b.Vx = b.Vx > friction ? b.Vx - friction : 0;
+                    else if (b.Vx < 0) b.Vx = -b.Vx > friction ? b.Vx + friction : 0;
                 }
                 b.Vy -= GameConstants.Gravity;
                 if (b.Vy < -GameConstants.MaxFallSpeed) b.Vy = -GameConstants.MaxFallSpeed;
@@ -174,12 +177,17 @@ namespace OnlineSeverGame.Shared.Simulation
             return index >= 0;
         }
 
-        /// <summary>Where a knife dropped at x from fromY stops: the stage surface or a box top, whichever is higher.</summary>
+        /// <summary>Where the stage's hazard dropped at x from fromY stops: the stage surface or a box top, whichever is higher.</summary>
         public static int KnifeLandingY(Stage stage, IReadOnlyList<PushableState> boxes, int x, int fromY)
         {
-            int top = stage.KnifeLandingY(x, fromY);
-            if (TryFindBoxLanding(boxes, x - GameConstants.KnifeHalfWidth, x + GameConstants.KnifeHalfWidth, fromY,
-                    int.MinValue / 2, out int boxTop, out _) && boxTop > top)
+            return HazardLandingY(stage, boxes, stage.Hazard, x, fromY);
+        }
+
+        public static int HazardLandingY(Stage stage, IReadOnlyList<PushableState> boxes, HazardKind kind, int x, int fromY)
+        {
+            int half = HazardSpec.Of(kind).HalfWidth;
+            int top = stage.HazardLandingY(kind, x, fromY);
+            if (TryFindBoxLanding(boxes, x - half, x + half, fromY, int.MinValue / 2, out int boxTop, out _) && boxTop > top)
                 top = boxTop;
             return top;
         }

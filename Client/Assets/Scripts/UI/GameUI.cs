@@ -108,7 +108,7 @@ namespace OnlineSeverGame.Client.UI
                 : "다른 플레이어를 기다리는 중";
             GUILayout.Label(head, _big, GUILayout.Height(36));
             string sub = s.Screen == ClientScreen.Countdown
-                ? $"라운드 {s.RoundNumber} · 참가 {s.ParticipantCount}명 · 칼이 떨어지기 전까지 자유롭게 움직이세요"
+                ? $"라운드 {s.RoundNumber} · {s.MapName} · 참가 {s.ParticipantCount}명 · 떨어지기 전까지 자유롭게 움직이세요"
                 : $"접속 {s.Roster.Count}/{s.Capacity} · 2명 이상이면 시작합니다";
             GUILayout.Label(sub, _center);
             GUILayout.EndArea();
