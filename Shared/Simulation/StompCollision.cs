@@ -6,7 +6,7 @@ namespace OnlineSeverGame.Shared.Simulation
     {
         public readonly int Stomper;
         public readonly int Target;
-        /// <summary>False when the target was already stunned: the stomper bounces but the stun is not renewed.</summary>
+        /// <summary>False when the target was already flat or immune: the stomper bounces but nothing else happens.</summary>
         public readonly bool Stunned;
 
         public StompHit(int stomper, int target, bool stunned)
@@ -21,8 +21,8 @@ namespace OnlineSeverGame.Shared.Simulation
     /// Run after every player has stepped (and after DashCollision). A player whose feet were at or above
     /// another player's head before the tick and at or below it after, overlapping horizontally, stomped
     /// that player: the stomper is put on the head and bounces up, the target is stunned for
-    /// StompStunTicks and drawn flattened. A target that is already stunned is not stunned again, so
-    /// nobody can be kept down forever. Server-authoritative like dash pushes; a client may predict its own
+    /// StompStunTicks and drawn flattened. A target that is already flat or still stun-immune after a flat stun
+    /// (PlayerState.CanBeStunned) is not stunned again, so nobody can be kept down forever. Server-authoritative like dash pushes; a client may predict its own
     /// bounce with PredictBounce so the stomper does not sink into the target before the snapshot arrives.
     /// </summary>
     public static class StompCollision
@@ -94,7 +94,7 @@ namespace OnlineSeverGame.Shared.Simulation
             {
                 int b = target[a];
                 if (b < 0) continue;
-                bool stun = states[b].StunTicks == 0 || stunnedNow[b];
+                bool stun = states[b].CanBeStunned || stunnedNow[b];
                 if (stun && !stunnedNow[b])
                 {
                     stunnedNow[b] = true;

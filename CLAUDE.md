@@ -1,6 +1,6 @@
 # OnlineSeverGame
 
-8-player 2D side-view survival game: knives fall from above (with a warning marker), players dodge by moving, jumping and dashing (2 s cooldown); a dash that hits another player knocks them back, landing on someone's head stuns them, holding Down crouches (Down + Jump drops through a platform), and some maps have boxes to push and decorations that sway. Last survivor wins. Hazards hit the drawn shapes (`Shared/Simulation/HitShapes.cs`), not the movement box.
+8-player 2D side-view survival game: knives fall from above (with a warning marker), and from 20 s into a round side knives fly straight across at head height (duck) or low (jump) after a warning line; players dodge by moving, jumping and dashing (2 s cooldown); a dash that hits another player knocks them back and flattens them for 1 s, landing on someone's head stuns them (any flat stun is followed by 1 s of blinking stun immunity), holding Down crouches (Down + Jump drops through a platform), and some maps have boxes to push and decorations that sway. Last survivor wins. Hazards hit the drawn shapes (`Shared/Simulation/HitShapes.cs`), not the movement box.
 
 - Server: C# .NET 10 console app, raw TCP sockets + threads, 20 ticks/s, server-authoritative.
 - Client: Unity 6000.6.3f1 (2D) in `Client/`. Sends inputs only; predicts its own player, interpolates others.
@@ -31,9 +31,9 @@ Unity generates `.meta` files inside `Shared/`; commit them together with `Share
   - options: `--port N`, `--min-players N` (1..8, default 2), `--seed N`, `--exit-after-rounds N`, `--verbose` (log every dash, push, stomp, box hit, near miss and hit-rule disagreement; default logs only the per-round counts), `--maps cycle|random` (starting rotation, default cycle), `--map N` (start on map 1..4, fixed), `--legacy-hitbox` (judge hazards with the old boxes, for before/after comparisons)
   - In game the host (earliest player still connected) changes the next map and rotation: buttons on the waiting and result screens, or keys `1`~`4` (next map) and `R` (cycle → random → fixed). It applies from the next round; see `docs/work/map-select-hit.md`.
 - Run 8 bots: `dotnet run --project Tools/BotClient -- --count 8`
-  - options: `--host`, `--port`, `--count N`, `--name Bot`, `--seed N`, `--rounds N` (exit after N rounds), `--drop-one-after SECONDS` (abruptly disconnect the last bot that many seconds into the first round), `--duration SECONDS`, `--ai dodge|random` (default `dodge`: bots notice knife warnings after a 2-8 tick reaction time and get out from under them; both wander, jump, dash, crouch and drop off platforms at random)
+  - options: `--host`, `--port`, `--count N`, `--name Bot`, `--seed N`, `--rounds N` (exit after N rounds), `--drop-one-after SECONDS` (abruptly disconnect the last bot that many seconds into the first round), `--duration SECONDS`, `--ai dodge|random` (default `dodge`: bots notice knife warnings after a 2-8 tick reaction time and get out from under them, and duck under head-height / jump over low side knives; both wander, jump, dash, crouch and drop off platforms at random)
 - Scripted check (two terminals): server with `--exit-after-rounds 2`, bots with `--rounds 2 --drop-one-after 5`.
-- Client test switches: `Client/Build/Windows/Client.exe -server 127.0.0.1:7777 -autoconnect -autoplay [chase|stomp|mash]` (see `docs/work/gameplay-2.md`).
+- Client test switches: `Client/Build/Windows/Client.exe -server 127.0.0.1:7777 -autoconnect -autoplay [chase|stomp|mash]` (see `docs/work/gameplay-2.md`), `-screenshot <path{n}> -screenshotDelay S -screenshotEvery S`, `-touchshot <path{n}>`, `-blinkshot <path{n}>` (frames with a stun-immune player blinking, `docs/work/dash-side-knife.md`), `-quitAfter S`.
 
 Build output goes to `artifacts/` (see `Directory.Build.props`), never into `Shared/`, so Unity does not pick up generated files.
 

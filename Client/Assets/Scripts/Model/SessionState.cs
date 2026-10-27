@@ -26,6 +26,7 @@ namespace OnlineSeverGame.Client.Model
         public float SurvivedSeconds; // 결과 화면용 생존 시간
         public bool LeftGame;         // 연결 끊김으로 탈락
         public bool Survived;         // 라운드 끝까지 살아남음(동시 사망 공동 승자는 false)
+        public bool BySideKnife;      // 옆 칼에 맞아 탈락
     }
 
     // UI 가 읽는 세션 상태. 네트워크 세션과 오프라인 미리보기가 같은 형태로 채운다.

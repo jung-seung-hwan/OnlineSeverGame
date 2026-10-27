@@ -15,6 +15,8 @@ public sealed class RoomConfig
     public int Seed = Environment.TickCount;
     /// <summary>Off in tests that place knives by hand.</summary>
     public bool AutoSpawnKnives = true;
+    /// <summary>Side knives from 20 s into a round (docs/work/dash-side-knife.md). Off in tests that place them by hand.</summary>
+    public bool AutoSpawnSideKnives = true;
     public int MaxQueuedInputs = 8;
     /// <summary>Grace period after Playing begins before the first knife warning.</summary>
     public int FirstKnifeDelayTicks = GameConstants.TickRate;
@@ -82,6 +84,17 @@ public sealed class GameRoom
     private readonly SortedDictionary<byte, RoomPlayer> _players = new();
     private readonly List<RoundEntry> _round = new();
     private readonly List<KnifeState> _knives = new();
+    private readonly List<SideKnifeState> _sideKnives = new();
+    private readonly Random _sideRandom;
+    private ushort _nextSideKnifeId = 1;
+    private uint _nextSideSpawnTick;
+    private int _roundSideKnives;
+    private int _roundSideLow;
+    private int _roundSideKills;
+    private int _roundSideNear;
+    private int _roundDashStuns;
+    private int _roundImmunePushes;
+    private int _roundImmuneStomps;
     private readonly List<DashHit> _hits = new();
     private readonly List<StompHit> _stomps = new();
     private PushableState[] _boxes;
@@ -110,6 +123,8 @@ public sealed class GameRoom
         _nextStage = _stage;
         _random = new Random(config.Seed);
         _mapRandom = new Random(config.Seed ^ 0x5EED);
+        // Its own stream so adding side knives does not change where falling hazards spawn for a given seed.
+        _sideRandom = new Random(config.Seed ^ 0x51DE);
         _log = log ?? (_ => { });
         ResetPushables();
     }
@@ -145,6 +160,9 @@ public sealed class GameRoom
 
     public List<Outgoing> Outbox { get; } = new();
     public IReadOnlyList<KnifeState> Knives => _knives;
+    public IReadOnlyList<SideKnifeState> SideKnives => _sideKnives;
+    public int RoundSideKnives => _roundSideKnives;
+    public int RoundDashStuns => _roundDashStuns;
     /// <summary>Boxes, writable so tests can place them.</summary>
     public PushableState[] Pushables => _boxes;
     public int RoundStomps => _roundStomps;
@@ -278,6 +296,24 @@ public sealed class GameRoom
         _nextKnifeId = (ushort)(_nextKnifeId == ushort.MaxValue ? 1 : _nextKnifeId + 1);
     }
 
+    /// <summary>
+    /// Starts a side knife warning on the lane at height laneY. It flies the way of any side knife already out
+    /// (dir is used only when there is none). Used by the spawner and by tests.
+    /// </summary>
+    public SideKnifeState SpawnSideKnife(sbyte dir, int laneY)
+    {
+        var k = SideKnifeState.Warn(_nextSideKnifeId, SideKnifePhysics.PickDir(_sideKnives, dir), laneY, _stage);
+        _sideKnives.Add(k);
+        _nextSideKnifeId = (ushort)(_nextSideKnifeId == ushort.MaxValue ? 1 : _nextSideKnifeId + 1);
+        _roundSideKnives++;
+        bool low = false;
+        foreach (int surface in _stage.SideKnifeSurfaces)
+            if (laneY == surface + GameConstants.SideKnifeLowOffset) low = true;
+        if (low) _roundSideLow++;
+        if (_config.LogPushes) _log($"side  {k} ({(low ? "low" : "head")}) at roundTick {RoundTick}");
+        return k;
+    }
+
     // ---------------------------------------------------------------- tick
 
     public void Tick()
@@ -291,6 +327,8 @@ public sealed class GameRoom
         {
             if (_config.AutoSpawnKnives) SpawnKnivesOnSchedule();
             StepKnives();
+            if (_config.AutoSpawnSideKnives) SpawnSideKnivesOnSchedule();
+            StepSideKnives();
             CheckRoundEnd();
         }
 
@@ -348,20 +386,30 @@ public sealed class GameRoom
             states[i] = p.State;
         }
 
+        var stepped = (PlayerState[])states.Clone();
         _hits.Clear();
         DashCollision.Resolve(states, active, n, _hits, stage);
         _roundPushes += _hits.Count;
+        foreach (var hit in _hits)
+        {
+            if (hit.Stunned) _roundDashStuns++;
+            else if (stepped[hit.Target].ImmuneTicks > 0) _roundImmunePushes++;
+        }
         if (_config.LogPushes)
             foreach (var hit in _hits)
                 _log($"push  #{list[hit.Attacker].Id} -> #{list[hit.Target].Id}" +
-                     (before[hit.Target].Crouching ? " (crouching, half knockback)" : ""));
+                     (before[hit.Target].Crouching ? " (crouching, half knockback)" : "") +
+                     (hit.Stunned ? " stun" : stepped[hit.Target].ImmuneTicks > 0 ? " (immune: pushed only)" : " (already flat: pushed only)"));
 
         _stomps.Clear();
         StompCollision.Resolve(before, states, active, n, _stomps);
         _roundStomps += _stomps.Count;
+        foreach (var st in _stomps)
+            if (!st.Stunned && states[st.Target].ImmuneTicks > 0) _roundImmuneStomps++;
         if (_config.LogPushes)
             foreach (var st in _stomps)
-                _log($"stomp #{list[st.Stomper].Id} -> #{list[st.Target].Id}" + (st.Stunned ? " stun" : " (already stunned)"));
+                _log($"stomp #{list[st.Stomper].Id} -> #{list[st.Target].Id}" +
+                     (st.Stunned ? " stun" : states[st.Target].ImmuneTicks > 0 ? " (immune)" : " (already flat)"));
 
         for (int i = 0; i < n; i++)
         {
@@ -461,6 +509,48 @@ public sealed class GameRoom
             if (k.Phase != KnifePhase.Falling) _hitStats.Finish(k.Id, k.Kind, _config.LegacyHitbox, _config.LogPushes ? _log : null);
             if (k.Kind == HazardKind.Crate && before == KnifePhase.Falling && k.Phase == KnifePhase.Landed && LandCrate(k))
                 _knives.RemoveAt(i);
+        }
+    }
+
+    /// <summary>One side knife warning every IntervalAt ticks from SideKnifeStartTick, on a random lane of the map.</summary>
+    private void SpawnSideKnivesOnSchedule()
+    {
+        if (RoundTick < GameConstants.SideKnifeStartTick || RoundTick < _nextSideSpawnTick) return;
+        int[] lanes = SideKnifePhysics.Lanes(_stage);
+        sbyte dir = _sideRandom.Next(2) == 0 ? (sbyte)-1 : (sbyte)1;
+        SpawnSideKnife(dir, lanes[_sideRandom.Next(lanes.Length)]);
+        _nextSideSpawnTick = RoundTick + (uint)SideKnifePhysics.IntervalAt(RoundTick);
+    }
+
+    /// <summary>Side knives fly straight through everything; a flying one kills whoever its swept blade touches.</summary>
+    private void StepSideKnives()
+    {
+        for (int i = _sideKnives.Count - 1; i >= 0; i--)
+        {
+            var k = _sideKnives[i];
+            bool keep = SideKnifePhysics.Step(ref k, _stage.Width, out bool dangerous, out int fromX);
+            if (!keep)
+            {
+                _sideKnives.RemoveAt(i);
+                continue;
+            }
+            _sideKnives[i] = k;
+            if (!dangerous) continue;
+            foreach (var p in _players.Values)
+            {
+                if (!p.Alive || !p.InRound) continue;
+                int gap = HitShapes.SideKnifeSeparation(p.State, k.Dir, k.Y, fromX, k.X);
+                if (gap >= 0)
+                {
+                    if (gap < 100) _roundSideNear++;
+                    continue;
+                }
+                Eliminate(p, EliminationCause.SideKnife);
+                _roundSideKills++;
+                _log($"death #{p.Id} '{p.Name}' by side knife#{k.Id} at roundTick {RoundTick} (lane y {k.Y / 1000.0:0.00}, " +
+                     $"{(k.Dir > 0 ? "flying right" : "flying left")}, player at ({p.State.X},{p.State.Y})" +
+                     (p.State.Crouching ? " crouching" : p.State.Grounded ? "" : " airborne") + $", drawn-shape gap {gap / 1000.0:0.00} u)");
+            }
         }
     }
 
@@ -572,7 +662,7 @@ public sealed class GameRoom
         var winners = _round.Where(e => e.Cause == EliminationCause.None).ToList();
         if (winners.Count == 0)
         {
-            var knifeDeaths = _round.Where(e => e.Cause == EliminationCause.Knife).ToList();
+            var knifeDeaths = _round.Where(e => e.Cause == EliminationCause.Knife || e.Cause == EliminationCause.SideKnife).ToList();
             if (knifeDeaths.Count > 0)
             {
                 uint last = knifeDeaths.Max(e => e.DeathTick);
@@ -583,11 +673,11 @@ public sealed class GameRoom
         var packet = new RoundEndPacket { RoundNumber = RoundNumber, EndTick = ServerTick };
         foreach (var w in winners) packet.Winners.Add(w.Id);
 
-        // Rank: winners first, then longer survival, then knife before disconnect. Ties share a place.
+        // Rank: winners first, then longer survival, then hazards before disconnect. Ties share a place.
         (int, uint, int) Key(RoundEntry e) => (
             winners.Contains(e) ? 1 : 0,
             e.Cause == EliminationCause.None ? RoundTick : e.DeathTick,
-            e.Cause == EliminationCause.None ? 2 : e.Cause == EliminationCause.Knife ? 1 : 0);
+            e.Cause == EliminationCause.None ? 2 : e.Cause == EliminationCause.Disconnected ? 0 : 1);
         var ordered = _round.OrderByDescending(Key).ToList();
         for (int i = 0; i < ordered.Count; i++)
         {
@@ -605,6 +695,7 @@ public sealed class GameRoom
         State = RoomState.Ended;
         StateTimer = GameConstants.ResultTicks;
         _knives.Clear();
+        _sideKnives.Clear();
         LastRoundEnd = packet;
         CompletedRounds++;
         Broadcast(packet);
@@ -618,7 +709,10 @@ public sealed class GameRoom
              $", hazards: {_roundHazards} {_stage.Hazard.ToString().ToLowerInvariant()}" +
              (_stage.Hazard == HazardKind.Crate
                  ? $", crates landed: {_roundCratesLanded}, crumbled: {_roundCratesCrumbled}, shattered: {_roundCratesShattered}, boxes now: {_boxes.Length}"
-                 : ""));
+                 : "") +
+             $", side knives: {_roundSideKnives} (low {_roundSideLow}, head {_roundSideKnives - _roundSideLow}), side kills: {_roundSideKills}" +
+             $", side near misses (< 0.1 u): {_roundSideNear}, dash stuns: {_roundDashStuns}, immune pushes: {_roundImmunePushes}" +
+             $", immune stomps: {_roundImmuneStomps}");
         _log("    " + _hitStats.TakeSummary(_config.LegacyHitbox));
         foreach (var r in packet.Results)
             _log($"    place {r.Place}: #{r.PlayerId} survived {r.SurvivedTicks} ticks ({r.Cause})");
@@ -653,6 +747,7 @@ public sealed class GameRoom
                     StateTimer = 0;
                     RoundTick = 0;
                     _nextSpawnTick = (uint)_config.FirstKnifeDelayTicks;
+                    _nextSideSpawnTick = GameConstants.SideKnifeStartTick;
                     _mapPlayed = true;
                     // Decided now so the waiting room and the results can show it (random included).
                     if (!_nextChosen) _nextStage = MapAfter(_stage);
@@ -691,8 +786,16 @@ public sealed class GameRoom
         _roundCratesLanded = 0;
         _roundCratesCrumbled = 0;
         _roundCratesShattered = 0;
+        _roundSideKnives = 0;
+        _roundSideLow = 0;
+        _roundSideKills = 0;
+        _roundSideNear = 0;
+        _roundDashStuns = 0;
+        _roundImmunePushes = 0;
+        _roundImmuneStomps = 0;
         ResetPushables();
         _knives.Clear();
+        _sideKnives.Clear();
         _round.Clear();
         foreach (var p in _players.Values)
         {
@@ -734,6 +837,7 @@ public sealed class GameRoom
         StateTimer = 0;
         RoundTick = 0;
         _knives.Clear();
+        _sideKnives.Clear();
         ResetPushables();
         _round.Clear();
         foreach (var p in _players.Values)
@@ -789,6 +893,8 @@ public sealed class GameRoom
         }
         int knives = Math.Min(_knives.Count, 255);
         for (int i = 0; i < knives; i++) s.Knives.Add(_knives[i]);
+        int sides = Math.Min(_sideKnives.Count, 255);
+        for (int i = 0; i < sides; i++) s.SideKnives.Add(_sideKnives[i]);
         for (int i = 0; i < _boxes.Length && i < 255; i++) s.Pushables.Add(_boxes[i]);
         return s;
     }

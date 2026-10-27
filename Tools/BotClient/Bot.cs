@@ -98,7 +98,12 @@ public sealed class Bot
             while (_running)
             {
                 Seq++;
-                SendPacket(new InputPacket { Seq = Seq, Buttons = NextButtons() });
+                InputButtons buttons = NextButtons();
+                // Jump acts on the press edge only: a jump held through a dash or a landing would never fire,
+                // so a held jump is released every other tick.
+                if ((buttons & _lastSent & InputButtons.Jump) != 0) buttons &= ~InputButtons.Jump;
+                _lastSent = buttons;
+                SendPacket(new InputPacket { Seq = Seq, Buttons = buttons });
                 if (Seq % 100 == 0) SendPacket(new PingPacket { ClientTime = (uint)Clock.ElapsedMilliseconds });
 
                 next += GameConstants.TickMilliseconds;
@@ -114,6 +119,8 @@ public sealed class Bot
         }
     }
 
+    private InputButtons _lastSent;
+
     /// <summary>Map of the current round (Welcome, then every RoundStart). Read by the input thread.</summary>
     private volatile byte _stageId = 1;
 
@@ -127,7 +134,9 @@ public sealed class Bot
             if (p.PlayerId != PlayerId) continue;
             if (!p.Alive) return wander;
             Stage stage = (Stage.ById(_stageId) ?? Stage.Default).AtRoundTick(snap.RoundTick);
-            return DodgeBrain.Decide(p.State, snap.Knives, stage, _reactionTicks, wander, snap.Pushables);
+            // Inputs sent but not yet applied in that snapshot wait in the server queue ahead of this one.
+            int lag = (int)Math.Min(20, Seq - p.LastInputSeq);
+            return DodgeBrain.Decide(p.State, snap.Knives, stage, _reactionTicks, wander, snap.Pushables, snap.SideKnives, lag);
         }
         return wander;
     }

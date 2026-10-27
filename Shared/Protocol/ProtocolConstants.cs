@@ -3,7 +3,7 @@ namespace OnlineSeverGame.Shared.Protocol
     public static class ProtocolConstants
     {
         /// <summary>Bumped whenever a packet layout changes. Hello/Welcome carry it.</summary>
-        public const ushort Version = 4;
+        public const ushort Version = 5;
 
         public const int DefaultPort = 7777;
 

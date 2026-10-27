@@ -97,8 +97,11 @@ public class ProtocolTests
         oneKnife.Knives.Add(new KnifeState());
         var oneBox = new SnapshotPacket();
         oneBox.Pushables.Add(new PushableState());
-        Assert.Equal(2 + 1 + 4 + 1 + 2 + 4 + 2 + 1 + 1 + 1, Size(empty));
-        Assert.Equal(26, Size(onePlayer) - Size(empty));
+        var oneSide = new SnapshotPacket();
+        oneSide.SideKnives.Add(new SideKnifeState());
+        Assert.Equal(2 + 1 + 4 + 1 + 2 + 4 + 2 + 1 + 1 + 1 + 1, Size(empty));
+        Assert.Equal(27, Size(onePlayer) - Size(empty));
+        Assert.Equal(14, Size(oneSide) - Size(empty));
         Assert.Equal(14, Size(oneKnife) - Size(empty));
         Assert.Equal(23, Size(oneBox) - Size(empty));
     }

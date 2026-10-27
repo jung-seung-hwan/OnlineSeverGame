@@ -7,7 +7,7 @@ namespace OnlineSeverGame.Server.Tests;
 public class GameRoomTests
 {
     private static GameRoom NewRoom(int minPlayers = 2) =>
-        new GameRoom(new RoomConfig { MinPlayers = minPlayers, AutoSpawnKnives = false, Seed = 1 });
+        new GameRoom(new RoomConfig { MinPlayers = minPlayers, AutoSpawnKnives = false, AutoSpawnSideKnives = false, Seed = 1 });
 
     private static List<IPacket> Drain(GameRoom room, byte target = 0)
     {
@@ -282,7 +282,7 @@ public class GameRoomTests
         room.QueueInput(ids[0], 1, InputButtons.Dash);
         room.Tick();
         var target = room.GetPlayer(ids[1]);
-        Assert.Equal(StunTicks, target.State.StunTicks);
+        Assert.Equal(DashStunTicks, target.State.StunTicks);
         Assert.Equal(KnockbackSpeed, target.State.Vx);
     }
 
@@ -304,7 +304,7 @@ public class GameRoomTests
     [Fact]
     public void Automatic_knives_get_more_frequent()
     {
-        var room = new GameRoom(new RoomConfig { MinPlayers = 1, Seed = 3 });
+        var room = new GameRoom(new RoomConfig { MinPlayers = 1, Seed = 3, AutoSpawnSideKnives = false });
         byte id = room.AddPlayer("solo");
         room.Tick();
         for (int i = 0; i < CountdownTicks; i++) room.Tick();

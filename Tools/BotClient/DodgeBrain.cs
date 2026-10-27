@@ -11,6 +11,9 @@ namespace OnlineSeverGame.BotClient;
 ///  2. If I stand inside an interval, walk to the nearest x outside all of them; dash when walking
 ///     cannot get there before impact; drop through the platform (Down + Jump) when the knife would land on it.
 ///  3. Otherwise follow the wander input, but do not walk into an interval.
+///  4. Side knives (docs/work/dash-side-knife.md 3.6): for each noticed side knife whose lane meets my body,
+///     crouch while it passes if crouching gets under it, else jump a few ticks before it arrives. While one is
+///     coming at a height a jump would carry me into, do not jump.
 /// Bots only notice a warning after their reaction time, so some still get hit.
 /// </summary>
 public static class DodgeBrain
@@ -84,8 +87,106 @@ public static class DodgeBrain
         return ticks;
     }
 
+    public enum SideAction { None, Duck, Jump, StayDown }
+
+    /// <summary>A side action plus the knife direction not to run along with (0 = none).</summary>
+    public readonly struct SidePlan
+    {
+        public readonly SideAction Action;
+        /// <summary>Running the same way as a knife at body height keeps it from passing (and a jump lands on it).</summary>
+        public readonly int HoldDir;
+
+        public SidePlan(SideAction action, int holdDir)
+        {
+            Action = action;
+            HoldDir = holdDir;
+        }
+    }
+
+    /// <summary>Clearance kept around the body when judging side knife timing and heights.</summary>
+    public const int SideMargin = 90;
+    /// <summary>Jump this many ticks (or fewer) before a low side knife reaches the body.</summary>
+    public const int JumpLeadTicks = 5;
+    /// <summary>Start crouching this many ticks (or fewer) before a head-height side knife reaches the body.</summary>
+    public const int DuckLeadTicks = 4;
+    /// <summary>Highest the body reaches above take-off in a jump (2.8 jump + 1.2 body).</summary>
+    private const int JumpReach = 2800 + GameConstants.PlayerHeight;
+
+    /// <summary>
+    /// What to do about side knives this tick, standing where I am. Duck: hold Down (no jump, no dash) because a
+    /// head-height knife is about to pass. Jump: a low knife arrives within JumpLeadTicks. StayDown: something
+    /// is flying at a height a jump would reach, so do not jump. Only on the ground. lagTicks = how many ticks
+    /// after the state seen an input sent now gets applied (inputs waiting in the server queue), so the timing
+    /// is judged for when the input lands.
+    /// </summary>
+    public static SideAction SideKnifeAction(in PlayerState me, IReadOnlyList<SideKnifeState> knives, int reactionTicks,
+        int lagTicks = 0) => PlanSide(me, knives, reactionTicks, lagTicks).Action;
+
+    public static SidePlan PlanSide(in PlayerState me, IReadOnlyList<SideKnifeState> knives, int reactionTicks, int lagTicks = 0)
+    {
+        if (knives == null || !me.Grounded) return new SidePlan(SideAction.None, 0);
+        var action = SideAction.None;
+        int holdDir = 0;
+        int soonest = int.MaxValue;
+        int front = HitShapes.BodyHalfWidth + SideMargin;
+        foreach (var k in knives)
+        {
+            if (k.Phase == SideKnifePhase.Warning && GameConstants.SideKnifeWarningTicks - k.Timer < reactionTicks) continue;
+            int bottom = HitShapes.SideKnifeBottom(k.Y), top = HitShapes.SideKnifeTop(k.Y);
+            if (top < me.Y || bottom > me.Y + JumpReach) continue;
+            // Ticks until the tip reaches my near edge, and until the tail clears my far edge.
+            int near = k.Dir > 0 ? (me.X - front) - k.X : k.X - (me.X + front);
+            int far = k.Dir > 0 ? (me.X + front) - k.TailX : k.TailX - (me.X - front);
+            if (far < 0) continue; // already past
+            int wait = k.Phase == SideKnifePhase.Warning ? k.Timer : 0;
+            // Walking toward it closes the gap faster; walking away is stopped below.
+            int closing = GameConstants.SideKnifeSpeed + Math.Max(0, -k.Dir * me.Vx);
+            int arrive = wait + Math.Max(0, (near + closing - 1) / closing) - lagTicks;
+            bool atBodyHeight = bottom < me.Y + GameConstants.PlayerHeight + SideMargin;
+            if (atBodyHeight && arrive <= 20) holdDir = k.Dir;
+
+            SideAction need;
+            if (bottom >= me.Y + GameConstants.PlayerHeight + SideMargin) need = SideAction.StayDown;
+            else if (bottom >= me.Y + GameConstants.CrouchHeight + SideMargin) need = arrive <= DuckLeadTicks ? SideAction.Duck : SideAction.StayDown;
+            else need = arrive <= JumpLeadTicks ? SideAction.Jump : SideAction.StayDown;
+            if (need == SideAction.StayDown && arrive > 20) continue;
+            if (need != SideAction.StayDown && arrive < soonest)
+            {
+                soonest = arrive;
+                action = need;
+            }
+            else if (action == SideAction.None) action = SideAction.StayDown;
+        }
+        return new SidePlan(action, holdDir);
+    }
+
     public static InputButtons Decide(in PlayerState me, IReadOnlyList<KnifeState> knives, Stage stage, int reactionTicks,
-        InputButtons wander, IReadOnlyList<PushableState> boxes = null)
+        InputButtons wander, IReadOnlyList<PushableState> boxes = null, IReadOnlyList<SideKnifeState> sideKnives = null,
+        int lagTicks = 0)
+    {
+        return ApplySide(DecideFalling(me, knives, stage, reactionTicks, wander, boxes),
+            PlanSide(me, sideKnives, reactionTicks, lagTicks));
+    }
+
+    private static InputButtons ApplySide(InputButtons b, SidePlan plan)
+    {
+        if (plan.HoldDir > 0) b &= ~InputButtons.Right;
+        else if (plan.HoldDir < 0) b &= ~InputButtons.Left;
+        switch (plan.Action)
+        {
+            case SideAction.Duck:
+                return (b & ~(InputButtons.Jump | InputButtons.Dash)) | InputButtons.Down;
+            case SideAction.Jump:
+                return (b & ~(InputButtons.Down | InputButtons.Dash)) | InputButtons.Jump;
+            case SideAction.StayDown:
+                return b & ~InputButtons.Jump;
+            default:
+                return b;
+        }
+    }
+
+    private static InputButtons DecideFalling(in PlayerState me, IReadOnlyList<KnifeState> knives, Stage stage, int reactionTicks,
+        InputButtons wander, IReadOnlyList<PushableState> boxes)
     {
         var dangers = FindDangers(me, knives, stage, reactionTicks, boxes);
         int minX = GameConstants.PlayerHalfWidth;

@@ -17,9 +17,13 @@ namespace OnlineSeverGame.Shared.Simulation
         public byte StunTicks;     // > 0 while knocked back or stomped (input ignored)
         public InputButtons PrevButtons; // for press-edge detection
         public bool Crouching;     // holding Down on the ground: lower body, slower, half knockback
-        public bool Stomped;       // the current stun came from a stomp (drawn flattened)
+        public bool Stomped;       // flat stun (stomp or dash hit): drawn flattened once on the ground
+        public byte ImmuneTicks;   // > 0 after a flat stun ended: cannot be stunned again (drawn blinking)
 
         public bool IsDashing => DashTicks > 0;
+
+        /// <summary>A dash hit or stomp may flatten this player now (not already flat, not immune).</summary>
+        public bool CanBeStunned => !Stomped && ImmuneTicks == 0;
 
         public int Height => Crouching ? GameConstants.CrouchHeight : GameConstants.PlayerHeight;
 
@@ -33,6 +37,6 @@ namespace OnlineSeverGame.Shared.Simulation
 
         public override string ToString() =>
             $"({X},{Y}) v=({Vx},{Vy}) f={Facing} g={Grounded} dash={DashTicks} cd={DashCooldown} stun={StunTicks}" +
-            (Crouching ? " crouch" : "") + (Stomped ? " stomped" : "");
+            (Crouching ? " crouch" : "") + (Stomped ? " flat" : "") + (ImmuneTicks > 0 ? $" immune={ImmuneTicks}" : "");
     }
 }

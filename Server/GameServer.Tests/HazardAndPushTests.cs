@@ -87,11 +87,11 @@ public class DashPushTests
 
         Assert.Equal(KnockbackSpeed, states[1].Vx);
         Assert.Equal(KnockbackLift, states[1].Vy);
-        Assert.Equal(StunTicks, states[1].StunTicks);
+        Assert.Equal(DashStunTicks, states[1].StunTicks);
         Assert.False(states[1].Grounded);
         Assert.False(states[0].IsDashing);
         Assert.Equal(0, states[0].Vx);
-        Assert.Equal(new DashHit(0, 1), Assert.Single(hits));
+        Assert.Equal(new DashHit(0, 1, true), Assert.Single(hits));
     }
 
     [Fact]
@@ -100,7 +100,7 @@ public class DashPushTests
         var states = new[] { PlayerState.SpawnAt(5000, 0, 1), Dashing(5300, -1) };
         DashCollision.Resolve(states, new[] { true, true }, 2);
         Assert.Equal(-KnockbackSpeed, states[0].Vx);
-        Assert.Equal(StunTicks, states[0].StunTicks);
+        Assert.Equal(DashStunTicks, states[0].StunTicks);
     }
 
     [Fact]
@@ -110,8 +110,8 @@ public class DashPushTests
         DashCollision.Resolve(states, new[] { true, true }, 2);
         Assert.Equal(-KnockbackSpeed, states[0].Vx);
         Assert.Equal(KnockbackSpeed, states[1].Vx);
-        Assert.Equal(StunTicks, states[0].StunTicks);
-        Assert.Equal(StunTicks, states[1].StunTicks);
+        Assert.Equal(DashStunTicks, states[0].StunTicks);
+        Assert.Equal(DashStunTicks, states[1].StunTicks);
     }
 
     [Fact]
@@ -137,7 +137,7 @@ public class DashPushTests
         var states = new[] { Dashing(5000, 1), PlayerState.SpawnAt(5500, 0, -1) };
         DashCollision.Resolve(states, new[] { true, true }, 2);
         var target = states[1];
-        for (int i = 0; i < StunTicks; i++) PlayerPhysics.Step(ref target, InputButtons.Left, Stage.Default);
+        for (int i = 0; i < DashStunTicks; i++) PlayerPhysics.Step(ref target, InputButtons.Left, Stage.Default);
         Assert.True(target.X > 5500 + 2000, $"moved only to {target.X}");
         Assert.Equal(0, target.StunTicks);
     }

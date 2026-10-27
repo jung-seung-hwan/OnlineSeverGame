@@ -267,7 +267,7 @@ public class MapTests
             PlayerState.SpawnAt(x, 0, -1),
         };
         DashCollision.Resolve(states, new[] { true, true }, 2, null, stage);
-        Assert.Equal(StunTicks, states[1].StunTicks);
+        Assert.Equal(DashStunTicks, states[1].StunTicks);
         var t = states[1];
         for (int i = 0; i < 30; i++) PlayerPhysics.Step(ref t, InputButtons.None, stage);
         Assert.Equal(0, t.Vx);
@@ -289,7 +289,7 @@ public class MapTests
         int ice = KnockDistance(Stage.Winter, 10000);
         int snow = KnockDistance(Stage.Winter, 1500);
         Assert.InRange(snow, 2000, 2800);
-        Assert.InRange(ice, 4500, 5500);
+        Assert.InRange(ice, 5500, 6400); // about 5.9: the 1 s dash stun keeps the ice decay (vx/8) going longer (dash-side-knife.md 2.3)
     }
 
     [Fact]

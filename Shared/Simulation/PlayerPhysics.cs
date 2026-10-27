@@ -29,12 +29,18 @@ namespace OnlineSeverGame.Shared.Simulation
             // DashTicks counts the dash ticks still owed, including the one performed in this step.
             if (s.DashTicks > 0) s.DashTicks--;
             if (s.DashCooldown > 0) s.DashCooldown--;
+            if (s.ImmuneTicks > 0) s.ImmuneTicks--;
 
             if (s.StunTicks > 0)
             {
-                // Knocked back or stomped: no control, horizontal speed bleeds off.
+                // Knocked back or flattened: no control, horizontal speed bleeds off. A flat stun ending
+                // starts the stun immunity.
                 s.StunTicks--;
-                if (s.StunTicks == 0) s.Stomped = false;
+                if (s.StunTicks == 0 && s.Stomped)
+                {
+                    s.Stomped = false;
+                    s.ImmuneTicks = GameConstants.StunImmunityTicks;
+                }
                 s.DashTicks = 0;
                 s.Vx -= s.Vx / (onIce ? GameConstants.IceStunDecayDivisor : 4);
             }

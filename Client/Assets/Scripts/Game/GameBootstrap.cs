@@ -16,6 +16,7 @@ namespace OnlineSeverGame.Client.Game
     //   -screenshot <파일경로> -screenshotDelay <초> [-screenshotEvery <초>]  -quitAfter <초>
     //   (-screenshotEvery 를 주면 파일경로의 {n} 을 번호로 바꿔 여러 장 찍는다)
     //   -touchshot <파일경로>: 위험물이 처음 내 몸에 닿아 보이는 프레임마다 찍는다({n} = 번호, 최대 12장. 칼 판정 확인용)
+    //   -blinkshot <파일경로>: 기절 면역으로 흐리게 깜빡이는 캐릭터가 보이는 프레임을 2초 간격으로 찍는다({n}, 최대 6장)
     public sealed class GameBootstrap : MonoBehaviour
     {
         public string PlayerName = "Player";
@@ -35,6 +36,9 @@ namespace OnlineSeverGame.Client.Game
         int _screenshotCount;
         float _quitAt = -1f;
         string _touchShotPath;
+        string _blinkShotPath;
+        int _blinkShots;
+        float _nextBlinkShot;
         int _touchShots;
         int _seenTouches;
         ClientScreen _loggedScreen = ClientScreen.Connect;
@@ -89,6 +93,7 @@ namespace OnlineSeverGame.Client.Game
                     case "-nostomppredict": NetworkSession.StompPrediction = false; break;
                     case "-quitAfter": if (float.TryParse(next, out var q)) _quitAt = q; break;
                     case "-touchshot": _touchShotPath = next; break;
+                    case "-blinkshot": _blinkShotPath = next; break;
                 }
             }
             if (_screenshotPath != null && _screenshotAt < 0f) _screenshotAt = 3f;
@@ -157,6 +162,19 @@ namespace OnlineSeverGame.Client.Game
                     string path = _touchShotPath.Replace("{n}", (++_touchShots).ToString("00"));
                     ScreenCapture.CaptureScreenshot(path);
                     Debug.Log($"[Client] touchshot {path} touch={_seenTouches} round={Session.State.RoundNumber}");
+                }
+            }
+
+            if (_blinkShotPath != null && Session != null && _blinkShots < 6 && Time.realtimeSinceStartup >= _nextBlinkShot)
+            {
+                foreach (var p in Session.World.Players)
+                {
+                    if (!p.Alive || PlayerView.BlinkAlpha(p.ImmuneTicks) >= 1f) continue;
+                    string path = _blinkShotPath.Replace("{n}", (++_blinkShots).ToString("00"));
+                    ScreenCapture.CaptureScreenshot(path);
+                    Debug.Log($"[Client] blinkshot {path} player #{p.Id} immune={p.ImmuneTicks}");
+                    _nextBlinkShot = Time.realtimeSinceStartup + 2f;
+                    break;
                 }
             }
 

@@ -4,12 +4,13 @@ using UnityEngine;
 
 namespace OnlineSeverGame.Client.View
 {
-    // WorldRender 를 받아 플레이어·칼·밀리는 상자 뷰를 만들고 지운다. 흔들리는 장식도 여기서 움직인다.
+    // WorldRender 를 받아 플레이어·칼·옆 칼·밀리는 상자 뷰를 만들고 지운다. 흔들리는 장식도 여기서 움직인다.
     public sealed class WorldView : MonoBehaviour
     {
         readonly Dictionary<int, PlayerView> _players = new Dictionary<int, PlayerView>();
         readonly Dictionary<int, SwordView> _swords = new Dictionary<int, SwordView>();
         readonly Dictionary<int, BoxView> _boxes = new Dictionary<int, BoxView>();
+        readonly Dictionary<int, SideKnifeView> _sideKnives = new Dictionary<int, SideKnifeView>();
         DecorView _decor;
         readonly HashSet<int> _seen = new HashSet<int>();
         readonly List<int> _remove = new List<int>();
@@ -35,7 +36,9 @@ namespace OnlineSeverGame.Client.View
             foreach (var p in _players.Values) Destroy(p.gameObject);
             foreach (var s in _swords.Values) Destroy(s.gameObject);
             foreach (var b in _boxes.Values) Destroy(b.gameObject);
+            foreach (var k in _sideKnives.Values) Destroy(k.gameObject);
             _players.Clear();
+            _sideKnives.Clear();
             _swords.Clear();
             _boxes.Clear();
         }
@@ -83,6 +86,20 @@ namespace OnlineSeverGame.Client.View
                 _seen.Add(b.Id);
             }
             Prune(_boxes);
+
+            _seen.Clear();
+            foreach (var k in world.SideKnives)
+            {
+                if (!_sideKnives.TryGetValue(k.Id, out var view))
+                {
+                    view = SideKnifeView.Create(transform, _layout.Width);
+                    view.name = "SideKnife " + k.Id;
+                    _sideKnives.Add(k.Id, view);
+                }
+                view.Apply(k);
+                _seen.Add(k.Id);
+            }
+            Prune(_sideKnives);
 
             _decor.Step(world.Players, Time.deltaTime);
         }

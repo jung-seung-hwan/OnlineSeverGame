@@ -1,10 +1,10 @@
-# OnlineSeverGame 프로토콜 v4
+# OnlineSeverGame 프로토콜 v5
 
 서버(C# .NET 10)와 Unity 클라이언트가 같은 `Shared/` 소스를 쓴다. 이 문서는 그 소스의 설명이며, 바이트 배치가 바뀌면 `ProtocolConstants.Version`을 올리고 이 문서를 함께 고친다.
 
 - 패킷 정의·직렬화: `Shared/Protocol/` (`Packets.cs`, `PacketCodec.cs`, `FrameDecoder.cs`)
-- 물리·스테이지·상수: `Shared/Simulation/` (`GameConstants.cs`, `PlayerPhysics.cs`, `Stage.cs`, `Knife.cs`, `HitShapes.cs`, `DashCollision.cs`, `StompCollision.cs`, `Pushable.cs`)
-- 버전 기록: v1 첫 버전 → **v2**(2026-10-27) 스냅샷 플레이어 flags에 Crouching·Stomped 비트, 스냅샷 끝에 밀리는 상자 목록 추가. 대시 쿨다운 40틱, 아래키 의미 변경(엎드리기, 아래+점프 = 발판 통과). → **v3**(2026-10-27, 다중 맵) `RoundStart`에 `stageId`, 스냅샷 위험물 항목에 `kind`, 상자 항목에 `crumble` 추가. 맵 4개(주방·겨울 처마·창고·디저트 가게)와 라운드마다 맵 교체, 위험물 4종, 얼음·녹는 발판. 설계 문서는 `docs/work/maps.md`. → **v4**(2026-10-27, 맵 선택·칼 판정) `RoomInfo`(32)·`MapRequest`(50) 추가: 방장이 다음 맵과 교체 방식을 바꾼다. 위험물 판정이 이동 상자 대신 그림 모양(`HitShapes`)으로 바뀜(바이트 배치 변화 없음). 클라이언트는 위험물을 내 예측 시각에 그린다. 작업 문서는 `docs/work/map-select-hit.md`.
+- 물리·스테이지·상수: `Shared/Simulation/` (`GameConstants.cs`, `PlayerPhysics.cs`, `Stage.cs`, `Knife.cs`, `HitShapes.cs`, `DashCollision.cs`, `StompCollision.cs`, `Pushable.cs`, `SideKnife.cs`)
+- 버전 기록: v1 첫 버전 → **v2**(2026-10-27) 스냅샷 플레이어 flags에 Crouching·Stomped 비트, 스냅샷 끝에 밀리는 상자 목록 추가. 대시 쿨다운 40틱, 아래키 의미 변경(엎드리기, 아래+점프 = 발판 통과). → **v3**(2026-10-27, 다중 맵) `RoundStart`에 `stageId`, 스냅샷 위험물 항목에 `kind`, 상자 항목에 `crumble` 추가. 맵 4개(주방·겨울 처마·창고·디저트 가게)와 라운드마다 맵 교체, 위험물 4종, 얼음·녹는 발판. 설계 문서는 `docs/work/maps.md`. → **v4**(2026-10-27, 맵 선택·칼 판정) `RoomInfo`(32)·`MapRequest`(50) 추가: 방장이 다음 맵과 교체 방식을 바꾼다. 위험물 판정이 이동 상자 대신 그림 모양(`HitShapes`)으로 바뀜(바이트 배치 변화 없음). 클라이언트는 위험물을 내 예측 시각에 그린다. 작업 문서는 `docs/work/map-select-hit.md`. → **v5**(2026-10-27, 대시 기절·옆 칼) 스냅샷 플레이어 항목에 `immuneTicks`(27바이트), flags bit5 = 납작 기절(밟기 또는 대시), 스냅샷 끝에 옆 칼 목록, `RoundEnd` cause 3 = 옆 칼. 대시에 맞으면 1초 납작 기절, 납작 기절이 끝나면 1초 기절 면역. 작업 문서는 `docs/work/dash-side-knife.md`.
 
 ## 1. 전송과 프레이밍
 
@@ -69,25 +69,29 @@ u16 roundNumber      첫 라운드 1, 아직 없으면 0
 u32 roundTick        Playing 시작 후 지난 틱 (그 외 0)
 u16 stateTimer       Countdown/Ended 남은 틱 (그 외 0)
 u8  playerCount
-    플레이어 × playerCount (각 26바이트)
+    플레이어 × playerCount (각 27바이트)
 u8  knifeCount
     위험물 × knifeCount (각 14바이트)
 u8  boxCount
     밀리는 상자 × boxCount (각 23바이트)
+u8  sideKnifeCount
+    옆 칼 × sideKnifeCount (각 14바이트)
 ```
 
-플레이어 항목 (26바이트):
+플레이어 항목 (27바이트):
 
 ```
 u8  playerId
 u8  flags            bit0 Alive, bit1 InRound(이번 라운드 참가자), bit2 Grounded, bit3 FacingRight,
-                     bit4 Crouching(엎드림), bit5 Stomped(지금 스턴이 밟기 때문 = 납작하게 그림)
+                     bit4 Crouching(엎드림), bit5 Stomped(납작 기절: 밟기 또는 대시. 코드 이름은 밟기에서 옴.
+                     땅에 닿아 있으면 납작하게, 공중이면 밀려남 그림)
 i32 x, i32 y         밀리유닛
 i32 vx, i32 vy       밀리유닛/틱
 u8  dashTicks        남은 대시 틱(이번 틱 포함). >0이면 대시 중
 u8  dashCooldown
-u8  stunTicks        >0이면 밀려나거나 밟혀서 기절 중(입력 무시)
+u8  stunTicks        >0이면 밀려나거나 기절 중(입력 무시)
 u8  prevButtons      마지막으로 적용된 버튼 (눌림 판정용)
+u8  immuneTicks      >0이면 기절 면역(납작 기절이 끝난 뒤 20틱, 깜빡여 그림)
 u32 lastInputSeq     서버가 이 플레이어에게 마지막으로 적용한 입력 seq (없으면 0)
 ```
 
@@ -116,13 +120,24 @@ u8  crumble          0 = 보통. >0 = 개수 제한으로 사라지기까지 남
 
 크기가 상자 항목에 들어 있으므로 클라이언트는 스테이지 정의 없이도 상자를 그릴 수 있다. Grounded는 보내지 않는다(디코더는 `vy == 0`으로 채운다, 그리기 전용).
 
+옆 칼 항목 (14바이트, `SideKnifeState`):
+
+```
+u16 id
+i8  dir              +1 오른쪽으로 날아감(왼쪽 벽에서 옴), -1 왼쪽으로
+u8  phase            1 Warning(예고, 가로줄), 2 Flying
+i32 x                칼끝. Warning 중에는 출발 위치(들어오는 벽 밖 1.0: -1000 또는 너비+1000)
+i32 y                칼 가운데 줄 높이(레인)
+u16 timer            Warning: 날아가기까지 남은 틱 / Flying: 날아간 틱 수
+```
+
 ### RoundEnd 결과 항목 (7바이트)
 
 ```
 u8  playerId
 u8  place            1 = 승자. 같은 틱에 탈락한 사람끼리 같은 순위
 u32 survivedTicks    Playing 시작부터 탈락(또는 종료)까지 틱
-u8  cause            0 생존, 1 칼, 2 연결 끊김
+u8  cause            0 생존, 1 떨어지는 위험물, 2 연결 끊김, 3 옆 칼
 ```
 
 결과는 순위순으로 정렬되어 있다.
@@ -219,9 +234,11 @@ u8  cause            0 생존, 1 칼, 2 연결 끊김
 
 모든 플레이어가 한 스텝 움직인 뒤 `DashCollision.Resolve`가 처리한다.
 
-- 대시 중인 플레이어의 몸이 다른 살아 있는 플레이어와 겹치면, 상대는 대시 방향으로 `vx = ±900`, `vy = +500`을 받고 8틱 동안 조작 불가(stun). 공격자는 대시가 끝나고 `vx = 0`.
-- 상대가 **엎드려 있으면** 넉백이 절반(`vx = ±450`, `vy = +250`)이다. 스턴 길이는 같다.
-- 둘 다 대시 중이면 둘 다 서로 반대쪽으로 튕겨 나간다.
+- 대시 중인 플레이어의 몸이 다른 살아 있는 플레이어와 겹치면, 상대는 대시 방향으로 `vx = ±900`, `vy = +500`을 받는다. 공격자는 대시가 끝나고 `vx = 0`.
+- 그리고 상대가 **기절할 수 있으면**(`PlayerState.CanBeStunned` = 납작 기절 중이 아니고 면역도 아님) **20틱(1초) 납작 기절**(`StunTicks = 20`, `Stomped = true`, v5). 밟기와 같은 납작 기절이고, 밀려 날아가는 동안(공중)은 밀려남 그림, 땅에 닿으면 납작하게 그린다(위험물 판정 모양도 같음).
+- 기절할 수 없으면(면역 중이거나 이미 납작 기절 중) **밀려나기만** 한다: `StunTicks = max(남은 틱, 8)`(밀림이 끝까지 가도록 잠깐 조작 불가), 납작 여부·면역 시간은 그대로. 이미 납작 기절 중인 사람을 쳐도 기절이 늘거나 풀리지 않는다.
+- 상대가 **엎드려 있으면** 넉백이 절반(`vx = ±450`, `vy = +250`)이다. 기절은 같다.
+- 둘 다 대시 중이면 둘 다 서로 반대쪽으로 튕겨 나가고, 각자 기절할 수 있으면 둘 다 납작 기절.
 - 한 틱에 한 사람은 한 번만 밀린다.
 - 서버만 판정한다. 클라이언트는 예측하지 않고 다음 스냅샷으로 보정된다.
 
@@ -230,7 +247,24 @@ u8  cause            0 생존, 1 칼, 2 연결 끊김
 `DashCollision` 다음에 `StompCollision.Resolve`가 처리한다.
 
 - 스스로 떨어지던(이번 틱에 y가 줄었고 스턴 중이 아닌) 플레이어 A의 발이 틱 전에는 B의 머리 높이 이상, 틱 후에는 머리 높이 이하이고 가로로 겹치면 A가 B를 밟은 것이다. 여러 명이면 머리가 가장 높은 쪽.
-- B: 30틱(1.5초) 스턴, `Stomped` 표시(납작하게 그림), `vx = 0`, 대시·엎드림 취소. **이미 스턴 중이면 스턴을 새로 걸지 않는다**(계속 밟아 영원히 묶어 두지 못하게).
+- B: 30틱(1.5초) 스턴, `Stomped` 표시(납작하게 그림), `vx = 0`, 대시·엎드림 취소. **B가 기절할 수 없으면**(이미 납작 기절 중이거나 면역 중, `CanBeStunned`) 아무 일도 없다(계속 밟아 영원히 묶어 두지 못하게). 대시에 밀려나기만 하는 짧은 멈칫 중이고 면역이 아니면 기절한다.
+
+### 기절 면역 (v5)
+
+- 납작 기절(밟기·대시)이 끝나는 틱에 `PlayerPhysics.Step`이 `Stomped = false`, `ImmuneTicks = 20`으로 둔다. 매 틱 1씩 줄어 20틱 동안 면역이다. 밀려나기만 한 멈칫(납작 아님)이 끝날 때는 생기지 않는다.
+- 면역 중에는 대시에 밀려나기만 하고, 밟혀도 기절하지 않는다(밟은 쪽은 튕긴다). 위험물·옆 칼에는 그대로 죽는다.
+- `Step`이 줄이므로 클라이언트 예측도 같은 값을 갖는다. 화면은 `(ImmuneTicks / 2) % 2 == 0`이면 진하게, 아니면 흐리게(알파 0.3) 깜빡인다.
+
+### 옆 칼 (v5)
+
+모든 맵 공통. 설계와 검증 표는 `docs/work/dash-side-knife.md` 3장.
+
+- 레인: 맵의 `Stage.SideKnifeSurfaces`(바닥과 '지붕 있는 발판' 윗면)마다 낮은 레인 `면 + 350`(점프로 넘음)과 머리 레인 `면 + 1000`(엎드려 피함). 주방 0 / 겨울 처마 0·2400 / 창고 0·2400 / 디저트 가게 0·3600 (`SideKnifePhysics.Lanes`).
+- 생성: Playing 400틱(20초)에 첫 예고, 이후 간격 = `max(30, 120 − (roundTick − 400) / 20)`틱. 한 번에 하나, 레인은 무작위. 방향은 이미 나와 있는(예고·비행 중) 옆 칼이 있으면 **그것과 같은 방향**, 없으면 무작위. 같은 방향·같은 속도라 어느 자리에도 두 칼이 1.5초 넘는 간격으로 온다. 서버 난수는 낙하 위험물과 따로(같은 시드에서 낙하물 순서가 바뀌지 않게).
+- 움직임(`SideKnifePhysics.Step`): Warning 20틱 동안 timer를 줄이고, 0이 된 틱에 Flying(그 틱은 안 움직임). Flying은 매 틱 `x += dir × 400`, timer +1. 손잡이 끝(`x − dir × 1000`)이 반대쪽 벽 밖 1000을 넘으면 사라진다(약 68틱).
+- **발판·상자·벽에 막히지 않는다.** 그래서 위치는 시작 정보만으로 정해지고 클라이언트가 아무 시각이나 계산할 수 있다.
+- 판정: 그림 모양(`HitShapes.SideKnifeSeparation`). 칼 띠(`HitShapes.Knife`)를 눕혀(오른쪽으로 날면 반시계 90°, 왼쪽이면 시계 90°) 그 틱에 칼끝이 지나간 구간 전체(이전 손잡이 끝 ~ 새 칼끝)를 쓸고, 플레이어의 지금 자세 띠와 겹치면 사망(cause 3). 칼 두께는 레인 ±0.12~0.13.
+- Ended·Countdown·Waiting으로 가면 모두 없앤다. 같은 틱의 낙하물·옆 칼 사망은 함께 '위험물 사망'으로 동시 사망 규칙(공동 승리)에 들어간다.
 - A: B의 머리 위에 놓이고 `vy = +700`으로 튕겨 오른다(최고 약 2.45유닛).
 - 판정은 서버. 단 클라이언트는 **밟은 쪽(자기) 튕김만** `StompCollision.PredictBounce`로 예측한다: 최신 스냅샷의 살아 있는 다른 플레이어를 각자 마지막으로 누른 버튼(`prevButtons`)으로 내 예측과 같은 틱만큼 함께 `Step`하고, 그 틱의 전/후 위치로 서버와 같은 조건(`StompCollision.Lands`)을 검사한다. 예측하지 않으면 상대를 지나쳐 바닥까지 떨어졌다가 다음 스냅샷에서 약 2유닛 위로 끌려 올라간다. 상대 기절은 예측하지 않는다(내가 밟힌 경우는 다음 스냅샷에서 멈춤으로 보정, 보정 거리가 작다).
 
@@ -251,7 +285,7 @@ u8  cause            0 생존, 1 칼, 2 연결 끊김
 3. `DashCollision.Resolve`
 4. `StompCollision.Resolve`
 5. 상자: 이번 틱에 옆면을 민 플레이어의 힘 적용 → `PushablePhysics.Step` → 위에 선 플레이어 같이 옮기기
-6. (Playing) 위험물 생성 → `KnifePhysics.Step`(상자 윗면 포함) → 판정 → 사망 처리 → 착지한 화물 상자를 상자로 → 종료 검사
+6. (Playing) 위험물 생성 → `KnifePhysics.Step`(상자 윗면 포함) → 판정 → 사망 처리 → 착지한 화물 상자를 상자로 → 옆 칼 생성 → `SideKnifePhysics.Step` → 판정 → 사망 처리 → 종료 검사
 
 (틱 맨 앞, 2보다 먼저: 사라지는 중인 상자의 crumble을 줄이고 0이 된 것을 없앤다.)
 7. 상태 타이머 진행(Countdown/Ended)
@@ -268,7 +302,8 @@ u8  cause            0 생존, 1 칼, 2 연결 끊김
 | JumpVelocity | 800 /틱 | 최고 높이 2.8 유닛 (낮은 발판 2.4에 오를 수 있음) |
 | DashSpeed / DashTicks | 1200 /틱, 4틱 | 0.2초 동안 4.8 유닛, 중력 없음 |
 | DashCooldownTicks | 40 | 대시 시작부터 2초 |
-| KnockbackSpeed / Lift / StunTicks | 900 / 500 / 8 | 수평 속도는 매 틱 1/4씩 줄어듦 |
+| KnockbackSpeed / Lift / StunTicks | 900 / 500 / 8 | 수평 속도는 매 틱 1/4씩 줄어듦. 8틱은 면역 중·이미 납작할 때의 밀림 멈칫 |
+| DashStunTicks / StunImmunityTicks | 20 / 20 | 대시에 맞으면 1초 납작 기절, 납작 기절이 끝나면 1초 면역 |
 | StompStunTicks / StompBounce | 30 / 700 | 밟힌 쪽 1.5초 기절, 밟은 쪽 튕김 |
 | CrouchHeight / CrouchMoveSpeed | 720 / 160 | 엎드리면 판정 높이 60%, 이동 40% (제안값, 플레이 후 조정) |
 | CrouchKnockbackSpeed / Lift | 450 / 250 | 엎드린 채 대시에 맞으면 넉백 절반 |
@@ -278,14 +313,17 @@ u8  cause            0 생존, 1 칼, 2 연결 끊김
 | IceAccel / IceStunDecayDivisor / IceBoxFriction | 50 / 8 / 25 | 얼음 위 걷기 가감속, 스턴 감속, 상자 마찰 |
 | MeltDelayTicks | 200 | 녹는 발판이 줄기 시작하는 roundTick |
 | MaxRestingCrates / CrateStackLimit / CrateCrumbleTicks | 6 / 2 / 20 | 창고 상자 |
+| SideKnifeLength / Speed / WarningTicks | 1000 / 400 / 20 | 옆 칼 길이, 8 u/s 등속, 예고 1초 |
+| SideKnifeHeadOffset / LowOffset | 1000 / 350 | 면 위 머리 레인, 낮은 레인 |
+| SideKnifeStartTick / IntervalStart / IntervalMin / IntervalStepTicks | 400 / 120 / 30 / 20 | 20초부터, 6초 간격 → 1.5초 |
 
 ### `PlayerPhysics.Step(ref state, buttons, stage)` 순서
 
 `Step(ref state, buttons, stage, boxes, out contact)`: boxes는 상자 목록(없으면 null). 서버는 현재 상자, 클라이언트 예측은 최신 스냅샷의 상자를 넘긴다.
 
-1. `pressed = buttons & ~PrevButtons`. dashTicks, dashCooldown 1 감소.
+1. `pressed = buttons & ~PrevButtons`. dashTicks, dashCooldown, immuneTicks 1 감소.
 0. 틱 시작에 얼음 위에 서 있는지(`onIce`) 본다.
-2. stun 중이면: stun 1 감소(0이 되면 Stomped 해제), 대시 취소, `vx -= vx / 4`(얼음이면 `/ 8`). 입력 무시.
+2. stun 중이면: stun 1 감소(0이 되고 Stomped였으면 Stomped 해제 + `immuneTicks = 20`), 대시 취소, `vx -= vx / 4`(얼음이면 `/ 8`). 입력 무시.
 3. 아니면: Left/Right로 방향(dir) 계산, 대시 중이 아니면 facing 갱신. Dash가 눌렸고 대시·쿨다운이 0이면 대시 시작(dashTicks=4, cooldown=40). 대시 중이면 `vx = facing × 1200`, `vy = 0`. 아니면 목표 `want = dir × (땅 위에서 Down이면 160, 아니면 400)`, `vx = want`(얼음이면 ±400으로 자른 뒤 want 쪽으로 최대 50)이고, Jump가 눌렸고 땅 위면: Down도 누르고 있고 발판 위면 **이번 틱만 발판을 무시**(아래로 떨어짐), 아니면 `vy = 800`.
 4. 대시 중이 아니면 `vy -= 100`, 최소 -1000.
 5. `x += vx`, 벽(0.4 ~ 너비-0.4)에서 멈춤(stun 중 벽에 닿으면 vx = 0). 이어서 상자 옆면: 이번 이동으로 새로 겹치면 그 면에 멈추고 contact에 기록, 대시 중이었으면 대시가 끝남(`vx = 0`).
@@ -341,7 +379,7 @@ new Stage(id, name, width, viewHeight, knifeSpawnY, platforms, spawnPoints,
    - 미확인 목록에서 `seq <= lastInputSeq`를 버린다.
    - 남은 입력을 순서대로 다시 `Step` + `PredictBounce` 한다(재시뮬레이션. 상자는 최신 스냅샷 값 고정, 다른 플레이어는 최신 스냅샷에서 다시 굴리기 시작).
    - 화면 위치는 이전 예측 위치에서 새 예측 위치로 짧게 보정해 튀지 않게 한다.
-3. 다른 플레이어와 상자는 스냅샷 두 개 사이를 보간해서 그린다(예: 2~3틱 = 100~150ms 늦게). **위험물은 내가 살아 있는 동안 내 예측 시각에 그린다**: 내 화면 몸은 서버 틱 `최신 스냅샷 + 미확인 입력 수`(틱 사이는 보간)이므로, 같은 틱의 위험물을 최신 스냅샷에서 `KnifePhysics.Step`으로 그만큼 앞서 계산한다(그 틱의 `Stage.AtRoundTick`, 최신 스냅샷 상자). 그러면 화면에서 칼과 몸이 닿는 순간이 서버 판정 틱과 같다. 아직 서버가 만들지 않은 위험물은 그만큼 늦게 나타난다(예고가 그만큼 짧아 보임). 죽거나 관전하면 보간 시각으로 돌아가며, 되감지 않고 잠깐 멈춘다. 착지해 상자가 된 화물은 최신 스냅샷의 새 상자로 바로 그린다.
+3. 다른 플레이어와 상자는 스냅샷 두 개 사이를 보간해서 그린다(예: 2~3틱 = 100~150ms 늦게). **위험물은 내가 살아 있는 동안 내 예측 시각에 그린다**: 내 화면 몸은 서버 틱 `최신 스냅샷 + 미확인 입력 수`(틱 사이는 보간)이므로, 같은 틱의 위험물을 최신 스냅샷에서 `KnifePhysics.Step`으로 그만큼 앞서 계산한다(그 틱의 `Stage.AtRoundTick`, 최신 스냅샷 상자). 그러면 화면에서 칼과 몸이 닿는 순간이 서버 판정 틱과 같다. 아직 서버가 만들지 않은 위험물은 그만큼 늦게 나타난다(예고가 그만큼 짧아 보임). 죽거나 관전하면 보간 시각으로 돌아가며, 되감지 않고 잠깐 멈춘다. 착지해 상자가 된 화물은 최신 스냅샷의 새 상자로 바로 그린다. 옆 칼도 같은 시각에 그린다: 등속 직선이라 최신 스냅샷의 x·phase·timer에서 그 시각의 칼끝 위치를 바로 계산한다(`NetworkSession.CollectSideKnives`).
 4. 죽었거나(Alive=0) 관전자면 예측을 멈추고 스냅샷만 그린다. 입력은 계속 보내도 된다.
 
 ### 서버

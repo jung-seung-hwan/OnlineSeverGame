@@ -134,7 +134,7 @@ namespace OnlineSeverGame.Shared.Protocol
         Grounded = 1 << 2,
         FacingRight = 1 << 3,
         Crouching = 1 << 4,
-        /// <summary>The current stun came from a stomp (draw flattened).</summary>
+        /// <summary>Flat stun from a stomp or a dash hit (drawn flattened once on the ground).</summary>
         Stomped = 1 << 5,
     }
 
@@ -166,6 +166,7 @@ namespace OnlineSeverGame.Shared.Protocol
             w.WriteByte(State.DashCooldown);
             w.WriteByte(State.StunTicks);
             w.WriteByte((byte)State.PrevButtons);
+            w.WriteByte(State.ImmuneTicks);
             w.WriteUInt32(LastInputSeq);
         }
 
@@ -187,6 +188,7 @@ namespace OnlineSeverGame.Shared.Protocol
             p.State.DashCooldown = r.ReadByte();
             p.State.StunTicks = r.ReadByte();
             p.State.PrevButtons = (InputButtons)r.ReadByte();
+            p.State.ImmuneTicks = r.ReadByte();
             p.LastInputSeq = r.ReadUInt32();
             return p;
         }
@@ -205,12 +207,13 @@ namespace OnlineSeverGame.Shared.Protocol
         public List<PlayerSnapshot> Players = new List<PlayerSnapshot>();
         public List<KnifeState> Knives = new List<KnifeState>();
         public List<PushableState> Pushables = new List<PushableState>();
+        public List<SideKnifeState> SideKnives = new List<SideKnifeState>();
 
         public PacketType Type => PacketType.Snapshot;
 
         public void Write(PacketWriter w)
         {
-            if (Players.Count > 255 || Knives.Count > 255 || Pushables.Count > 255) throw new InvalidOperationException("Too many entries");
+            if (Players.Count > 255 || Knives.Count > 255 || Pushables.Count > 255 || SideKnives.Count > 255) throw new InvalidOperationException("Too many entries");
             w.WriteUInt32(ServerTick);
             w.WriteByte((byte)RoomState);
             w.WriteUInt16(RoundNumber);
@@ -241,6 +244,17 @@ namespace OnlineSeverGame.Shared.Protocol
                 w.WriteUInt16(b.Width);
                 w.WriteUInt16(b.Height);
                 w.WriteByte(b.Crumble);
+            }
+            w.WriteByte((byte)SideKnives.Count);
+            for (int i = 0; i < SideKnives.Count; i++)
+            {
+                SideKnifeState k = SideKnives[i];
+                w.WriteUInt16(k.Id);
+                w.WriteSByte(k.Dir);
+                w.WriteByte((byte)k.Phase);
+                w.WriteInt32(k.X);
+                w.WriteInt32(k.Y);
+                w.WriteUInt16(k.Timer);
             }
         }
 
@@ -273,6 +287,15 @@ namespace OnlineSeverGame.Shared.Protocol
                 };
                 b.Grounded = b.Vy == 0;
                 s.Pushables.Add(b);
+            }
+            int sides = r.ReadByte();
+            for (int i = 0; i < sides; i++)
+            {
+                s.SideKnives.Add(new SideKnifeState
+                {
+                    Id = r.ReadUInt16(), Dir = r.ReadSByte(), Phase = (SideKnifePhase)r.ReadByte(),
+                    X = r.ReadInt32(), Y = r.ReadInt32(), Timer = r.ReadUInt16(),
+                });
             }
             return s;
         }

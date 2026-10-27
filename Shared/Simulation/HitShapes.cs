@@ -131,10 +131,14 @@ namespace OnlineSeverGame.Shared.Simulation
             return w;
         }
 
-        /// <summary>The pose the client draws for this state (same priority as PlayerView).</summary>
+        /// <summary>
+        /// The pose the client draws for this state (same priority as PlayerView). A flat stun (stomp or dash hit)
+        /// is drawn flattened only once the player is on the ground; flying back after a dash hit it is the
+        /// knockback pose.
+        /// </summary>
         public static HitBand[] OfPlayer(in PlayerState p)
         {
-            if (p.StunTicks > 0) return p.Stomped ? Stomped : Stunned;
+            if (p.StunTicks > 0) return p.Stomped && p.Grounded ? Stomped : Stunned;
             if (p.IsDashing) return Dash;
             return p.Crouching ? Crouch : Body;
         }
@@ -173,6 +177,57 @@ namespace OnlineSeverGame.Shared.Simulation
             }
             return best;
         }
+
+        /// <summary>
+        /// A side knife (the knife lying flat, tip first) flying along the lane at centre height y, whose tip went from
+        /// fromX to toX this tick, against the player's drawn body. Same band rule as Separation; the knife's
+        /// length bands sweep the whole move. Negative = a hit.
+        /// </summary>
+        public static int SideKnifeSeparation(in PlayerState p, int dir, int y, int fromX, int toX)
+        {
+            HitBand[] body = OfPlayer(p);
+            bool right = p.Facing >= 0;
+            int best = int.MaxValue;
+            foreach (var h in Knife)
+            {
+                // Knife bands run along the blade (Bottom..Top from the tip) and across it (Left..Right).
+                // Lying tip-right it is rotated a quarter turn counterclockwise, tip-left clockwise.
+                int hl, hr, hb, ht;
+                if (dir > 0)
+                {
+                    hl = fromX - h.Top;
+                    hr = toX - h.Bottom;
+                    hb = y + h.Left;
+                    ht = y + h.Right;
+                }
+                else
+                {
+                    hl = toX + h.Bottom;
+                    hr = fromX + h.Top;
+                    hb = y - h.Right;
+                    ht = y - h.Left;
+                }
+                foreach (var b in body)
+                {
+                    int bl = right ? p.X + b.Left : p.X - b.Right;
+                    int br = right ? p.X + b.Right : p.X - b.Left;
+                    int bb = p.Y + b.Bottom, bt = p.Y + b.Top;
+                    int gap = Math.Max(Math.Max(bl - hr, hl - br), Math.Max(bb - ht, hb - bt));
+                    if (gap < best) best = gap;
+                }
+            }
+            return best;
+        }
+
+        public static bool SideKnifeHits(in PlayerState p, int dir, int y, int fromX, int toX) =>
+            SideKnifeSeparation(p, dir, y, fromX, toX) < 0;
+
+        /// <summary>Lowest and highest y a side knife at lane centre y covers (the blade's drawn thickness).</summary>
+        public static int SideKnifeBottom(int y) => y - KnifeHalfThickness;
+        public static int SideKnifeTop(int y) => y + KnifeHalfThickness;
+
+        /// <summary>Widest across-the-blade extent of the knife on either side of its centre line.</summary>
+        public const int KnifeHalfThickness = 130;
 
         /// <summary>The old rule: the hazard's spec box swept over the drop against the 800 x 1200 movement box.</summary>
         public static int LegacySeparation(in PlayerState p, HazardKind kind, int x, int fromTipY, int toTipY)

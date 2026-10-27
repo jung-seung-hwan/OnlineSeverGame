@@ -60,5 +60,7 @@ namespace OnlineSeverGame.Shared.Protocol
         None = 0,
         Knife = 1,
         Disconnected = 2,
+        /// <summary>Hit by a side knife flying across the map.</summary>
+        SideKnife = 3,
     }
 }

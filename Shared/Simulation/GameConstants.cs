@@ -39,6 +39,11 @@ namespace OnlineSeverGame.Shared.Simulation
         public const int StompStunTicks = 30;      // 1.5 s
         public const int StompBounce = 700;        // vy after the bounce, apex ~2.45 u
 
+        // Dash stun: a dash hit also flattens the target (like a stomp) for this long. When any flat stun ends
+        // the player cannot be stunned again for StunImmunityTicks (drawn blinking); a dash then only pushes.
+        public const int DashStunTicks = 20;       // 1 s
+        public const int StunImmunityTicks = 20;   // 1 s
+
         // Crouch: hold Down while standing. Proposed starting values, tune after play tests.
         public const int CrouchHeight = PlayerHeight * 60 / 100;          // 720
         public const int CrouchMoveSpeed = MoveSpeed * 40 / 100;          // 160 = 3.2 u/s
@@ -72,6 +77,19 @@ namespace OnlineSeverGame.Shared.Simulation
         public const int KnifeWarningTicks = 20;   // 1 s marker before it drops
         public const int KnifeFallSpeed = 700;     // 14 u/s, constant
         public const int KnifeLandedTicks = 10;    // stuck in the ground, harmless, then removed
+
+        // Side knives (every map): fly straight across at a lane height from one wall to the other.
+        // Lanes are SideKnifeHeadOffset (duck under) and SideKnifeLowOffset (jump over) above each of the map's
+        // Stage.SideKnifeSurfaces. docs/work/dash-side-knife.md.
+        public const int SideKnifeLength = 1000;   // tip to handle end, same as the knife
+        public const int SideKnifeSpeed = 400;     // 8 u/s, constant
+        public const int SideKnifeWarningTicks = 20;
+        public const int SideKnifeHeadOffset = 1000;
+        public const int SideKnifeLowOffset = 350;
+        public const int SideKnifeStartTick = 20 * TickRate;      // first warning 20 s into the round
+        public const int SideKnifeIntervalStart = 6 * TickRate;   // then interval = max(Min, Start - (t - StartTick) / Step)
+        public const int SideKnifeIntervalMin = 30;
+        public const int SideKnifeIntervalStepTicks = 20;
 
         // Round flow (server)
         public const int CountdownTicks = 3 * TickRate;

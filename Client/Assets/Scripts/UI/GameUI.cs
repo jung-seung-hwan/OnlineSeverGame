@@ -155,7 +155,7 @@ namespace OnlineSeverGame.Client.UI
             var hint = new GUIStyle(_label) { fontSize = 14, alignment = TextAnchor.LowerCenter };
             hint.normal.textColor = new Color(1, 1, 1, 0.6f);
             GUI.Label(new Rect(0, UnityEngine.Screen.height - 30, UnityEngine.Screen.width, 24),
-                "←/→ 이동   ↑·Space 점프   Shift 대시(2초마다, 부딪히면 밀치기)   ↓ 엎드리기   ↓+점프 발판 아래로   머리 밟기 = 기절", hint);
+                "←/→ 이동   ↑·Space 점프   Shift 대시(2초마다, 맞히면 1초 기절)   ↓ 엎드리기   ↓+점프 발판 아래로   머리 밟기 = 기절   옆 칼: 머리 높이 ↓, 낮으면 점프", hint);
         }
 
         void DrawSpectating(SessionState s)
@@ -188,7 +188,7 @@ namespace OnlineSeverGame.Client.UI
             GUILayout.Space(6);
             foreach (var p in _ranking)
             {
-                string tail = p.LeftGame ? "끊김" : (p.Survived ? "생존" : $"{p.SurvivedSeconds:0.0}초");
+                string tail = p.LeftGame ? "끊김" : (p.Survived ? "생존" : $"{p.SurvivedSeconds:0.0}초" + (p.BySideKnife ? " (옆 칼)" : ""));
                 RosterRow(p, p.Id == s.LocalId, $"{p.Place}위  ", tail);
             }
             GUILayout.FlexibleSpace();

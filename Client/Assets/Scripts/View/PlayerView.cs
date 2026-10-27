@@ -51,6 +51,10 @@ namespace OnlineSeverGame.Client.View
             return s.Moving ? "run" : "idle";
         }
 
+        // 기절 면역 중 깜빡임: 2틱(0.1초)마다 진하게/흐리게. 위치는 보여야 하므로 완전히 지우지 않는다.
+        public static float BlinkAlpha(int immuneTicks) =>
+            immuneTicks <= 0 || (immuneTicks / 2) % 2 == 0 ? 1f : 0.3f;
+
         public void Apply(PlayerRender s)
         {
             State = s;
@@ -79,7 +83,7 @@ namespace OnlineSeverGame.Client.View
             _body.sortingOrder = s.IsLocal ? 12 : 11;
             if (s.Spectator) _body.color = new Color(1f, 1f, 1f, 0.35f);
             else if (!s.Alive) _body.color = new Color(0.8f, 0.8f, 0.8f, 0.9f);
-            else _body.color = Color.white;
+            else _body.color = new Color(1f, 1f, 1f, BlinkAlpha(s.ImmuneTicks));
 
             int facing = flip ? -1 : 1;
             _trail.enabled = s.Alive && s.Dashing;

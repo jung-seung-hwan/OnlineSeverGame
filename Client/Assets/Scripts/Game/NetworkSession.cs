@@ -574,6 +574,7 @@ namespace OnlineSeverGame.Client.Game
                 entry.SurvivedSeconds = res.SurvivedTicks * TickSeconds;
                 entry.LeftGame = res.Cause == EliminationCause.Disconnected;
                 entry.Survived = res.Cause == EliminationCause.None;
+                entry.BySideKnife = res.Cause == EliminationCause.SideKnife;
                 entry.InRound = true;
                 State.Roster[idx] = entry;
             }
@@ -666,6 +667,7 @@ namespace OnlineSeverGame.Client.Game
             _layout.RoundTick = s0.RoomState == RoomState.Playing ? s0.RoundTick : 0;
 
             CollectHazards(_hazardTick, World.Swords);
+            CollectSideKnives(_hazardTick, World.SideKnives);
             if (_predicting && _latest.RoomState == RoomState.Playing)
             {
                 _interpSwords.Clear();
@@ -774,6 +776,34 @@ namespace OnlineSeverGame.Client.Game
             }
         }
 
+        // tick 시점의 옆 칼. 지형과 무관한 등속 직선이라 최신 스냅샷 값에서 바로 계산한다(앞이든 뒤든).
+        // 예고가 끝난 틱부터 출발 위치에서 틱마다 SideKnifeSpeed 씩 간다(SideKnifePhysics.Step 과 같음).
+        void CollectSideKnives(double tick, List<SideKnifeRender> into)
+        {
+            double dt = tick - _latest.ServerTick;
+            foreach (var k in _latest.SideKnives)
+            {
+                bool flying = k.Phase == SideKnifePhase.Flying;
+                double flown = (flying ? k.Timer : -k.Timer) + dt;   // 음수 = 아직 예고 중(남은 틱)
+                int startX = flying ? k.X - k.Dir * GameConstants.SideKnifeSpeed * k.Timer : k.X;
+                var r = new SideKnifeRender { Id = k.Id, Dir = k.Dir, LaneY = StageLayout.ToWorld(k.Y) };
+                if (flown <= 0)
+                {
+                    r.Warning = true;
+                    r.WarningProgress = Mathf.Clamp01(1f - (float)(-flown) / GameConstants.SideKnifeWarningTicks);
+                    r.TipX = StageLayout.ToWorld(startX);
+                }
+                else
+                {
+                    double tip = startX + k.Dir * GameConstants.SideKnifeSpeed * flown;
+                    double tail = tip - k.Dir * GameConstants.SideKnifeLength;
+                    if (k.Dir > 0 ? tail > _stage.Width + GameConstants.SideKnifeLength : tail < -GameConstants.SideKnifeLength) continue;
+                    r.TipX = (float)(tip / GameConstants.UnitsPerWorldUnit);
+                }
+                into.Add(r);
+            }
+        }
+
         bool StepHazard(ref KnifeState k, int steps, uint roundTick, ref bool fell)
         {
             for (int i = 0; i < steps; i++)
@@ -840,7 +870,9 @@ namespace OnlineSeverGame.Client.Game
             r.Moving = s.Vx != 0;
             r.Stunned = s.StunTicks > 0;
             r.Crouching = s.Crouching;
-            r.Stomped = s.Stomped && s.StunTicks > 0;
+            // 납작 기절이어도 밀려 날아가는 중(공중)에는 밀려남 그림, 땅에 닿으면 납작(HitShapes.OfPlayer 와 같은 규칙).
+            r.Stomped = s.Stomped && s.StunTicks > 0 && s.Grounded;
+            r.ImmuneTicks = s.ImmuneTicks;
         }
 
         static bool TryFindBox(SnapshotPacket s, ushort id, out PushableState b)

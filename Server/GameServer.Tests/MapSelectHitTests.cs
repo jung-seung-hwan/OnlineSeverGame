@@ -331,6 +331,6 @@ public class MapSelectHitTests
         Assert.Equal(2 + 1 + 2, frame.Length);
         var r = Assert.IsType<MapRequestPacket>(PacketCodec.DecodePayload(frame, 2, frame.Length - 2));
         Assert.Equal((2, MapRotation.Fixed), (r.StageId, r.Rotation));
-        Assert.Equal(4, ProtocolConstants.Version);
+        Assert.Equal(5, ProtocolConstants.Version);
     }
 }

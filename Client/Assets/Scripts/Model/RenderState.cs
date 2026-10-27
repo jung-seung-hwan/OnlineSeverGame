@@ -23,7 +23,8 @@ namespace OnlineSeverGame.Client.Model
         public bool Winner;        // 결과 화면의 승자
         public bool Spectator;     // 라운드 도중 들어와 관전 중
         public bool Crouching;     // 아래키로 엎드림(세로로 눌러 그린다)
-        public bool Stomped;       // 밟혀서 납작해진 스턴(더 세게 눌러 그린다)
+        public bool Stomped;       // 납작 기절(밟기·대시 기절)로 땅에 붙어 있음(더 세게 눌러 그린다). 공중이면 false = 밀려남 그림
+        public int ImmuneTicks;    // > 0 이면 기절 면역(깜빡인다). 남은 틱으로 깜빡임 박자를 정해 모든 화면이 같게 깜빡인다
         public float DashCooldown; // 내 캐릭터만: 0 = 대시 가능, 1 = 막 썼음. 다른 플레이어는 0
     }
 
@@ -56,17 +57,30 @@ namespace OnlineSeverGame.Client.Model
         public bool AsBox;            // 앞서 계산한 창고 화물이 막 착지함: 서버에서 상자가 되므로 금 간 그림 대신 상자 그림
     }
 
+    // 옆 칼: 맵 끝에서 끝까지 한 높이로 날아가는 칼(docs/work/dash-side-knife.md). 기존 칼 그림을 눕혀 그린다.
+    public struct SideKnifeRender
+    {
+        public int Id;
+        public int Dir;               // +1 오른쪽으로 날아감(왼쪽에서 옴), -1 왼쪽으로
+        public bool Warning;          // 아직 날아오기 전: 가로줄 예고만
+        public float WarningProgress; // 0..1
+        public float TipX;            // 칼끝 x(예고 중에는 출발 위치)
+        public float LaneY;           // 칼 가운데 줄 높이
+    }
+
     public sealed class WorldRender
     {
         public readonly List<PlayerRender> Players = new List<PlayerRender>();
         public readonly List<SwordRender> Swords = new List<SwordRender>();
         public readonly List<BoxRender> Boxes = new List<BoxRender>();
+        public readonly List<SideKnifeRender> SideKnives = new List<SideKnifeRender>();
 
         public void Clear()
         {
             Players.Clear();
             Swords.Clear();
             Boxes.Clear();
+            SideKnives.Clear();
         }
     }
 
