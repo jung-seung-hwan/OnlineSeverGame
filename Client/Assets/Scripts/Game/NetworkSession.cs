@@ -448,6 +448,10 @@ namespace OnlineSeverGame.Client.Game
             }
             _predRoundTick = roundTick;
             _pending.RemoveRange(write, _pending.Count - write);
+            // 다시 굴릴 입력이 없으면(서버가 보낸 입력을 모두 적용함, 같은 PC에서는 보통 이렇다) 이 스냅샷 상태가
+            // 바로 내가 마지막에 예측한 스텝의 끝이다. 그 스텝의 시작점을 그대로 두어야 틱 사이 보간이 이어진다
+            // (state 로 덮으면 화면 몸이 틱 끝으로 한 스텝 튀어 매 스냅샷 0.3~0.4유닛 보정이 생긴다).
+            if (write == 0 && wasPredicting) prev = _predictedPrev;
 
             _predicted = state;
             _predictedPrev = prev;

@@ -20,6 +20,8 @@ public sealed class ServerOptions
     public Stage FixedMap = Stage.Default;
     /// <summary>Judge hazards with the old boxes instead of the drawn shapes (before/after comparisons).</summary>
     public bool LegacyHitbox;
+    /// <summary>Take only one input per tick even with a standing backlog (before/after comparisons).</summary>
+    public bool NoInputTrim;
 }
 
 /// <summary>
@@ -48,6 +50,7 @@ public sealed class GameServer
         {
             MinPlayers = options.MinPlayers, Seed = options.Seed, LogPushes = options.Verbose,
             Rotation = options.Rotation, Stage = options.FixedMap, LegacyHitbox = options.LegacyHitbox,
+            TrimInputQueue = !options.NoInputTrim,
         }, msg => Log.Info(msg));
         _listener = new TcpListener(IPAddress.Any, options.Port);
     }

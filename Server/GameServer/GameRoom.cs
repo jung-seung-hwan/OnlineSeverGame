@@ -18,6 +18,16 @@ public sealed class RoomConfig
     /// <summary>Side knives from 20 s into a round (docs/work/dash-side-knife.md). Off in tests that place them by hand.</summary>
     public bool AutoSpawnSideKnives = true;
     public int MaxQueuedInputs = 8;
+    /// <summary>
+    /// Work off a standing input backlog: when a player's queue kept more than InputQueueSlack inputs waiting after
+    /// every tick for InputTrimWindowTicks ticks, the next tick applies two of their inputs (InputBacklog).
+    /// Off = one input per tick only, for before/after comparisons (--no-input-trim).
+    /// </summary>
+    public bool TrimInputQueue = true;
+    public int InputTrimWindowTicks = 10;
+    /// <summary>The window doubles up to this while catch-ups keep leaving the queue empty (inputs arriving on the tick boundary).</summary>
+    public int InputTrimMaxWindowTicks = 160;
+    public int InputQueueSlack = 0;
     /// <summary>Grace period after Playing begins before the first knife warning.</summary>
     public int FirstKnifeDelayTicks = GameConstants.TickRate;
     /// <summary>Log every dash push. Off by default: the round summary carries the count.</summary>
@@ -50,6 +60,7 @@ public sealed class RoomPlayer
     /// <summary>Shortest gap between two dash starts this round, in ticks (0 = fewer than two dashes).</summary>
     public int MinDashGap;
     internal readonly Queue<(uint Seq, InputButtons Buttons)> Inputs = new();
+    public readonly InputBacklog Backlog = new();
 }
 
 /// <summary>One participant's fate in the current round. Kept after a disconnect so results can list them.</summary>
@@ -233,11 +244,13 @@ public sealed class GameRoom
         if (seq <= p.LastReceivedSeq) return; // duplicate or out of order
         p.LastReceivedSeq = seq;
         p.Inputs.Enqueue((seq, buttons));
+        p.Backlog.Arrived();
         while (p.Inputs.Count > _config.MaxQueuedInputs)
         {
             // Client is running ahead of us: drop the oldest; it counts as processed (never applied).
             var dropped = p.Inputs.Dequeue();
             p.LastInputSeq = dropped.Seq;
+            p.Backlog.Dropped();
         }
     }
 
@@ -335,6 +348,10 @@ public sealed class GameRoom
         AdvanceRoomState();
         BroadcastRoomInfoIfChanged();
         Broadcast(BuildSnapshot());
+
+        if (_config.LogPushes && ServerTick % GameConstants.TickRate == 0 && _players.Count > 0)
+            _log($"inputs tick {ServerTick}: " +
+                 string.Join(", ", _players.Values.Select(p => $"#{p.Id} {p.Backlog.TakeSecondSummary(p.Inputs.Count)}")));
     }
 
     private void BroadcastRoomInfoIfChanged()
@@ -367,22 +384,31 @@ public sealed class GameRoom
             before[i] = p.State;
             active[i] = p.Alive;
             contacts[i] = BoxContact.None;
-            bool repeated = p.Inputs.Count == 0;
-            if (!repeated)
+            // Usually one input; two when working off a backlog (both are applied, one step each).
+            int take = p.Backlog.TakeCount(p.Inputs.Count, _config.TrimInputQueue);
+            bool repeated = take == 0;
+            for (int step = 0; step < Math.Max(take, 1); step++)
             {
-                var input = p.Inputs.Dequeue();
-                p.LastInputSeq = input.Seq;
-                p.LastButtons = input.Buttons;
+                if (!repeated)
+                {
+                    var input = p.Inputs.Dequeue();
+                    p.LastInputSeq = input.Seq;
+                    p.LastButtons = input.Buttons;
+                }
+                // Empty queue: repeat the last held buttons. Press edges come from PrevButtons, so this
+                // never re-triggers a jump or dash.
+                if (p.Alive)
+                {
+                    PlayerPhysics.Step(ref p.State, p.LastButtons, stage, _boxes, out contacts[i]);
+                    // DashTicks is still at its full value only on the tick the dash started.
+                    if (p.State.DashTicks == GameConstants.DashTicks) RecordDash(p, repeated);
+                    if (p.State.Crouching) _roundCrouchTicks++;
+                }
             }
-            // Empty queue: repeat the last held buttons. Press edges come from PrevButtons, so this
-            // never re-triggers a jump or dash.
-            if (p.Alive)
-            {
-                PlayerPhysics.Step(ref p.State, p.LastButtons, stage, _boxes, out contacts[i]);
-                // DashTicks is still at its full value only on the tick the dash started.
-                if (p.State.DashTicks == GameConstants.DashTicks) RecordDash(p, repeated);
-                if (p.State.Crouching) _roundCrouchTicks++;
-            }
+            p.Backlog.AfterTick(take, p.Inputs.Count, _config.InputTrimWindowTicks, _config.InputTrimMaxWindowTicks,
+                _config.InputQueueSlack);
+            if (take == 2 && _config.LogPushes)
+                _log($"input #{p.Id} tick {ServerTick} caught up (2 inputs, {p.Inputs.Count} still queued, window {p.Backlog.WindowTicks})");
             states[i] = p.State;
         }
 
@@ -714,6 +740,8 @@ public sealed class GameRoom
              $", side near misses (< 0.1 u): {_roundSideNear}, dash stuns: {_roundDashStuns}, immune pushes: {_roundImmunePushes}" +
              $", immune stomps: {_roundImmuneStomps}");
         _log("    " + _hitStats.TakeSummary(_config.LegacyHitbox));
+        _log("    inputs" + (_config.TrimInputQueue ? "" : " (no trim)") + ": " +
+             string.Join("; ", _players.Values.Select(p => $"#{p.Id} {p.Backlog.RoundSummary()}")));
         foreach (var r in packet.Results)
             _log($"    place {r.Place}: #{r.PlayerId} survived {r.SurvivedTicks} ticks ({r.Cause})");
     }
@@ -801,6 +829,7 @@ public sealed class GameRoom
         {
             p.Alive = true;
             p.InRound = true;
+            p.Backlog.ResetRound();
             p.State = SpawnState(p.Id);
             p.RoundDashes = 0;
             p.LastDashTick = 0;

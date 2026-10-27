@@ -14,6 +14,7 @@ for (int i = 0; i < args.Length; i++)
         case "--exit-after-rounds": options.ExitAfterRounds = int.Parse(Next()); break;
         case "--verbose": options.Verbose = true; break;
         case "--legacy-hitbox": options.LegacyHitbox = true; break;
+        case "--no-input-trim": options.NoInputTrim = true; break;
         case "--maps":
             string mode = Next();
             options.Rotation = mode switch
@@ -29,7 +30,7 @@ for (int i = 0; i < args.Length; i++)
             break;
         case "-h":
         case "--help":
-            Console.WriteLine("OnlineSeverGame.Server [--port 7777] [--min-players 2] [--seed N] [--exit-after-rounds N] [--verbose] [--maps cycle|random] [--map 1..4] [--legacy-hitbox]");
+            Console.WriteLine("OnlineSeverGame.Server [--port 7777] [--min-players 2] [--seed N] [--exit-after-rounds N] [--verbose] [--maps cycle|random] [--map 1..4] [--legacy-hitbox] [--no-input-trim]");
             return 0;
         default:
             Console.Error.WriteLine($"unknown option {args[i]} (see --help)");
