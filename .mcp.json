@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "onlinesevergame-test": {
+      "type": "stdio",
+      "command": "dotnet",
+      "args": ["artifacts/bin/TestMcp/debug/OnlineSeverGame.TestMcp.dll"]
+    }
+  }
+}

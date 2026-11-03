@@ -21,6 +21,7 @@
 | 신규 맵 아트 | [work/art-maps.md](work/art-maps.md) | 신규 맵 아트 · 01 | 겨울 처마·창고·디저트 가게 콘셉트 6장, 세 맵 스프라이트(`Art/sprites/map_*`)·출력 규칙 완료. 클라이언트 연결은 다중 맵 세션 |
 | 맵 선택·칼 판정 | [work/map-select-hit.md](work/map-select-hit.md) | 맵 선택·칼 판정 · 01 | 위험물 판정을 그림 모양으로, 위험물을 내 예측 시각에 그림, 방장의 다음 맵·교체 방식 선택(프로토콜 v4) |
 | 입력 대기 줄이기 | [work/input-latency.md](work/input-latency.md) | 입력 대기 줄이기 · 01 | 서버 입력 큐에 밀린 줄을 두 입력 적용으로 따라잡음(같은 PC 미확인 입력 4 → 0~1), 클라이언트 보정 시 화면 보간 유지. 패킷 변경 없음 |
+| 테스트용 MCP 도구 | [work/test-mcp.md](work/test-mcp.md) | 테스트용 MCP 도구 · 01 | 직접 만든 stdio MCP 서버(`Tools/TestMcp`, `.mcp.json`): 단위 테스트·서버+봇 경기를 백그라운드 작업으로 돌리고 요약. 만드는 법·쓰는 법 정리 |
 
 ### 작업 문서에 들어갈 것
 

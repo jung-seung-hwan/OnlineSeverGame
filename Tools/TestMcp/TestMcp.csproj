@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Hand-written MCP server (stdio, JSON-RPC 2.0) that runs this repo's checks as background jobs.
+    Deliberately not in OnlineSeverGame.slnx: while an MCP client keeps the server running its dll is
+    locked, and a root `dotnet build` (which the jobs themselves run) would fail trying to overwrite it.
+    Build it on its own: dotnet build Tools/TestMcp
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <AssemblyName>OnlineSeverGame.TestMcp</AssemblyName>
+    <RootNamespace>OnlineSeverGame.TestMcp</RootNamespace>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+</Project>
