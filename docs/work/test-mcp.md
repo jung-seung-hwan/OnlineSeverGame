@@ -150,14 +150,15 @@ node Tools/TestMcp/mcp-call.mjs run_match "{\"rounds\":2,\"dropOneAfter\":5}" --
 - `mcp-call.mjs run_match {"rounds":2,"dropOneAfter":5,"seed":7} --wait`:
   - 첫 실행은 **실패**로 끝났다: 라운드 1(주방, 54초)은 끝났지만 봇 하나를 끊은 뒤 라운드 2가 시작되지 않았고, 460초 제한에 걸려 서버·봇을 죽였다(`killed after 460 s with 1/2 round(s) done`). 원인은 도구가 `--min-players 8`을 준 것(게임 문제 아님). 위 2장처럼 고쳤다. 이때 시간 초과 종료가 프로세스 트리째 동작해 남은 서버·봇 프로세스가 없음도 확인했다.
   - 고친 뒤: 통과, 106.6초. 라운드 1 주방 30.4초, 라운드 2 겨울 처마 61.9초, 끊긴 봇은 라운드 1에서 `Disconnected`로 7위·8위 처리, 남은 봇 7개 모두 보낸 seq 2065 = 서버 확인 seq 2065, 문제 줄 0개, 서버·봇 종료 코드 0.
+- 새 Claude Code 세션에서 진짜 MCP 도구(`mcp__onlinesevergame-test__*` 7개)로 불러 봄(2026-11-03): 서버가 자동으로 붙었고, `run_unit_tests` → 도는 중 `list_jobs`(running) → `wait_job` 결과 156개 모두 통과(5.4초). `run_match {"rounds":1,"bots":4}` → `job_status`가 단계(`starting server on port …`)와 서버 로그 끝부분을 보여 줬고, `wait_job` 결과 통과(74.3초, 주방 67.6초, 사망 3, 문제 줄 0, 서버·봇 종료 코드 0). `job_log {"log":"server","grep":"END"}`는 `round 1 END` 줄과, 대소문자를 가리지 않아서 `state=Ended`가 붙은 퇴장 줄 4개를 함께 돌려줬다(설명대로의 동작).
 
 ### 확인 못 한 것
 
 - 실패한 테스트가 있을 때 요약(메시지·스택)이 제대로 채워지는지. 지금 테스트가 모두 통과해서 실패 결과를 읽어 본 적이 없다(.trx의 `Message`·`StackTrace` 요소를 읽게만 해 둠).
 - 빌드가 깨졌을 때 `buildErrors` 줄 모으기(한국어 MSBuild 출력에서도 `: error CS....` 꼴이라 잡힐 것으로 예상).
-- Claude Code 세션 안에서 `mcp__onlinesevergame-test__*` 도구로 직접 부르기. 이 세션은 `.mcp.json`을 만들기 전에 시작되어 새 서버를 읽지 못했다. 새 세션에서 한 번 확인할 것.
 - Gemini CLI에서 등록해 부르기(로그인 미완료).
 
 ## 6. 변경 기록
 
 - 2026-11-03 `Tools/TestMcp` MCP 서버(도구 7개, 작업 큐, 단위 테스트·경기 요약), `.mcp.json` 등록, `mcp-call.mjs` 클라이언트, 이 문서. 첫 경기 실행에서 찾은 최소 인원 문제(봇을 끊으면 봇 수 − 1) 수정, `--verbose`에서만 세어지던 밀치기 수 항목 제거. `50856c7`
+- 2026-11-03 새 세션에서 진짜 MCP 도구로 `run_unit_tests`·`list_jobs`·`wait_job`·`run_match`·`job_status`·`job_log`를 불러 모두 정상 동작함을 확인(코드 변경 없음).
