@@ -64,22 +64,19 @@ namespace OnlineSeverGame.Client.UI
 
         const float ConnectPanelHeight = 210f; // 접속 실패 문구 두 줄까지 들어간다
 
-        // 움직이는 타이틀 로고와 한 줄 소개를 위에 그리고, 그 아래에 놓을 폭 w · 높이 h 패널의 내용 영역을 돌려준다.
+        // 움직이는 타이틀 로고를 위에 그리고, 그 아래에 놓을 폭 w · 높이 h 패널의 내용 영역을 돌려준다.
         // 로고 크기(픽셀/로고 단위)와 위치는 접속 패널 높이로만 정해서, 접속 중 화면으로 넘어가도 로고가 움직이지 않는다.
         Rect TitleAndPanel(float w, float h)
         {
-            const float gap = 8f, tagline = 24f;
+            const float gap = 16f;
             float sw = UnityEngine.Screen.width, sh = UnityEngine.Screen.height;
             var unit = TitleLogo.Size(1f, animated: true);
-            float ppu = Mathf.Clamp(Mathf.Min(sw * 0.55f / unit.x, (sh - ConnectPanelHeight - tagline - gap - 24f) / unit.y), 2.5f, 9f);
+            float ppu = Mathf.Clamp(Mathf.Min(sw * 0.55f / unit.x, (sh - ConnectPanelHeight - gap - 24f) / unit.y), 2.5f, 9f);
             var logo = TitleLogo.Size(ppu, animated: true);
-            float total = logo.y + tagline + gap + ConnectPanelHeight;
+            float total = logo.y + gap + ConnectPanelHeight;
             float top = Mathf.Max(8f, (sh - total) / 2f);
             TitleLogo.Draw(new Vector2((sw - logo.x) / 2f, top), ppu, animated: true);
-            var sub = new GUIStyle(_center) { fontSize = 15 };
-            sub.normal.textColor = new Color(0.95f, 0.9f, 0.78f, 0.75f);
-            GUI.Label(new Rect(0, top + logo.y, sw, tagline), "오늘 밤 주방 예보: 곳에 따라 칼", sub);
-            return Filled(new Rect((sw - w) / 2f, top + logo.y + tagline + gap, w, h));
+            return Filled(new Rect((sw - w) / 2f, top + logo.y + gap, w, h));
         }
 
         void DrawConnect()
