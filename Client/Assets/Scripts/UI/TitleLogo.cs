@@ -4,14 +4,16 @@ using UnityEngine;
 
 namespace OnlineSeverGame.Client.UI
 {
-    // 타이틀 로고 "칼비 주의보"(칼 + 비, 호우주의보 말장난). 그림 파일 없이 IMGUI 에서 단색 사각형만으로 그린다.
-    // 좌표는 로고 단위(1 = ppu 픽셀, 아래로 +y). 글자는 획 두께 2 격자에 손으로 놓은 사각형(ㅈ·ㅇ 은 돌린 사각형)이고,
-    // "비"의 ㅣ 는 꽂힌 식칼이다. 조각마다 0.7 단위 넓힌 어두운 사각형을 먼저 칠해 외곽선을 만든다. 그라데이션·광택 없음.
-    // 움직이는 판(접속 화면): 빨간 "주의보" 팻말 위 젤리 머리 위로 게임과 같은 빨간 예고(기둥 + 마름모)가 깜빡이고,
-    // 젤리가 옆으로 비키면 칼이 떨어져 팻말에 꽂혔다가 사라진다. 4초마다 좌우를 바꿔 되풀이한다.
+    // 타이틀 로고 "JELLY SURVIVAL". 그림 파일 없이 IMGUI 에서 단색 사각형만으로 그린다.
+    // 좌표는 로고 단위(1 = ppu 픽셀, 아래로 +y). 글자는 캡 높이 13(큰 글자, 획 3)·12(팻말 글자, 획 2) 격자에 손으로 놓은
+    // 사각형이고, 비스듬한 획(Y·V·R 다리)만 돌린 사각형이다. JELLY 다섯 글자는 플레이어 색 1~5번(딸기·블루베리·라임·레몬·포도),
+    // SURVIVAL 은 게임 예고 색 빨간 팻말 위 흰 글자. 조각마다 0.7 단위 넓힌 어두운 사각형을 먼저 칠해 외곽선을 만든다.
+    // 움직이는 판(접속 화면): JELLY 글자 다섯 개 위 자리 중 넷에 젤리가 서 있다. 빈자리 옆 젤리 머리 위로 게임과 같은 빨간 예고
+    // (기둥 + 마름모)가 깜빡이면 그 젤리가 빈자리로 뛰어 옮기고, 칼이 떨어져 비운 글자에 꽂혔다가 사라진다. 3초마다 되풀이하며
+    // 빈자리는 J → Y → J 로 오간다.
     public static class TitleLogo
     {
-        enum Ink { Cream, Paper, Warn, Handle, Rivet, Bolster, Steel, Spine }
+        enum Ink { J, E, L1, L2, Y, Paper, Warn, Handle, Rivet, Bolster, Steel, Spine }
 
         struct Part
         {
@@ -21,7 +23,11 @@ namespace OnlineSeverGame.Client.UI
 
         static readonly Color[] Inks =
         {
-            new Color32(243, 230, 200, 255), // Cream: 큰 글자
+            new Color32(226, 71, 90, 255),   // J: 딸기(플레이어 색 1, docs/work/art.md)
+            new Color32(63, 111, 230, 255),  // E: 블루베리
+            new Color32(77, 195, 90, 255),   // L: 라임
+            new Color32(240, 201, 58, 255),  // L: 레몬
+            new Color32(154, 93, 219, 255),  // Y: 포도
             new Color32(255, 247, 232, 255), // Paper: 팻말 글자
             new Color32(255, 64, 51, 255),   // Warn: 게임 예고 색(SwordView.WarnColor)
             new Color32(92, 54, 34, 255),    // Handle
@@ -33,19 +39,19 @@ namespace OnlineSeverGame.Client.UI
         static readonly Color OutlineColor = new Color32(26, 24, 30, 255);
 
         const float Outline = 0.7f;
-        const float SmallScale = 0.56f;            // 팻말 글자 = 큰 글자 격자의 0.56배
-        const float TagX = 37.5f, TagY = 7.5f;     // 팻말 왼쪽 위
-        const float TagPad = 2.2f, TagGap = 1.6f;
-        const float AnimTop = 16f;                 // 움직이는 판에서 로고 위로 비워 두는 높이(예고 마름모 자리)
-        const float FallingKnifeScale = 0.6f;
-        const float HalfCycle = 4f;
-        const int JellyColor = 5;                  // 귤(요리사 모자)
-        const float JellySize = 12f;               // 젤리 프레임(256 px) 한 변
+        const float Big = 1.35f, BigGap = 1.6f;          // JELLY: 캡 13 × 1.35
+        const float Small = 0.78f, SmallGap = 1.6f;      // SURVIVAL: 캡 12 × 0.78
+        const float TagPad = 2.2f, LineGap = 2.6f;
+        const float AnimTop = 15f;                       // 움직이는 판에서 로고 위로 비워 두는 높이(젤리 + 예고 마름모 자리)
+        const float FallingKnifeScale = 0.55f;
+        const float KnifeLength = 22f;
+        const float Cycle = 3f;
+        const float JellySize = 12f;                     // 젤리 프레임(256 px) 한 변
+        static readonly int[] Jellies = { 5, 6, 7, 1 };  // 귤·소다·복숭아·블루베리(ArtSprites 시트 번호)
 
         static readonly List<Part> Logo = new List<Part>();
         static readonly List<Part> FallingKnife = new List<Part>();
-        static readonly float TagW = 3 * 14 * SmallScale + 2 * TagGap + 2 * TagPad;
-        static readonly float TagH = 15 * SmallScale + 2 * TagPad;
+        static readonly Vector2[] Slots = new Vector2[5]; // JELLY 글자마다 젤리가 설 자리(발밑, 로고 단위)
         static Rect _bounds; // 외곽선까지 포함한 로고 범위(로고 단위)
 
         // 조각을 (ox, oy) 에서 s 배로 놓는 붓
@@ -71,16 +77,41 @@ namespace OnlineSeverGame.Client.UI
             }
         }
 
+        delegate void Glyph(Pen p);
+
         static TitleLogo()
         {
-            Kal(new Pen(Logo, 0f, 0f, 1f, Ink.Cream));
-            Bi(new Pen(Logo, 18f, 0.8f, 1f, Ink.Cream));
-            Logo.Add(new Part { X = TagX, Y = TagY, W = TagW, H = TagH, Ink = Ink.Warn });
-            float step = 14 * SmallScale + TagGap;
-            Ju(new Pen(Logo, TagX + TagPad, TagY + TagPad, SmallScale, Ink.Paper));
-            Ui(new Pen(Logo, TagX + TagPad + step, TagY + TagPad, SmallScale, Ink.Paper));
-            Bo(new Pen(Logo, TagX + TagPad + 2 * step, TagY + TagPad, SmallScale, Ink.Paper));
-            Knife(new Pen(FallingKnife, 0f, 0f, FallingKnifeScale, Ink.Steel), 0f, 0f, 22f);
+            // JELLY: 글자 폭(격자)과 젤리가 설 자리(격자 x, 발밑 y). L 은 기둥 위, Y 는 두 팔 사이 홈에 선다.
+            Glyph[] jelly = { J, E, L, L, Y };
+            float[] widths = { 9, 8, 8, 8, 11 };
+            float[] standX = { 5.5f, 4f, 1.5f, 1.5f, 5.5f };
+            float[] standY = { 0, 0, 0, 0, 4.6f };
+            float jellyW = (Sum(widths) + BigGap * 4) * Big;
+
+            Glyph[] survival = { S, U, R, V, I, V, A, L2 };
+            float[] sWidths = { 8, 8, 8, 10, 2, 10, 9, 7 };
+            float tagW = (Sum(sWidths) + SmallGap * 7) * Small + 2 * TagPad;
+            float total = Mathf.Max(jellyW, tagW);
+
+            float x = (total - jellyW) / 2f;
+            for (int i = 0; i < jelly.Length; i++)
+            {
+                jelly[i](new Pen(Logo, x, 0f, Big, (Ink)i));
+                Slots[i] = new Vector2(x + standX[i] * Big, standY[i] * Big);
+                x += (widths[i] + BigGap) * Big;
+            }
+
+            float tagY = 13 * Big + LineGap;
+            x = (total - tagW) / 2f;
+            Logo.Add(new Part { X = x, Y = tagY, W = tagW, H = 12 * Small + 2 * TagPad, Ink = Ink.Warn });
+            x += TagPad;
+            for (int i = 0; i < survival.Length; i++)
+            {
+                survival[i](new Pen(Logo, x, tagY + TagPad, Small, Ink.Paper));
+                x += (sWidths[i] + SmallGap) * Small;
+            }
+
+            Knife(new Pen(FallingKnife, 0f, 0f, FallingKnifeScale, Ink.Steel), 0f, 0f, KnifeLength);
 
             float minX = float.MaxValue, minY = float.MaxValue, maxX = float.MinValue, maxY = float.MinValue;
             foreach (var p in Logo)
@@ -96,21 +127,29 @@ namespace OnlineSeverGame.Client.UI
             _bounds = Rect.MinMaxRect(minX, minY, maxX, maxY);
         }
 
-        // ---- 큰 글자(격자 16 x 20, 획 2) ----
-
-        static void Kal(Pen p)
+        static float Sum(float[] a)
         {
-            p.R(0, 0, 8, 2); p.R(6, 0, 2, 9.5f); p.R(0, 4, 6.5f, 2);                       // ㅋ
-            p.R(11, 0, 2, 10.5f); p.R(13, 4, 3, 2);                                       // ㅏ
-            p.R(1, 12, 14, 2); p.R(13, 12, 2, 5); p.R(1, 15, 14, 2);                      // ㄹ
-            p.R(1, 15, 2, 5); p.R(1, 18, 14, 2);
+            float s = 0f;
+            foreach (var v in a) s += v;
+            return s;
         }
 
-        static void Bi(Pen p)
-        {
-            p.R(0, 2, 2, 16); p.R(7, 2, 2, 16); p.R(0, 9, 9, 2); p.R(0, 16, 9, 2);         // ㅂ
-            Knife(p, 12.5f, -1f, 21f);                                                    // ㅣ = 꽂힌 칼
-        }
+        // ---- 큰 글자 JELLY(격자 높이 13, 획 3) ----
+
+        static void J(Pen p) { p.R(2, 0, 7, 3); p.R(6, 0, 3, 13); p.R(0, 10, 9, 3); p.R(0, 7, 3, 6); }
+        static void E(Pen p) { p.R(0, 0, 3, 13); p.R(0, 0, 8, 3); p.R(0, 5, 7, 3); p.R(0, 10, 8, 3); }
+        static void L(Pen p) { p.R(0, 0, 3, 13); p.R(0, 10, 8, 3); }
+        static void Y(Pen p) { p.Seg(1.5f, 1, 5.5f, 7, 3); p.Seg(9.5f, 1, 5.5f, 7, 3); p.R(4, 6, 3, 7); }
+
+        // ---- 팻말 글자 SURVIVAL(격자 높이 12, 획 2) ----
+
+        static void S(Pen p) { p.R(0, 0, 8, 2); p.R(0, 0, 2, 7); p.R(0, 5, 8, 2); p.R(6, 5, 2, 7); p.R(0, 10, 8, 2); }
+        static void U(Pen p) { p.R(0, 0, 2, 12); p.R(6, 0, 2, 12); p.R(0, 10, 8, 2); }
+        static void R(Pen p) { p.R(0, 0, 2, 12); p.R(0, 0, 8, 2); p.R(6, 0, 2, 7); p.R(0, 5, 8, 2); p.Seg(4.2f, 6.2f, 7.2f, 11.4f, 2); }
+        static void V(Pen p) { p.Seg(1, 0.5f, 5, 11.5f, 2); p.Seg(9, 0.5f, 5, 11.5f, 2); }
+        static void I(Pen p) { p.R(0, 0, 2, 12); }
+        static void A(Pen p) { p.R(0, 1, 2, 11); p.R(7, 1, 2, 11); p.R(1, 0, 7, 2); p.R(0, 6, 9, 2); }
+        static void L2(Pen p) { p.R(0, 0, 2, 12); p.R(0, 10, 7, 2); }
 
         // 칼끝이 아래인 식칼: 손잡이(리벳 둘), 받침쇠, 칼날(오른쪽에 어두운 등), 끝은 45도 돌린 정사각형
         static void Knife(Pen p, float cx, float top, float bottom)
@@ -126,40 +165,9 @@ namespace OnlineSeverGame.Client.UI
             p.Put(cx + 0.55f, bladeTop, 0.95f, bottom - 2.2f - bladeTop, 0f, Ink.Spine);
         }
 
-        // ---- 팻말 글자(격자 14 x 15, 획 2) ----
-
-        static void Ju(Pen p)
-        {
-            p.R(1, 0, 12, 2); p.Seg(7, 1.6f, 2, 7.6f, 2); p.Seg(7, 1.6f, 12, 7.6f, 2);     // ㅈ
-            p.R(0, 9.5f, 14, 2); p.R(6, 11.5f, 2, 3.5f);                                  // ㅜ
-        }
-
-        static void Ui(Pen p)
-        {
-            // ㅇ: 팔각형 여덟 변. 이음매가 비지 않게 변마다 양 끝을 조금 늘린다.
-            const float cx = 4.5f, cy = 4.6f, r = 3.6f, extend = 0.42f;
-            for (int i = 0; i < 8; i++)
-            {
-                float a1 = (22.5f + 45f * i) * Mathf.Deg2Rad, a2 = (22.5f + 45f * (i + 1)) * Mathf.Deg2Rad;
-                float x1 = cx + r * Mathf.Cos(a1), y1 = cy + r * Mathf.Sin(a1);
-                float x2 = cx + r * Mathf.Cos(a2), y2 = cy + r * Mathf.Sin(a2);
-                float len = Mathf.Sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
-                float ex = (x2 - x1) / len * extend, ey = (y2 - y1) / len * extend;
-                p.Seg(x1 - ex, y1 - ey, x2 + ex, y2 + ey, 2);
-            }
-            p.R(0, 11.5f, 10, 2);                                                         // ㅡ
-            p.R(12, 0, 2, 15);                                                            // ㅣ
-        }
-
-        static void Bo(Pen p)
-        {
-            p.R(2, 0, 2, 9); p.R(10, 0, 2, 9); p.R(2, 3.5f, 10, 2); p.R(2, 7, 10, 2);      // ㅂ
-            p.R(6, 9, 2, 3.5f); p.R(0, 12.5f, 14, 2);                                     // ㅗ
-        }
-
         // ---- 그리기 ----
 
-        // 화면에서 차지하는 크기(픽셀). animated 면 위에 예고 마름모 자리를 더한다.
+        // 화면에서 차지하는 크기(픽셀). animated 면 위에 젤리와 예고 마름모 자리를 더한다.
         public static Vector2 Size(float ppu, bool animated) =>
             new Vector2(_bounds.width, _bounds.height + (animated ? AnimTop : 0f)) * ppu;
 
@@ -173,12 +181,13 @@ namespace OnlineSeverGame.Client.UI
             if (animated)
             {
                 if (a.Warn > 0f) DrawWarning(origin, ppu, a);
-                // 칼을 팻말보다 먼저 그려 팻말 외곽선이 칼을 가로지르게 한다(꽂힌 것처럼 보인다).
+                // 칼을 글자보다 먼저 그려 글자 외곽선이 칼을 가로지르게 한다(꽂힌 것처럼 보인다).
                 if (a.KnifeAlpha > 0f)
-                    DrawParts(FallingKnife, origin + new Vector2(a.KnifeX, a.KnifeTipY - 22f * FallingKnifeScale) * ppu, ppu, a.KnifeAlpha);
+                    DrawParts(FallingKnife, origin + new Vector2(a.KnifeX, a.KnifeTipY - KnifeLength * FallingKnifeScale) * ppu, ppu, a.KnifeAlpha);
             }
             DrawParts(Logo, origin, ppu, 1f);
-            if (animated) DrawJelly(origin, ppu, a);
+            if (animated)
+                for (int i = 0; i < Jellies.Length; i++) DrawJelly(origin, ppu, i, a.Jelly[i]);
             GUI.color = oldColor;
         }
 
@@ -212,69 +221,108 @@ namespace OnlineSeverGame.Client.UI
 
         // ---- 움직이는 판 ----
 
+        struct JellyPose
+        {
+            public Vector2 Foot;
+            public string Anim;
+            public bool FaceLeft;
+        }
+
         struct Anim
         {
             public float Warn;        // 0 = 없음, 0~1 = 예고 진행
-            public float WarnX;
+            public Vector2 WarnAt;    // 예고가 가리키는 자리(발밑)
             public float KnifeX, KnifeTipY, KnifeAlpha;
-            public float JellyX;
-            public bool Running, FaceLeft;
+            public JellyPose[] Jelly;
         }
 
-        // 반 주기(4초): 0.3~1.5 예고(젤리는 0.9 에 비키기 시작), 1.5~1.7 낙하, 3.4~3.8 꽂힌 칼이 흐려진다.
+        static readonly JellyPose[] Poses = new JellyPose[4];
+        static readonly int[] Occupant = new int[5];
+
+        // 한 번(3초): 0.1~1.1 예고, 0.7~1.2 빈자리로 점프, 1.1~1.3 칼 낙하(가속), 2.6~3.0 꽂힌 칼이 흐려진다.
+        // 빈자리는 0 → 4 → 0 으로 한 칸씩 오가므로 8번(24초)마다 처음 배치로 돌아온다. 지금 배치는 처음부터 되짚어 구한다.
         static Anim Animate(float time)
         {
-            float spotA = TagX + 6f, spotB = TagX + TagW - 6f;
-            float t = Mathf.Repeat(time, 2f * HalfCycle);
-            bool second = t >= HalfCycle;
-            float u = t - (second ? HalfCycle : 0f);
-            float from = second ? spotB : spotA, to = second ? spotA : spotB;
+            int step = Mathf.FloorToInt(time / Cycle);
+            float u = time - step * Cycle;
+            step %= 8;
 
-            // 젤리는 비킬 쪽(팻말 안쪽)을 보고 서 있다가 그대로 달려간다.
-            var a = new Anim { WarnX = from, KnifeX = from, FaceLeft = to < from };
-            if (u >= 0.3f && u < 1.5f) a.Warn = (u - 0.3f) / 1.2f;
-
-            float run = Mathf.InverseLerp(0.9f, 1.4f, u);
-            a.JellyX = Mathf.Lerp(from, to, Mathf.SmoothStep(0f, 1f, run));
-            a.Running = run > 0f && run < 1f;
-
-            float landY = TagY + 1.2f; // 칼끝이 팻말에 1.2 박힌다
-            if (u >= 1.5f && u < 3.8f)
+            for (int i = 0; i < 5; i++) Occupant[i] = i - 1; // 처음: 0번 자리(J)만 비어 있다
+            int empty = 0;
+            for (int k = 0; k < step; k++)
             {
-                float fall = Mathf.InverseLerp(1.5f, 1.7f, u);
-                a.KnifeTipY = Mathf.Lerp(-AnimTop - 4f, landY, fall * fall);
-                a.KnifeAlpha = 1f - Mathf.InverseLerp(3.4f, 3.8f, u);
+                int target = NextTarget(k, empty);
+                Occupant[empty] = Occupant[target];
+                Occupant[target] = -1;
+                empty = target;
+            }
+            int from = NextTarget(step, empty);
+            int mover = Occupant[from];
+
+            for (int s = 0; s < 5; s++)
+            {
+                int j = Occupant[s];
+                if (j < 0) continue;
+                // 서 있는 젤리는 로고 가운데를 본다
+                Poses[j] = new JellyPose { Foot = Slots[s], Anim = "idle", FaceLeft = s > 2 };
+            }
+
+            var a = new Anim { WarnAt = Slots[from], KnifeX = Slots[from].x, Jelly = Poses };
+            if (u >= 0.1f && u < 1.1f) a.Warn = (u - 0.1f) / 1.0f;
+
+            float jump = Mathf.InverseLerp(0.7f, 1.2f, u);
+            Vector2 p0 = Slots[from], p1 = Slots[empty];
+            bool left = p1.x < p0.x;
+            if (jump <= 0f) Poses[mover].FaceLeft = left; // 뛰기 전에 갈 쪽을 본다
+            else if (jump < 1f)
+            {
+                var foot = Vector2.Lerp(p0, p1, jump);
+                foot.y -= Mathf.Sin(jump * Mathf.PI) * 6f;
+                Poses[mover] = new JellyPose { Foot = foot, Anim = jump < 0.5f ? "jump" : "fall", FaceLeft = left };
+            }
+            else Poses[mover] = new JellyPose { Foot = p1, Anim = "idle", FaceLeft = left };
+
+            if (u >= 1.1f)
+            {
+                float fall = Mathf.InverseLerp(1.1f, 1.3f, u);
+                float land = p0.y + 1.2f; // 칼끝이 글자에 1.2 박힌다
+                a.KnifeTipY = Mathf.Lerp(-AnimTop - 6f, land, fall * fall);
+                a.KnifeAlpha = 1f - Mathf.InverseLerp(2.6f, 3.0f, u);
             }
             return a;
         }
+
+        // 빈자리가 0 → 4 → 0 으로 오가도록, k 번째 이동에서 빈자리 옆 어느 젤리가 움직일지 고른다.
+        static int NextTarget(int k, int empty) => k % 8 < 4 ? empty + 1 : empty - 1;
 
         // 게임(SwordView)과 같은 예고: 낙하 지점 기둥 + 위쪽 마름모. 낙하가 가까울수록 빠르고 진하게 깜빡인다.
         static void DrawWarning(Vector2 origin, float ppu, Anim a)
         {
             float blink = Mathf.PingPong(Time.time * Mathf.Lerp(2f, 10f, a.Warn), 1f);
             var warn = Inks[(int)Ink.Warn];
-            float top = -AnimTop + 3f;
+            float top = -AnimTop + 1f;
             GUI.color = new Color(warn.r, warn.g, warn.b, Mathf.Lerp(0.10f, 0.28f, a.Warn) * (0.5f + 0.5f * blink));
-            GUI.DrawTexture(new Rect(origin.x + (a.WarnX - 2.2f) * ppu, origin.y + top * ppu, 4.4f * ppu, (TagY - Outline - top) * ppu), Texture2D.whiteTexture);
-            var mark = new Part { X = a.WarnX - 1.4f, Y = top + 1f, W = 2.8f, H = 2.8f, Angle = 45f };
+            GUI.DrawTexture(new Rect(origin.x + (a.WarnAt.x - 2.6f) * ppu, origin.y + top * ppu, 5.2f * ppu, (a.WarnAt.y - Outline - top) * ppu), Texture2D.whiteTexture);
+            var mark = new Part { X = a.WarnAt.x - 1.3f, Y = top + 0.6f, W = 2.6f, H = 2.6f, Angle = 45f };
             Fill(origin, ppu, mark, Outline, new Color(OutlineColor.r, OutlineColor.g, OutlineColor.b, 0.5f + 0.5f * blink));
             Fill(origin, ppu, mark, 0f, new Color(warn.r, warn.g, warn.b, 0.5f + 0.5f * blink));
         }
 
-        static void DrawJelly(Vector2 origin, float ppu, Anim a)
+        static void DrawJelly(Vector2 origin, float ppu, int index, JellyPose pose)
         {
-            var clip = ArtSprites.Character(JellyColor, a.Running ? "run" : "idle");
-            var sprite = clip.At(Time.time);
+            // 젤리마다 시각을 어긋나게 해서 숨 쉬는 박자가 겹치지 않게 한다
+            var sprite = ArtSprites.Character(Jellies[index], pose.Anim).At(Time.time + index * 0.37f);
             var tex = sprite.texture;
             var tr = sprite.textureRect;
             var uv = new Rect(tr.x / tex.width, tr.y / tex.height, tr.width / tex.width, tr.height / tex.height);
             float size = JellySize * ppu;
-            // 프레임 피벗(발밑)은 아래에서 8/256. 발을 팻말 외곽선 위에 올린다.
-            float footY = origin.y + (TagY - Outline + 0.3f) * ppu;
-            var r = new Rect(origin.x + a.JellyX * ppu - size / 2f, footY - size + size * 8f / 256f, size, size);
+            // 프레임 피벗(발밑)은 아래에서 8/256. 발을 글자 윗변 외곽선 위에 올린다.
+            float footX = origin.x + pose.Foot.x * ppu;
+            float footY = origin.y + (pose.Foot.y - Outline + 0.3f) * ppu;
+            var r = new Rect(footX - size / 2f, footY - size + size * 8f / 256f, size, size);
             GUI.color = Color.white;
             var m = GUI.matrix;
-            if (a.FaceLeft) GUIUtility.ScaleAroundPivot(new Vector2(-1f, 1f), r.center); // 시트는 오른쪽을 본다
+            if (pose.FaceLeft) GUIUtility.ScaleAroundPivot(new Vector2(-1f, 1f), r.center); // 시트는 오른쪽을 본다
             GUI.DrawTextureWithTexCoords(r, tex, uv);
             GUI.matrix = m;
         }

@@ -22,7 +22,7 @@
 | 맵 선택·칼 판정 | [work/map-select-hit.md](work/map-select-hit.md) | 맵 선택·칼 판정 · 01 | 위험물 판정을 그림 모양으로, 위험물을 내 예측 시각에 그림, 방장의 다음 맵·교체 방식 선택(프로토콜 v4) |
 | 입력 대기 줄이기 | [work/input-latency.md](work/input-latency.md) | 입력 대기 줄이기 · 01 | 서버 입력 큐에 밀린 줄을 두 입력 적용으로 따라잡음(같은 PC 미확인 입력 4 → 0~1), 클라이언트 보정 시 화면 보간 유지. 패킷 변경 없음 |
 | 테스트용 MCP 도구 | [work/test-mcp.md](work/test-mcp.md) | 테스트용 MCP 도구 · 01 | 직접 만든 stdio MCP 서버(`Tools/TestMcp`, `.mcp.json`): 단위 테스트·서버+봇 경기를 백그라운드 작업으로 돌리고 요약. 만드는 법·쓰는 법 정리 |
-| 타이틀(게임 이름·로고) | [work/title.md](work/title.md) | 타이틀 · 01 | 완료: 이름 "칼비 주의보", 사각형으로 그린 로고(`UI/TitleLogo.cs`), 접속 화면 움직이는 로고(예고 → 젤리 비킴 → 칼 꽂힘), 대기 화면 작은 로고 |
+| 타이틀(게임 이름·로고) | [work/title.md](work/title.md) | 타이틀 · 01 | 이름 "Jelly Survival", 사각형으로 그린 로고(`UI/TitleLogo.cs`): 접속 화면에서 JELLY 글자 위 젤리 네 마리가 예고를 보고 옆 글자로 뛰어 피함, 대기 화면 작은 로고 |
 
 ### 작업 문서에 들어갈 것
 

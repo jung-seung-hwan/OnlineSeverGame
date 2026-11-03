@@ -62,7 +62,7 @@ namespace OnlineSeverGame.Client.UI
             }
         }
 
-        const float ConnectPanelHeight = 270f; // 접속 실패 문구 두 줄까지 들어간다
+        const float ConnectPanelHeight = 210f; // 접속 실패 문구 두 줄까지 들어간다
 
         // 움직이는 타이틀 로고와 한 줄 소개를 위에 그리고, 그 아래에 놓을 폭 w · 높이 h 패널의 내용 영역을 돌려준다.
         // 로고 크기(픽셀/로고 단위)와 위치는 접속 패널 높이로만 정해서, 접속 중 화면으로 넘어가도 로고가 움직이지 않는다.
@@ -70,7 +70,8 @@ namespace OnlineSeverGame.Client.UI
         {
             const float gap = 8f, tagline = 24f;
             float sw = UnityEngine.Screen.width, sh = UnityEngine.Screen.height;
-            float ppu = Mathf.Clamp(Mathf.Min(sw / 130f, (sh - ConnectPanelHeight - 70f) / 43f), 2.5f, 8f);
+            var unit = TitleLogo.Size(1f, animated: true);
+            float ppu = Mathf.Clamp(Mathf.Min(sw * 0.55f / unit.x, (sh - ConnectPanelHeight - tagline - gap - 24f) / unit.y), 2.5f, 9f);
             var logo = TitleLogo.Size(ppu, animated: true);
             float total = logo.y + tagline + gap + ConnectPanelHeight;
             float top = Mathf.Max(8f, (sh - total) / 2f);
@@ -85,10 +86,16 @@ namespace OnlineSeverGame.Client.UI
         {
             var r = TitleAndPanel(460, ConnectPanelHeight);
             GUILayout.BeginArea(r);
-            GUILayout.Label("이름", _label);
+            // 이름표를 입력칸 왼쪽에 두어 패널을 낮게 한다(로고 자리를 넓히려고).
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("이름", _label, GUILayout.Width(110), GUILayout.Height(30));
             Game.PlayerName = GUILayout.TextField(Game.PlayerName ?? "", 16, GUILayout.Height(30));
-            GUILayout.Label("서버 주소 (host:port)", _label);
+            GUILayout.EndHorizontal();
+            GUILayout.Space(8);
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("서버 주소", _label, GUILayout.Width(110), GUILayout.Height(30));
             Game.ServerAddress = GUILayout.TextField(Game.ServerAddress ?? "", 64, GUILayout.Height(30));
+            GUILayout.EndHorizontal();
             GUILayout.Space(12);
             GUILayout.BeginHorizontal();
             bool canConnect = !string.IsNullOrWhiteSpace(Game.PlayerName);
@@ -150,7 +157,7 @@ namespace OnlineSeverGame.Client.UI
             DrawTopBar(s, showRound: false);
 
             // 대기 화면 머리: 나가기 버튼 아래 오른쪽에 멈춘 작은 로고(움직이는 예고는 게임 예고와 헷갈려 뺀다).
-            const float smallPpu = 2.6f;
+            const float smallPpu = 2.2f;
             var size = TitleLogo.Size(smallPpu, animated: false);
             TitleLogo.Draw(new Vector2(UnityEngine.Screen.width - size.x - 16, 48), smallPpu, animated: false);
         }
