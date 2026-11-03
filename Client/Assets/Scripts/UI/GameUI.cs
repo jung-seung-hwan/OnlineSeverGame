@@ -7,6 +7,7 @@ using UnityEngine;
 namespace OnlineSeverGame.Client.UI
 {
     // IMGUI 로 그리는 임시 UI. 접속 → 대기 → 진행 → 관전 → 결과 화면.
+    // 타이틀 로고(TitleLogo): 접속·접속 중 화면 위에 움직이는 큰 로고, 대기·카운트다운 화면 오른쪽 위에 멈춘 작은 로고.
     // 맵 선택(방장만): 대기·카운트다운 화면 왼쪽 명단 아래와 결과 화면 패널 안의 버튼, 또는 키보드 1~4(다음 맵),
     // R(교체 방식: 순환 → 무작위 → 고정). 키는 접속 중 어느 화면에서나 되고, 바꾼 맵은 다음 라운드부터 쓰인다.
     public sealed class GameUI : MonoBehaviour
@@ -61,13 +62,29 @@ namespace OnlineSeverGame.Client.UI
             }
         }
 
+        const float ConnectPanelHeight = 270f; // 접속 실패 문구 두 줄까지 들어간다
+
+        // 움직이는 타이틀 로고와 한 줄 소개를 위에 그리고, 그 아래에 놓을 폭 w · 높이 h 패널의 내용 영역을 돌려준다.
+        // 로고 크기(픽셀/로고 단위)와 위치는 접속 패널 높이로만 정해서, 접속 중 화면으로 넘어가도 로고가 움직이지 않는다.
+        Rect TitleAndPanel(float w, float h)
+        {
+            const float gap = 8f, tagline = 24f;
+            float sw = UnityEngine.Screen.width, sh = UnityEngine.Screen.height;
+            float ppu = Mathf.Clamp(Mathf.Min(sw / 130f, (sh - ConnectPanelHeight - 70f) / 43f), 2.5f, 8f);
+            var logo = TitleLogo.Size(ppu, animated: true);
+            float total = logo.y + tagline + gap + ConnectPanelHeight;
+            float top = Mathf.Max(8f, (sh - total) / 2f);
+            TitleLogo.Draw(new Vector2((sw - logo.x) / 2f, top), ppu, animated: true);
+            var sub = new GUIStyle(_center) { fontSize = 15 };
+            sub.normal.textColor = new Color(0.95f, 0.9f, 0.78f, 0.75f);
+            GUI.Label(new Rect(0, top + logo.y, sw, tagline), "오늘 밤 주방 예보: 곳에 따라 칼", sub);
+            return Filled(new Rect((sw - w) / 2f, top + logo.y + tagline + gap, w, h));
+        }
+
         void DrawConnect()
         {
-            var r = Panel(460, 380);
+            var r = TitleAndPanel(460, ConnectPanelHeight);
             GUILayout.BeginArea(r);
-            GUILayout.Space(8);
-            GUILayout.Label("OnlineSeverGame", _title, GUILayout.Height(48));
-            GUILayout.Space(12);
             GUILayout.Label("이름", _label);
             Game.PlayerName = GUILayout.TextField(Game.PlayerName ?? "", 16, GUILayout.Height(30));
             GUILayout.Label("서버 주소 (host:port)", _label);
@@ -95,7 +112,7 @@ namespace OnlineSeverGame.Client.UI
 
         void DrawConnecting()
         {
-            var r = Panel(380, 160);
+            var r = TitleAndPanel(380, 120);
             GUILayout.BeginArea(r);
             GUILayout.Space(16);
             GUILayout.Label("접속 중… " + Game.ServerAddress, _center);
@@ -131,6 +148,11 @@ namespace OnlineSeverGame.Client.UI
             DrawMapChoice(Game.Session, s);
             GUILayout.EndArea();
             DrawTopBar(s, showRound: false);
+
+            // 대기 화면 머리: 나가기 버튼 아래 오른쪽에 멈춘 작은 로고(움직이는 예고는 게임 예고와 헷갈려 뺀다).
+            const float smallPpu = 2.6f;
+            var size = TitleLogo.Size(smallPpu, animated: false);
+            TitleLogo.Draw(new Vector2(UnityEngine.Screen.width - size.x - 16, 48), smallPpu, animated: false);
         }
 
         void DrawHud(SessionState s)
