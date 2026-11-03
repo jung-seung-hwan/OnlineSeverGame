@@ -160,4 +160,4 @@ node Tools/TestMcp/mcp-call.mjs run_match "{\"rounds\":2,\"dropOneAfter\":5}" --
 
 ## 6. 변경 기록
 
-- 2026-11-03 `Tools/TestMcp` MCP 서버(도구 7개, 작업 큐, 단위 테스트·경기 요약), `.mcp.json` 등록, `mcp-call.mjs` 클라이언트, 이 문서. 첫 경기 실행에서 찾은 최소 인원 문제(봇을 끊으면 봇 수 − 1) 수정, `--verbose`에서만 세어지던 밀치기 수 항목 제거.
+- 2026-11-03 `Tools/TestMcp` MCP 서버(도구 7개, 작업 큐, 단위 테스트·경기 요약), `.mcp.json` 등록, `mcp-call.mjs` 클라이언트, 이 문서. 첫 경기 실행에서 찾은 최소 인원 문제(봇을 끊으면 봇 수 − 1) 수정, `--verbose`에서만 세어지던 밀치기 수 항목 제거. `50856c7`
