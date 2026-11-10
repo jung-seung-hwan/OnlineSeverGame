@@ -35,8 +35,30 @@ public class DashStunSideKnifeTests
 
     // ------------------------------------------------------------------ dash stun and immunity
 
+    /// <summary>Ticks a flat-stunned player spends lying on the ground, after any knockback flight.</summary>
+    private static (int Airborne, int FlatOnGround) MeasureFlatStun(PlayerState t)
+    {
+        int airborne = 0, flat = 0;
+        for (int i = 0; i < 200 && t.Stomped; i++)
+        {
+            if (t.Grounded) flat++; else airborne++;
+            t = Run(t, 1, InputButtons.Right);
+        }
+        return (airborne, flat);
+    }
+
     [Fact]
-    public void Dash_hit_flattens_for_one_second_then_gives_one_second_of_immunity()
+    public void Dash_hit_lies_flat_on_the_ground_as_long_as_a_stomp()
+    {
+        var states = new[] { Dashing(5000, 1), PlayerState.SpawnAt(5500, 0, -1) };
+        DashCollision.Resolve(states, Both, 2);
+        var (airborne, flat) = MeasureFlatStun(states[1]);
+        Assert.True(airborne > 0, "the hit should knock the target into the air first");
+        Assert.True(flat == StompStunTicks, $"flat on the ground for {flat} ticks after {airborne} airborne ticks; a stomp lies flat for {StompStunTicks}");
+    }
+
+    [Fact]
+    public void Dash_hit_flattens_for_one_and_a_half_seconds_on_the_ground_then_gives_one_second_of_immunity()
     {
         var states = new[] { Dashing(5000, 1), PlayerState.SpawnAt(5500, 0, -1) };
         var hits = new List<DashHit>();
@@ -44,6 +66,14 @@ public class DashStunSideKnifeTests
         Assert.True(Assert.Single(hits).Stunned);
         var t = states[1];
         Assert.Equal((DashStunTicks, true), (t.StunTicks, t.Stomped));
+
+        // Flying back: the flat stun waits until the target lands.
+        for (int i = 0; i < 100 && !t.Grounded; i++)
+        {
+            t = Run(t, 1, InputButtons.Right);
+            Assert.Equal(DashStunTicks, t.StunTicks);
+        }
+        Assert.True(t.Grounded);
 
         t = Run(t, DashStunTicks - 1, InputButtons.Right);
         Assert.Equal((1, true, (byte)0), (t.StunTicks, t.Stomped, t.ImmuneTicks));
@@ -176,7 +206,8 @@ public class DashStunSideKnifeTests
         room.Tick();
         Assert.Equal(1, room.RoundDashStuns);
         Assert.True(b.State.Stomped);
-        for (int i = 0; i < DashStunTicks; i++) room.Tick();
+        // The flat stun lasts DashStunTicks on the ground after the knockback flight.
+        for (int i = 0; i < 200 && b.State.Stomped; i++) room.Tick();
         Assert.Equal((0, false, (byte)StunImmunityTicks), (b.State.StunTicks, b.State.Stomped, b.State.ImmuneTicks));
 
         var snap = room.Outbox.Select(o => PacketCodec.DecodePayload(o.Frame, 2, o.Frame.Length - 2)).OfType<SnapshotPacket>().Last();

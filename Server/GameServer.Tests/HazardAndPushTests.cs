@@ -137,7 +137,8 @@ public class DashPushTests
         var states = new[] { Dashing(5000, 1), PlayerState.SpawnAt(5500, 0, -1) };
         DashCollision.Resolve(states, new[] { true, true }, 2);
         var target = states[1];
-        for (int i = 0; i < DashStunTicks; i++) PlayerPhysics.Step(ref target, InputButtons.Left, TestStages.Arena);
+        // The flat stun waits during the knockback flight, then lasts DashStunTicks on the ground.
+        for (int i = 0; i < 200 && target.StunTicks > 0; i++) PlayerPhysics.Step(ref target, InputButtons.Left, TestStages.Arena);
         Assert.True(target.X > 5500 + 2000, $"moved only to {target.X}");
         Assert.Equal(0, target.StunTicks);
     }

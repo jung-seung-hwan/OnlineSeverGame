@@ -40,8 +40,9 @@ namespace OnlineSeverGame.Shared.Simulation
             if (s.StunTicks > 0)
             {
                 // Knocked back or flattened: no control, horizontal speed bleeds off. A flat stun ending
-                // starts the stun immunity.
-                s.StunTicks--;
+                // starts the stun immunity. A flat stun waits while the player is still in the air (flying back
+                // from a dash hit), so it always lies flat on the ground for the full stun.
+                if (!(s.Stomped && !s.Grounded)) s.StunTicks--;
                 if (s.StunTicks == 0 && s.Stomped)
                 {
                     s.Stomped = false;

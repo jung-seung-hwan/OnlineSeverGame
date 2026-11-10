@@ -278,7 +278,8 @@ public class MapTests
         DashCollision.Resolve(states, new[] { true, true }, 2, null, stage);
         Assert.Equal(DashStunTicks, states[1].StunTicks);
         var t = states[1];
-        for (int i = 0; i < 30; i++) PlayerPhysics.Step(ref t, InputButtons.None, stage);
+        // Run past the whole flat stun (it waits while airborne, then lasts DashStunTicks on the ground).
+        for (int i = 0; i < 80 && (t.StunTicks > 0 || t.Vx != 0); i++) PlayerPhysics.Step(ref t, InputButtons.None, stage);
         Assert.Equal(0, t.Vx);
         return t.X - x;
     }
@@ -298,7 +299,7 @@ public class MapTests
         int ice = KnockDistance(Stage.Winter, 7200);
         int snow = KnockDistance(Stage.Winter, 1500);
         Assert.InRange(snow, 2000, 2800);
-        Assert.InRange(ice, 5500, 6400); // about 5.9: the 1 s dash stun keeps the ice decay (vx/8) going longer (dash-side-knife.md 2.3)
+        Assert.InRange(ice, 5500, 6400); // about 5.9: the dash stun keeps the ice decay (vx/8) going longer (dash-side-knife.md 2.3); a 1.5 s stun slides no farther
     }
 
     [Fact]
