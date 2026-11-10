@@ -314,4 +314,5 @@ Partner Center > 제출 > **Age ratings**에서 처음 한 번 IARC 설문을 �
 
 | 날짜 | 커밋 | 내용 |
 |---|---|---|
-| 2026-11-10 | (이 커밋) | 작업 시작·완료: 이름 Jelly Survival·버전 1.0.0·앱 아이콘, MSIX 스크립트(`Tools/StorePackage`), Store 그림·스크린샷·등록 글·처리방침·IARC 답안·제출 안내서, 설치·실행·제거와 WACK 확인 |
+| 2026-11-10 | `865a1ea` | 작업 시작·완료: 이름 Jelly Survival·버전 1.0.0·앱 아이콘, MSIX 스크립트(`Tools/StorePackage`), Store 그림·스크린샷·등록 글·처리방침·IARC 답안·제출 안내서, 설치·실행·제거와 WACK 확인 |
+| 2026-11-10 | (이 커밋) | main(`e2112ab`)을 합치려 했으나 이미 최신(바뀐 것 없음). 변경 기록에 커밋 번호 |
