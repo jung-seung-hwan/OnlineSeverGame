@@ -5,7 +5,7 @@ namespace OnlineSeverGame.Server.Tests;
 
 public class PhysicsTests
 {
-    private static readonly Stage S = Stage.Default;
+    private static readonly Stage S = TestStages.Arena;
 
     private static PlayerState Run(PlayerState s, InputButtons buttons, int ticks)
     {

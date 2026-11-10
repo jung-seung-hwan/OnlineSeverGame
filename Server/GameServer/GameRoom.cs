@@ -103,6 +103,10 @@ public sealed class GameRoom
     private int _roundSideLow;
     private int _roundSideKills;
     private int _roundSideNear;
+    // Map event (docs/work/map-layout.md 4): events seen this round, fire eliminations, last phase for the log.
+    private int _roundEvents;
+    private int _roundEventKills;
+    private MapEventPhase _lastEventPhase;
     private int _roundDashStuns;
     private int _roundImmunePushes;
     private int _roundImmuneStomps;
@@ -340,6 +344,7 @@ public sealed class GameRoom
             StepKnives();
             if (_config.AutoSpawnSideKnives) SpawnSideKnivesOnSchedule();
             StepSideKnives();
+            StepMapEvent();
             CheckRoundEnd();
         }
 
@@ -579,6 +584,53 @@ public sealed class GameRoom
     }
 
     /// <summary>
+    /// The map event on this tick (it follows from the round tick alone, docs/work/map-layout.md 4). Wind, conveyor
+    /// and syrup already acted inside the physics step; here the kitchen fire eliminates whoever touches a flame,
+    /// and phase changes are logged.
+    /// </summary>
+    private void StepMapEvent()
+    {
+        Stage stage = CurrentStage;
+        MapEventState e = stage.Event;
+        if (e.Phase != _lastEventPhase)
+        {
+            if (e.Phase == MapEventPhase.Warning) _roundEvents++;
+            string what = $"{e.Kind.ToString().ToLowerInvariant()}#{e.Index + 1}";
+            if (e.Phase == MapEventPhase.Warning)
+                _log($"event {what} warning at roundTick {RoundTick} on map {_stage.Id} '{_stage.Name}'" + EventDetail(e));
+            else if (e.Phase == MapEventPhase.Active)
+                _log($"event {what} on at roundTick {RoundTick}" + EventDetail(e));
+            else
+                _log($"event {_stage.EventSpec?.Kind.ToString().ToLowerInvariant()} off at roundTick {RoundTick}");
+            _lastEventPhase = e.Phase;
+        }
+        if (!e.IsActive || e.Kind != MapEventKind.Fire) return;
+        foreach (var p in _players.Values)
+        {
+            if (!p.Alive || !p.InRound) continue;
+            int gap = MapEventPhysics.FireSeparation(stage, p.State);
+            if (gap >= 0) continue;
+            Eliminate(p, EliminationCause.MapEvent);
+            _roundEventKills++;
+            _log($"death #{p.Id} '{p.Name}' by fire at roundTick {RoundTick} (player at ({p.State.X},{p.State.Y})" +
+                 (p.State.Grounded ? "" : " airborne") + $", drawn-shape gap {gap / 1000.0:0.00} u)");
+        }
+    }
+
+    private static string EventDetail(MapEventState e)
+    {
+        string spans = string.Join(" ", e.Spans.Select(s => $"{s.Left / 1000.0:0.#}~{s.Right / 1000.0:0.#}"));
+        switch (e.Kind)
+        {
+            case MapEventKind.Fire: return $" (burners {spans})";
+            case MapEventKind.Wind: return $" (blowing {(e.Dir > 0 ? "right" : "left")} {e.Strength}/tick)";
+            case MapEventKind.Conveyor: return $" (belt {spans} moving {(e.Dir > 0 ? "right" : "left")} {e.Strength}/tick)";
+            case MapEventKind.Syrup: return $" (syrup {spans}, walking {e.Strength}%)";
+            default: return "";
+        }
+    }
+
+    /// <summary>
     /// A falling crate touched down. It becomes a pushable box there unless it hit a stack that is already
     /// two high, where it shatters (stays a harmless Landed hazard for a moment). Returns true when the
     /// hazard became a box and should be removed.
@@ -686,7 +738,8 @@ public sealed class GameRoom
         var winners = _round.Where(e => e.Cause == EliminationCause.None).ToList();
         if (winners.Count == 0)
         {
-            var knifeDeaths = _round.Where(e => e.Cause == EliminationCause.Knife || e.Cause == EliminationCause.SideKnife).ToList();
+            var knifeDeaths = _round.Where(e => e.Cause == EliminationCause.Knife || e.Cause == EliminationCause.SideKnife ||
+                                                e.Cause == EliminationCause.MapEvent).ToList();
             if (knifeDeaths.Count > 0)
             {
                 uint last = knifeDeaths.Max(e => e.DeathTick);
@@ -736,7 +789,8 @@ public sealed class GameRoom
                  : "") +
              $", side hazards: {_roundSideKnives} {_stage.SideHazard.ToString().ToLowerInvariant()} (low {_roundSideLow}, head {_roundSideKnives - _roundSideLow}), side kills: {_roundSideKills}" +
              $", side near misses (< 0.1 u): {_roundSideNear}, dash stuns: {_roundDashStuns}, immune pushes: {_roundImmunePushes}" +
-             $", immune stomps: {_roundImmuneStomps}");
+             $", immune stomps: {_roundImmuneStomps}" +
+             (_stage.EventSpec != null ? $", events: {_roundEvents} {_stage.EventSpec.Kind.ToString().ToLowerInvariant()}, event kills: {_roundEventKills}" : ""));
         _log("    " + _hitStats.TakeSummary(_config.LegacyHitbox));
         _log("    inputs" + (_config.TrimInputQueue ? "" : " (no trim)") + ": " +
              string.Join("; ", _players.Values.Select(p => $"#{p.Id} {p.Backlog.RoundSummary()}")));
@@ -816,6 +870,9 @@ public sealed class GameRoom
         _roundSideLow = 0;
         _roundSideKills = 0;
         _roundSideNear = 0;
+        _roundEvents = 0;
+        _roundEventKills = 0;
+        _lastEventPhase = MapEventPhase.None;
         _roundDashStuns = 0;
         _roundImmunePushes = 0;
         _roundImmuneStomps = 0;

@@ -5,7 +5,8 @@ namespace OnlineSeverGame.Shared.Simulation
     /// <summary>
     /// One-way platform: land on it from above, pass through from below or with Down + Jump.
     /// Ice platforms are slippery and icicles fall through them. Melting platforms (MeltPerTick &gt; 0)
-    /// shrink toward their center during a round; see Stage.AtRoundTick.
+    /// shrink toward their center during a round; platforms with a Motion move or vanish
+    /// (docs/work/map-layout.md 5.1). Stage.AtRoundTick hands out the shape on a given round tick.
     /// </summary>
     public readonly struct Platform
     {
@@ -15,12 +16,26 @@ namespace OnlineSeverGame.Shared.Simulation
         public readonly int MeltPerTick;
         /// <summary>Melting stops at this width.</summary>
         public readonly int MinWidth;
+        /// <summary>How it moves or vanishes during a round; null = it stays put.</summary>
+        public readonly PlatformMotion Motion;
+        /// <summary>How far it moved since the previous round tick (riders are carried by this much).</summary>
+        public readonly int Dx, Dy;
+        /// <summary>Vanished on this tick: nothing lands on it.</summary>
+        public readonly bool Gone;
+        /// <summary>Still solid but about to vanish (drawn shaking).</summary>
+        public readonly bool Crumbling;
 
         public Platform(int left, int right, int top) : this(left, right, top, false, 0, 0)
         {
         }
 
         public Platform(int left, int right, int top, bool ice, int meltPerTick = 0, int minWidth = 0)
+            : this(left, right, top, ice, meltPerTick, minWidth, null, 0, 0, false, false)
+        {
+        }
+
+        private Platform(int left, int right, int top, bool ice, int meltPerTick, int minWidth, PlatformMotion motion,
+            int dx, int dy, bool gone, bool crumbling)
         {
             Left = left;
             Right = right;
@@ -28,6 +43,11 @@ namespace OnlineSeverGame.Shared.Simulation
             Ice = ice;
             MeltPerTick = meltPerTick;
             MinWidth = minWidth;
+            Motion = motion;
+            Dx = dx;
+            Dy = dy;
+            Gone = gone;
+            Crumbling = crumbling;
         }
 
         /// <summary>A melting platform centered on centerX, full width at the start of every round.</summary>
@@ -36,8 +56,16 @@ namespace OnlineSeverGame.Shared.Simulation
             return new Platform(centerX - width / 2, centerX + width / 2, top, false, meltPerTick, minWidth);
         }
 
+        /// <summary>A platform that moves or vanishes during a round; (left, right, top) is where it is at round tick 0.</summary>
+        public static Platform WithMotion(int left, int right, int top, PlatformMotion motion, bool ice = false)
+        {
+            return new Platform(left, right, top, ice, 0, 0, motion, 0, 0, false, false);
+        }
+
         public int CenterX => (Left + Right) / 2;
         public int Width => Right - Left;
+        public bool Moves => Motion != null && Motion.Kind == PlatformMotionKind.Shuttle;
+        public bool Blinks => Motion != null && Motion.Kind == PlatformMotionKind.Blink;
 
         /// <summary>This platform after meltTicks of melting.</summary>
         public Platform MeltedBy(int meltTicks)
@@ -48,7 +76,28 @@ namespace OnlineSeverGame.Shared.Simulation
             int minHalf = MinWidth / 2;
             int newHalf = shrunk < minHalf ? minHalf : (int)shrunk;
             int c = CenterX;
-            return new Platform(c - newHalf, c + newHalf, Top, Ice, MeltPerTick, MinWidth);
+            return new Platform(c - newHalf, c + newHalf, Top, Ice, MeltPerTick, MinWidth, Motion, Dx, Dy, Gone, Crumbling);
+        }
+
+        /// <summary>
+        /// This (as-defined) platform on a round tick: melted, moved along its motion, vanished or not, with the move
+        /// since the previous tick in Dx/Dy.
+        /// </summary>
+        public Platform AtRoundTick(uint roundTick)
+        {
+            int meltTicks = roundTick > GameConstants.MeltDelayTicks ? (int)(roundTick - GameConstants.MeltDelayTicks) : 0;
+            Platform p = MeltedBy(meltTicks);
+            if (Motion == null) return p;
+            Motion.OffsetAt(roundTick, out int ox, out int oy);
+            int dx = 0, dy = 0;
+            if (roundTick > 0)
+            {
+                Motion.OffsetAt(roundTick - 1, out int px, out int py);
+                dx = ox - px;
+                dy = oy - py;
+            }
+            return new Platform(p.Left + ox, p.Right + ox, p.Top + oy, Ice, MeltPerTick, MinWidth, Motion, dx, dy,
+                Motion.IsGone(roundTick), Motion.IsCrumbling(roundTick));
         }
     }
 
@@ -155,8 +204,9 @@ namespace OnlineSeverGame.Shared.Simulation
 
     /// <summary>
     /// Terrain and hazards of one map. The floor spans [0, Width] with its top at y = 0 and is solid. Walls
-    /// at x = 0 and x = Width stop players. Everything is in milli-units. Stages are immutable; a map
-    /// with melting platforms hands out its shape at a given round tick through AtRoundTick.
+    /// at x = 0 and x = Width stop players. Everything is in milli-units. Stages are immutable; a map whose
+    /// platforms melt, move or vanish, or that has a mid-round event, hands out its state on a given round tick
+    /// through AtRoundTick (docs/work/map-layout.md).
     /// </summary>
     public sealed class Stage
     {
@@ -187,14 +237,20 @@ namespace OnlineSeverGame.Shared.Simulation
         public readonly IReadOnlyList<int> SideKnifeSurfaces;
         /// <summary>What flies in from the sides on this map (v6): knife, snowball, crate or macaron.</summary>
         public readonly SideHazardKind SideHazard;
+        /// <summary>The map's mid-round event (null = none).</summary>
+        public readonly MapEventSpec EventSpec;
+        /// <summary>The round tick this copy describes (0 for the map as defined).</summary>
+        public readonly uint RoundTick;
+        /// <summary>The event on RoundTick (None on the map as defined).</summary>
+        public readonly MapEventState Event;
 
-        private readonly Stage _base;          // set on the melted copies AtRoundTick makes
-        private readonly bool _melts;
-        private MeltCache _meltCache;
+        private readonly Stage _base;          // set on the copies AtRoundTick makes
+        private readonly bool _dynamic;
+        private TickCache _cache;
 
-        private sealed class MeltCache
+        private sealed class TickCache
         {
-            public int MeltTicks;
+            public uint RoundTick;
             public Stage Stage;
         }
 
@@ -202,7 +258,7 @@ namespace OnlineSeverGame.Shared.Simulation
             Platform[] platforms, SpawnPoint[] spawnPoints, PushableSpawn[] pushables = null,
             Decoration[] decorations = null, HazardKind hazard = HazardKind.Knife, HazardSchedule? schedule = null,
             int[] hazardSlots = null, FloorSpan[] floorIce = null, int[] sideKnifeSurfaces = null,
-            SideHazardKind sideHazard = SideHazardKind.Knife)
+            SideHazardKind sideHazard = SideHazardKind.Knife, MapEventSpec mapEvent = null)
         {
             Pushables = pushables ?? new PushableSpawn[0];
             Decorations = decorations ?? new Decoration[0];
@@ -219,67 +275,75 @@ namespace OnlineSeverGame.Shared.Simulation
             FloorIce = floorIce ?? new FloorSpan[0];
             SideKnifeSurfaces = sideKnifeSurfaces ?? new[] { 0 };
             SideHazard = sideHazard;
+            EventSpec = mapEvent != null && mapEvent.Kind != MapEventKind.None ? mapEvent : null;
+            _dynamic = EventSpec != null;
             for (int i = 0; i < platforms.Length; i++)
-                if (platforms[i].MeltPerTick > 0) _melts = true;
+                if (platforms[i].MeltPerTick > 0 || platforms[i].Motion != null) _dynamic = true;
         }
 
-        private Stage(Stage baseStage, Platform[] platforms)
-            : this(baseStage.Id, baseStage.Name, baseStage.Width, baseStage.ViewHeight, baseStage.KnifeSpawnY,
-                platforms, ToArray(baseStage.SpawnPoints), ToArray(baseStage.Pushables), ToArray(baseStage.Decorations),
-                baseStage.Hazard, baseStage.Schedule, ToArray(baseStage.HazardSlots), ToArray(baseStage.FloorIce),
-                ToArray(baseStage.SideKnifeSurfaces), baseStage.SideHazard)
+        /// <summary>A copy on a round tick: shares everything with the map as defined except the platforms and the event.</summary>
+        private Stage(Stage b, Platform[] platforms, uint roundTick, MapEventState mapEvent)
         {
-            _base = baseStage;
+            Id = b.Id;
+            Name = b.Name;
+            Width = b.Width;
+            ViewHeight = b.ViewHeight;
+            KnifeSpawnY = b.KnifeSpawnY;
+            Platforms = platforms;
+            SpawnPoints = b.SpawnPoints;
+            Pushables = b.Pushables;
+            Decorations = b.Decorations;
+            Hazard = b.Hazard;
+            Schedule = b.Schedule;
+            HazardSlots = b.HazardSlots;
+            FloorIce = b.FloorIce;
+            SideKnifeSurfaces = b.SideKnifeSurfaces;
+            SideHazard = b.SideHazard;
+            EventSpec = b.EventSpec;
+            RoundTick = roundTick;
+            Event = mapEvent;
+            _base = b;
+            _dynamic = b._dynamic;
         }
 
-        private static T[] ToArray<T>(IReadOnlyList<T> list)
-        {
-            var a = new T[list.Count];
-            for (int i = 0; i < a.Length; i++) a[i] = list[i];
-            return a;
-        }
-
-        /// <summary>The map as defined, before any melting.</summary>
+        /// <summary>The map as defined, before any melting, moving or event.</summary>
         public Stage Base => _base ?? this;
 
-        public bool HasMeltingPlatforms => Base._melts;
+        public bool HasMeltingPlatforms
+        {
+            get
+            {
+                foreach (var p in Base.Platforms)
+                    if (p.MeltPerTick > 0) return true;
+                return false;
+            }
+        }
+
+        /// <summary>True when platforms melt, move or vanish, or the map has an event (AtRoundTick makes copies).</summary>
+        public bool ChangesDuringRound => Base._dynamic;
 
         /// <summary>
-        /// The shape of this map on the given round tick (ticks since Playing began, 0 outside Playing).
-        /// Melting platforms start shrinking after GameConstants.MeltDelayTicks. Maps without them return
-        /// themselves.
+        /// The map on the given round tick (ticks since Playing began, 0 outside Playing): melting platforms shrink
+        /// after GameConstants.MeltDelayTicks, moving ones are along their path (Dx/Dy = move since the previous
+        /// tick), blinking ones may be Gone, and Event is the map event's state. Round tick 0 is the map as defined.
         /// </summary>
         public Stage AtRoundTick(uint roundTick)
         {
             Stage b = Base;
-            if (!b._melts) return b;
-            int meltTicks = roundTick > GameConstants.MeltDelayTicks ? (int)(roundTick - GameConstants.MeltDelayTicks) : 0;
-            if (meltTicks == 0) return b;
-            // Past the point where every platform reached its minimum the shape no longer changes.
-            int full = 0;
-            for (int i = 0; i < b.Platforms.Count; i++)
-            {
-                Platform p = b.Platforms[i];
-                if (p.MeltPerTick <= 0) continue;
-                int need = ((p.Width - p.MinWidth) / 2 + p.MeltPerTick - 1) / p.MeltPerTick;
-                if (need > full) full = need;
-            }
-            if (meltTicks > full) meltTicks = full;
-
-            MeltCache cache = b._meltCache; // one reference read, so sharing between threads is safe
-            if (cache != null && cache.MeltTicks == meltTicks) return cache.Stage;
+            if (!b._dynamic || roundTick == 0) return b;
+            TickCache cache = b._cache; // one reference read, so sharing between threads is safe
+            if (cache != null && cache.RoundTick == roundTick) return cache.Stage;
             var platforms = new Platform[b.Platforms.Count];
-            for (int i = 0; i < platforms.Length; i++) platforms[i] = b.Platforms[i].MeltedBy(meltTicks);
-            var melted = new Stage(b, platforms);
-            b._meltCache = new MeltCache { MeltTicks = meltTicks, Stage = melted };
-            return melted;
+            for (int i = 0; i < platforms.Length; i++) platforms[i] = b.Platforms[i].AtRoundTick(roundTick);
+            var copy = new Stage(b, platforms, roundTick, MapEventPhysics.At(b.EventSpec, roundTick));
+            b._cache = new TickCache { RoundTick = roundTick, Stage = copy };
+            return copy;
         }
 
         /// <summary>
-        /// Map 1, kitchen: 24 x 13.5 units. Floor plus three platforms: two low ones (top 2.4) on the sides and a
-        /// high one (top 4.8) in the middle that can only be reached from a low one. One butter block to
-        /// push under the high platform; a towel, a ladle and a garlic bulb hang from the shelves and the
-        /// lid, a herb sprig stands on the board. Knives.
+        /// Map 1, kitchen (docs/work/map-layout.md 2.1): a three-shelf spice rack tower on the left wall topped by a
+        /// ladle rail at 9.6, a wall cutting board and a tray shelf in the middle, the range hood over the stove on
+        /// the right. Event: two of the four burners catch fire. Knives.
         /// </summary>
         public static readonly Stage Default = new Stage(
             id: 1,
@@ -289,39 +353,54 @@ namespace OnlineSeverGame.Shared.Simulation
             knifeSpawnY: 14000,
             platforms: new[]
             {
-                new Platform(3000, 9000, 2400),
-                new Platform(15000, 21000, 2400),
-                new Platform(9000, 15000, 4800),
+                new Platform(1000, 4000, 2400),     // spice rack shelf 1
+                new Platform(1000, 4000, 4800),     // spice rack shelf 2
+                new Platform(1000, 4000, 7200),     // spice rack shelf 3 (top of the tower)
+                new Platform(5000, 9000, 9600),     // ladle rail
+                new Platform(9500, 13500, 4800),    // wall cutting board
+                new Platform(12500, 15500, 2400),   // tray shelf
+                new Platform(16000, 20500, 7200),   // range hood
             },
             spawnPoints: new[]
             {
-                new SpawnPoint(1500, 0, 1),
-                new SpawnPoint(22500, 0, -1),
-                new SpawnPoint(4500, 0, 1),
-                new SpawnPoint(19500, 0, -1),
-                new SpawnPoint(7500, 0, 1),
-                new SpawnPoint(16500, 0, -1),
-                new SpawnPoint(10500, 0, 1),
-                new SpawnPoint(13500, 0, -1),
+                new SpawnPoint(2500, 0, 1),
+                new SpawnPoint(22000, 0, -1),
+                new SpawnPoint(11000, 0, 1),
+                new SpawnPoint(18500, 0, -1),
+                new SpawnPoint(5500, 0, 1),
+                new SpawnPoint(14500, 0, -1),
+                new SpawnPoint(8500, 0, 1),
+                new SpawnPoint(20500, 0, -1),
             },
             pushables: new[]
             {
-                new PushableSpawn(12000, 0, 1200, 1000),
+                new PushableSpawn(7000, 0, 1200, 1000),   // butter block under the ladle rail
             },
             decorations: new[]
             {
-                new Decoration("towel", 4300, 2050, 700, 950, true),
-                new Decoration("ladle", 19700, 2050, 360, 1050, true),
-                new Decoration("garlic", 12000, 4450, 500, 750, true),
-                new Decoration("herb", 8300, 0, 500, 750, false),
-            });
+                new Decoration("garlic", 2500, 4750, 500, 750, true),
+                new Decoration("towel", 6000, 9550, 700, 950, true),
+                new Decoration("ladle", 8000, 9550, 360, 1050, true),
+                new Decoration("herb", 4500, 0, 500, 750, false),
+            },
+            sideKnifeSurfaces: new[] { 0, 2400, 4800 },   // floor, shelves 1 and 2 (roofed by the shelves above)
+            mapEvent: MapEventSpec.Fire(8 * GameConstants.TickRate, 800,
+                new[] { new FloorSpan(10000, 13000), new FloorSpan(17000, 20000) },
+                new[] { new FloorSpan(13500, 16500), new FloorSpan(20500, 23500) }));
 
         public static Stage Kitchen => Default;
 
+        /// <summary>The kitchen's four burners (x 10~13, 13.5~16.5, 17~20, 20.5~23.5); the fire lights 1+3 or 2+4.</summary>
+        public static readonly FloorSpan[] KitchenBurners =
+        {
+            new FloorSpan(10000, 13000), new FloorSpan(13500, 16500), new FloorSpan(17000, 20000), new FloorSpan(20500, 23500),
+        };
+
         /// <summary>
-        /// Map 2, winter eaves (docs/work/maps.md 2.2). Icicles hang from the eave in 24 slots and fall through
-        /// the two icy window sills; the wooden beams and the bench stop them. The sills and a frozen puddle in
-        /// the middle of the floor are slippery. A snowball to push.
+        /// Map 2, winter eaves (docs/work/map-layout.md 2.2). Two routes up to a stone ledge at 9.6: icy sill, wooden
+        /// beam and a snow awning on the left; icy sill, a second snow awning and an icy gutter on the right. The
+        /// awnings collapse in turn (gone 4 s of every 12 s). Icicles from 24 eave slots fall through ice.
+        /// Event: wind.
         /// </summary>
         public static readonly Stage Winter = new Stage(
             id: 2,
@@ -331,22 +410,24 @@ namespace OnlineSeverGame.Shared.Simulation
             knifeSpawnY: 11800,
             platforms: new[]
             {
-                new Platform(1500, 6500, 2400, true),
-                new Platform(17500, 22500, 2400, true),
-                new Platform(10000, 14000, 1600),
-                new Platform(5000, 9500, 4800),
-                new Platform(14500, 19000, 4800),
+                new Platform(1000, 5000, 2400, true),       // left icy sill
+                new Platform(6500, 10500, 4800),            // wooden beam
+                Platform.WithMotion(11000, 14000, 7200, AwningBlink(200)),  // snow awning 1
+                new Platform(15000, 18000, 9600),           // stone ledge (top): kept off both awnings' ends (icicle slots, MapLayoutTests)
+                new Platform(14500, 18500, 2400, true),     // right icy sill
+                Platform.WithMotion(18500, 21500, 4800, AwningBlink(320)),  // snow awning 2
+                new Platform(19000, 23500, 7200, true),     // icy gutter
             },
             spawnPoints: new[]
             {
-                new SpawnPoint(1000, 0, 1),
-                new SpawnPoint(23000, 0, -1),
-                new SpawnPoint(4500, 0, 1),
-                new SpawnPoint(20500, 0, -1),
-                new SpawnPoint(7000, 0, 1),
-                new SpawnPoint(17000, 0, -1),
-                new SpawnPoint(10500, 0, 1),
-                new SpawnPoint(13500, 0, -1),
+                new SpawnPoint(1500, 0, 1),
+                new SpawnPoint(22500, 0, -1),
+                new SpawnPoint(9000, 0, 1),
+                new SpawnPoint(16500, 0, -1),
+                new SpawnPoint(5500, 0, 1),
+                new SpawnPoint(19500, 0, -1),
+                new SpawnPoint(12000, 0, 1),
+                new SpawnPoint(14000, 0, -1),
             },
             pushables: new[]
             {
@@ -360,13 +441,19 @@ namespace OnlineSeverGame.Shared.Simulation
             hazard: HazardKind.Icicle,
             schedule: new HazardSchedule(30, 5, 5 * GameConstants.TickRate, 4, 30 * GameConstants.TickRate),
             hazardSlots: Slots(500, 1000, 24),
-            floorIce: new[] { new FloorSpan(8000, 16000) },
-            sideKnifeSurfaces: new[] { 0, 2400 },    // window sills are roofed by the beams
-            sideHazard: SideHazardKind.Snowball);
+            floorIce: new[] { new FloorSpan(6500, 14000) },
+            sideKnifeSurfaces: new[] { 0, 2400 },    // the right sill is roofed by the stone ledge
+            sideHazard: SideHazardKind.Snowball,
+            mapEvent: MapEventSpec.Wind(10 * GameConstants.TickRate, 120));
+
+        /// <summary>Snow awnings: gone 80 ticks of every 240 from firstGoneTick, shaking for 40 ticks before.</summary>
+        private static PlatformMotion AwningBlink(int firstGoneTick) =>
+            PlatformMotion.Blink(firstGoneTick, 12 * GameConstants.TickRate, 4 * GameConstants.TickRate, 2 * GameConstants.TickRate);
 
         /// <summary>
-        /// Map 3, warehouse (docs/work/maps.md 2.3). Two-level steel racks on both walls and a pallet hanging in
-        /// the middle. Wide crates fall and stay as pushable boxes (two of them are there from the start).
+        /// Map 3, warehouse (docs/work/map-layout.md 2.3). Left wall: low workbench, wall shelf and catwalk; right wall:
+        /// a three-level rack. A pallet hanging from the crane shuttles across the top (8.4) between them. Wide crates
+        /// fall and stay as pushable boxes (two are there from the start). Event: the conveyor belt in the middle.
         /// </summary>
         public static readonly Stage Warehouse = new Stage(
             id: 3,
@@ -376,41 +463,49 @@ namespace OnlineSeverGame.Shared.Simulation
             knifeSpawnY: 14000,
             platforms: new[]
             {
-                new Platform(1000, 5000, 2400),
-                new Platform(1000, 5000, 4800),
-                new Platform(19000, 23000, 2400),
-                new Platform(19000, 23000, 4800),
-                new Platform(9500, 14500, 3600),
+                new Platform(0, 6000, 1200),        // workbench
+                new Platform(500, 3500, 3600),      // wall shelf
+                new Platform(2500, 6000, 6000),     // catwalk
+                Platform.WithMotion(6500, 10500, 8400,
+                    PlatformMotion.Shuttle(7000, 0, 5 * GameConstants.TickRate, 2 * GameConstants.TickRate)), // crane pallet
+                new Platform(19000, 23500, 2400),   // rack level 1
+                new Platform(19000, 23500, 4800),   // rack level 2
+                new Platform(19000, 23500, 7200),   // rack level 3
             },
             spawnPoints: new[]
             {
-                new SpawnPoint(1500, 0, 1),
-                new SpawnPoint(22500, 0, -1),
-                new SpawnPoint(4000, 0, 1),
-                new SpawnPoint(20000, 0, -1),
-                new SpawnPoint(6000, 0, 1),
-                new SpawnPoint(18000, 0, -1),
-                new SpawnPoint(10500, 0, 1),
-                new SpawnPoint(13500, 0, -1),
+                new SpawnPoint(3000, 0, 1),
+                new SpawnPoint(21000, 0, -1),
+                new SpawnPoint(11000, 0, 1),
+                new SpawnPoint(13000, 0, -1),
+                new SpawnPoint(5000, 0, 1),
+                new SpawnPoint(17500, 0, -1),
+                new SpawnPoint(7000, 0, 1),
+                new SpawnPoint(19500, 0, -1),
             },
             pushables: new[]
             {
-                new PushableSpawn(8000, 0, 1400, 1200),
-                new PushableSpawn(16000, 0, 1400, 1200),
+                new PushableSpawn(9000, 0, 1400, 1200),
+                new PushableSpawn(15000, 0, 1400, 1200),
             },
             decorations: new[]
             {
-                new Decoration("hook", 6000, 13200, 500, 2000, true),
-                new Decoration("hook", 18000, 13200, 500, 2000, true),
+                new Decoration("hook", 3000, 13200, 500, 2000, true),
+                new Decoration("hook", 21000, 13200, 500, 2000, true),
             },
             hazard: HazardKind.Crate,
             schedule: new HazardSchedule(40, 10, 3 * GameConstants.TickRate, 2, 45 * GameConstants.TickRate),
-            sideKnifeSurfaces: new[] { 0, 2400 },    // lower rack shelves are roofed by the upper ones
-            sideHazard: SideHazardKind.Crate);
+            sideKnifeSurfaces: new[] { 0, 2400, 4800 },    // rack levels 1 and 2 are roofed by the ones above
+            sideHazard: SideHazardKind.Crate,
+            mapEvent: MapEventSpec.Conveyor(12 * GameConstants.TickRate, 150, new FloorSpan(6000, 19000)));
+
+        /// <summary>The warehouse crane pallet's index in Warehouse.Platforms.</summary>
+        public const int WarehousePalletIndex = 3;
 
         /// <summary>
-        /// Map 4, dessert shop (docs/work/maps.md 2.4). Four ice-cream platforms melt toward their centers from
-        /// 10 s into the round. Forks fall. A macaron to push.
+        /// Map 4, dessert shop (docs/work/map-layout.md 2.4). Three melting ice creams climb to a cake top at 9.6 on the
+        /// left; on the right a cake-stand lift goes up and down between 1.2 and 7.2 next to a wafer shelf with a
+        /// melting mint scoop under it. Forks fall. A macaron to push. Event: syrup on half the floor.
         /// </summary>
         public static readonly Stage Dessert = new Stage(
             id: 4,
@@ -420,21 +515,25 @@ namespace OnlineSeverGame.Shared.Simulation
             knifeSpawnY: 14000,
             platforms: new[]
             {
-                Platform.Melting(4000, 5000, 1600, 2000, 2),   // strawberry
-                Platform.Melting(20000, 5000, 1600, 2000, 2),  // mint
-                Platform.Melting(12000, 7000, 2000, 3600, 2),  // vanilla
-                Platform.Melting(12000, 3000, 1000, 6000, 3),  // chocolate
+                Platform.Melting(4000, 5000, 1600, 2400, 2),   // strawberry
+                Platform.Melting(21500, 4000, 1600, 2400, 2),  // mint (under the wafer shelf)
+                Platform.Melting(8500, 6000, 2000, 4800, 2),   // vanilla
+                Platform.Melting(13000, 3000, 1000, 7200, 3),  // chocolate: starts where vanilla ends (no roof over it)
+                new Platform(14500, 17000, 9600),              // cherry cake top
+                Platform.WithMotion(17000, 19500, 1200,
+                    PlatformMotion.Shuttle(0, 6000, 5 * GameConstants.TickRate, 2 * GameConstants.TickRate)), // cake lift
+                new Platform(19500, 23500, 7200),              // wafer shelf
             },
             spawnPoints: new[]
             {
                 new SpawnPoint(1000, 0, 1),
                 new SpawnPoint(23000, 0, -1),
-                new SpawnPoint(3500, 0, 1),
-                new SpawnPoint(20500, 0, -1),
-                new SpawnPoint(7500, 0, 1),
-                new SpawnPoint(16500, 0, -1),
+                new SpawnPoint(8500, 0, 1),
+                new SpawnPoint(14500, 0, -1),
+                new SpawnPoint(5000, 0, 1),
+                new SpawnPoint(19000, 0, -1),
                 new SpawnPoint(10500, 0, 1),
-                new SpawnPoint(13500, 0, -1),
+                new SpawnPoint(16000, 0, -1),
             },
             pushables: new[]
             {
@@ -448,8 +547,14 @@ namespace OnlineSeverGame.Shared.Simulation
             },
             hazard: HazardKind.Fork,
             schedule: new HazardSchedule(30, 5, 5 * GameConstants.TickRate, 4, 30 * GameConstants.TickRate),
-            sideKnifeSurfaces: new[] { 0, 3600 },    // vanilla is roofed by chocolate
-            sideHazard: SideHazardKind.Macaron);
+            sideKnifeSurfaces: new[] { 0, 2400 },    // mint is roofed by the wafer shelf
+            sideHazard: SideHazardKind.Macaron,
+            mapEvent: MapEventSpec.Syrup(12 * GameConstants.TickRate, 50,
+                new[] { new FloorSpan(500, 11500) },
+                new[] { new FloorSpan(12500, 23500) }));
+
+        /// <summary>The dessert shop cake lift's index in Dessert.Platforms.</summary>
+        public const int DessertLiftIndex = 5;
 
         /// <summary>Every map, in the default rotation order.</summary>
         public static readonly IReadOnlyList<Stage> All = new[] { Default, Winter, Warehouse, Dessert };
@@ -474,7 +579,7 @@ namespace OnlineSeverGame.Shared.Simulation
             for (int i = 0; i < Platforms.Count; i++)
             {
                 Platform p = Platforms[i];
-                if (p.Top == y && left < p.Right && p.Left < right) return true;
+                if (!p.Gone && p.Top == y && left < p.Right && p.Left < right) return true;
             }
             return false;
         }
@@ -495,7 +600,7 @@ namespace OnlineSeverGame.Shared.Simulation
             for (int i = 0; i < Platforms.Count; i++)
             {
                 Platform p = Platforms[i];
-                if (p.Ice && p.Top == y && left < p.Right && p.Left < right) return true;
+                if (p.Ice && !p.Gone && p.Top == y && left < p.Right && p.Left < right) return true;
             }
             return false;
         }
@@ -515,7 +620,7 @@ namespace OnlineSeverGame.Shared.Simulation
                 for (int i = 0; i < Platforms.Count; i++)
                 {
                     Platform p = Platforms[i];
-                    if (skipIce && p.Ice) continue;
+                    if (p.Gone || (skipIce && p.Ice)) continue;
                     if (left < p.Right && p.Left < right && prevBottom >= p.Top && newBottom <= p.Top && p.Top > top)
                     {
                         top = p.Top;

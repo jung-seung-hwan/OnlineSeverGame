@@ -15,7 +15,7 @@ public class DashStunSideKnifeTests
 
     private static PlayerState Run(PlayerState s, int ticks, InputButtons buttons = InputButtons.None)
     {
-        for (int i = 0; i < ticks; i++) PlayerPhysics.Step(ref s, buttons, Stage.Default);
+        for (int i = 0; i < ticks; i++) PlayerPhysics.Step(ref s, buttons, TestStages.Arena);
         return s;
     }
 
@@ -23,7 +23,7 @@ public class DashStunSideKnifeTests
     {
         var room = new GameRoom(new RoomConfig
         {
-            MinPlayers = 1, AutoSpawnKnives = false, AutoSpawnSideKnives = autoSide, Seed = 1, Stage = stage ?? Stage.Default,
+            MinPlayers = 1, AutoSpawnKnives = false, AutoSpawnSideKnives = autoSide, Seed = 1, Stage = stage ?? TestStages.Arena,
         });
         ids = Enumerable.Range(0, players).Select(i => room.AddPlayer("P" + i)).ToArray();
         room.Tick();
@@ -194,8 +194,8 @@ public class DashStunSideKnifeTests
         var inputs = new[] { InputButtons.Right, InputButtons.Right, InputButtons.None, InputButtons.Jump, InputButtons.Left };
         foreach (var b in inputs)
         {
-            PlayerPhysics.Step(ref s, b, Stage.Default);
-            PlayerPhysics.Step(ref copy, b, Stage.Default);
+            PlayerPhysics.Step(ref s, b, TestStages.Arena);
+            PlayerPhysics.Step(ref copy, b, TestStages.Arena);
         }
         Assert.Equal(s.ToString(), copy.ToString());
         Assert.True(s.ImmuneTicks > 0);
@@ -208,10 +208,12 @@ public class DashStunSideKnifeTests
     {
         // v6: the offsets depend on the map's side hazard (knife 0.35/1.0, snowball 0.3/1.06, crate 0.33/1.11,
         // macaron 0.3/1.02).
-        Assert.Equal(new[] { 350, 1000 }, SideKnifePhysics.Lanes(Stage.Kitchen));
+        // docs/work/map-layout.md 2: kitchen and warehouse also aim at 4.8 (the second shelf / rack level is roofed),
+        // the dessert shop at 2.4 (mint under the wafer) instead of 3.6.
+        Assert.Equal(new[] { 350, 1000, 2750, 3400, 5150, 5800 }, SideKnifePhysics.Lanes(Stage.Kitchen));
         Assert.Equal(new[] { 300, 1060, 2700, 3460 }, SideKnifePhysics.Lanes(Stage.Winter));
-        Assert.Equal(new[] { 330, 1110, 2730, 3510 }, SideKnifePhysics.Lanes(Stage.Warehouse));
-        Assert.Equal(new[] { 300, 1020, 3900, 4620 }, SideKnifePhysics.Lanes(Stage.Dessert));
+        Assert.Equal(new[] { 330, 1110, 2730, 3510, 5130, 5910 }, SideKnifePhysics.Lanes(Stage.Warehouse));
+        Assert.Equal(new[] { 300, 1020, 2700, 3420 }, SideKnifePhysics.Lanes(Stage.Dessert));
     }
 
     /// <summary>Heights above the take-off point on each tick of a jump (index 0 = the tick the jump is pressed).</summary>
@@ -222,7 +224,7 @@ public class DashStunSideKnifeTests
         var b = InputButtons.Jump;
         do
         {
-            PlayerPhysics.Step(ref s, b, Stage.Default);
+            PlayerPhysics.Step(ref s, b, TestStages.Arena);
             b = InputButtons.None;
             ys.Add(s.Y);
         } while (!s.Grounded);
@@ -342,7 +344,7 @@ public class DashStunSideKnifeTests
     [Fact]
     public void Warns_for_a_second_then_flies_across_and_leaves()
     {
-        var k = SideKnifeState.Warn(1, 1, 1000, Stage.Default);
+        var k = SideKnifeState.Warn(1, 1, 1000, TestStages.Arena);
         Assert.Equal(-SideKnifeLength, k.X);
         for (int i = 0; i < SideKnifeWarningTicks; i++)
         {
@@ -361,7 +363,7 @@ public class DashStunSideKnifeTests
         Assert.InRange(flown, 66, 69); // 27 units at 8 u/s
         Assert.True(k.TailX > 24000 + SideKnifeLength);
 
-        var left = SideKnifeState.Warn(2, -1, 1000, Stage.Default);
+        var left = SideKnifeState.Warn(2, -1, 1000, TestStages.Arena);
         Assert.Equal(24000 + SideKnifeLength, left.X);
         Assert.Equal(left.X, SideKnifePhysics.Advance(left, SideKnifeWarningTicks, 24000).X);
         Assert.Equal(left.X - 3 * SideKnifeSpeed, SideKnifePhysics.Advance(left, SideKnifeWarningTicks + 3, 24000).X);
@@ -387,7 +389,7 @@ public class DashStunSideKnifeTests
         for (int i = 0; i < 150 * TickRate; i++)
         {
             p.Alive = true; // keep the solo player around for the measurement
-            p.State = PlayerState.SpawnAt(12000, 4800, 1); // out of every lane's reach
+            p.State = PlayerState.SpawnAt(21000, 7200, 1); // rack top: out of every lane's reach
             room.Tick();
             if (room.RoundTick < SideKnifeStartTick) Assert.Empty(room.SideKnives);
             var dirs = room.SideKnives.Select(k => k.Dir).Distinct().Count();
