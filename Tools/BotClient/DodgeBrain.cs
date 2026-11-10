@@ -11,6 +11,8 @@ namespace OnlineSeverGame.BotClient;
 ///  2. If I stand inside an interval, walk to the nearest x outside all of them; dash when walking
 ///     cannot get there before impact; drop through the platform (Down + Jump) when the knife would land on it.
 ///  3. Otherwise follow the wander input, but do not walk into an interval.
+///     The kitchen fire (docs/work/map-layout.md 4.1) is a danger interval too: each burner that is warned or
+///     burning, widened by the drawn body, for bots on the floor.
 ///  4. Side knives (docs/work/dash-side-knife.md 3.6): for each noticed side knife whose lane meets my body,
 ///     crouch while it passes if crouching gets under it, else jump a few ticks before it arrives. While one is
 ///     coming at a height a jump would carry me into, do not jump.
@@ -72,7 +74,25 @@ public static class DodgeBrain
             if (landing >= bodyTop) continue; // stops on a surface above me
             dangers.Add(new Danger(k.X - halfWidth, k.X + halfWidth, ticks, landing));
         }
+        AddFire(dangers, me, stage, reactionTicks);
         return dangers;
+    }
+
+    /// <summary>Burners that are about to burn or burning, for a bot low enough for the flames to reach.</summary>
+    private static void AddFire(List<Danger> dangers, in PlayerState me, Stage stage, int reactionTicks)
+    {
+        MapEventState e = stage.Event;
+        if (e.Kind != MapEventKind.Fire || e.Phase == MapEventPhase.None) return;
+        if (me.Y >= e.Strength) return; // above the flames
+        int ticks = 0;
+        if (e.IsWarning)
+        {
+            MapEventSpec spec = stage.EventSpec;
+            if (spec != null && spec.WarningTicks - e.TicksLeft < reactionTicks) return; // not noticed yet
+            ticks = e.TicksLeft;
+        }
+        int pad = HitShapes.BodyHalfWidth + Margin;
+        foreach (FloorSpan f in e.Spans) dangers.Add(new Danger(f.Left - pad, f.Right + pad, ticks, 0));
     }
 
     /// <summary>Whole falling ticks that fit in distance for a hazard that has fallen fallenTicks (icicles speed up).</summary>

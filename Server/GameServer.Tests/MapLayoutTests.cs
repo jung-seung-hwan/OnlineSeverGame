@@ -280,6 +280,25 @@ public class MapLayoutTests
         Assert.False(MapEventPhysics.FireHits(Stage.Kitchen.AtRoundTick(590), low)); // warning
     }
 
+    [Fact]
+    public void Bots_walk_off_a_burner_that_is_about_to_burn_and_do_not_wander_onto_one()
+    {
+        var k = Stage.Kitchen;
+        var onBurner = PlayerState.SpawnAt(11000, 0, 1); // burner 1 (10~13), lit first
+        var warned = k.AtRoundTick(570);                  // 10 ticks into the 40-tick warning
+        var b = OnlineSeverGame.BotClient.DodgeBrain.Decide(onBurner, Array.Empty<KnifeState>(), warned, 2, InputButtons.None);
+        Assert.Equal(InputButtons.Left, b & (InputButtons.Left | InputButtons.Right)); // 10 is the nearer edge
+        Assert.Equal(InputButtons.None,
+            OnlineSeverGame.BotClient.DodgeBrain.Decide(onBurner, Array.Empty<KnifeState>(), k.AtRoundTick(561), 5, InputButtons.None));
+        // Wandering toward a lit burner stops at its edge; the unlit one next to it is fine.
+        var beside = PlayerState.SpawnAt(13200 + HitShapes.BodyHalfWidth + OnlineSeverGame.BotClient.DodgeBrain.Margin, 0, -1);
+        Assert.Equal(InputButtons.None, OnlineSeverGame.BotClient.DodgeBrain.Decide(beside, Array.Empty<KnifeState>(), k.AtRoundTick(700), 2, InputButtons.Left) & InputButtons.Left);
+        Assert.Equal(InputButtons.Right, OnlineSeverGame.BotClient.DodgeBrain.Decide(beside, Array.Empty<KnifeState>(), k.AtRoundTick(700), 2, InputButtons.Right));
+        // On the tray shelf above the stove the fire does not matter.
+        var shelf = PlayerState.SpawnAt(11000, 2400, 1);
+        Assert.Empty(OnlineSeverGame.BotClient.DodgeBrain.FindDangers(shelf, Array.Empty<KnifeState>(), k.AtRoundTick(700), 2));
+    }
+
     [Theory]
     [InlineData(2, 21000, -1)]    // winter: walking about in the wind
     [InlineData(3, 6200, -1)]    // warehouse: standing and crouching on the conveyor (walking would meet a box the belt shoves: server only)

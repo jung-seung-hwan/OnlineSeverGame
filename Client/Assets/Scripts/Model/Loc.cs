@@ -105,6 +105,19 @@ namespace OnlineSeverGame.Client.Model
             }
         }
 
+        // 라운드 중간 맵 이벤트 이름
+        public static string MapEventName(MapEventKind kind)
+        {
+            switch (kind)
+            {
+                case MapEventKind.Fire: return T("event.fire");
+                case MapEventKind.Wind: return T("event.wind");
+                case MapEventKind.Conveyor: return T("event.conveyor");
+                case MapEventKind.Syrup: return T("event.syrup");
+                default: return "";
+            }
+        }
+
         // 옆에서 날아오는 위험물
         public static string SideHazardName(SideHazardKind kind)
         {
@@ -168,6 +181,14 @@ namespace OnlineSeverGame.Client.Model
             { "result.left", "나감" },
             { "result.survived", "생존" },
             { "result.died", "{0:0.0}초 · {1}에 맞음" },
+            { "result.burned", "{0:0.0}초 · 불에 닿음" },
+            // 맵 이벤트 (docs/work/map-layout.md 4)
+            { "event.fire", "화구에 불!" },
+            { "event.wind", "강풍" },
+            { "event.conveyor", "컨베이어 벨트" },
+            { "event.syrup", "시럽 바닥 (걷기 절반)" },
+            { "event.warning", "곧: {0} {1}" },
+            { "event.active", "{0} {1}  {2:0}초" },
             { "result.next", "{0}초 후 다음 라운드" },
             // 맵 고르기
             { "map.next", "다음 라운드 맵: {0}" },
@@ -259,6 +280,13 @@ namespace OnlineSeverGame.Client.Model
             { "result.left", "Left" },
             { "result.survived", "Survived" },
             { "result.died", "{0:0.0}s · {1}" },
+            { "result.burned", "{0:0.0}s · burned" },
+            { "event.fire", "Burners on fire!" },
+            { "event.wind", "Strong wind" },
+            { "event.conveyor", "Conveyor belt" },
+            { "event.syrup", "Syrup floor (half speed)" },
+            { "event.warning", "Coming: {0} {1}" },
+            { "event.active", "{0} {1}  {2:0} s" },
             { "result.next", "Next round in {0}" },
             { "map.next", "Next map: {0}" },
             { "map.chosen", " (host's pick)" },

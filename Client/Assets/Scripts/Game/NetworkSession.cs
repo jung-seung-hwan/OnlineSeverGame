@@ -672,6 +672,10 @@ namespace OnlineSeverGame.Client.Game
 
             // 그리는 시점의 지형(녹는 아이스크림 발판의 폭)
             _layout.RoundTick = s0.RoomState == RoomState.Playing ? s0.RoundTick : 0;
+            // 움직이는 발판·이벤트는 위험물과 같은 시각(_hazardTick, 살아 있으면 내 예측 시각)에 그린다.
+            _layout.DrawRoundTick = _latest.RoomState == RoomState.Playing
+                ? Math.Max(0.0, _latest.RoundTick + (_hazardTick - _latest.ServerTick))
+                : 0.0;
 
             CollectHazards(_hazardTick, World.Swords);
             CollectSideKnives(_hazardTick, World.SideKnives);

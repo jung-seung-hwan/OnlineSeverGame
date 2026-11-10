@@ -184,6 +184,26 @@ namespace OnlineSeverGame.Client.UI
             GUI.Label(new Rect(16, 10, 400, 30), Loc.F("hud.alive", s.AliveCount, s.ParticipantCount) + "    " + Loc.F("hud.seconds", s.RoundSeconds), _label);
             DrawTopBar(s, showRound: true);
             if (s.Screen == ClientScreen.Playing) DrawHint();
+            DrawMapEvent();
+        }
+
+        // 맵 이벤트 알림(docs/work/map-layout.md 4.5): 예고 2초는 깜빡이며 "곧: 강풍 →", 켜져 있는 동안 "강풍 →  7초".
+        // 이벤트는 라운드 틱만으로 정해지므로 맵이 그리는 시각(Layout.DrawRoundTick)의 상태를 그대로 읽는다.
+        void DrawMapEvent()
+        {
+            var layout = Game.Layout;
+            if (layout == null || layout.Source == null || layout.Source.EventSpec == null) return;
+            var e = layout.Source.AtRoundTick((uint)System.Math.Max(0.0, layout.DrawRoundTick)).Event;
+            if (e.Phase == MapEventPhase.None) return;
+            if (e.IsWarning && Mathf.Repeat(Time.time * 4f, 1f) < 0.3f) return;
+            string arrow = e.Kind == MapEventKind.Wind || e.Kind == MapEventKind.Conveyor ? (e.Dir > 0 ? "→" : "←") : "";
+            string text = e.IsWarning
+                ? Loc.F("event.warning", Loc.MapEventName(e.Kind), arrow)
+                : Loc.F("event.active", Loc.MapEventName(e.Kind), arrow, e.TicksLeft / (float)GameConstants.TickRate);
+            var style = new GUIStyle(_big) { fontSize = 24 };
+            style.normal.textColor = e.Kind == MapEventKind.Fire ? new Color(1f, 0.55f, 0.2f) : new Color(1f, 0.95f, 0.7f);
+            float w = 520f;
+            GUI.Label(new Rect((UnityEngine.Screen.width - w) / 2f, 44, w, 34), text, FitStyle(style, text, w));
         }
 
         void DrawTopBar(SessionState s, bool showRound)
@@ -247,6 +267,7 @@ namespace OnlineSeverGame.Client.UI
                 else if (p.Survived) tail = Loc.T("result.survived");
                 else if (p.Cause == EliminationCause.SideKnife) tail = Loc.F("result.died", p.SurvivedSeconds, Loc.SideHazardName(stage.SideHazard));
                 else if (p.Cause == EliminationCause.Knife) tail = Loc.F("result.died", p.SurvivedSeconds, Loc.HazardName(stage.Hazard));
+                else if (p.Cause == EliminationCause.MapEvent) tail = Loc.F("result.burned", p.SurvivedSeconds);
                 else tail = Loc.F("hud.seconds", p.SurvivedSeconds);
                 RosterRow(p, p.Id == s.LocalId, Loc.F("result.place", p.Place) + "  ", tail);
             }

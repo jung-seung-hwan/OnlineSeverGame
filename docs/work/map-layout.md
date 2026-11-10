@@ -252,39 +252,45 @@
 ### 4.5 화면 (클라이언트, 그림은 맵 비주얼 세션)
 - 예고 2초: 해당 자리(화구·벨트·시럽 자리, 바람은 화면 전체)가 깜빡이고, 화면 위쪽 가운데에 이벤트 이름과 방향(예: "강풍 →")이 나온다. 깜빡임은 낙하 예고 기둥과 같은 박자.
 - 지속 중: 불꽃(화구 폭 × 0.8 + 일렁임), 바람 줄무늬(방향으로 흐름, 눈발), 벨트 무늬가 방향으로 흐름, 시럽 웅덩이(갈색 반투명). 끝나기 1초 전부터 옅어진다.
-- 그림이 오기 전에는 단색 도형으로 그린다(5장 목록의 크기·위치 그대로).
+- 그림이 오기 전에는 단색 도형으로 그린다(6장 목록의 크기·위치 그대로).
 
 ---
 
-## 5. 구현 계획 (단계 B)
+## 5. 어떻게 구현했는가 (단계 B)
+
+핵심 결정: **움직이는 발판·사라지는 발판·맵 이벤트를 모두 roundTick의 정수 함수로 만들었다.** 기존 녹는 아이스크림(`Stage.AtRoundTick`)과 같은 방식이라, 서버·클라이언트 예측·봇이 같은 틱에 같은 지형과 이벤트를 얻고 패킷에 아무것도 더 싣지 않는다. 무작위를 넣지 않은 이유도 이것이다(넣으면 시작 정보를 패킷으로 보내야 한다). 대신 n번째 이벤트마다 방향·자리를 번갈아 바꿔 단조롭지 않게 했다.
 
 ### 5.1 공용 (`Shared/Simulation/`)
-- `Platform`에 `Motion`(움직임 정의, 없으면 null)과 그 틱 상태 `Dx, Dy`(지난 틱에서 움직인 양), `Gone`(사라짐), `Warning`(무너지기 직전, 그리기용)을 더한다.
-  - `PlatformMotion.Shuttle(dx, dy, travelTicks, pauseTicks)`: 처음 자리 ↔ (dx, dy)만큼 떨어진 자리를 왕복(끝마다 멈춤). 위치 = roundTick의 정수 함수.
-  - `PlatformMotion.Blink(firstGoneTick, periodTicks, goneTicks, warningTicks)`: 사라졌다 나타남.
-- `Stage.AtRoundTick(t)`: 녹기 + 움직임 + 사라짐을 적용한 읽기 전용 복사본(지금 방식 그대로, 같은 틱 하나 캐시). 이벤트 상태도 이 복사본에 싣는다(`stage.Event`).
-- 착지·발판 판정(`TryFindLanding`, `IsOnPlatform`, `IsIceAt`)은 `Gone` 발판을 건너뛴다.
-- **태워 옮기기**: `PlayerPhysics.Step` 맨 앞에서, 땅에 서 있고 지난 틱 그 발판 윗면(`Top − Dy`, x 범위 `− Dx`)에 서 있었으면 `X += Dx, Y += Dy`(벽에서 멈춤). `PushablePhysics.Step`도 같다(상자 위 플레이어는 기존 "상자 따라 옮기기"로 함께 옮겨짐).
-- 이벤트: `MapEventSpec`(종류, 첫 틱, 주기, 예고, 지속, 세기, 자리 목록)과 `MapEventPhysics.At(stage, roundTick)` → `MapEventState { Phase(None/Warning/Active), Index n, Dir, Spans, TicksLeft }`.
-  - 강풍·벨트·시럽은 `PlayerPhysics.Step`이 `stage.Event`를 보고 적용(예측에도 그대로 들어감). 벨트는 `PushablePhysics.Step`에도.
-  - 불은 판정이라 서버만(`MapEventPhysics.FireHits(stage, player)`), 그리기는 클라이언트가 같은 함수로.
+- `PlatformMotion.cs`(새 파일): `Shuttle(dx, dy, travel, pause)`(왕복, 끝마다 멈춤, 위치 = `shift × 진행 / travel` 정수 계산), `Blink(firstGone, period, gone, warning)`(사라졌다 나타남, 직전 warning틱은 Crumbling).
+- `Platform`: `Motion`, 그 틱 상태 `Dx, Dy`(직전 틱에서 움직인 양), `Gone`, `Crumbling` 추가. `Platform.WithMotion(l, r, top, motion)`. `Platform.AtRoundTick(t)` = 녹기 + 움직임 + 사라짐.
+- `Stage`: 생성자 인자 `mapEvent`(`MapEventSpec`), 필드 `EventSpec`, `RoundTick`, `Event`. `AtRoundTick(t)`는 녹기·움직임·사라짐·이벤트를 담은 **읽기 전용 복사본**(기존처럼 같은 틱 하나만 캐시, 복사본은 스폰·상자·장식 목록을 원본과 공유해 매 틱 배열 복사를 하지 않음). roundTick 0은 정의된 맵 그대로. 착지·발판·얼음 판정은 `Gone` 발판을 건너뛴다.
+- **태워 옮기기**: `PlayerPhysics.CarryOnPlatform` — `Step` 맨 앞에서 땅에 서 있고 직전 틱 그 발판 윗면(`Top − Dy`)·x 범위(`− Dx`)에 서 있었으면 `X += Dx`(벽 안), `Y += Dy`. 위로 가는 리프트에서도 이걸 먼저 해야 착지 검사(이전 y ≥ 윗면)가 성립해 발판을 뚫고 떨어지지 않는다. `PushablePhysics.Step`도 상자에 같은 규칙(그래서 팔레트에 떨어진 화물 상자가 같이 다님).
+- `MapEvent.cs`(새 파일): `MapEventKind`(1 불, 2 강풍, 3 컨베이어, 4 시럽), `MapEventSpec`(첫 틱, 주기, 예고, 지속, 세기, 자리 묶음), `MapEventState`(Phase, Index, Dir, TicksLeft, Spans), `MapEventPhysics.At / PlayerPush / BoxPush / WalkPercent / FireSeparation`.
+  - 강풍·벨트는 `PlayerPhysics.Step`이 틱 시작에 값을 정해 `X += Vx + 이벤트 이동`(속도와 따로 위치에 더함 → 얼음 미끄러짐·넉백과 섞이지 않음). 시럽은 걷기 목표 속도 × 50%. 모두 예측에 그대로 들어간다.
+  - 불은 판정이라 서버만: `HitShapes.RectSeparation`(새 함수, 그린 몸 띠 vs 고정 사각형).
+- `HitShapes.RectSeparation`, `EliminationCause.MapEvent = 4`, `ProtocolConstants.Version = 7`.
 
 ### 5.2 서버 (`Server/GameServer/GameRoom.cs`)
-- 불 판정과 탈락(cause 4), 로그: `event fire#1 warning at tick …`, `event fire#1 on`, `event fire#1 off`, 라운드 끝 줄에 `events: 2 (fire)`, 사망 줄 `by fire`.
-- 나머지(움직임·바람·벨트·시럽)는 Shared 물리가 처리하므로 서버는 그 틱의 `CurrentStage`만 넘기면 된다.
+- `StepMapEvent`: 옆 위험물 다음, 종료 검사 전. 불 판정·탈락(cause 4)과 단계가 바뀔 때마다 로그(`event fire#1 warning at roundTick 560 on map 1 'Kitchen' (burners 10~13 17~20)` / `on` / `off`). 사망 줄 `by fire`, 라운드 끝 줄 `events: 1 fire, event kills: 1`.
+- 동시 사망 공동 승리에 cause 4도 넣었다(위험물 사망과 같은 대우).
+- 움직임·바람·벨트·시럽은 Shared가 하므로 서버는 그 틱의 `CurrentStage`만 넘긴다(기존 그대로).
 
-### 5.3 프로토콜 **v7**
-- 바이트 배치는 그대로. `RoundEnd` 결과 cause에 **4 = 맵 이벤트(주방 불)**가 생겨 버전을 올린다(v6 클라이언트가 모르는 값을 받지 않게). `docs/protocol.md`에 움직이는 발판·이벤트 규칙을 적는다.
+### 5.3 프로토콜 v7
+- 바이트 배치는 그대로. `RoundEnd` cause **4 = 맵 이벤트**가 새로 생겨 버전을 올렸다(v6 클라이언트가 모르는 값을 받지 않게, v6과는 접속 거부). `docs/protocol.md`에 움직이는·사라지는 발판, 맵 이벤트 표, 새 레인, 새 주방 배치를 적었다.
 
 ### 5.4 봇 (`Tools/BotClient/DodgeBrain`)
-- 불: 예고·지속 중 불 붙을(붙은) 화구 위에 있으면 가까운 안전한 바닥 쪽으로 걷고, 화구 사이를 지나갈 때는 점프.
-- 강풍·벨트: 따로 하지 않음(무작위로 걷는 봇이라 밀려도 문제없음). 시럽도 그대로.
-- 움직이는/사라지는 발판: 지금처럼 그 시각 지형(`AtRoundTick`)으로 착지 높이를 계산하므로 따로 하지 않음.
+- 불: 예고(반응 시간 뒤)·지속 중인 화구를 "위험 구간"(화구 폭 + 그린 몸 + 여유)으로 더한다. 바닥(불꽃 높이 0.8 아래)에 있을 때만. 기존 회피 로직이 그대로 가장 가까운 안전한 자리로 걸어가고, 돌아다니다 들어가려는 걸 막는다.
+- 강풍·벨트·시럽·움직이는 발판: 따로 하지 않음. 봇은 이미 스냅샷 roundTick의 지형(`AtRoundTick`)으로 착지 높이를 계산하므로 팔레트·리프트·차양 위 위험물 계산이 맞다.
 
 ### 5.5 클라이언트 (`Client/Assets/Scripts/`)
-- `StageView`: 새 배치를 그린다. 그림이 오기 전에는 **기존 그림을 늘려 쓰거나**(주방 선반, 겨울 창턱·들보, 창고 팔레트, 디저트 아이스크림 9-slice) 단색 도형. 움직이는 발판·차양은 매 프레임 **내 예측 시각**(위험물을 그리는 시각과 같음)의 위치로 옮기고, 사라진 차양은 숨기고, 무너지기 직전엔 흔든다.
-- `MapEventView`(새 파일): 4.5의 예고·불꽃·바람·벨트·시럽을 단색 도형으로. 이벤트 이름 글은 `Loc`에 넣는다.
-- 결과 화면 cause 4 = "(불)" / "(fire)".
+- `StageLayout.DrawRoundTick`(새 필드): 움직이는 발판·이벤트를 그릴 라운드 틱(소수). `NetworkSession`이 **위험물을 그리는 시각**(`_hazardTick`, 살아 있으면 내 예측 시각)으로 채운다. 그래서 팔레트·리프트 위에 선 내 캐릭터와 발판이 어긋나지 않는다(다른 사람은 2~3틱 늦게 보간되어 그려지므로 최대 0.2유닛 정도 어긋나 보일 수 있다).
+- `StageView`(다시 씀): 발판마다 뿌리(윗면 가운데)를 두고 매 프레임 그 시각 모양으로 옮긴다(틱 사이 보간, 녹는 폭, 사라짐, 무너지기 직전 흔들림·깜빡임). 그림은 맵 비주얼 세션 전까지 **기존 발판 그림을 폭에 맞게 가로로 늘려** 쓴다: 주방 = 선반·냄비 뚜껑(후드) 그림, 겨울 = 얼음 창턱·들보 그림(눈 차양은 들보 그림 + 흰 눈 덮개), 창고 = 팔레트 그림, 디저트 = 아이스크림 9-slice. 체리 케이크·웨하스·리프트 접시, 탑·랙 기둥, 작업대 다리, 가스레인지 상판·화구, 컨베이어 바탕, 팔레트 사슬(따라 움직임), 리프트 기둥(늘었다 줄었다), 겨울 굴뚝·얼음 웅덩이는 단색 도형. 배경 그림은 예전 배치 그대로라(예: 창고 배경의 예전 팔레트 사슬, 겨울 창문 위치) 맵 비주얼 세션이 다시 그린다(6장).
+- `MapEventView`(새 파일): 4.5대로 단색 도형. 불 = 예고 때 화구가 빨갛게 깜빡임, 켜지면 화구 폭 × 0.8 불꽃이 일렁임(캐릭터보다 앞, 반투명). 강풍 = 흰 바람 줄이 방향으로 흐름. 컨베이어 = 벨트 무늬가 예고 때 노랗게 깜빡이고 켜지면 방향으로 흐름. 시럽 = 갈색 웅덩이. 끝나기 1초 전부터 옅어짐.
+- `GameUI`: 화면 위 가운데 이벤트 알림("곧: 강풍 →" 깜빡임 / "강풍 →  7초"), 결과 화면 cause 4 = "불에 닿음" / "burned". `Loc`에 이벤트 이름 한/영.
+
+### 5.6 테스트 (`Server/GameServer.Tests/`)
+- `TestStages.Arena`(새 파일): 예전 주방 배치. 물리·칼·밀치기·라운드처럼 **일반 규칙**을 재는 기존 테스트는 고정된 단순 지형이 필요해서 이걸로 옮겼다(새 주방은 탑·화구 불이 있어 "칼이 바닥에 꽂힌다" 같은 가정이 깨짐). 맵 고유 테스트(`MapTests`)는 새 좌표로 고쳤다.
+- `MapLayoutTests.cs`(새 파일, 21개): 팔레트·리프트 위치/멈춤/Dx·Dy, 눈 차양 시간표(동시에 없는 순간 없음, 사라진 동안 고드름이 뚫고 떨어짐), 태워 옮기기(플레이어·상자, ↓+점프로 내리기, 끝에서 걸어 나가면 떨어짐, 사라지면 떨어짐), 이벤트 시간표·방향·자리, 강풍(120/60/거슬러 280/공중/벽), 컨베이어(벨트 위만, 공중 제외, 상자), 시럽(절반, 점프·대시 그대로, 반대쪽 절반), 불(켜진 화구만 탈락 cause 4, 쟁반 선반·꺼진 화구 생존, 공동 승리 규칙, 점프는 0.8 위면 안전, 엎드려도 맞음, 예고 무해), 봇 불 회피, **서버 vs 클라이언트 예측 비트 일치**(강풍·컨베이어·팔레트·리프트+시럽, 무작위 입력 300틱), 그리고 3장 검증 네 가지(설 자리, 안전한 자리 없음, 모든 레인 피할 수 있음, 모든 발판 도달·하강).
 
 ---
 
