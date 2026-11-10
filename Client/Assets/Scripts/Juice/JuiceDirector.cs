@@ -103,7 +103,7 @@ namespace OnlineSeverGame.Client.Juice
             _view = view;
             _audio = JuiceAudio.Create(gameObject);
             _particles = new GameObject("JuiceParticles").AddComponent<JuiceParticles>();
-            gameObject.AddComponent<JuiceSettingsUI>();
+            JuiceSettings.Register(gameObject); // 설정 창 소리 칸 + 버튼 클릭 소리(UiHooks)
             _shakeSeed = UnityEngine.Random.value * 100f;
 
             var args = Environment.GetCommandLineArgs();
@@ -580,7 +580,7 @@ namespace OnlineSeverGame.Client.Juice
                 var sb = new System.Text.StringBuilder("[Juice] stats sounds");
                 for (int i = 0; i < _audio.PlayCounts.Length; i++)
                     if (_audio.PlayCounts[i] > 0) sb.Append(' ').Append(JuiceAudio.SoundName(i).Substring(4)).Append('=').Append(_audio.PlayCounts[i]);
-                sb.Append($" | maxVoices={_maxVoices} dropped={_audio.Dropped} particles={_particles.Emitted} hitstops={_hitstops} slowmos={_slowmos} shakes={_shakes} lastTwo={_lastTwoCount} sfxVol={JuiceAudio.SfxVolume:0.00} bgmVol={JuiceAudio.BgmVolume:0.00} shake={(JuiceAudio.ScreenShake ? "on" : "off")}");
+                sb.Append($" | maxVoices={_maxVoices} dropped={_audio.Dropped} faded={_audio.Faded} particles={_particles.Emitted} hitstops={_hitstops} slowmos={_slowmos} shakes={_shakes} lastTwo={_lastTwoCount} sfxVol={JuiceAudio.SfxVolume:0.00} bgmVol={JuiceAudio.BgmVolume:0.00} shake={(JuiceAudio.ScreenShake ? "on" : "off")}");
                 Debug.Log(sb.ToString());
             }
         }
