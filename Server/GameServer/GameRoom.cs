@@ -46,6 +46,10 @@ public sealed class RoomPlayer
 {
     public byte Id;
     public string Name;
+    /// <summary>The character everyone draws this player with now (v11). Purely visual.</summary>
+    public CharacterKind Character = CharacterKind.Jelly;
+    /// <summary>The character asked for. Differs from Character only while a round is playing or showing results.</summary>
+    public CharacterKind WantedCharacter = CharacterKind.Jelly;
     public PlayerState State;
     public bool Alive;
     public bool InRound;
@@ -190,8 +194,11 @@ public sealed class GameRoom
 
     // ---------------------------------------------------------------- network events
 
-    /// <summary>Returns the new player id (1..8), or 0 if the room is full.</summary>
-    public byte AddPlayer(string name)
+    /// <summary>
+    /// Returns the new player id (1..8), or 0 if the room is full. character is the kind from Hello (v11); 0 or an
+    /// unknown value becomes Jelly. It applies at once even mid-round: a newcomer then only spectates.
+    /// </summary>
+    public byte AddPlayer(string name, CharacterKind character = CharacterKind.Jelly)
     {
         if (_players.Count >= ProtocolConstants.MaxPlayers) return 0;
         byte id = 1;
@@ -199,7 +206,12 @@ public sealed class GameRoom
 
         name = (name ?? "").Trim();
         if (name.Length == 0) name = "Player" + id;
-        var player = new RoomPlayer { Id = id, Name = name, State = SpawnState(id), JoinOrder = ++_joinCounter };
+        if (!ProtocolConstants.IsValidCharacter((byte)character)) character = CharacterKind.Jelly;
+        var player = new RoomPlayer
+        {
+            Id = id, Name = name, State = SpawnState(id), JoinOrder = ++_joinCounter,
+            Character = character, WantedCharacter = character,
+        };
         _players.Add(id, player);
 
         switch (State)
@@ -220,14 +232,14 @@ public sealed class GameRoom
 
         Send(id, new WelcomePacket { PlayerId = id, ServerTick = ServerTick, StageId = _stage.Id });
         foreach (var p in _players.Values)
-            Send(id, new PlayerJoinedPacket { PlayerId = p.Id, Name = p.Name });
+            Send(id, new PlayerJoinedPacket { PlayerId = p.Id, Name = p.Name, Character = p.Character });
         foreach (var p in _players.Values)
-            if (p.Id != id) Send(p.Id, new PlayerJoinedPacket { PlayerId = id, Name = name });
+            if (p.Id != id) Send(p.Id, new PlayerJoinedPacket { PlayerId = id, Name = name, Character = character });
         if (State == RoomState.Countdown) Broadcast(BuildRoundStart());
         // Everyone else learns about a host change at the end of the tick; the newcomer needs it now.
         Send(id, BuildRoomInfo());
 
-        _log($"join  #{id} '{name}' ({_players.Count}/{ProtocolConstants.MaxPlayers}) state={State}");
+        _log($"join  #{id} '{name}' {character} ({_players.Count}/{ProtocolConstants.MaxPlayers}) state={State}");
         return id;
     }
 
@@ -275,6 +287,35 @@ public sealed class GameRoom
         Broadcast(new EmotePacket { PlayerId = playerId, Emote = emote });
         if (_config.LogPushes) _log($"emote #{playerId} {emote}");
         return true;
+    }
+
+    /// <summary>
+    /// A player picks a character (v11). Purely visual. Unknown players and kinds outside 1..MaxCharacter are ignored.
+    /// In Waiting and Countdown it applies at once and everyone gets PlayerCharacter; during Playing and Ended (a round
+    /// in progress, then its results) it is kept and applied when the next countdown starts or the room goes back to
+    /// Waiting. Returns true when accepted (applied now or kept for later).
+    /// </summary>
+    public bool RequestCharacter(byte playerId, CharacterKind character)
+    {
+        if (!_players.TryGetValue(playerId, out var p)) return false;
+        if (!ProtocolConstants.IsValidCharacter((byte)character))
+        {
+            _log($"char  request from #{playerId} ignored: no character {(byte)character}");
+            return false;
+        }
+        p.WantedCharacter = character;
+        if (State == RoomState.Waiting || State == RoomState.Countdown) ApplyWantedCharacter(p);
+        else _log($"char  #{playerId} wants {character} from the next round");
+        return true;
+    }
+
+    /// <summary>Makes the wanted character the drawn one and tells everyone, if it changed.</summary>
+    private void ApplyWantedCharacter(RoomPlayer p)
+    {
+        if (p.Character == p.WantedCharacter) return;
+        p.Character = p.WantedCharacter;
+        Broadcast(new PlayerCharacterPacket { PlayerId = p.Id, Character = p.Character });
+        _log($"char  #{p.Id} is now {p.Character}");
     }
 
     /// <summary>
@@ -901,6 +942,7 @@ public sealed class GameRoom
         _round.Clear();
         foreach (var p in _players.Values)
         {
+            ApplyWantedCharacter(p);
             p.Alive = true;
             p.InRound = true;
             p.Backlog.ResetRound();
@@ -945,6 +987,7 @@ public sealed class GameRoom
         _round.Clear();
         foreach (var p in _players.Values)
         {
+            ApplyWantedCharacter(p);
             p.Alive = true;
             p.InRound = false;
             p.State = SpawnState(p.Id);

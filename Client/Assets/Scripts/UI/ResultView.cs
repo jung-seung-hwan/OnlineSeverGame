@@ -20,8 +20,10 @@ namespace OnlineSeverGame.Client.UI
         readonly Label _title, _sub, _next;
         readonly Button _leave;
         readonly MapPicker _map;
+        readonly CharacterPicker _picker;
         readonly List<RosterEntry> _ranking = new List<RosterEntry>();
-        readonly List<(VisualElement jelly, int color, string anim)> _jellies = new List<(VisualElement, int, string)>();
+        readonly List<(VisualElement jelly, CharacterKind kind, int color, string anim)> _jellies =
+            new List<(VisualElement, CharacterKind, int, string)>();
         readonly StringBuilder _sig = new StringBuilder();
         string _builtSig = "";
         float _countdownMax = 5f;
@@ -64,6 +66,10 @@ namespace OnlineSeverGame.Client.UI
             right.style.width = 330;
             _map = new MapPicker(ui, "result", 330);
             right.Add(_map.Root);
+            // 다음 라운드 캐릭터(결과 화면에서 고르면 다음 카운트다운부터). 이름 없이 작게: 고른 이름은 제목 줄 오른쪽에.
+            _picker = new CharacterPicker(ui, "result", 330f, 64f, showNames: false);
+            _picker.Root.style.marginTop = 8;
+            right.Add(_picker.Root);
             var nextBox = UiKit.El(null, right);
             nextBox.style.marginTop = 12;
             _next = UiKit.Text("", "t-body t-center", nextBox);
@@ -99,13 +105,17 @@ namespace OnlineSeverGame.Client.UI
 
             // 단상 젤리 움직임
             foreach (var j in _jellies)
-                UiKit.SetSprite(j.jelly, ArtSprites.Character(j.color, j.anim).At(now + j.color * 0.31f));
+                UiKit.SetSprite(j.jelly, ArtSprites.Character(j.kind, j.color, j.anim).At(now + j.color * 0.31f));
 
             int secs = Mathf.CeilToInt(Mathf.Max(0f, s.CountdownSeconds));
             UiKit.SetText(_next, Loc.F("result.next", secs));
             _nextFill.style.width = new Length(Mathf.Clamp01(s.CountdownSeconds / _countdownMax) * 100f, LengthUnit.Percent);
             UiKit.SetText(_leave, Loc.T("hud.leave"));
             _map.Refresh(s);
+            if (s.TryGet(s.LocalId, out RosterEntry me))
+                _picker.Refresh(me.ColorIndex, me.Character, true, null, now);
+            else
+                _picker.Refresh(CharacterChoice.LastColor, CharacterChoice.Current, true, null, now);
 
             // 카드가 통 튀어나온다
             float t = (now - _cardAt) / 0.4f;
@@ -118,7 +128,7 @@ namespace OnlineSeverGame.Client.UI
             _sig.Clear();
             _sig.Append(Loc.Current).Append('|').Append(s.LocalId).Append('|');
             foreach (var p in _ranking)
-                _sig.Append(p.Id).Append(':').Append(p.Place).Append(':').Append(p.Name).Append(':')
+                _sig.Append(p.Id).Append(':').Append((int)p.Character).Append(':').Append(p.Place).Append(':').Append(p.Name).Append(':')
                     .Append(p.Survived).Append(p.LeftGame).Append((int)p.Cause).Append(':').Append(p.SurvivedSeconds.ToString("0.0")).Append(';');
             string sig = _sig.ToString();
             if (sig == _builtSig) return;
@@ -151,7 +161,7 @@ namespace OnlineSeverGame.Client.UI
             var jelly = UiKit.SpriteBox("podium-jelly", col);
             string anim = index == 0 && p.Place == 1 && !p.LeftGame ? "victory" : "idle";
             if (p.LeftGame) jelly.style.opacity = 0.35f;
-            _jellies.Add((jelly, p.ColorIndex, anim));
+            _jellies.Add((jelly, p.Character, p.ColorIndex, anim));
 
             var block = UiKit.El("podium-block", col);
             block.style.height = PodiumHeights[index];
@@ -172,7 +182,7 @@ namespace OnlineSeverGame.Client.UI
             row.style.width = new Length(50, LengthUnit.Percent);
             var place = UiKit.Text(Loc.F("result.place", p.Place), "t-small t-muted", row);
             place.style.width = 40;
-            UiKit.Face(p.ColorIndex, 26, row).style.marginRight = 6;
+            UiKit.Face(p.ColorIndex, 26, row, p.Character).style.marginRight = 6;
             var name = UiKit.Text(p.Name + (me ? " " + Loc.T("roster.you") : ""), "t-small", row);
             name.style.flexShrink = 1;
             name.style.overflow = Overflow.Hidden;

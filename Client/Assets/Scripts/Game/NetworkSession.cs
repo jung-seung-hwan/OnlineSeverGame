@@ -45,6 +45,8 @@ namespace OnlineSeverGame.Client.Game
         readonly SortedDictionary<byte, string> _names = new SortedDictionary<byte, string>();
         readonly Dictionary<byte, string> _departedNames = new Dictionary<byte, string>(); // 결과 화면에 남길 이름
         readonly HashSet<byte> _participants = new HashSet<byte>();
+        // 플레이어별 지금 캐릭터(v11: PlayerJoined, PlayerCharacter). 나간 사람 것도 결과 화면을 위해 남긴다(번호를 다시 받으면 덮어씀).
+        readonly Dictionary<byte, CharacterKind> _characters = new Dictionary<byte, CharacterKind>();
         // 이모트(v7): 플레이어별 (종류, 시작 시각). 내 이모트는 보내는 즉시 보이고 서버의 되돌림은 건너뛴다.
         readonly Dictionary<byte, (EmoteKind Kind, double Start)> _emotes = new Dictionary<byte, (EmoteKind, double)>();
         double _localEmoteSentAt = -10.0;
@@ -204,7 +206,7 @@ namespace OnlineSeverGame.Client.Game
                     case NetEventKind.Connected:
                         Debug.Log("[Net] connected, sending Hello");
                         _lastPacketTime = Now;
-                        _net.Send(new HelloPacket { Name = _name });
+                        _net.Send(new HelloPacket { Name = _name, Character = CharacterChoice.Current });
                         break;
                     case NetEventKind.Disconnected:
                         Fail(e.Reason);
@@ -226,8 +228,9 @@ namespace OnlineSeverGame.Client.Game
                 case RejectPacket r: OnReject(r); break;
                 case PlayerJoinedPacket j:
                     _names[j.PlayerId] = j.Name;
+                    _characters[j.PlayerId] = j.Character;
                     _departedNames.Remove(j.PlayerId);
-                    Debug.Log($"[Net] joined #{j.PlayerId} {j.Name}");
+                    Debug.Log($"[Net] joined #{j.PlayerId} {j.Name} {j.Character}");
                     break;
                 case PlayerLeftPacket l:
                     if (_names.TryGetValue(l.PlayerId, out string leftName)) _departedNames[l.PlayerId] = leftName;
@@ -238,6 +241,10 @@ namespace OnlineSeverGame.Client.Game
                 case RoundStartPacket rs: OnRoundStart(rs); break;
                 case RoundEndPacket re: OnRoundEnd(re); break;
                 case RoomInfoPacket info: OnRoomInfo(info); break;
+                case PlayerCharacterPacket pc:
+                    _characters[pc.PlayerId] = pc.Character;
+                    Debug.Log($"[Net] character #{pc.PlayerId} {pc.Character}");
+                    break;
                 case EmotePacket e:
                     // 내가 보낸 것의 되돌림이면 이미 보이고 있다
                     if (e.PlayerId == _localId && _emotes.TryGetValue(e.PlayerId, out var mine) && mine.Kind == e.Emote
@@ -269,6 +276,7 @@ namespace OnlineSeverGame.Client.Game
             _welcomed = true;
             _localId = w.PlayerId;
             State.LocalId = w.PlayerId;
+            CharacterChoice.LastColor = w.PlayerId - 1; // 다음 접속 화면 미리보기 색
             State.Capacity = w.MaxPlayers;
             State.Screen = ClientScreen.Lobby;
             Debug.Log($"[Net] welcome id={w.PlayerId} tick={w.ServerTick} stage={w.StageId}");
@@ -352,6 +360,14 @@ namespace OnlineSeverGame.Client.Game
             _localEmoteSentAt = Now;
             _emotes[_localId] = (emote, Now);
             _net.Send(new EmoteRequestPacket { Emote = emote });
+        }
+
+        // 캐릭터 고르기(v11). 서버가 확인하고 바뀌는 때(지금 또는 다음 라운드)에 PlayerCharacter 로 모두에게 알린다.
+        public void RequestCharacter(CharacterKind kind)
+        {
+            if (!_welcomed) return; // 접속 중이면 Hello 에 이미 실렸거나, 접속 화면에서 고른 값이 다음 Hello 에 실린다
+            _net.Send(new CharacterRequestPacket { Character = kind });
+            Debug.Log($"[Net] character request {kind}");
         }
 
         // 방장만 보낸다(UI 가 막는다). 서버도 방장인지 확인하고, 바뀌면 RoomInfo 로 모두에게 알린다.
@@ -530,6 +546,7 @@ namespace OnlineSeverGame.Client.Game
                     Id = kv.Key,
                     Name = kv.Value,
                     ColorIndex = kv.Key - 1,
+                    Character = CharacterOf(kv.Key),
                     Connected = true,
                     InRound = _participants.Contains(kv.Key),
                     Alive = true,
@@ -590,7 +607,10 @@ namespace OnlineSeverGame.Client.Game
                 if (idx < 0)
                 {
                     // 이미 나간 사람도 결과에는 남긴다.
-                    entry = new RosterEntry { Id = res.PlayerId, Name = NameOf(res.PlayerId), ColorIndex = res.PlayerId - 1 };
+                    entry = new RosterEntry
+                    {
+                        Id = res.PlayerId, Name = NameOf(res.PlayerId), ColorIndex = res.PlayerId - 1, Character = CharacterOf(res.PlayerId),
+                    };
                     State.Roster.Add(entry);
                     idx = State.Roster.Count - 1;
                 }
@@ -606,6 +626,8 @@ namespace OnlineSeverGame.Client.Game
             }
             State.RoundSeconds = longest * TickSeconds;
         }
+
+        CharacterKind CharacterOf(byte id) => _characters.TryGetValue(id, out var k) ? k : CharacterKind.Jelly;
 
         string NameOf(byte id) =>
             _names.TryGetValue(id, out string n) ? n : _departedNames.TryGetValue(id, out n) ? n : "#" + id;
@@ -652,6 +674,7 @@ namespace OnlineSeverGame.Client.Game
                     Id = p.PlayerId,
                     Name = NameOf(p.PlayerId),
                     ColorIndex = p.PlayerId - 1,
+                    Character = CharacterOf(p.PlayerId),
                     IsLocal = isLocal,
                 };
 

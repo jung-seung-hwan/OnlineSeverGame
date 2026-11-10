@@ -1,0 +1,216 @@
+{
+  "ppu": 128,
+  "frame_size": [
+    256,
+    256
+  ],
+  "pivot_px_from_bottom_left": [
+    128,
+    8
+  ],
+  "pivot_normalized": [
+    0.5,
+    0.03125
+  ],
+  "layout": "one row per animation, top row first; frames left to right; empty cells are transparent",
+  "facing": "right (flip X for left)",
+  "character": "pudding",
+  "sheets": {
+    "1": "pudding_1_strawberry.png",
+    "2": "pudding_2_blueberry.png",
+    "3": "pudding_3_lime.png",
+    "4": "pudding_4_lemon.png",
+    "5": "pudding_5_grape.png",
+    "6": "pudding_6_tangerine.png",
+    "7": "pudding_7_soda.png",
+    "8": "pudding_8_peach.png"
+  },
+  "decorations": {
+    "1": "leaves",
+    "2": "bow",
+    "3": "crown",
+    "4": "flag",
+    "5": "cherry",
+    "6": "chef_hat",
+    "7": "umbrella",
+    "8": "cream"
+  },
+  "animations": [
+    {
+      "name": "idle",
+      "row": 0,
+      "frames": 4,
+      "fps": 6,
+      "loop": true,
+      "draw_scale": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "name": "run",
+      "row": 1,
+      "frames": 8,
+      "fps": 14,
+      "loop": true,
+      "draw_scale": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "name": "jump",
+      "row": 2,
+      "frames": 4,
+      "fps": 12,
+      "loop": false,
+      "draw_scale": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "name": "fall",
+      "row": 3,
+      "frames": 4,
+      "fps": 10,
+      "loop": true,
+      "draw_scale": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "name": "dash",
+      "row": 4,
+      "frames": 4,
+      "fps": 16,
+      "loop": true,
+      "draw_scale": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "name": "knockback",
+      "row": 5,
+      "frames": 4,
+      "fps": 12,
+      "loop": false,
+      "draw_scale": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "name": "death",
+      "row": 6,
+      "frames": 4,
+      "fps": 10,
+      "loop": false,
+      "draw_scale": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "name": "victory",
+      "row": 7,
+      "frames": 4,
+      "fps": 8,
+      "loop": true,
+      "draw_scale": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "name": "land",
+      "row": 8,
+      "frames": 3,
+      "fps": 20,
+      "loop": false,
+      "draw_scale": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "name": "crouch",
+      "row": 9,
+      "frames": 2,
+      "fps": 3,
+      "loop": true,
+      "draw_scale": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "name": "stun",
+      "row": 10,
+      "frames": 4,
+      "fps": 8,
+      "loop": true,
+      "draw_scale": [
+        1.1,
+        1.0
+      ]
+    },
+    {
+      "name": "turn",
+      "row": 11,
+      "frames": 2,
+      "fps": 24,
+      "loop": false,
+      "draw_scale": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "name": "blink",
+      "row": 12,
+      "frames": 3,
+      "fps": 16,
+      "loop": false,
+      "draw_scale": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "name": "emote_wave",
+      "row": 13,
+      "frames": 4,
+      "fps": 6,
+      "loop": true,
+      "draw_scale": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "name": "emote_taunt",
+      "row": 14,
+      "frames": 4,
+      "fps": 8,
+      "loop": true,
+      "draw_scale": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "name": "emote_sad",
+      "row": 15,
+      "frames": 4,
+      "fps": 4,
+      "loop": true,
+      "draw_scale": [
+        1.0,
+        1.0
+      ]
+    }
+  ]
+}

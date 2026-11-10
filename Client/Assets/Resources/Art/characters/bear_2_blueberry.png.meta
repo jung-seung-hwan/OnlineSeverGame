@@ -1,0 +1,1732 @@
+fileFormatVersion: 2
+guid: c9fd3e352cbb2fc4b919cf07429db0cf
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -1481279280792376911
+    second: bear_2_blueberry_0
+  - first:
+      213: -9024538938152952534
+    second: bear_2_blueberry_1
+  - first:
+      213: -5577746305991719477
+    second: bear_2_blueberry_2
+  - first:
+      213: -1373023517093065222
+    second: bear_2_blueberry_3
+  - first:
+      213: -7643605793495004691
+    second: bear_2_blueberry_4
+  - first:
+      213: 6974430637400205600
+    second: bear_2_blueberry_5
+  - first:
+      213: -4500118849824348767
+    second: bear_2_blueberry_6
+  - first:
+      213: -6299896818877783999
+    second: bear_2_blueberry_7
+  - first:
+      213: 7332026491059103282
+    second: bear_2_blueberry_8
+  - first:
+      213: 3889532172738863033
+    second: bear_2_blueberry_9
+  - first:
+      213: -7414064117835059209
+    second: bear_2_blueberry_10
+  - first:
+      213: 4955265347571727597
+    second: bear_2_blueberry_11
+  - first:
+      213: 5528539926822292863
+    second: bear_2_blueberry_12
+  - first:
+      213: -2295991523553802657
+    second: bear_2_blueberry_13
+  - first:
+      213: 4745807839914884530
+    second: bear_2_blueberry_14
+  - first:
+      213: 1198532555792627503
+    second: bear_2_blueberry_15
+  - first:
+      213: -8425136516894900631
+    second: bear_2_blueberry_16
+  - first:
+      213: 6295346376830621503
+    second: bear_2_blueberry_17
+  - first:
+      213: 7568197643670213183
+    second: bear_2_blueberry_18
+  - first:
+      213: -5525754560608190254
+    second: bear_2_blueberry_19
+  - first:
+      213: -6274949155479383773
+    second: bear_2_blueberry_20
+  - first:
+      213: 2010240682316381337
+    second: bear_2_blueberry_21
+  - first:
+      213: -6414616335241888475
+    second: bear_2_blueberry_22
+  - first:
+      213: 3434430791475231107
+    second: bear_2_blueberry_23
+  - first:
+      213: -2940407263245879153
+    second: bear_2_blueberry_24
+  - first:
+      213: 8425764987697295450
+    second: bear_2_blueberry_25
+  - first:
+      213: 2607230650868916356
+    second: bear_2_blueberry_26
+  - first:
+      213: -6985734803460042556
+    second: bear_2_blueberry_27
+  - first:
+      213: 5268979877072941561
+    second: bear_2_blueberry_28
+  - first:
+      213: -2844321288702300921
+    second: bear_2_blueberry_29
+  - first:
+      213: 3416959445828258306
+    second: bear_2_blueberry_30
+  - first:
+      213: 8477071221080726245
+    second: bear_2_blueberry_31
+  - first:
+      213: 5576055984529450814
+    second: bear_2_blueberry_32
+  - first:
+      213: -7692707136383836497
+    second: bear_2_blueberry_33
+  - first:
+      213: -7460072588795879446
+    second: bear_2_blueberry_34
+  - first:
+      213: 6720018553806170476
+    second: bear_2_blueberry_35
+  - first:
+      213: -837926074995157048
+    second: bear_2_blueberry_36
+  - first:
+      213: -3484033283961601609
+    second: bear_2_blueberry_37
+  - first:
+      213: -8897311084329989775
+    second: bear_2_blueberry_38
+  - first:
+      213: 193189936922326296
+    second: bear_2_blueberry_39
+  - first:
+      213: 8844489920446316967
+    second: bear_2_blueberry_40
+  - first:
+      213: 6598575343488688610
+    second: bear_2_blueberry_41
+  - first:
+      213: 1974642101285690312
+    second: bear_2_blueberry_42
+  - first:
+      213: -5448181010168473058
+    second: bear_2_blueberry_43
+  - first:
+      213: 8497399127347992925
+    second: bear_2_blueberry_44
+  - first:
+      213: 9097603093131820783
+    second: bear_2_blueberry_45
+  - first:
+      213: 1535284157888968877
+    second: bear_2_blueberry_46
+  - first:
+      213: -6190810015145977681
+    second: bear_2_blueberry_47
+  - first:
+      213: 2267817965086817379
+    second: bear_2_blueberry_48
+  - first:
+      213: -1799544731085715573
+    second: bear_2_blueberry_49
+  - first:
+      213: 7073259438512302376
+    second: bear_2_blueberry_50
+  - first:
+      213: 8578886774666986513
+    second: bear_2_blueberry_51
+  - first:
+      213: 7046721644904237440
+    second: bear_2_blueberry_52
+  - first:
+      213: -3689042884516113197
+    second: bear_2_blueberry_53
+  - first:
+      213: 3926237209527825894
+    second: bear_2_blueberry_54
+  - first:
+      213: -1486878163689210280
+    second: bear_2_blueberry_55
+  - first:
+      213: -4971605965938137853
+    second: bear_2_blueberry_56
+  - first:
+      213: -5187884786508336508
+    second: bear_2_blueberry_57
+  - first:
+      213: 7064034512228138715
+    second: bear_2_blueberry_58
+  - first:
+      213: 2541949626234166491
+    second: bear_2_blueberry_59
+  - first:
+      213: 5001273972781517974
+    second: bear_2_blueberry_60
+  - first:
+      213: 1284819412096215
+    second: bear_2_blueberry_61
+  - first:
+      213: -8441206932077904980
+    second: bear_2_blueberry_62
+  - first:
+      213: 8244256755215118955
+    second: bear_2_blueberry_63
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 4096
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: bear_2_blueberry_0
+      rect:
+        serializedVersion: 2
+        x: 62
+        y: 3844
+        width: 132
+        height: 183
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1b9693f9750717be0800000000000000
+      internalID: -1481279280792376911
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_1
+      rect:
+        serializedVersion: 2
+        x: 318
+        y: 3844
+        width: 132
+        height: 181
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a2d56b956a562c280800000000000000
+      internalID: -9024538938152952534
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_2
+      rect:
+        serializedVersion: 2
+        x: 573
+        y: 3844
+        width: 134
+        height: 180
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bc5cd10794dd792b0800000000000000
+      internalID: -5577746305991719477
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_3
+      rect:
+        serializedVersion: 2
+        x: 830
+        y: 3844
+        width: 132
+        height: 181
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: afd0963c26a02fce0800000000000000
+      internalID: -1373023517093065222
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_4
+      rect:
+        serializedVersion: 2
+        x: 65
+        y: 3588
+        width: 136
+        height: 180
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: de9cc9347057ce590800000000000000
+      internalID: -7643605793495004691
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_5
+      rect:
+        serializedVersion: 2
+        x: 323
+        y: 3592
+        width: 133
+        height: 184
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 02927dc66b72ac060800000000000000
+      internalID: 6974430637400205600
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_6
+      rect:
+        serializedVersion: 2
+        x: 579
+        y: 3594
+        width: 132
+        height: 185
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1a52e2dafbd5c81c0800000000000000
+      internalID: -4500118849824348767
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_7
+      rect:
+        serializedVersion: 2
+        x: 835
+        y: 3592
+        width: 133
+        height: 184
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1402d25b8354298a0800000000000000
+      internalID: -6299896818877783999
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_8
+      rect:
+        serializedVersion: 2
+        x: 1089
+        y: 3588
+        width: 136
+        height: 180
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 236e4533f3790c560800000000000000
+      internalID: 7332026491059103282
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_9
+      rect:
+        serializedVersion: 2
+        x: 1347
+        y: 3592
+        width: 133
+        height: 187
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9bf9d8a47e46af530800000000000000
+      internalID: 3889532172738863033
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_10
+      rect:
+        serializedVersion: 2
+        x: 1603
+        y: 3594
+        width: 132
+        height: 189
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7ffa87a57f3fb1990800000000000000
+      internalID: -7414064117835059209
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_11
+      rect:
+        serializedVersion: 2
+        x: 1859
+        y: 3592
+        width: 133
+        height: 187
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: decb0d95493a4c440800000000000000
+      internalID: 4955265347571727597
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_12
+      rect:
+        serializedVersion: 2
+        x: 66
+        y: 3330
+        width: 124
+        height: 196
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f7d8ec0a5c159bc40800000000000000
+      internalID: 5528539926822292863
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_13
+      rect:
+        serializedVersion: 2
+        x: 322
+        y: 3332
+        width: 124
+        height: 194
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f56844fbfdff220e0800000000000000
+      internalID: -2295991523553802657
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_14
+      rect:
+        serializedVersion: 2
+        x: 577
+        y: 3332
+        width: 126
+        height: 193
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2bdf366061f7cd140800000000000000
+      internalID: 4745807839914884530
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_15
+      rect:
+        serializedVersion: 2
+        x: 832
+        y: 3334
+        width: 128
+        height: 189
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f27b2c7620b02a010800000000000000
+      internalID: 1198532555792627503
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_16
+      rect:
+        serializedVersion: 2
+        x: 59
+        y: 3079
+        width: 138
+        height: 175
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 96ebe46e9f6e31b80800000000000000
+      internalID: -8425136516894900631
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_17
+      rect:
+        serializedVersion: 2
+        x: 314
+        y: 3080
+        width: 140
+        height: 174
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f371801fc209d5750800000000000000
+      internalID: 6295346376830621503
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_18
+      rect:
+        serializedVersion: 2
+        x: 570
+        y: 3080
+        width: 140
+        height: 174
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f3259eca8a3a70960800000000000000
+      internalID: 7568197643670213183
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_19
+      rect:
+        serializedVersion: 2
+        x: 826
+        y: 3080
+        width: 140
+        height: 173
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2d044faf0839053b0800000000000000
+      internalID: -5525754560608190254
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_20
+      rect:
+        serializedVersion: 2
+        x: 25
+        y: 2820
+        width: 209
+        height: 123
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 321930c3df6eae8a0800000000000000
+      internalID: -6274949155479383773
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_21
+      rect:
+        serializedVersion: 2
+        x: 285
+        y: 2820
+        width: 202
+        height: 128
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 99cb186ff3fc5eb10800000000000000
+      internalID: 2010240682316381337
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_22
+      rect:
+        serializedVersion: 2
+        x: 535
+        y: 2820
+        width: 213
+        height: 121
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 52d3d7fdd64baf6a0800000000000000
+      internalID: -6414616335241888475
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_23
+      rect:
+        serializedVersion: 2
+        x: 794
+        y: 2820
+        width: 207
+        height: 125
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3897b83cb9c89af20800000000000000
+      internalID: 3434430791475231107
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_24
+      rect:
+        serializedVersion: 2
+        x: 38
+        y: 2567
+        width: 143
+        height: 176
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f88304b4c239137d0800000000000000
+      internalID: -2940407263245879153
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_25
+      rect:
+        serializedVersion: 2
+        x: 285
+        y: 2569
+        width: 147
+        height: 172
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a50fe9c5d945ee470800000000000000
+      internalID: 8425764987697295450
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_26
+      rect:
+        serializedVersion: 2
+        x: 535
+        y: 2569
+        width: 150
+        height: 168
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4806d88967ebe2420800000000000000
+      internalID: 2607230650868916356
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_27
+      rect:
+        serializedVersion: 2
+        x: 800
+        y: 2568
+        width: 145
+        height: 175
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4c05ea0553fad0f90800000000000000
+      internalID: -6985734803460042556
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_28
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 2308
+        width: 128
+        height: 191
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9f13d9d284d2f1940800000000000000
+      internalID: 5268979877072941561
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_29
+      rect:
+        serializedVersion: 2
+        x: 311
+        y: 2308
+        width: 146
+        height: 187
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 70d61d79bd0f688d0800000000000000
+      internalID: -2844321288702300921
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_30
+      rect:
+        serializedVersion: 2
+        x: 540
+        y: 2308
+        width: 200
+        height: 115
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 20a428c138a7b6f20800000000000000
+      internalID: 3416959445828258306
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_31
+      rect:
+        serializedVersion: 2
+        x: 773
+        y: 2308
+        width: 246
+        height: 71
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5ea1434bc5b94a570800000000000000
+      internalID: 8477071221080726245
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_32
+      rect:
+        serializedVersion: 2
+        x: 59
+        y: 2052
+        width: 138
+        height: 172
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e37a19def51226d40800000000000000
+      internalID: 5576055984529450814
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_33
+      rect:
+        serializedVersion: 2
+        x: 322
+        y: 2067
+        width: 124
+        height: 196
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fae9abefd930e3590800000000000000
+      internalID: -7692707136383836497
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_34
+      rect:
+        serializedVersion: 2
+        x: 576
+        y: 2072
+        width: 128
+        height: 190
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aef5132718f787890800000000000000
+      internalID: -7460072588795879446
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_35
+      rect:
+        serializedVersion: 2
+        x: 830
+        y: 2057
+        width: 132
+        height: 180
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c69a6af354d424d50800000000000000
+      internalID: 6720018553806170476
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_36
+      rect:
+        serializedVersion: 2
+        x: 58
+        y: 1796
+        width: 140
+        height: 164
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8c750ef9ca61f54f0800000000000000
+      internalID: -837926074995157048
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_37
+      rect:
+        serializedVersion: 2
+        x: 316
+        y: 1796
+        width: 136
+        height: 175
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7b1c4dbff2a36afc0800000000000000
+      internalID: -3484033283961601609
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_38
+      rect:
+        serializedVersion: 2
+        x: 575
+        y: 1796
+        width: 130
+        height: 188
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1798d5275b6668480800000000000000
+      internalID: -8897311084329989775
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_39
+      rect:
+        serializedVersion: 2
+        x: 53
+        y: 1541
+        width: 150
+        height: 123
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8157f6c59395ea200800000000000000
+      internalID: 193189936922326296
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_40
+      rect:
+        serializedVersion: 2
+        x: 309
+        y: 1541
+        width: 150
+        height: 120
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7a1c9b7f8b0fdba70800000000000000
+      internalID: 8844489920446316967
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_41
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 1287
+        width: 190
+        height: 106
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2e16b4c6059d29b50800000000000000
+      internalID: 6598575343488688610
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_42
+      rect:
+        serializedVersion: 2
+        x: 257
+        y: 1287
+        width: 190
+        height: 91
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8cb1aad6786576b10800000000000000
+      internalID: 1974642101285690312
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_43
+      rect:
+        serializedVersion: 2
+        x: 267
+        y: 1363
+        width: 30
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e1a11e8ac3c2464b0800000000000000
+      internalID: -5448181010168473058
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_44
+      rect:
+        serializedVersion: 2
+        x: 336
+        y: 1362
+        width: 29
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d599a443c73dce570800000000000000
+      internalID: 8497399127347992925
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_45
+      rect:
+        serializedVersion: 2
+        x: 513
+        y: 1287
+        width: 190
+        height: 110
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: feefd91efcd214e70800000000000000
+      internalID: 9097603093131820783
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_46
+      rect:
+        serializedVersion: 2
+        x: 769
+        y: 1287
+        width: 190
+        height: 111
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: da8b14caecc6e4510800000000000000
+      internalID: 1535284157888968877
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_47
+      rect:
+        serializedVersion: 2
+        x: 61
+        y: 1028
+        width: 134
+        height: 180
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fa81b4f6713d51aa0800000000000000
+      internalID: -6190810015145977681
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_48
+      rect:
+        serializedVersion: 2
+        x: 311
+        y: 1028
+        width: 146
+        height: 179
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 36cbf308c68e87f10800000000000000
+      internalID: 2267817965086817379
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_49
+      rect:
+        serializedVersion: 2
+        x: 62
+        y: 772
+        width: 132
+        height: 183
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b87c53af99bb607e0800000000000000
+      internalID: -1799544731085715573
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_50
+      rect:
+        serializedVersion: 2
+        x: 318
+        y: 772
+        width: 132
+        height: 183
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 82964bccbf3492260800000000000000
+      internalID: 7073259438512302376
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_51
+      rect:
+        serializedVersion: 2
+        x: 574
+        y: 772
+        width: 132
+        height: 183
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 114825491145e0770800000000000000
+      internalID: 8578886774666986513
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_52
+      rect:
+        serializedVersion: 2
+        x: 63
+        y: 516
+        width: 132
+        height: 183
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 089c29b300cfac160800000000000000
+      internalID: 7046721644904237440
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_53
+      rect:
+        serializedVersion: 2
+        x: 319
+        y: 520
+        width: 130
+        height: 184
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3d41c3bba03edccc0800000000000000
+      internalID: -3689042884516113197
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_54
+      rect:
+        serializedVersion: 2
+        x: 573
+        y: 516
+        width: 132
+        height: 182
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6e5b3d1a0fbcc7630800000000000000
+      internalID: 3926237209527825894
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_55
+      rect:
+        serializedVersion: 2
+        x: 831
+        y: 520
+        width: 130
+        height: 184
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 85ef40d103c8d5be0800000000000000
+      internalID: -1486878163689210280
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_56
+      rect:
+        serializedVersion: 2
+        x: 61
+        y: 260
+        width: 131
+        height: 181
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3056b05f6be410bb0800000000000000
+      internalID: -4971605965938137853
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_57
+      rect:
+        serializedVersion: 2
+        x: 317
+        y: 260
+        width: 133
+        height: 180
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4827484f54ee008b0800000000000000
+      internalID: -5187884786508336508
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_58
+      rect:
+        serializedVersion: 2
+        x: 575
+        y: 260
+        width: 132
+        height: 183
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bde357646fd780260800000000000000
+      internalID: 7064034512228138715
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_59
+      rect:
+        serializedVersion: 2
+        x: 829
+        y: 260
+        width: 133
+        height: 180
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bdcdf9c97b1d64320800000000000000
+      internalID: 2541949626234166491
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_60
+      rect:
+        serializedVersion: 2
+        x: 60
+        y: 4
+        width: 136
+        height: 173
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 69c8c0c2e28186540800000000000000
+      internalID: 5001273972781517974
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_61
+      rect:
+        serializedVersion: 2
+        x: 315
+        y: 4
+        width: 137
+        height: 169
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7d498a45980940000800000000000000
+      internalID: 1284819412096215
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_62
+      rect:
+        serializedVersion: 2
+        x: 572
+        y: 4
+        width: 136
+        height: 173
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cab7ee9c40fcada80800000000000000
+      internalID: -8441206932077904980
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_2_blueberry_63
+      rect:
+        serializedVersion: 2
+        x: 828
+        y: 4
+        width: 137
+        height: 171
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b6236b3c6db796270800000000000000
+      internalID: 8244256755215118955
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable: {}
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

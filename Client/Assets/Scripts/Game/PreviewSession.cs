@@ -68,7 +68,12 @@ namespace OnlineSeverGame.Client.Game
             for (int i = 1; i < names.Length; i++) names[i] = Loc.F("preview.bot", i);
             for (int i = 0; i < names.Length; i++)
             {
-                State.Roster.Add(new RosterEntry { Id = i, Name = names[i], ColorIndex = i, Alive = true, InRound = true, Connected = true });
+                // 나는 고른 캐릭터, 봇은 세 종류를 돌아가며(미리보기에서 셋 다 보이게)
+                var kind = i == 0 ? CharacterChoice.Current : CharacterChoice.All[i % CharacterChoice.All.Length];
+                State.Roster.Add(new RosterEntry
+                {
+                    Id = i, Name = names[i], ColorIndex = i, Character = kind, Alive = true, InRound = true, Connected = true,
+                });
             }
             EnterLobby();
         }
@@ -311,6 +316,7 @@ namespace OnlineSeverGame.Client.Game
                     Id = b.Id,
                     Name = r.Name,
                     ColorIndex = r.ColorIndex,
+                    Character = r.Character,
                     Position = b.Pos,
                     Alive = b.Alive,
                     Dashing = b.DashLeft > 0f,
@@ -365,6 +371,16 @@ namespace OnlineSeverGame.Client.Game
                 b.Emote = emote;
                 b.EmoteAge = 0f;
             }
+        }
+
+        // 미리보기는 서버가 없으니 바로 바꾼다.
+        public void RequestCharacter(CharacterKind kind)
+        {
+            int i = State.Roster.FindIndex(r => r.Id == State.LocalId);
+            if (i < 0) return;
+            var me = State.Roster[i];
+            me.Character = kind;
+            State.Roster[i] = me;
         }
 
         public void Close() { }

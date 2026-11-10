@@ -1,0 +1,1682 @@
+fileFormatVersion: 2
+guid: 27dfa793a5869a045bd2cde3fee30476
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 259016040102363199
+    second: pudding_6_tangerine_0
+  - first:
+      213: 2773240405804196848
+    second: pudding_6_tangerine_1
+  - first:
+      213: -3816589702365894432
+    second: pudding_6_tangerine_2
+  - first:
+      213: -4944040531234565632
+    second: pudding_6_tangerine_3
+  - first:
+      213: 7445761135786356489
+    second: pudding_6_tangerine_4
+  - first:
+      213: 228653161507112929
+    second: pudding_6_tangerine_5
+  - first:
+      213: -110353411158522152
+    second: pudding_6_tangerine_6
+  - first:
+      213: 9045691376559392115
+    second: pudding_6_tangerine_7
+  - first:
+      213: -7627451858264234727
+    second: pudding_6_tangerine_8
+  - first:
+      213: 8306864907531745503
+    second: pudding_6_tangerine_9
+  - first:
+      213: 5951541481853061554
+    second: pudding_6_tangerine_10
+  - first:
+      213: 5391796725367198736
+    second: pudding_6_tangerine_11
+  - first:
+      213: 710651235175823331
+    second: pudding_6_tangerine_12
+  - first:
+      213: 3110762099202856868
+    second: pudding_6_tangerine_13
+  - first:
+      213: -6107639910346609948
+    second: pudding_6_tangerine_14
+  - first:
+      213: -5728880594669358071
+    second: pudding_6_tangerine_15
+  - first:
+      213: -7085483787654806845
+    second: pudding_6_tangerine_16
+  - first:
+      213: -9094319585653597999
+    second: pudding_6_tangerine_17
+  - first:
+      213: -1919169053879057574
+    second: pudding_6_tangerine_18
+  - first:
+      213: 5425067439264523133
+    second: pudding_6_tangerine_19
+  - first:
+      213: 7901750918330966165
+    second: pudding_6_tangerine_20
+  - first:
+      213: -5315149685857762875
+    second: pudding_6_tangerine_21
+  - first:
+      213: -2189591219024562711
+    second: pudding_6_tangerine_22
+  - first:
+      213: 2074255667085546192
+    second: pudding_6_tangerine_23
+  - first:
+      213: 3114690473937957103
+    second: pudding_6_tangerine_24
+  - first:
+      213: 4734716896544074179
+    second: pudding_6_tangerine_25
+  - first:
+      213: -505630569767930527
+    second: pudding_6_tangerine_26
+  - first:
+      213: 8095737304388352539
+    second: pudding_6_tangerine_27
+  - first:
+      213: -4361493673552459752
+    second: pudding_6_tangerine_28
+  - first:
+      213: 6278670241586124148
+    second: pudding_6_tangerine_29
+  - first:
+      213: 6895004989975331091
+    second: pudding_6_tangerine_30
+  - first:
+      213: 1824079717220473225
+    second: pudding_6_tangerine_31
+  - first:
+      213: 4388409729429878049
+    second: pudding_6_tangerine_32
+  - first:
+      213: 7600233141016560078
+    second: pudding_6_tangerine_33
+  - first:
+      213: 6034100086611219469
+    second: pudding_6_tangerine_34
+  - first:
+      213: -6823160702287918001
+    second: pudding_6_tangerine_35
+  - first:
+      213: -2204204014420076594
+    second: pudding_6_tangerine_36
+  - first:
+      213: -7078737068549754972
+    second: pudding_6_tangerine_37
+  - first:
+      213: -2168402143830246758
+    second: pudding_6_tangerine_38
+  - first:
+      213: 7550162656104268755
+    second: pudding_6_tangerine_39
+  - first:
+      213: 6931110545984671871
+    second: pudding_6_tangerine_40
+  - first:
+      213: -135673936502708772
+    second: pudding_6_tangerine_41
+  - first:
+      213: -7946102480157112911
+    second: pudding_6_tangerine_42
+  - first:
+      213: 6916323503252513174
+    second: pudding_6_tangerine_43
+  - first:
+      213: 5501807639766778511
+    second: pudding_6_tangerine_44
+  - first:
+      213: 8723215135926021692
+    second: pudding_6_tangerine_45
+  - first:
+      213: 3059427682832660522
+    second: pudding_6_tangerine_46
+  - first:
+      213: -990935620329268002
+    second: pudding_6_tangerine_47
+  - first:
+      213: -7848804303792658268
+    second: pudding_6_tangerine_48
+  - first:
+      213: -8532557724921365592
+    second: pudding_6_tangerine_49
+  - first:
+      213: 78567808061610724
+    second: pudding_6_tangerine_50
+  - first:
+      213: 3843597343687138006
+    second: pudding_6_tangerine_51
+  - first:
+      213: 1548263728265640572
+    second: pudding_6_tangerine_52
+  - first:
+      213: 8976504738704960250
+    second: pudding_6_tangerine_53
+  - first:
+      213: -7373065208751120450
+    second: pudding_6_tangerine_54
+  - first:
+      213: -3043695912935034292
+    second: pudding_6_tangerine_55
+  - first:
+      213: 4807852324774461351
+    second: pudding_6_tangerine_56
+  - first:
+      213: -2888272138298142363
+    second: pudding_6_tangerine_57
+  - first:
+      213: -6566758899350085523
+    second: pudding_6_tangerine_58
+  - first:
+      213: 8767380386643585587
+    second: pudding_6_tangerine_59
+  - first:
+      213: 9051868457172206770
+    second: pudding_6_tangerine_60
+  - first:
+      213: 4996654277750031280
+    second: pudding_6_tangerine_61
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 4096
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: pudding_6_tangerine_0
+      rect:
+        serializedVersion: 2
+        x: 62
+        y: 3844
+        width: 132
+        height: 196
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f300e6557b5389300800000000000000
+      internalID: 259016040102363199
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_1
+      rect:
+        serializedVersion: 2
+        x: 318
+        y: 3844
+        width: 132
+        height: 194
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0f328b0b4778c7620800000000000000
+      internalID: 2773240405804196848
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_2
+      rect:
+        serializedVersion: 2
+        x: 573
+        y: 3844
+        width: 134
+        height: 192
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0e8211903efb80bc0800000000000000
+      internalID: -3816589702365894432
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_3
+      rect:
+        serializedVersion: 2
+        x: 830
+        y: 3844
+        width: 132
+        height: 194
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 00251acd45d336bb0800000000000000
+      internalID: -4944040531234565632
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_4
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 3588
+        width: 138
+        height: 189
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 90f64fcbd48a45760800000000000000
+      internalID: 7445761135786356489
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_5
+      rect:
+        serializedVersion: 2
+        x: 322
+        y: 3592
+        width: 135
+        height: 195
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1e7c664c6d65c2300800000000000000
+      internalID: 228653161507112929
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_6
+      rect:
+        serializedVersion: 2
+        x: 578
+        y: 3594
+        width: 134
+        height: 197
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8d6c4204822f77ef0800000000000000
+      internalID: -110353411158522152
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_7
+      rect:
+        serializedVersion: 2
+        x: 834
+        y: 3592
+        width: 135
+        height: 195
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 37503af7160c88d70800000000000000
+      internalID: 9045691376559392115
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_8
+      rect:
+        serializedVersion: 2
+        x: 1088
+        y: 3588
+        width: 138
+        height: 189
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 91564c662f8d52690800000000000000
+      internalID: -7627451858264234727
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_9
+      rect:
+        serializedVersion: 2
+        x: 1346
+        y: 3592
+        width: 135
+        height: 197
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fd8769a2f99e74370800000000000000
+      internalID: 8306864907531745503
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_10
+      rect:
+        serializedVersion: 2
+        x: 1602
+        y: 3594
+        width: 134
+        height: 200
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2b98ad3f17f189250800000000000000
+      internalID: 5951541481853061554
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_11
+      rect:
+        serializedVersion: 2
+        x: 1858
+        y: 3592
+        width: 135
+        height: 197
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 01450a40e8283da40800000000000000
+      internalID: 5391796725367198736
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_12
+      rect:
+        serializedVersion: 2
+        x: 66
+        y: 3330
+        width: 124
+        height: 209
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3e7f8df788dbcd900800000000000000
+      internalID: 710651235175823331
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_13
+      rect:
+        serializedVersion: 2
+        x: 322
+        y: 3332
+        width: 124
+        height: 206
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4a71cbfc5a5ab2b20800000000000000
+      internalID: 3110762099202856868
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_14
+      rect:
+        serializedVersion: 2
+        x: 577
+        y: 3332
+        width: 126
+        height: 205
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4eaaac77cdd4d3ba0800000000000000
+      internalID: -6107639910346609948
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_15
+      rect:
+        serializedVersion: 2
+        x: 832
+        y: 3334
+        width: 128
+        height: 202
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 904ba1ab37dee70b0800000000000000
+      internalID: -5728880594669358071
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_16
+      rect:
+        serializedVersion: 2
+        x: 59
+        y: 3079
+        width: 138
+        height: 187
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3c2cb0f190e4bad90800000000000000
+      internalID: -7085483787654806845
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_17
+      rect:
+        serializedVersion: 2
+        x: 314
+        y: 3080
+        width: 140
+        height: 186
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1d85d37458c7ac180800000000000000
+      internalID: -9094319585653597999
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_18
+      rect:
+        serializedVersion: 2
+        x: 570
+        y: 3080
+        width: 140
+        height: 186
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a53cd97e9edbd55e0800000000000000
+      internalID: -1919169053879057574
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_19
+      rect:
+        serializedVersion: 2
+        x: 826
+        y: 3080
+        width: 140
+        height: 186
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d7366efb716b94b40800000000000000
+      internalID: 5425067439264523133
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_20
+      rect:
+        serializedVersion: 2
+        x: 25
+        y: 2820
+        width: 210
+        height: 129
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 590ebbe4898a8ad60800000000000000
+      internalID: 7901750918330966165
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_21
+      rect:
+        serializedVersion: 2
+        x: 284
+        y: 2820
+        width: 204
+        height: 133
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5c14b66858bcc36b0800000000000000
+      internalID: -5315149685857762875
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_22
+      rect:
+        serializedVersion: 2
+        x: 535
+        y: 2820
+        width: 213
+        height: 127
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9e5f9b223620d91e0800000000000000
+      internalID: -2189591219024562711
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_23
+      rect:
+        serializedVersion: 2
+        x: 794
+        y: 2820
+        width: 207
+        height: 131
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0d299f11a8c39cc10800000000000000
+      internalID: 2074255667085546192
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_24
+      rect:
+        serializedVersion: 2
+        x: 37
+        y: 2567
+        width: 146
+        height: 181
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fe07d54db7a993b20800000000000000
+      internalID: 3114690473937957103
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_25
+      rect:
+        serializedVersion: 2
+        x: 285
+        y: 2569
+        width: 149
+        height: 176
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3c9ac8a8ee715b140800000000000000
+      internalID: 4734716896544074179
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_26
+      rect:
+        serializedVersion: 2
+        x: 533
+        y: 2569
+        width: 154
+        height: 171
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 165776dfca3abf8f0800000000000000
+      internalID: -505630569767930527
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_27
+      rect:
+        serializedVersion: 2
+        x: 800
+        y: 2568
+        width: 147
+        height: 179
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b1a32fe6f26d95070800000000000000
+      internalID: 8095737304388352539
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_28
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 2308
+        width: 128
+        height: 204
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 818cac1bc9cd873c0800000000000000
+      internalID: -4361493673552459752
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_29
+      rect:
+        serializedVersion: 2
+        x: 311
+        y: 2308
+        width: 146
+        height: 193
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4759e83a151522750800000000000000
+      internalID: 6278670241586124148
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_30
+      rect:
+        serializedVersion: 2
+        x: 540
+        y: 2308
+        width: 200
+        height: 120
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3118600d18affaf50800000000000000
+      internalID: 6895004989975331091
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_31
+      rect:
+        serializedVersion: 2
+        x: 773
+        y: 2308
+        width: 246
+        height: 75
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 989dbe2a6de605910800000000000000
+      internalID: 1824079717220473225
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_32
+      rect:
+        serializedVersion: 2
+        x: 59
+        y: 2052
+        width: 138
+        height: 186
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 125398be563c6ec30800000000000000
+      internalID: 4388409729429878049
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_33
+      rect:
+        serializedVersion: 2
+        x: 322
+        y: 2067
+        width: 124
+        height: 208
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ec1817426c3797960800000000000000
+      internalID: 7600233141016560078
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_34
+      rect:
+        serializedVersion: 2
+        x: 576
+        y: 2072
+        width: 128
+        height: 201
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d049d990f0e6db350800000000000000
+      internalID: 6034100086611219469
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_35
+      rect:
+        serializedVersion: 2
+        x: 830
+        y: 2057
+        width: 132
+        height: 194
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f4c49beed734f41a0800000000000000
+      internalID: -6823160702287918001
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_36
+      rect:
+        serializedVersion: 2
+        x: 58
+        y: 1796
+        width: 140
+        height: 177
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ec7500490281961e0800000000000000
+      internalID: -2204204014420076594
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_37
+      rect:
+        serializedVersion: 2
+        x: 316
+        y: 1796
+        width: 136
+        height: 188
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4afa3b2142643cd90800000000000000
+      internalID: -7078737068549754972
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_38
+      rect:
+        serializedVersion: 2
+        x: 575
+        y: 1796
+        width: 130
+        height: 200
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a9a7dc62db948e1e0800000000000000
+      internalID: -2168402143830246758
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_39
+      rect:
+        serializedVersion: 2
+        x: 53
+        y: 1541
+        width: 150
+        height: 136
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3d3c389eee097c860800000000000000
+      internalID: 7550162656104268755
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_40
+      rect:
+        serializedVersion: 2
+        x: 309
+        y: 1541
+        width: 150
+        height: 133
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f705168a150403060800000000000000
+      internalID: 6931110545984671871
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_41
+      rect:
+        serializedVersion: 2
+        x: 3
+        y: 1287
+        width: 190
+        height: 106
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cd52a79064dfd1ef0800000000000000
+      internalID: -135673936502708772
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_42
+      rect:
+        serializedVersion: 2
+        x: 259
+        y: 1287
+        width: 190
+        height: 106
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1b5826105e5c9b190800000000000000
+      internalID: -7946102480157112911
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_43
+      rect:
+        serializedVersion: 2
+        x: 515
+        y: 1287
+        width: 190
+        height: 110
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6912d0bf497bbff50800000000000000
+      internalID: 6916323503252513174
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_44
+      rect:
+        serializedVersion: 2
+        x: 771
+        y: 1287
+        width: 190
+        height: 111
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f8244d606e85a5c40800000000000000
+      internalID: 5501807639766778511
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_45
+      rect:
+        serializedVersion: 2
+        x: 61
+        y: 1028
+        width: 134
+        height: 193
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c3e6e24d2f51f0970800000000000000
+      internalID: 8723215135926021692
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_46
+      rect:
+        serializedVersion: 2
+        x: 317
+        y: 1028
+        width: 134
+        height: 192
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a28bc3b9445457a20800000000000000
+      internalID: 3059427682832660522
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_47
+      rect:
+        serializedVersion: 2
+        x: 62
+        y: 772
+        width: 132
+        height: 196
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: edc1ef2bd4d7f32f0800000000000000
+      internalID: -990935620329268002
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_48
+      rect:
+        serializedVersion: 2
+        x: 318
+        y: 772
+        width: 132
+        height: 196
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4a8a1e80212731390800000000000000
+      internalID: -7848804303792658268
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_49
+      rect:
+        serializedVersion: 2
+        x: 574
+        y: 772
+        width: 132
+        height: 196
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8abfb84e4f3469980800000000000000
+      internalID: -8532557724921365592
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_50
+      rect:
+        serializedVersion: 2
+        x: 63
+        y: 516
+        width: 132
+        height: 194
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4ea1b425101271100800000000000000
+      internalID: 78567808061610724
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_51
+      rect:
+        serializedVersion: 2
+        x: 319
+        y: 520
+        width: 130
+        height: 197
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6da5b1a7b63375530800000000000000
+      internalID: 3843597343687138006
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_52
+      rect:
+        serializedVersion: 2
+        x: 573
+        y: 516
+        width: 132
+        height: 196
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c7a35e568a98c7510800000000000000
+      internalID: 1548263728265640572
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_53
+      rect:
+        serializedVersion: 2
+        x: 831
+        y: 520
+        width: 130
+        height: 197
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: afaae131083f29c70800000000000000
+      internalID: 8976504738704960250
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_54
+      rect:
+        serializedVersion: 2
+        x: 60
+        y: 260
+        width: 133
+        height: 196
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ebf199eb14c9da990800000000000000
+      internalID: -7373065208751120450
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_55
+      rect:
+        serializedVersion: 2
+        x: 317
+        y: 260
+        width: 133
+        height: 193
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c42f23181be92c5d0800000000000000
+      internalID: -3043695912935034292
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_56
+      rect:
+        serializedVersion: 2
+        x: 575
+        y: 260
+        width: 132
+        height: 195
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7afb7be573ce8b240800000000000000
+      internalID: 4807852324774461351
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_57
+      rect:
+        serializedVersion: 2
+        x: 829
+        y: 260
+        width: 133
+        height: 193
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 561d41efacbcae7d0800000000000000
+      internalID: -2888272138298142363
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_58
+      rect:
+        serializedVersion: 2
+        x: 60
+        y: 4
+        width: 136
+        height: 188
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d606a9eb29f2ed4a0800000000000000
+      internalID: -6566758899350085523
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_59
+      rect:
+        serializedVersion: 2
+        x: 315
+        y: 4
+        width: 137
+        height: 186
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 33a2e94920efba970800000000000000
+      internalID: 8767380386643585587
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_60
+      rect:
+        serializedVersion: 2
+        x: 572
+        y: 4
+        width: 136
+        height: 188
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2b400572762be9d70800000000000000
+      internalID: 9051868457172206770
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_6_tangerine_61
+      rect:
+        serializedVersion: 2
+        x: 828
+        y: 4
+        width: 137
+        height: 186
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0b30aba979ea75540800000000000000
+      internalID: 4996654277750031280
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable: {}
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -132,18 +132,18 @@ namespace OnlineSeverGame.Client.View
             // 그릴 프레임과 좌우
             Sprite sprite;
             bool flip = facing < 0;
-            var clip = ArtSprites.Character(s.ColorIndex, anim);
+            var clip = ArtSprites.Character(s.Character, s.ColorIndex, anim);
             if (_overlay == "turn")
             {
                 // 옛 방향으로 몸을 카메라 쪽으로 돌림(0, 1) → 새 방향에서 다시 옆으로(0)
-                var turn = ArtSprites.Character(s.ColorIndex, "turn");
+                var turn = ArtSprites.Character(s.Character, s.ColorIndex, "turn");
                 int step = Mathf.Min(2, Mathf.FloorToInt(_overlayTime * turn.Fps));
                 sprite = turn.Frames[step == 1 ? Mathf.Min(1, turn.Frames.Length - 1) : 0];
                 flip = (step < 2 ? _turnFrom : facing) < 0;
             }
             else if (_overlay != null)
             {
-                sprite = ArtSprites.Character(s.ColorIndex, _overlay).At(_overlayTime);
+                sprite = ArtSprites.Character(s.Character, s.ColorIndex, _overlay).At(_overlayTime);
             }
             else
             {
@@ -193,7 +193,7 @@ namespace OnlineSeverGame.Client.View
             if (_overlay != null)
             {
                 _overlayTime += dt;
-                bool done = !calm || _overlayTime >= OverlayDuration(s.ColorIndex, _overlay);
+                bool done = !calm || _overlayTime >= OverlayDuration(s.Character, s.ColorIndex, _overlay);
                 if (done) _overlay = null;
             }
             if (!calm || !_hasLast) return;
@@ -214,9 +214,9 @@ namespace OnlineSeverGame.Client.View
             _turnFrom = turnFrom;
         }
 
-        static float OverlayDuration(int colorIndex, string overlay)
+        static float OverlayDuration(CharacterKind kind, int colorIndex, string overlay)
         {
-            var c = ArtSprites.Character(colorIndex, overlay);
+            var c = ArtSprites.Character(kind, colorIndex, overlay);
             // 방향 전환은 2프레임을 3단계(옛 방향 0·1 → 새 방향 0)로 쓴다
             return overlay == "turn" ? 3f / c.Fps : c.Duration;
         }

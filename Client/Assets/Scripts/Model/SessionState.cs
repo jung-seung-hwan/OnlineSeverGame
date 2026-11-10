@@ -19,6 +19,7 @@ namespace OnlineSeverGame.Client.Model
         public int Id;
         public string Name;
         public int ColorIndex;
+        public CharacterKind Character; // 지금 그려지는 캐릭터(v11, 서버가 알려 준 값)
         public bool Alive;
         public bool InRound;
         public bool Connected;
@@ -99,6 +100,9 @@ namespace OnlineSeverGame.Client.Model
         void RequestMap(byte stageId, MapRotation rotation);
         // 이모트(v7): 살아 있을 때만, 1초에 한 번. 서버가 모두에게(나 포함) 알린다. 미리보기는 바로 보인다.
         void SendEmote(EmoteKind emote);
+        // 캐릭터 고르기(v11): 대기·카운트다운이면 바로, 라운드 진행·결과 중이면 다음 라운드부터 바뀐다(서버가 정함).
+        // 미리보기는 바로 바뀐다.
+        void RequestCharacter(CharacterKind kind);
         void Close();
     }
 }

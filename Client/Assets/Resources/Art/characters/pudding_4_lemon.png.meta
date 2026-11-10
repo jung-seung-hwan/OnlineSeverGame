@@ -1,0 +1,1707 @@
+fileFormatVersion: 2
+guid: 408ab19bba7d98047881f430a4276133
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -5690893655777929452
+    second: pudding_4_lemon_0
+  - first:
+      213: -876272660081186679
+    second: pudding_4_lemon_1
+  - first:
+      213: 7284813549585303479
+    second: pudding_4_lemon_2
+  - first:
+      213: 4135831882892045766
+    second: pudding_4_lemon_3
+  - first:
+      213: 6706634030086240545
+    second: pudding_4_lemon_4
+  - first:
+      213: -7907659441055188226
+    second: pudding_4_lemon_5
+  - first:
+      213: -7861634375640579267
+    second: pudding_4_lemon_6
+  - first:
+      213: -7485793116484622572
+    second: pudding_4_lemon_7
+  - first:
+      213: -7285392704174905261
+    second: pudding_4_lemon_8
+  - first:
+      213: -349564579938142078
+    second: pudding_4_lemon_9
+  - first:
+      213: 6705375588184980784
+    second: pudding_4_lemon_10
+  - first:
+      213: 1184051960581142930
+    second: pudding_4_lemon_11
+  - first:
+      213: 4503954563863683722
+    second: pudding_4_lemon_12
+  - first:
+      213: 2327077460388875325
+    second: pudding_4_lemon_13
+  - first:
+      213: 4345671441764026045
+    second: pudding_4_lemon_14
+  - first:
+      213: 3425405320985680013
+    second: pudding_4_lemon_15
+  - first:
+      213: 7249194791229427915
+    second: pudding_4_lemon_16
+  - first:
+      213: 2949891319374754026
+    second: pudding_4_lemon_17
+  - first:
+      213: -5624982468109029717
+    second: pudding_4_lemon_18
+  - first:
+      213: -3948932426889682814
+    second: pudding_4_lemon_19
+  - first:
+      213: -7899288708002193737
+    second: pudding_4_lemon_20
+  - first:
+      213: -5599526621010432657
+    second: pudding_4_lemon_21
+  - first:
+      213: 8392926868046766385
+    second: pudding_4_lemon_22
+  - first:
+      213: 1205317715084806681
+    second: pudding_4_lemon_23
+  - first:
+      213: -7328028176393605196
+    second: pudding_4_lemon_24
+  - first:
+      213: 2434044440502638867
+    second: pudding_4_lemon_25
+  - first:
+      213: -8052236342705656219
+    second: pudding_4_lemon_26
+  - first:
+      213: -5204674618359699321
+    second: pudding_4_lemon_27
+  - first:
+      213: 2053702942577454328
+    second: pudding_4_lemon_28
+  - first:
+      213: -6448231700690776737
+    second: pudding_4_lemon_29
+  - first:
+      213: 1354762780650135735
+    second: pudding_4_lemon_30
+  - first:
+      213: -426414613517940449
+    second: pudding_4_lemon_31
+  - first:
+      213: 3744627059903861853
+    second: pudding_4_lemon_32
+  - first:
+      213: -4283847615921525622
+    second: pudding_4_lemon_33
+  - first:
+      213: 1292870081323076133
+    second: pudding_4_lemon_34
+  - first:
+      213: 6978160124026764477
+    second: pudding_4_lemon_35
+  - first:
+      213: -6808544439700543004
+    second: pudding_4_lemon_36
+  - first:
+      213: -8779625024471529429
+    second: pudding_4_lemon_37
+  - first:
+      213: 7229154520213417643
+    second: pudding_4_lemon_38
+  - first:
+      213: 5501260696927613982
+    second: pudding_4_lemon_39
+  - first:
+      213: -1877161820127782107
+    second: pudding_4_lemon_40
+  - first:
+      213: 3832123913188417283
+    second: pudding_4_lemon_41
+  - first:
+      213: 7925868793525375954
+    second: pudding_4_lemon_42
+  - first:
+      213: 2016695316361790723
+    second: pudding_4_lemon_43
+  - first:
+      213: 5168619166737043087
+    second: pudding_4_lemon_44
+  - first:
+      213: 5651623968159792611
+    second: pudding_4_lemon_45
+  - first:
+      213: 1993860817660947184
+    second: pudding_4_lemon_46
+  - first:
+      213: -8089142447497884781
+    second: pudding_4_lemon_47
+  - first:
+      213: -1507472703648460509
+    second: pudding_4_lemon_48
+  - first:
+      213: 3530007598670952478
+    second: pudding_4_lemon_49
+  - first:
+      213: 5760598716597181175
+    second: pudding_4_lemon_50
+  - first:
+      213: -720234836346951998
+    second: pudding_4_lemon_51
+  - first:
+      213: 5815343230672710660
+    second: pudding_4_lemon_52
+  - first:
+      213: 4386787236750439752
+    second: pudding_4_lemon_53
+  - first:
+      213: -502926111409063071
+    second: pudding_4_lemon_54
+  - first:
+      213: -1671550531912557162
+    second: pudding_4_lemon_55
+  - first:
+      213: -4333793606922341103
+    second: pudding_4_lemon_56
+  - first:
+      213: 5022432073262680860
+    second: pudding_4_lemon_57
+  - first:
+      213: 7204804467868037336
+    second: pudding_4_lemon_58
+  - first:
+      213: -4951246436469806024
+    second: pudding_4_lemon_59
+  - first:
+      213: -7158607785038952811
+    second: pudding_4_lemon_60
+  - first:
+      213: 331540294064162667
+    second: pudding_4_lemon_61
+  - first:
+      213: -2146856010756052466
+    second: pudding_4_lemon_62
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 4096
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: pudding_4_lemon_0
+      rect:
+        serializedVersion: 2
+        x: 62
+        y: 3844
+        width: 132
+        height: 209
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 41715d82f52e501b0800000000000000
+      internalID: -5690893655777929452
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_1
+      rect:
+        serializedVersion: 2
+        x: 318
+        y: 3844
+        width: 132
+        height: 207
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 988697988aad6d3f0800000000000000
+      internalID: -876272660081186679
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_2
+      rect:
+        serializedVersion: 2
+        x: 573
+        y: 3844
+        width: 134
+        height: 205
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7b70cf5a35bd81560800000000000000
+      internalID: 7284813549585303479
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_3
+      rect:
+        serializedVersion: 2
+        x: 830
+        y: 3844
+        width: 132
+        height: 207
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6cde3865f2d656930800000000000000
+      internalID: 4135831882892045766
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_4
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 3588
+        width: 138
+        height: 204
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 12936d9fd10c21d50800000000000000
+      internalID: 6706634030086240545
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_5
+      rect:
+        serializedVersion: 2
+        x: 322
+        y: 3592
+        width: 135
+        height: 209
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: efa342b82a9524290800000000000000
+      internalID: -7907659441055188226
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_6
+      rect:
+        serializedVersion: 2
+        x: 578
+        y: 3594
+        width: 134
+        height: 210
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d3381f5203dd5e290800000000000000
+      internalID: -7861634375640579267
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_7
+      rect:
+        serializedVersion: 2
+        x: 834
+        y: 3592
+        width: 135
+        height: 209
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 417aedd62de1d1890800000000000000
+      internalID: -7485793116484622572
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_8
+      rect:
+        serializedVersion: 2
+        x: 1088
+        y: 3588
+        width: 138
+        height: 204
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 358ae6a6fe515ea90800000000000000
+      internalID: -7285392704174905261
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_9
+      rect:
+        serializedVersion: 2
+        x: 1346
+        y: 3592
+        width: 135
+        height: 212
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2887abaddd8162bf0800000000000000
+      internalID: -349564579938142078
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_10
+      rect:
+        serializedVersion: 2
+        x: 1602
+        y: 3594
+        width: 134
+        height: 214
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 03d775322974e0d50800000000000000
+      internalID: 6705375588184980784
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_11
+      rect:
+        serializedVersion: 2
+        x: 1858
+        y: 3592
+        width: 135
+        height: 212
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2993b0a1cf89e6010800000000000000
+      internalID: 1184051960581142930
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_12
+      rect:
+        serializedVersion: 2
+        x: 66
+        y: 3330
+        width: 124
+        height: 222
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a82289710d2418e30800000000000000
+      internalID: 4503954563863683722
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_13
+      rect:
+        serializedVersion: 2
+        x: 322
+        y: 3332
+        width: 124
+        height: 219
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d3c0c4fee907b4020800000000000000
+      internalID: 2327077460388875325
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_14
+      rect:
+        serializedVersion: 2
+        x: 577
+        y: 3332
+        width: 126
+        height: 218
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: db687e4e62dee4c30800000000000000
+      internalID: 4345671441764026045
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_15
+      rect:
+        serializedVersion: 2
+        x: 832
+        y: 3334
+        width: 128
+        height: 215
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d889519adfb798f20800000000000000
+      internalID: 3425405320985680013
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_16
+      rect:
+        serializedVersion: 2
+        x: 59
+        y: 3079
+        width: 138
+        height: 200
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bc097d631405a9460800000000000000
+      internalID: 7249194791229427915
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_17
+      rect:
+        serializedVersion: 2
+        x: 314
+        y: 3080
+        width: 140
+        height: 199
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ae03759968e10f820800000000000000
+      internalID: 2949891319374754026
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_18
+      rect:
+        serializedVersion: 2
+        x: 570
+        y: 3080
+        width: 140
+        height: 199
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: baeaf886f3c00f1b0800000000000000
+      internalID: -5624982468109029717
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_19
+      rect:
+        serializedVersion: 2
+        x: 826
+        y: 3080
+        width: 140
+        height: 199
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 280283d41e29239c0800000000000000
+      internalID: -3948932426889682814
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_20
+      rect:
+        serializedVersion: 2
+        x: 25
+        y: 2820
+        width: 210
+        height: 144
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7be5645b5c6106290800000000000000
+      internalID: -7899288708002193737
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_21
+      rect:
+        serializedVersion: 2
+        x: 284
+        y: 2820
+        width: 204
+        height: 148
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f6d645ca43c7a42b0800000000000000
+      internalID: -5599526621010432657
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_22
+      rect:
+        serializedVersion: 2
+        x: 535
+        y: 2820
+        width: 213
+        height: 142
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 13162c3d48aa97470800000000000000
+      internalID: 8392926868046766385
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_23
+      rect:
+        serializedVersion: 2
+        x: 794
+        y: 2820
+        width: 207
+        height: 145
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 91a8d1963162ab010800000000000000
+      internalID: 1205317715084806681
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_24
+      rect:
+        serializedVersion: 2
+        x: 37
+        y: 2567
+        width: 146
+        height: 196
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4bf610af23d9d4a90800000000000000
+      internalID: -7328028176393605196
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_25
+      rect:
+        serializedVersion: 2
+        x: 285
+        y: 2569
+        width: 149
+        height: 193
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3199ca3c58677c120800000000000000
+      internalID: 2434044440502638867
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_26
+      rect:
+        serializedVersion: 2
+        x: 533
+        y: 2569
+        width: 154
+        height: 188
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 56ee98975b5b04090800000000000000
+      internalID: -8052236342705656219
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_27
+      rect:
+        serializedVersion: 2
+        x: 800
+        y: 2568
+        width: 147
+        height: 196
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 788ad29920845c7b0800000000000000
+      internalID: -5204674618359699321
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_28
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 2308
+        width: 128
+        height: 217
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8fce08ef1f7308c10800000000000000
+      internalID: 2053702942577454328
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_29
+      rect:
+        serializedVersion: 2
+        x: 359
+        y: 2452
+        width: 35
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f5dc9e2be674386a0800000000000000
+      internalID: -6448231700690776737
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_30
+      rect:
+        serializedVersion: 2
+        x: 311
+        y: 2308
+        width: 146
+        height: 141
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7b0629732951dc210800000000000000
+      internalID: 1354762780650135735
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_31
+      rect:
+        serializedVersion: 2
+        x: 540
+        y: 2308
+        width: 200
+        height: 136
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f194a321b22151af0800000000000000
+      internalID: -426414613517940449
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_32
+      rect:
+        serializedVersion: 2
+        x: 773
+        y: 2308
+        width: 246
+        height: 91
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d5492e9987697f330800000000000000
+      internalID: 3744627059903861853
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_33
+      rect:
+        serializedVersion: 2
+        x: 59
+        y: 2052
+        width: 138
+        height: 199
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a8ce7154a47bc84c0800000000000000
+      internalID: -4283847615921525622
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_34
+      rect:
+        serializedVersion: 2
+        x: 322
+        y: 2067
+        width: 124
+        height: 222
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 52a0ef13d7231f110800000000000000
+      internalID: 1292870081323076133
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_35
+      rect:
+        serializedVersion: 2
+        x: 576
+        y: 2072
+        width: 128
+        height: 215
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dbc396239a767d060800000000000000
+      internalID: 6978160124026764477
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_36
+      rect:
+        serializedVersion: 2
+        x: 830
+        y: 2057
+        width: 132
+        height: 207
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4e92032c7e03381a0800000000000000
+      internalID: -6808544439700543004
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_37
+      rect:
+        serializedVersion: 2
+        x: 58
+        y: 1796
+        width: 140
+        height: 190
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b288e338e81882680800000000000000
+      internalID: -8779625024471529429
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_38
+      rect:
+        serializedVersion: 2
+        x: 316
+        y: 1796
+        width: 136
+        height: 201
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: baeeab30cbd135460800000000000000
+      internalID: 7229154520213417643
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_39
+      rect:
+        serializedVersion: 2
+        x: 575
+        y: 1796
+        width: 130
+        height: 214
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e143039f477685c40800000000000000
+      internalID: 5501260696927613982
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_40
+      rect:
+        serializedVersion: 2
+        x: 53
+        y: 1541
+        width: 150
+        height: 148
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 52b9b5d254bf2f5e0800000000000000
+      internalID: -1877161820127782107
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_41
+      rect:
+        serializedVersion: 2
+        x: 309
+        y: 1541
+        width: 150
+        height: 146
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 30f10e445607e2530800000000000000
+      internalID: 3832123913188417283
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_42
+      rect:
+        serializedVersion: 2
+        x: 3
+        y: 1287
+        width: 190
+        height: 112
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2d31f66bca75efd60800000000000000
+      internalID: 7925868793525375954
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_43
+      rect:
+        serializedVersion: 2
+        x: 259
+        y: 1287
+        width: 190
+        height: 113
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 30540ff84bdbcfb10800000000000000
+      internalID: 2016695316361790723
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_44
+      rect:
+        serializedVersion: 2
+        x: 515
+        y: 1287
+        width: 190
+        height: 114
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f8e03a46fbf9ab740800000000000000
+      internalID: 5168619166737043087
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_45
+      rect:
+        serializedVersion: 2
+        x: 771
+        y: 1287
+        width: 190
+        height: 113
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3ed7f323e0a9e6e40800000000000000
+      internalID: 5651623968159792611
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_46
+      rect:
+        serializedVersion: 2
+        x: 61
+        y: 1028
+        width: 134
+        height: 206
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0fa204889dd9bab10800000000000000
+      internalID: 1993860817660947184
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_47
+      rect:
+        serializedVersion: 2
+        x: 317
+        y: 1028
+        width: 134
+        height: 205
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 39bca575dc79dbf80800000000000000
+      internalID: -8089142447497884781
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_48
+      rect:
+        serializedVersion: 2
+        x: 62
+        y: 772
+        width: 132
+        height: 209
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3219f6e1091641be0800000000000000
+      internalID: -1507472703648460509
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_49
+      rect:
+        serializedVersion: 2
+        x: 318
+        y: 772
+        width: 132
+        height: 209
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e18363d453b1df030800000000000000
+      internalID: 3530007598670952478
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_50
+      rect:
+        serializedVersion: 2
+        x: 574
+        y: 772
+        width: 132
+        height: 209
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7fa98540302c1ff40800000000000000
+      internalID: 5760598716597181175
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_51
+      rect:
+        serializedVersion: 2
+        x: 63
+        y: 516
+        width: 132
+        height: 208
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2c6ada87b363106f0800000000000000
+      internalID: -720234836346951998
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_52
+      rect:
+        serializedVersion: 2
+        x: 319
+        y: 520
+        width: 130
+        height: 210
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 40c28377bdf34b050800000000000000
+      internalID: 5815343230672710660
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_53
+      rect:
+        serializedVersion: 2
+        x: 573
+        y: 516
+        width: 132
+        height: 208
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8453ab7efbff0ec30800000000000000
+      internalID: 4386787236750439752
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_54
+      rect:
+        serializedVersion: 2
+        x: 831
+        y: 520
+        width: 130
+        height: 210
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 16bb135cd5f3509f0800000000000000
+      internalID: -502926111409063071
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_55
+      rect:
+        serializedVersion: 2
+        x: 60
+        y: 260
+        width: 133
+        height: 208
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 69d9c31c5a57dc8e0800000000000000
+      internalID: -1671550531912557162
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_56
+      rect:
+        serializedVersion: 2
+        x: 317
+        y: 260
+        width: 133
+        height: 206
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 115f8890da54bd3c0800000000000000
+      internalID: -4333793606922341103
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_57
+      rect:
+        serializedVersion: 2
+        x: 575
+        y: 260
+        width: 132
+        height: 209
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c1bc9535c5343b540800000000000000
+      internalID: 5022432073262680860
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_58
+      rect:
+        serializedVersion: 2
+        x: 829
+        y: 260
+        width: 133
+        height: 206
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8d0fb67ad7b9cf360800000000000000
+      internalID: 7204804467868037336
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_59
+      rect:
+        serializedVersion: 2
+        x: 60
+        y: 4
+        width: 136
+        height: 200
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 83c6cce4993a94bb0800000000000000
+      internalID: -4951246436469806024
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_60
+      rect:
+        serializedVersion: 2
+        x: 315
+        y: 4
+        width: 137
+        height: 196
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 596486eb52487ac90800000000000000
+      internalID: -7158607785038952811
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_61
+      rect:
+        serializedVersion: 2
+        x: 572
+        y: 4
+        width: 136
+        height: 200
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b674c60142ed99400800000000000000
+      internalID: 331540294064162667
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_4_lemon_62
+      rect:
+        serializedVersion: 2
+        x: 828
+        y: 4
+        width: 137
+        height: 197
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e0a29fe25d5d432e0800000000000000
+      internalID: -2146856010756052466
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable: {}
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
