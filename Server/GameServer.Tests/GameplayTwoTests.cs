@@ -252,11 +252,13 @@ public class GameplayTwoTests
     // ------------------------------------------------------------------ pushable boxes
 
     [Fact]
-    public void Kitchen_has_one_box_and_some_decorations()
+    public void Kitchen_has_one_box_a_jump_pad_and_some_decorations()
     {
-        Assert.Single(Stage.Kitchen.Pushables);
+        Assert.Equal(2, Stage.Kitchen.Pushables.Count);
+        Assert.False(Stage.Kitchen.Pushables[0].IsJumpPad);
+        Assert.True(Stage.Kitchen.Pushables[1].IsJumpPad);
         Assert.True(Stage.Kitchen.Decorations.Count >= 3);
-        var room = PlayingRoom(2, out _);
+        var room = PlayingRoom(2, out _); // test stage S: one box
         Assert.Single(room.Pushables);
         Assert.Equal((ushort)1, room.Pushables[0].Id);
     }

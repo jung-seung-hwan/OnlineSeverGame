@@ -39,6 +39,13 @@ namespace OnlineSeverGame.Client.Input
         // 시험용: 동작을 차례로 보여 준다(-autoplay motion): 대기 → 오른쪽·왼쪽 달리기(방향 전환) → 점프·착지 →
         // 엎드리기 → 이모트 4종 → 대시. 스크린샷으로 각 동작 그림을 확인하는 데 쓴다.
         public bool AutoMotion { get; set; }
+        // 시험용: 점프 발판을 밀고 타기를 되풀이한다(-autoplay pad): 1.5초 옆면을 밀기 → 0.6초 물러나기 → 달려가 점프해
+        // 윗면 가운데에 내려앉기(튀어 오름) → 2초 뒤 다시. 발판 위치는 GameBootstrap 이 ChaseDelta 로 넣는다.
+        public bool AutoPad { get; set; }
+        public bool PadGrounded { get; set; }
+        public float PadHalfWidth { get; set; } = 0.6f;
+        float _padPhaseAt;
+        int _padPhase;
         float _motionAt;
         int _motionStep = -1;
         bool _autoDown;
@@ -86,12 +93,43 @@ namespace OnlineSeverGame.Client.Input
             _motionAt = Time.time + hold;
         }
 
+        void UpdatePadScript()
+        {
+            _autoMove = 0;
+            if (!HasChaseTarget) return;
+            float dx = ChaseDelta.x, dy = ChaseDelta.y;
+            int toward = dx > 0 ? 1 : -1;
+            if (Time.time >= _padPhaseAt)
+            {
+                _padPhase = (_padPhase + 1) % 3;
+                _padPhaseAt = Time.time + (_padPhase == 0 ? 1.5f : _padPhase == 1 ? 0.6f : 4f);
+            }
+            switch (_padPhase)
+            {
+                case 0: _autoMove = toward; break;                          // 옆면으로 걸어가 민다
+                case 1: _autoMove = -toward; break;                         // 물러나기
+                default:                                                    // 달려가 점프해 가운데에 내려앉기
+                    if (PadGrounded && dy > 0.2f)
+                    {
+                        _autoMove = toward;
+                        if (Mathf.Abs(dx) < PadHalfWidth + 1.6f) _jumpLatch = true;
+                    }
+                    else if (!PadGrounded && dy < -0.1f) _autoMove = Mathf.Abs(dx) > 0.2f ? toward : 0;
+                    break;
+            }
+        }
+
         void Update()
         {
             if (!Enabled) return;
             if (AutoPlay && AutoMotion)
             {
                 UpdateMotionScript();
+                return;
+            }
+            if (AutoPlay && AutoPad)
+            {
+                UpdatePadScript();
                 return;
             }
             if (AutoPlay && AutoChase)

@@ -19,6 +19,7 @@ namespace OnlineSeverGame.Shared.Simulation
         public bool Crouching;     // holding Down on the ground: lower body, slower, half knockback
         public bool Stomped;       // flat stun (stomp or dash hit): drawn flattened once on the ground
         public byte ImmuneTicks;   // > 0 after a flat stun ended: cannot be stunned again (drawn blinking)
+        public byte PadCooldown;   // > 0 after a jump pad launched this player: landing on a pad does not launch (v12)
 
         public bool IsDashing => DashTicks > 0;
 
@@ -37,6 +38,7 @@ namespace OnlineSeverGame.Shared.Simulation
 
         public override string ToString() =>
             $"({X},{Y}) v=({Vx},{Vy}) f={Facing} g={Grounded} dash={DashTicks} cd={DashCooldown} stun={StunTicks}" +
-            (Crouching ? " crouch" : "") + (Stomped ? " flat" : "") + (ImmuneTicks > 0 ? $" immune={ImmuneTicks}" : "");
+            (Crouching ? " crouch" : "") + (Stomped ? " flat" : "") + (ImmuneTicks > 0 ? $" immune={ImmuneTicks}" : "") +
+            (PadCooldown > 0 ? $" pad={PadCooldown}" : "");
     }
 }

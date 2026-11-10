@@ -36,6 +36,7 @@ namespace OnlineSeverGame.Shared.Simulation
             if (s.DashTicks > 0) s.DashTicks--;
             if (s.DashCooldown > 0) s.DashCooldown--;
             if (s.ImmuneTicks > 0) s.ImmuneTicks--;
+            if (s.PadCooldown > 0) s.PadCooldown--;
 
             if (s.StunTicks > 0)
             {
@@ -126,6 +127,17 @@ namespace OnlineSeverGame.Shared.Simulation
                     s.Y = top;
                     s.Vy = 0;
                     s.Grounded = true;
+                    // A jump pad launches whoever lands on it from the air (stunned, flat or holding Down too),
+                    // unless it launched them less than JumpPadCooldownTicks ago. A launch ends a dash.
+                    if (contact.GroundBox >= 0 && !groundedAtStart && s.PadCooldown == 0 && boxes[contact.GroundBox].IsJumpPad)
+                    {
+                        s.Vy = boxes[contact.GroundBox].Launch;
+                        s.Grounded = false;
+                        s.DashTicks = 0;
+                        s.PadCooldown = GameConstants.JumpPadCooldownTicks;
+                        contact.LaunchBox = contact.GroundBox;
+                        contact.GroundBox = -1;
+                    }
                 }
             }
 

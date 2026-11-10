@@ -58,6 +58,16 @@ namespace OnlineSeverGame.Shared.Simulation
         public const int PushableDashSpeed = 700;  // 14 u/s after a dash hits it
         public const int PushableFriction = 50;    // vx loses this much per grounded tick (dash push slides ~4.9 u)
 
+        // Jump pads (one per map, a pushable box with a Launch speed; docs/work/jump-pad.md). Landing on a pad's top
+        // from the air sets vy to the pad's launch speed (per map, PushableSpawn.Launch). After a launch the player
+        // cannot be launched again for JumpPadCooldownTicks, longer than the longest flight back down to the pad, so
+        // nobody bounces on it forever: a player who lands back on it during the cooldown just stands there.
+        public const int JumpPadWidth = 1200;
+        public const int JumpPadHeight = 500;
+        public const int JumpPadCooldownTicks = 40;   // 2 s, the flight back down from the highest pad takes 30 ticks
+        public const int JumpPadSpringTicks = 8;      // PushableState.Spring after a launch, counts down (drawing only)
+        public const int SyrupBoxFriction = 100;      // boxes on active syrup stop twice as fast
+
         // Ice (winter eaves): standing on ice, vx eases toward the wanted speed by IceAccel per tick
         // (letting go slides ~1.4 u). A dash hit on ice slides instead of lifting and bleeds vx/8 per stun tick.
         public const int IceAccel = 50;

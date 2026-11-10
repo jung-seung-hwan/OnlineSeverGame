@@ -13,7 +13,7 @@ namespace OnlineSeverGame.Client.Game
     //
     // 명령줄 인자(빌드·테스트용):
     //   -character jelly|bear|pudding(이번 실행만, 저장 안 함)
-    //   -name <이름>  -server <host:port>  -autoconnect  -preview  -autoplay [chase|stomp|mash|motion](무작위 입력 / 가까운 상대 쫓아 대시 / 쫓아 밟기 / 대시 연타 / 동작 차례로 보이기)
+    //   -name <이름>  -server <host:port>  -autoconnect  -preview  -autoplay [chase|stomp|mash|motion|pad](무작위 입력 / 가까운 상대 쫓아 대시 / 쫓아 밟기 / 대시 연타 / 동작 차례로 보이기 / 점프 발판 밀고 타기)
     //   -nostomppredict(밟기 튕김 예측 끄기, 비교 시험용)
     //   -screenshot <파일경로> -screenshotDelay <초> [-screenshotEvery <초>]  -quitAfter <초>
     //   (-screenshotEvery 를 주면 파일경로의 {n} 을 번호로 바꿔 여러 장 찍는다)
@@ -97,6 +97,7 @@ namespace OnlineSeverGame.Client.Game
                         _input.AutoStomp = next == "stomp";
                         _input.AutoMash = next == "mash";
                         _input.AutoMotion = next == "motion";
+                        _input.AutoPad = next == "pad";
                         break;
                     case "-screenshot": _screenshotPath = next; break;
                     case "-screenshotDelay": if (float.TryParse(next, out var d)) _screenshotAt = d; break;
@@ -149,6 +150,7 @@ namespace OnlineSeverGame.Client.Game
             if (Session != null)
             {
                 if (_input.AutoChase) UpdateChaseTarget();
+                if (_input.AutoPad) UpdatePadTarget();
                 // 세션은 실제 시간으로 돈다(연출의 멈춤·슬로모션은 Time.timeScale 로 화면만 늦춘다)
                 Session.Update(Time.unscaledDeltaTime, _input);
                 // 이모트: 접속 화면(이름 입력)만 빼고. 살아 있는지는 세션·서버가 본다.
@@ -203,6 +205,24 @@ namespace OnlineSeverGame.Client.Game
                 _screenshotAt = _screenshotEvery > 0f ? _screenshotAt + _screenshotEvery : -1f;
             }
             if (_quitAt >= 0f && t >= _quitAt) Application.Quit();
+        }
+
+        // -autoplay pad: 점프 발판 윗면 가운데까지의 거리(docs/work/jump-pad.md)
+        void UpdatePadTarget()
+        {
+            _input.HasChaseTarget = false;
+            Vector2 me = default;
+            bool found = false;
+            foreach (var p in Session.World.Players)
+                if (p.IsLocal && p.Alive) { me = p.Position; found = true; _input.PadGrounded = p.Grounded; }
+            if (!found) return;
+            foreach (var b in Session.World.Boxes)
+            {
+                if (!b.JumpPad) continue;
+                _input.ChaseDelta = b.Position + new Vector2(0f, b.Size.y) - me;
+                _input.PadHalfWidth = b.Size.x / 2f;
+                _input.HasChaseTarget = true;
+            }
         }
 
         void UpdateChaseTarget()

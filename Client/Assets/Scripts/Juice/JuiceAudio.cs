@@ -6,7 +6,7 @@ namespace OnlineSeverGame.Client.Juice
     {
         Jump, Land, Dash, DashHit, Stomp, Crouch, Death, Stun, Immune,
         Warn, SideWarn, LandKnife, LandFork, LandIcicle, LandCrate, SidePass,
-        Count, Go, Win, Lose, Click,
+        Count, Go, Win, Lose, Click, Spring,
     }
 
     // 효과음·배경음 재생(docs/work/juice-sound.md 0장 기준 v2, 2장 구조).
@@ -33,7 +33,7 @@ namespace OnlineSeverGame.Client.Juice
         {
             "sfx_jump", "sfx_land", "sfx_dash", "sfx_dash_hit", "sfx_stomp", "sfx_crouch", "sfx_death", "sfx_stun", "sfx_immune",
             "sfx_warn", "sfx_side_warn", "sfx_land_knife", "sfx_land_fork", "sfx_land_icicle", "sfx_land_crate", "sfx_side_pass",
-            "sfx_count", "sfx_go", "sfx_win", "sfx_lose", "sfx_click",
+            "sfx_count", "sfx_go", "sfx_win", "sfx_lose", "sfx_click", "sfx_spring",
         };
 
         // 소리별 크기 배수(종류별 목표 크기 - 파일 크기). 생성기가 JuiceLevels.cs 로 쓴다.

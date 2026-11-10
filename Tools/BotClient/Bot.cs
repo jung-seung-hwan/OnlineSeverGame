@@ -28,6 +28,7 @@ public sealed class Bot
     private int _dir;
     private int _dirTicksLeft;
     private int _crouchTicksLeft;
+    private int _padTripTicks;   // > 0: heading for the jump pad (DodgeBrain.SeekPad)
 
     public Bot(int index, string name, int seed, bool verbose, bool dodge)
     {
@@ -142,6 +143,15 @@ public sealed class Bot
             if (p.PlayerId != PlayerId) continue;
             if (!p.Alive) return wander;
             Stage stage = (Stage.ById(_stageId) ?? Stage.Default).AtRoundTick(snap.RoundTick);
+            // Now and then (about every 8 s) take a ride on the jump pad; the dodging below still overrides it.
+            if (_padTripTicks == 0 && p.State.Grounded && _random.Next(160) == 0) _padTripTicks = 120;
+            if (_padTripTicks > 0)
+            {
+                _padTripTicks--;
+                InputButtons seek = DodgeBrain.SeekPad(p.State, snap.Pushables, stage);
+                if (seek != InputButtons.None) wander = seek;
+                else if (p.State.PadCooldown > 0 || p.State.Grounded) _padTripTicks = 0; // launched, or gave up
+            }
             // Inputs sent but not yet applied in that snapshot wait in the server queue ahead of this one.
             int lag = (int)Math.Min(20, Seq - p.LastInputSeq);
             return DodgeBrain.Decide(p.State, snap.Knives, stage, _reactionTicks, wander, snap.Pushables, snap.SideKnives, lag);

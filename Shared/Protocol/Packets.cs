@@ -180,6 +180,7 @@ namespace OnlineSeverGame.Shared.Protocol
             w.WriteByte(State.StunTicks);
             w.WriteByte((byte)State.PrevButtons);
             w.WriteByte(State.ImmuneTicks);
+            w.WriteByte(State.PadCooldown);
             w.WriteUInt32(LastInputSeq);
         }
 
@@ -202,6 +203,7 @@ namespace OnlineSeverGame.Shared.Protocol
             p.State.StunTicks = r.ReadByte();
             p.State.PrevButtons = (InputButtons)r.ReadByte();
             p.State.ImmuneTicks = r.ReadByte();
+            p.State.PadCooldown = r.ReadByte();
             p.LastInputSeq = r.ReadUInt32();
             return p;
         }
@@ -257,6 +259,8 @@ namespace OnlineSeverGame.Shared.Protocol
                 w.WriteUInt16(b.Width);
                 w.WriteUInt16(b.Height);
                 w.WriteByte(b.Crumble);
+                w.WriteUInt16(b.Launch);
+                w.WriteByte(b.Spring);
             }
             w.WriteByte((byte)SideKnives.Count);
             for (int i = 0; i < SideKnives.Count; i++)
@@ -298,6 +302,7 @@ namespace OnlineSeverGame.Shared.Protocol
                 {
                     Id = r.ReadUInt16(), X = r.ReadInt32(), Y = r.ReadInt32(), Vx = r.ReadInt32(), Vy = r.ReadInt32(),
                     Width = r.ReadUInt16(), Height = r.ReadUInt16(), Crumble = r.ReadByte(),
+                    Launch = r.ReadUInt16(), Spring = r.ReadByte(),
                 };
                 b.Grounded = b.Vy == 0;
                 s.Pushables.Add(b);

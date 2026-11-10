@@ -383,13 +383,14 @@ public class MapLayoutTests
         for (int i = 0; i < s.Platforms.Count; i++)
             if (!s.Platforms[i].Gone)
                 list.Add(new Surface(s.Platforms[i].Top, s.Platforms[i].Left, s.Platforms[i].Right, "platform " + i));
-        foreach (var b in boxes) list.Add(new Surface(b.Top, b.Left, b.Right, "box " + b.Id));
+        foreach (var b in boxes) list.Add(new Surface(b.Top, b.Left, b.Right, (b.IsJumpPad ? "pad " : "box ") + b.Id));
         if (s.Hazard == HazardKind.Crate)
         {
-            // Landed crates, one or two high, wherever a crate can come to rest.
+            // Landed crates, one or two high, wherever a crate can come to rest (not on the jump pad: crates shatter there).
             int n = list.Count;
             for (int i = 0; i < n; i++)
             {
+                if (list[i].What.StartsWith("pad")) continue;
                 list.Add(list[i] with { Y = list[i].Y + 1200, What = list[i].What + " + crate" });
                 list.Add(list[i] with { Y = list[i].Y + 2400, What = list[i].What + " + 2 crates" });
             }

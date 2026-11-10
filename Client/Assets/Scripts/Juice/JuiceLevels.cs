@@ -29,6 +29,7 @@ namespace OnlineSeverGame.Client.Juice
                 case "sfx_win": return 0.6310f; // 목표 -18 dB, 파일 -14.0 dB
                 case "sfx_lose": return 0.5623f; // 목표 -19 dB, 파일 -14.0 dB
                 case "sfx_click": return 0.2512f; // 목표 -26 dB, 파일 -14.0 dB
+                case "sfx_spring": return 0.4467f; // 목표 -21 dB, 파일 -14.0 dB
                 default: return 0.3f;
             }
         }

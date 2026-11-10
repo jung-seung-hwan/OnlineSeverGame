@@ -20,6 +20,12 @@ namespace OnlineSeverGame.Shared.Simulation
         public bool Grounded;
         /// <summary>&gt; 0: a crate about to vanish (warehouse limit); ticks left. Still solid meanwhile.</summary>
         public byte Crumble;
+        /// <summary>&gt; 0: a jump pad; landing on its top from the air sets vy to this (v12).</summary>
+        public ushort Launch;
+        /// <summary>Jump pad spring: JumpPadSpringTicks right after it launched someone, counting down (drawing only, v12).</summary>
+        public byte Spring;
+
+        public bool IsJumpPad => Launch > 0;
 
         public int Left => X - Width / 2;
         public int Right => X + Width / 2;
@@ -31,10 +37,11 @@ namespace OnlineSeverGame.Shared.Simulation
             return new PushableState
             {
                 Id = id, X = sp.X, Y = sp.Y, Width = (ushort)sp.Width, Height = (ushort)sp.Height, Grounded = sp.Y == 0,
+                Launch = (ushort)sp.Launch,
             };
         }
 
-        public override string ToString() => $"box#{Id} ({X},{Y}) v=({Vx},{Vy}) {Width}x{Height}";
+        public override string ToString() => $"{(IsJumpPad ? "pad" : "box")}#{Id} ({X},{Y}) v=({Vx},{Vy}) {Width}x{Height}";
     }
 
     /// <summary>What one player step did to the boxes: walked or dashed into a side, or stood on a top.</summary>
@@ -47,8 +54,10 @@ namespace OnlineSeverGame.Shared.Simulation
         public bool PushDashing;
         /// <summary>Index of the box the player is standing on after the step, -1 if none.</summary>
         public int GroundBox;
+        /// <summary>Index of the jump pad that launched the player this step, -1 if none.</summary>
+        public int LaunchBox;
 
-        public static readonly BoxContact None = new BoxContact { PushBox = -1, GroundBox = -1 };
+        public static readonly BoxContact None = new BoxContact { PushBox = -1, GroundBox = -1, LaunchBox = -1 };
     }
 
     public static class PushablePhysics
@@ -79,9 +88,11 @@ namespace OnlineSeverGame.Shared.Simulation
                 if (b.Grounded) CarryOnPlatform(ref b, stage);
                 int belt = MapEventPhysics.BoxPush(stage, b);
 
+                if (b.Spring > 0) b.Spring--;
                 if (b.Grounded)
                 {
-                    int friction = stage.IsIceAt(b.Left, b.Right, b.Y) ? GameConstants.IceBoxFriction : GameConstants.PushableFriction;
+                    int friction = stage.IsIceAt(b.Left, b.Right, b.Y) ? GameConstants.IceBoxFriction
+                        : MapEventPhysics.BoxOnSyrup(stage, b) ? GameConstants.SyrupBoxFriction : GameConstants.PushableFriction;
                     if (b.Vx > 0) b.Vx = b.Vx > friction ? b.Vx - friction : 0;
                     else if (b.Vx < 0) b.Vx = -b.Vx > friction ? b.Vx + friction : 0;
                 }

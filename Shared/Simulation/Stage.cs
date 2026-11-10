@@ -161,18 +161,29 @@ namespace OnlineSeverGame.Shared.Simulation
         }
     }
 
-    /// <summary>Where a pushable box starts each round (bottom-center) and its size, milli-units.</summary>
+    /// <summary>
+    /// Where a pushable box starts each round (bottom-center) and its size, milli-units. Launch &gt; 0 makes it a
+    /// jump pad: landing on its top from the air sets vy to Launch (docs/work/jump-pad.md).
+    /// </summary>
     public readonly struct PushableSpawn
     {
         public readonly int X, Y, Width, Height;
+        public readonly int Launch;
 
-        public PushableSpawn(int x, int y, int width, int height)
+        public PushableSpawn(int x, int y, int width, int height, int launch = 0)
         {
             X = x;
             Y = y;
             Width = width;
             Height = height;
+            Launch = launch;
         }
+
+        /// <summary>A jump pad on the floor at x (GameConstants.JumpPadWidth x JumpPadHeight).</summary>
+        public static PushableSpawn JumpPad(int x, int launch) =>
+            new PushableSpawn(x, 0, GameConstants.JumpPadWidth, GameConstants.JumpPadHeight, launch);
+
+        public bool IsJumpPad => Launch > 0;
     }
 
     /// <summary>
@@ -365,7 +376,7 @@ namespace OnlineSeverGame.Shared.Simulation
             {
                 new SpawnPoint(2500, 0, 1),
                 new SpawnPoint(22000, 0, -1),
-                new SpawnPoint(11000, 0, 1),
+                new SpawnPoint(10500, 0, 1),     // 11.0 before the jump pad (docs/work/jump-pad.md)
                 new SpawnPoint(18500, 0, -1),
                 new SpawnPoint(5500, 0, 1),
                 new SpawnPoint(14500, 0, -1),
@@ -375,6 +386,7 @@ namespace OnlineSeverGame.Shared.Simulation
             pushables: new[]
             {
                 new PushableSpawn(7000, 0, 1200, 1000),   // butter block under the ladle rail
+                PushableSpawn.JumpPad(12000, KitchenPadLaunch),   // pot-trivet spring: reaches the ladle rail (9.6)
             },
             decorations: new[]
             {
@@ -426,12 +438,13 @@ namespace OnlineSeverGame.Shared.Simulation
                 new SpawnPoint(16500, 0, -1),
                 new SpawnPoint(5500, 0, 1),
                 new SpawnPoint(19500, 0, -1),
-                new SpawnPoint(12000, 0, 1),
-                new SpawnPoint(14000, 0, -1),
+                new SpawnPoint(10500, 0, 1),     // 12.0 / 14.0 before the jump pad
+                new SpawnPoint(13500, 0, -1),
             },
             pushables: new[]
             {
                 new PushableSpawn(3000, 0, 1000, 1000),
+                PushableSpawn.JumpPad(12000, WinterPadLaunch),    // sled spring on the ice: reaches the stone ledge (9.6)
             },
             decorations: new[]
             {
@@ -476,8 +489,8 @@ namespace OnlineSeverGame.Shared.Simulation
             {
                 new SpawnPoint(3000, 0, 1),
                 new SpawnPoint(21000, 0, -1),
-                new SpawnPoint(11000, 0, 1),
-                new SpawnPoint(13000, 0, -1),
+                new SpawnPoint(10500, 0, 1),     // 11.0 / 13.0 before the jump pad
+                new SpawnPoint(13500, 0, -1),
                 new SpawnPoint(5000, 0, 1),
                 new SpawnPoint(17500, 0, -1),
                 new SpawnPoint(7000, 0, 1),
@@ -487,6 +500,7 @@ namespace OnlineSeverGame.Shared.Simulation
             {
                 new PushableSpawn(9000, 0, 1400, 1200),
                 new PushableSpawn(15000, 0, 1400, 1200),
+                PushableSpawn.JumpPad(12000, WarehousePadLaunch), // pallet spring on the belt: reaches the crane pallet (8.4)
             },
             decorations: new[]
             {
@@ -537,7 +551,8 @@ namespace OnlineSeverGame.Shared.Simulation
             },
             pushables: new[]
             {
-                new PushableSpawn(12000, 0, 1000, 700),
+                new PushableSpawn(7000, 0, 1000, 700),       // macaron, 12.0 before the jump pad
+                PushableSpawn.JumpPad(12000, DessertPadLaunch),   // jelly spring: reaches the cherry cake top (9.6)
             },
             decorations: new[]
             {
@@ -552,6 +567,13 @@ namespace OnlineSeverGame.Shared.Simulation
             mapEvent: MapEventSpec.Syrup(12 * GameConstants.TickRate, 50,
                 new[] { new FloorSpan(500, 11500) },
                 new[] { new FloorSpan(12500, 23500) }));
+
+        /// <summary>
+        /// Jump pad launch speeds (vy, milli-units per tick). Apex of the feet above the pad top (0.5):
+        /// 1500 -> 10.5 (feet at 11.0, over the 9.6 tops), 1400 -> 9.1 (feet at 9.6, over the 8.4 pallet).
+        /// JumpPadTests checks each map's top surface can be reached from the pad.
+        /// </summary>
+        public const int KitchenPadLaunch = 1500, WinterPadLaunch = 1500, WarehousePadLaunch = 1400, DessertPadLaunch = 1500;
 
         /// <summary>The dessert shop cake lift's index in Dessert.Platforms.</summary>
         public const int DessertLiftIndex = 5;
