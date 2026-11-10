@@ -9,7 +9,7 @@ namespace OnlineSeverGame.Client.UI
     public sealed class ConnectView : UiView
     {
         const float CardWidth = 500f;
-        const float CardHeightForLayout = 450f; // 접속 카드(캐릭터 고르기, 경고 두 줄까지)
+        const float CardHeightForLayout = 500f; // 접속 카드(캐릭터 고르기, 경고 두 줄까지)
 
         readonly TitleLogoElement _logo;
         readonly VisualElement _connectBox, _connectingBox, _dots;
@@ -56,7 +56,7 @@ namespace OnlineSeverGame.Client.UI
             row.Add(_server);
 
             // 캐릭터 고르기(접속 전: 마지막으로 받은 번호의 색으로 미리 보기)
-            _picker = new CharacterPicker(ui, "connect", CardWidth - 44f, 118f, showNames: true);
+            _picker = new CharacterPicker(ui, "connect", CardWidth - 44f, 104f, showNames: true);
             _picker.Root.style.marginTop = 4;
             _picker.Root.style.marginBottom = 4;
             _connectBox.Add(_picker.Root);

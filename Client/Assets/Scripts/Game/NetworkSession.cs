@@ -45,7 +45,7 @@ namespace OnlineSeverGame.Client.Game
         readonly SortedDictionary<byte, string> _names = new SortedDictionary<byte, string>();
         readonly Dictionary<byte, string> _departedNames = new Dictionary<byte, string>(); // 결과 화면에 남길 이름
         readonly HashSet<byte> _participants = new HashSet<byte>();
-        // 플레이어별 지금 캐릭터(v10: PlayerJoined, PlayerCharacter). 나간 사람 것도 결과 화면을 위해 남긴다(번호를 다시 받으면 덮어씀).
+        // 플레이어별 지금 캐릭터(v11: PlayerJoined, PlayerCharacter). 나간 사람 것도 결과 화면을 위해 남긴다(번호를 다시 받으면 덮어씀).
         readonly Dictionary<byte, CharacterKind> _characters = new Dictionary<byte, CharacterKind>();
         // 이모트(v7): 플레이어별 (종류, 시작 시각). 내 이모트는 보내는 즉시 보이고 서버의 되돌림은 건너뛴다.
         readonly Dictionary<byte, (EmoteKind Kind, double Start)> _emotes = new Dictionary<byte, (EmoteKind, double)>();
@@ -362,7 +362,7 @@ namespace OnlineSeverGame.Client.Game
             _net.Send(new EmoteRequestPacket { Emote = emote });
         }
 
-        // 캐릭터 고르기(v10). 서버가 확인하고 바뀌는 때(지금 또는 다음 라운드)에 PlayerCharacter 로 모두에게 알린다.
+        // 캐릭터 고르기(v11). 서버가 확인하고 바뀌는 때(지금 또는 다음 라운드)에 PlayerCharacter 로 모두에게 알린다.
         public void RequestCharacter(CharacterKind kind)
         {
             if (!_welcomed) return; // 접속 중이면 Hello 에 이미 실렸거나, 접속 화면에서 고른 값이 다음 Hello 에 실린다

@@ -58,7 +58,7 @@ public class DashStunSideKnifeTests
     }
 
     [Fact]
-    public void Dash_hit_flattens_for_one_and_a_half_seconds_on_the_ground_then_gives_one_second_of_immunity()
+    public void Dash_hit_flattens_on_the_ground_for_the_stomp_stun_then_gives_one_second_of_immunity()
     {
         var states = new[] { Dashing(5000, 1), PlayerState.SpawnAt(5500, 0, -1) };
         var hits = new List<DashHit>();

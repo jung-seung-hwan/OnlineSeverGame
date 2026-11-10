@@ -7,7 +7,7 @@ using static OnlineSeverGame.Shared.Simulation.GameConstants;
 namespace OnlineSeverGame.Server.Tests;
 
 /// <summary>
-/// docs/work/char-select.md: character kinds (protocol v10). Hello carries the wanted kind, PlayerJoined the current
+/// docs/work/char-select.md: character kinds (protocol v11). Hello carries the wanted kind, PlayerJoined the current
 /// one (so late joiners learn everyone's), CharacterRequest / PlayerCharacter change it outside a round, and hazards
 /// judge every kind the same.
 /// </summary>
@@ -52,9 +52,9 @@ public class CharSelectTests
     // ---------------------------------------------------------------- packets
 
     [Fact]
-    public void Packets_round_trip_and_version_is_10()
+    public void Packets_round_trip_and_version_is_11()
     {
-        Assert.True(ProtocolConstants.Version >= 10);
+        Assert.True(ProtocolConstants.Version >= 11);
         Assert.Equal(3, ProtocolConstants.MaxCharacter);
 
         var hello = RoundTrip(new HelloPacket { Name = "곰", Character = CharacterKind.Bear });
@@ -112,8 +112,8 @@ public class CharSelectTests
         // Everyone already here gets the newcomer with its character.
         foreach (byte old in new[] { a, b, c })
         {
-            var p = Assert.Single(sent.Where(x => x.Target == old && x.Packet is PlayerJoinedPacket));
-            Assert.Equal((d, CharacterKind.Bear), (((PlayerJoinedPacket)p.Packet).PlayerId, ((PlayerJoinedPacket)p.Packet).Character));
+            var p = (PlayerJoinedPacket)Assert.Single(sent, x => x.Target == old && x.Packet is PlayerJoinedPacket).Packet;
+            Assert.Equal((d, CharacterKind.Bear), (p.PlayerId, p.Character));
         }
     }
 

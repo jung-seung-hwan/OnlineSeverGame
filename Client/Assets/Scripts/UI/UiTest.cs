@@ -124,11 +124,14 @@ namespace OnlineSeverGame.Client.UI
             }
             else Fail("result: still host on result screen");
             // 결과 화면에서 고르면 다음 라운드부터: 지금 캐릭터는 그대로
-            yield return Click("result-char-jelly");
-            Check(CharacterChoice.Current == CharacterKind.Jelly, "result: jelly tile picks jelly");
+            // (지금 캐릭터와 다른 칸을 누른다: 창이 보이므로 사람이 그사이 칸을 눌렀을 수도 있다)
+            var drawn = MyCharacter(game);
+            var other = drawn == CharacterKind.Jelly ? CharacterKind.Pudding : CharacterKind.Jelly;
+            yield return Click("result-char-" + (other == CharacterKind.Jelly ? "jelly" : "pudding"));
+            Check(CharacterChoice.Current == other, "result: " + other + " tile picks it");
             yield return Frames(20);
-            Check(MyCharacter(game) == CharacterKind.Bear, "result: the drawn character stays until the next round");
-            yield return Shot("result-next-jelly");
+            Check(MyCharacter(game) == drawn, "result: the drawn character (" + drawn + ") stays until the next round");
+            yield return Shot("result-next-round");
             yield return Click("btn-leave-result");
             yield return Until(() => Ui.Shown == ClientScreen.Connect, 5f, "result: leave button returns to connect screen");
             yield return Frames(20);

@@ -12,14 +12,14 @@ namespace OnlineSeverGame.Shared.Protocol
     }
 
     /// <summary>
-    /// C: first packet on a new connection. Character (v10) is the last byte; it is read only when present so an
+    /// C: first packet on a new connection. Character (v11) is the last byte; it is read only when present so an
     /// older client's shorter Hello still parses and gets a clean VersionMismatch Reject instead of a dropped connection.
     /// </summary>
     public sealed class HelloPacket : IPacket
     {
         public ushort ProtocolVersion = ProtocolConstants.Version;
         public string Name = "";
-        /// <summary>Wanted character (v10). 0 or unknown = the server uses Jelly.</summary>
+        /// <summary>Wanted character (v11). 0 or unknown = the server uses Jelly.</summary>
         public CharacterKind Character = CharacterKind.Jelly;
 
         public PacketType Type => PacketType.Hello;
@@ -81,7 +81,7 @@ namespace OnlineSeverGame.Shared.Protocol
     }
 
     /// <summary>S: roster entry. Sent for every existing player (including yourself) after Welcome, then for each newcomer.</summary>
-    /// <summary>The character (v10) is the one the player is drawn with right now, so a late joiner learns everyone's.</summary>
+    /// <summary>The character (v11) is the one the player is drawn with right now, so a late joiner learns everyone's.</summary>
     public sealed class PlayerJoinedPacket : IPacket
     {
         public byte PlayerId;
@@ -520,7 +520,7 @@ namespace OnlineSeverGame.Shared.Protocol
     }
 
     /// <summary>
-    /// C (v10): the player wants to be drawn as this character. Outside a round (Waiting, Countdown) it applies at
+    /// C (v11): the player wants to be drawn as this character. Outside a round (Waiting, Countdown) it applies at
     /// once; during Playing / Ended it waits for the next countdown (or the return to Waiting). Unknown kinds are ignored.
     /// </summary>
     public sealed class CharacterRequestPacket : IPacket
@@ -535,7 +535,7 @@ namespace OnlineSeverGame.Shared.Protocol
             new CharacterRequestPacket { Character = (CharacterKind)r.ReadByte() };
     }
 
-    /// <summary>S (v10): a player's character changed (to everyone, the player too). Joins carry it in PlayerJoined.</summary>
+    /// <summary>S (v11): a player's character changed (to everyone, the player too). Joins carry it in PlayerJoined.</summary>
     public sealed class PlayerCharacterPacket : IPacket
     {
         public byte PlayerId;

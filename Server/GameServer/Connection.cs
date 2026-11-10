@@ -13,7 +13,7 @@ public enum NetEventKind
     MapRequest,
     /// <summary>EmoteRequest from the client (v7).</summary>
     Emote,
-    /// <summary>CharacterRequest from the client (v10).</summary>
+    /// <summary>CharacterRequest from the client (v11).</summary>
     Character,
 }
 

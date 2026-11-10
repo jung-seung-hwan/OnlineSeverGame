@@ -37,14 +37,14 @@ namespace OnlineSeverGame.Shared.Simulation
         public const int StunTicks = 8;
 
         // Stomp: falling onto another player's head stuns them (flattened) and bounces the stomper up.
-        public const int StompStunTicks = 30;      // 1.5 s
+        public const int StompStunTicks = 25;      // 1.25 s
         public const int StompBounce = 700;        // vy after the bounce, apex ~2.45 u
 
         // Dash stun: a dash hit also flattens the target (like a stomp) for this long. A flat stun only counts
         // down on the ground (PlayerPhysics), so a target knocked into the air lies flat for the full time once
         // it lands, the same as a stomp. When any flat stun ends the player cannot be stunned again for
         // StunImmunityTicks (drawn blinking); a dash then only pushes.
-        public const int DashStunTicks = 30;       // 1.5 s on the ground
+        public const int DashStunTicks = 25;       // 1.25 s on the ground
         public const int StunImmunityTicks = 20;   // 1 s
 
         // Crouch: hold Down while standing. Proposed starting values, tune after play tests.

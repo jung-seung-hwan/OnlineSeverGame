@@ -37,11 +37,11 @@ public sealed class Bot
         _verbose = verbose;
         _dodge = dodge;
         _reactionTicks = _random.Next(2, 9); // 0.1 - 0.4 s to notice a warning
-        // A random character kind (v10), from its own stream so the input sequence for a seed stays as before.
+        // A random character kind (v11), from its own stream so the input sequence for a seed stays as before.
         Character = (CharacterKind)new Random(seed ^ 0xC4A2).Next(1, ProtocolConstants.MaxCharacter + 1);
     }
 
-    /// <summary>The character kind this bot asks for in Hello (random per bot, v10).</summary>
+    /// <summary>The character kind this bot asks for in Hello (random per bot, v11).</summary>
     public CharacterKind Character { get; }
 
     public int ReactionTicks => _reactionTicks;

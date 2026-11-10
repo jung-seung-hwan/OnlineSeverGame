@@ -46,7 +46,7 @@ public sealed class RoomPlayer
 {
     public byte Id;
     public string Name;
-    /// <summary>The character everyone draws this player with now (v10). Purely visual.</summary>
+    /// <summary>The character everyone draws this player with now (v11). Purely visual.</summary>
     public CharacterKind Character = CharacterKind.Jelly;
     /// <summary>The character asked for. Differs from Character only while a round is playing or showing results.</summary>
     public CharacterKind WantedCharacter = CharacterKind.Jelly;
@@ -195,7 +195,7 @@ public sealed class GameRoom
     // ---------------------------------------------------------------- network events
 
     /// <summary>
-    /// Returns the new player id (1..8), or 0 if the room is full. character is the kind from Hello (v10); 0 or an
+    /// Returns the new player id (1..8), or 0 if the room is full. character is the kind from Hello (v11); 0 or an
     /// unknown value becomes Jelly. It applies at once even mid-round: a newcomer then only spectates.
     /// </summary>
     public byte AddPlayer(string name, CharacterKind character = CharacterKind.Jelly)
@@ -290,7 +290,7 @@ public sealed class GameRoom
     }
 
     /// <summary>
-    /// A player picks a character (v10). Purely visual. Unknown players and kinds outside 1..MaxCharacter are ignored.
+    /// A player picks a character (v11). Purely visual. Unknown players and kinds outside 1..MaxCharacter are ignored.
     /// In Waiting and Countdown it applies at once and everyone gets PlayerCharacter; during Playing and Ended (a round
     /// in progress, then its results) it is kept and applied when the next countdown starts or the room goes back to
     /// Waiting. Returns true when accepted (applied now or kept for later).

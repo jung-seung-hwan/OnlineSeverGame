@@ -1,6 +1,6 @@
 # 캐릭터 선택 (젤리·젤리곰·푸딩)
 
-담당: `[OnlineSeverGame] 캐릭터 선택 · 01` · 브랜치 `claude/char-select-fbbff8` · 프로토콜 v10
+담당: `[OnlineSeverGame] 캐릭터 선택 · 01` · 브랜치 `claude/char-select-fbbff8` · 프로토콜 v11
 
 ## 1. 어떻게 플레이되는가
 
@@ -79,5 +79,6 @@ dotnet run --project Tools/BotClient -- --port 7806 --count 2
 
 ## 5. 변경 기록
 
-- 2026-11-10 서버·공용 패킷·봇·테스트, 프로토콜 v10.
+- 2026-11-10 서버·공용 패킷·봇·테스트, 프로토콜 v10(아래 병합에서 v11로 바꿈).
 - 2026-11-10 클라이언트: 곰·푸딩 시트, 종류별 지연 로딩, 고르기 칸(접속·대기·결과), 모든 그림에 종류, `-character`, 클릭 시험 단계.
+- 2026-11-10 main(91c92eb, 납작 기절 1.25초 = 프로토콜 v10)을 합침. 같은 번호가 겹쳐 캐릭터 선택을 **v11**로 올림(`ProtocolConstants.Version`, protocol.md, 주석). 충돌은 protocol.md 버전 기록 줄과 CLAUDE.md 첫 문단뿐(두 쪽 내용 모두 살림).

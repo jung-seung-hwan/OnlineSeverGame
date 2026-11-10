@@ -82,7 +82,7 @@ namespace OnlineSeverGame.Client.Model
 
         // ---------------------------------------------------------------- 게임 용어
 
-        // 캐릭터 이름(젤리·젤리곰·푸딩, v10). 모르는 값은 젤리.
+        // 캐릭터 이름(젤리·젤리곰·푸딩, v11). 모르는 값은 젤리.
         public static string CharacterName(CharacterKind kind) =>
             ProtocolConstants.IsValidCharacter((byte)kind) ? T("char." + (int)kind) : T("char.1");
 
@@ -167,7 +167,7 @@ namespace OnlineSeverGame.Client.Model
             { "hud.round", "라운드 {0}" },
             { "hud.ping", "핑 {0}ms" },
             { "hud.leave", "나가기" },
-            { "hint.controls", "←/→ 이동   ↑·Space 점프   Shift 대시(맞히면 1.5초 기절)   ↓ 엎드리기   ↓+점프 발판 아래로   머리 밟기 = 기절   Z·X·C·V 이모트" },
+            { "hint.controls", "←/→ 이동   ↑·Space 점프   Shift 대시(맞히면 1.25초 기절)   ↓ 엎드리기   ↓+점프 발판 아래로   머리 밟기 = 기절   Z·X·C·V 이모트" },
             { "hint.side.1", "20초부터 양옆에서 칼이 날아옵니다 — 높이 오면 ↓ 엎드리기, 낮게 오면 점프" },
             { "hint.side.2", "20초부터 양옆에서 눈덩이가 날아옵니다 — 높이 오면 ↓ 엎드리기, 낮게 오면 점프" },
             { "hint.side.3", "20초부터 양옆에서 나무 상자가 날아옵니다 — 높이 오면 ↓ 엎드리기, 낮게 오면 점프" },
@@ -234,7 +234,7 @@ namespace OnlineSeverGame.Client.Model
             { "settings.esc", "Esc: 설정 열기·닫기" },
             { "ctl.move", "이동" },
             { "ctl.jump", "점프" },
-            { "ctl.dash", "대시 (맞히면 1.5초 기절)" },
+            { "ctl.dash", "대시 (맞히면 1.25초 기절)" },
             { "ctl.crouch", "엎드리기" },
             { "ctl.drop", "발판 아래로 내려가기" },
             { "ctl.stomp", "머리 밟기 = 기절" },
@@ -304,7 +304,7 @@ namespace OnlineSeverGame.Client.Model
             { "hud.round", "Round {0}" },
             { "hud.ping", "Ping {0}ms" },
             { "hud.leave", "Leave" },
-            { "hint.controls", "←/→ Move   ↑/Space Jump   Shift Dash (a hit stuns 1.5 s)   ↓ Crouch   ↓+Jump Drop through   Land on a head = stun   Z/X/C/V Emotes" },
+            { "hint.controls", "←/→ Move   ↑/Space Jump   Shift Dash (a hit stuns 1.25 s)   ↓ Crouch   ↓+Jump Drop through   Land on a head = stun   Z/X/C/V Emotes" },
             { "hint.side.1", "From 20 s, knives fly in from the sides — high: crouch (↓), low: jump" },
             { "hint.side.2", "From 20 s, snowballs fly in from the sides — high: crouch (↓), low: jump" },
             { "hint.side.3", "From 20 s, wooden crates fly in from the sides — high: crouch (↓), low: jump" },
@@ -365,7 +365,7 @@ namespace OnlineSeverGame.Client.Model
             { "settings.esc", "Esc: open / close settings" },
             { "ctl.move", "Move" },
             { "ctl.jump", "Jump" },
-            { "ctl.dash", "Dash (a hit stuns 1.5 s)" },
+            { "ctl.dash", "Dash (a hit stuns 1.25 s)" },
             { "ctl.crouch", "Crouch" },
             { "ctl.drop", "Drop through a platform" },
             { "ctl.stomp", "Land on a head = stun" },
