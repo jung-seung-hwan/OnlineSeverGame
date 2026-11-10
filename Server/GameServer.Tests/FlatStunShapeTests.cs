@@ -42,6 +42,18 @@ public class FlatStunShapeTests
     }
 
     [Fact]
+    public void Front_bottom_and_top_follow_the_narrowest_kind()
+    {
+        // Per band the narrowest of jelly, gummy bear and pudding (Art/sprites/characters/*_hitcheck.json): the
+        // pudding at the front of these four bands, so no kind is hit where it is not drawn.
+        var s = HitShapes.Stomped;
+        Assert.Equal((-680, -160), (s[0].Left, s[0].Right));
+        Assert.Equal((-810, 140), (s[1].Left, s[1].Right));
+        Assert.Equal((-900, 340), (s[2].Left, s[2].Right));
+        Assert.Equal((440, 480, -840, 20), (s[10].Bottom, s[10].Top, s[10].Left, s[10].Right));
+    }
+
+    [Fact]
     public void Bands_are_ordered_and_contiguous()
     {
         var bands = HitShapes.Stomped;

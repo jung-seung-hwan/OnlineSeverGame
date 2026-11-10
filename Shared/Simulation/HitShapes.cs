@@ -74,16 +74,18 @@ namespace OnlineSeverGame.Shared.Simulation
 
         public static readonly HitBand[] Crouch = Scale(Body, 115, 60);
         /// <summary>
-        /// Flat stun on the ground (stomped or dash-stunned), facing right: the jelly sheet's "stun" row (lying on
-        /// its back, flattened) measured over all its frames as the client draws it (x 1.1, draw_scale), 40-milli
-        /// bands, body only (no decoration, no stars). Blender: build_sprites.py -- stun_table. Until 2026-11-10 it
-        /// was Stunned scaled 1.35 x 0.4, which was wider than the drawing at the front bottom and the top.
+        /// Flat stun on the ground (stomped or dash-stunned), facing right: the "stun" sheet row (lying on its back,
+        /// flattened) measured over all its frames as the client draws it (x 1.1, draw_scale), 40-milli bands, body
+        /// only (no decoration, no stars), taking per band the narrowest of jelly, gummy bear and pudding (the art
+        /// rule; the pudding is narrowest at the front of 0-120 and 440-480, the jelly everywhere else). Blender:
+        /// build_sprites.py -- stun_table with STUN_KIND. Until 2026-11-10 it was Stunned scaled 1.35 x 0.4, which
+        /// was wider than the drawing at the front bottom and the top.
         /// </summary>
         public static readonly HitBand[] Stomped =
         {
-            new HitBand(0, 40, -680, -110),
-            new HitBand(40, 80, -810, 180),
-            new HitBand(80, 120, -900, 370),
+            new HitBand(0, 40, -680, -160),
+            new HitBand(40, 80, -810, 140),
+            new HitBand(80, 120, -900, 340),
             new HitBand(120, 160, -980, 490),
             new HitBand(160, 240, -1050, 530),
             new HitBand(240, 280, -1060, 510),
@@ -91,7 +93,7 @@ namespace OnlineSeverGame.Shared.Simulation
             new HitBand(320, 360, -1040, 390),
             new HitBand(360, 400, -1010, 310),
             new HitBand(400, 440, -950, 190),
-            new HitBand(440, 480, -840, 30),
+            new HitBand(440, 480, -840, 20),
             new HitBand(480, 520, -570, -300),
         };
 
