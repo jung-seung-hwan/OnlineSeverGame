@@ -4,7 +4,15 @@
 
 ## 1. 어떻게 플레이되는가
 
-(작성 중)
+- 캐릭터 세 종류: **젤리**, **젤리곰**, **푸딩**. 색은 예전처럼 들어온 순서(플레이어 번호 1~8)로 정해진다. 고르는 건 몸 모양뿐이다.
+- **접속 화면**: 이름·서버 칸 아래에 세 칸(그림 + 이름). 접속 전에는 내 번호를 모르므로 **마지막 접속에서 받은 번호의 색**으로 보여 준다(처음이면 딸기색). 아래에 "색은 들어온 순서(플레이어 번호)로 정해져요". 고른 칸은 레몬색 테에 대기 동작으로 움직이고, 나머지는 첫 프레임을 조금 흐리게.
+- **대기 화면**(대기·카운트다운): 왼쪽 접속자 카드 아래에 같은 세 칸(이번에는 내 진짜 색). 누르면 **바로** 바뀌고 모두의 화면·접속자 카드 얼굴이 그 캐릭터로 바뀐다.
+- **결과 화면**: 오른쪽 '다음 맵' 아래에 작은 세 칸(이름은 제목 줄 오른쪽). 인원이 차 있으면 방이 결과 → 카운트다운으로 바로 넘어가 대기 화면을 거치지 않으므로, 다음 판 캐릭터는 주로 여기서 고른다. 여기서 고르면 **다음 라운드부터**: 단상의 내 캐릭터는 방금 뛴 캐릭터 그대로이고, 칸 아래에 "다음 라운드부터 ○○"가 뜬다. 다음 카운트다운 첫 장면부터 새 캐릭터.
+- 라운드 진행 중(살아 있을 때·관전)에는 고르는 칸이 없다.
+- 고른 값은 PlayerPrefs `character`(1~3)에 남아 다음 실행에도 그 캐릭터로 접속한다.
+- 모든 화면에 반영: 게임 중 캐릭터(달리기·점프·대시·기절·엎드림·이모트 등 16동작 전부), 대기 화면 접속자 카드 얼굴, 결과 단상(1위 승리 동작)과 4위 아래 목록 얼굴, 관전 중 보이는 다른 플레이어, 미리보기(나 = 고른 캐릭터, 봇은 세 종류를 돌아가며).
+- 봇(`Tools/BotClient`)은 무작위 종류로 들어온다.
+- 판정은 캐릭터와 상관없이 같다(곰 귀·푸딩 접시가 칼에 걸려 죽는 일은 없다). 판정 모양은 세 종류 중 가장 좁은 그림에 맞춰져 있다.
 
 ## 2. 어떻게 구현했는가
 
@@ -24,14 +32,52 @@
 - `Server/GameServer`: `RoomPlayer.Character`(지금)·`WantedCharacter`(원하는 것), `AddPlayer(name, character)`, `RequestCharacter`, `ApplyWantedCharacter`(StartCountdown·EnterWaiting에서). 연결 스레드는 `NetEventKind.Character` 이벤트로 넘긴다.
 - 봇(`Tools/BotClient/Bot.cs`): 시드로 정한 무작위 종류를 Hello에 싣는다. 입력용 난수와 다른 난수열이라 같은 시드의 봇 움직임은 예전과 같다.
 
+### 2.3 클라이언트
+
+- 그림: `Art/sprites/characters/bear_*`, `pudding_*`(8색 시트 + `*_sheet.json`)를 `Client/Assets/Resources/Art/characters/`로 그대로 복사. 가져오기 설정은 `Client/Assets/Editor/ArtImporter.cs` 규칙(압축·밉맵 없음, 최대 4096)으로 Unity가 만든 `.meta`(젤리 시트와 같은 설정 확인).
+- `View/ArtSprites.cs`: `Character(kind, colorIndex, anim)`. 시트 한 장이 2048 × 4096 비압축(약 32MB)이라 24장을 한꺼번에 읽지 않고 **처음 쓰이는 (종류, 색)만** 읽는다(예전엔 젤리 8장을 한꺼번에 읽었다). 8명 경기에서 한 번에 쓰이는 시트는 최대 8장 + 고르기 칸의 내 색 3장. 종류의 그림이 없으면 젤리로 그린다. `HasCharacter`는 json의 동작 이름만 본다(세 종류 행이 같음). 예전 `Character(colorIndex, anim)`은 젤리(타이틀 로고가 씀).
+- 모델: `PlayerRender.Character`, `RosterEntry.Character`, `IGameSession.RequestCharacter`. `Model/CharacterChoice.cs`: 고른 값(PlayerPrefs `character`), 마지막 색(`lastColor`, Welcome 때 저장), 실행 인자 `-character jelly|bear|pudding`(이번 실행만), 클릭 자동 시험 중에는 저장 안 함.
+- `Game/NetworkSession.cs`: Hello에 고른 값, `PlayerJoined`·`PlayerCharacter`로 플레이어별 캐릭터 표(나간 사람 것도 결과 화면을 위해 남김), 명단·그리기에 채움. `RequestCharacter`는 접속돼 있으면 `CharacterRequest`를 보낸다. 화면은 서버가 알려 준 값만 그린다(예측 안 함 — 대기 중 바로 적용이 한 번 왕복 늦을 뿐이고, 결과 화면에서 고른 것이 미리 바뀌어 보이는 일을 막는다).
+- `Game/PreviewSession.cs`: 나 = 고른 캐릭터, 봇 1~7 = 젤리곰·푸딩·젤리 차례. 고르면 바로 바뀜.
+- `UI/CharacterPicker.cs`: 세 칸(맵 고르기와 같은 `thumb` 모양, 고른 칸 `thumb--selected`). 접속(`connect-char-*`)·대기(`lobby-char-*`)·결과(`result-char-*`) 화면에 하나씩. 그림은 시트 프레임을 그대로(발 = 프레임 아래에서 8 px)를 칸 바닥에 맞춰 놓는다.
+- `View/PlayerView.cs`, `UI/UiKit.Face`, `UI/ResultView.cs`, `UI/LobbyView.cs`: 모든 그림 호출에 종류를 넘긴다. 카드·단상을 다시 만드는 기준(sig)에 종류를 넣어 바뀌면 다시 그린다.
+- 글: `Loc` 표에 `char.1~3`(젤리/Jelly, 젤리곰/Jelly Bear, 푸딩/Pudding), `char.title`, `char.next`, `char.colorNote` 두 언어.
+- 클릭 자동 시험(`UI/UiTest.cs`)에 캐릭터 단계 추가: 접속 화면 칸 → 고른 값, 접속 → Hello로 그 캐릭터, 대기 화면 칸 → 서버 `PlayerCharacter`로 바로 바뀜, 결과 화면 칸 → 고른 값만 바뀌고 그려지는 캐릭터는 그대로.
+
 ## 3. 직접 돌려 보기
 
-(작성 중)
+```bash
+dotnet test
+dotnet run --project Server/GameServer -- --port 7806 --min-players 4
+```
+
+```bash
+Client/Build/Windows/Client.exe -server 127.0.0.1:7806 -autoconnect -name Gom -character bear
+```
+
+```bash
+Client/Build/Windows/Client.exe -server 127.0.0.1:7806 -autoconnect -name Pudi -character pudding
+```
+
+```bash
+dotnet run --project Tools/BotClient -- --port 7806 --count 2
+```
+
+- 클라이언트 둘이 대기 화면에서 서로를 곰·푸딩으로 보는지, 왼쪽 카드 얼굴이 맞는지, 봇 두 명이 들어오면 라운드가 시작되고 결과 단상에도 각자의 캐릭터가 서는지 본다. 결과 화면에서 다른 칸을 누르면 "다음 라운드부터"가 뜨고 다음 카운트다운에 바뀐다.
+- 서버 로그: `join  #1 'Gom' Bear`, `char  #1 is now Pudding`, `char  #2 wants Jelly from the next round`.
+- `-character`를 빼면 접속 화면에서 고른 값(PlayerPrefs)을 쓴다.
 
 ## 4. 확인한 것과 남은 일
 
+확인함:
+
 - `dotnet test` 225개 통과(새 `CharSelectTests` 14개: 패킷 왕복·예전 Hello 읽기·접속 시 검증과 명단 전달·늦게 들어온 사람·관전 입장·대기/카운트다운 즉시 변경·진행/결과 중 보류 후 다음 카운트다운 적용·대기로 돌아갈 때 적용·**캐릭터와 상관없이 스냅샷·결과 바이트 동일**·시뮬레이션 코드에 캐릭터 인자 없음·봇 무작위 종류).
+
+- Unity 배치 빌드 성공(컴파일 오류·경고 없음). 새 시트 `.meta`가 젤리 시트와 같은 가져오기 설정(최대 4096, 비압축, 밉맵 없음).
+- 서버(7806, 최소 4명) + 클라이언트 둘(`-character bear` 한국어, `-character pudding` 영어, `-autoplay`) + 봇 둘, 약 110초 스크린샷(`artifacts/char-select/shots/`, Git 밖): 대기 화면에서 서로를 곰·푸딩으로 봄, 접속자 카드 얼굴·고르기 칸(내 색 세 종류), 게임 중(대시·기절 포함) 두 클라이언트 모두 곰·푸딩·젤리 봇, 결과 화면 단상의 푸딩과 4위 줄 곰 얼굴, 결과 화면 고르기 칸이 카드 안에 들어감, 2라운드 카운트다운(4명 카드 + 고르기 칸). 서버 로그 `join #1 'Gom' Bear`, `#2 'Pudi' Pudding`, 클라이언트 로그 예외 0.
+- 테스트 MCP(`onlinesevergame-test`)는 원본 체크아웃(D:/OnlineSeverGame)에서 돌아 이 워크트리 테스트는 못 돌린다 → `dotnet test`를 직접 돌림.
 
 ## 5. 변경 기록
 
 - 2026-11-10 서버·공용 패킷·봇·테스트, 프로토콜 v10.
+- 2026-11-10 클라이언트: 곰·푸딩 시트, 종류별 지연 로딩, 고르기 칸(접속·대기·결과), 모든 그림에 종류, `-character`, 클릭 시험 단계.

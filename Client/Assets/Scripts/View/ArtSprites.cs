@@ -1,11 +1,14 @@
 using System.Collections.Generic;
+using OnlineSeverGame.Shared.Protocol;
 using OnlineSeverGame.Shared.Simulation;
 using UnityEngine;
 
 namespace OnlineSeverGame.Client.View
 {
     // Blender 로 렌더한 그림(Assets/Resources/Art, 원본 Art/sprites)을 불러와 스프라이트로 자른다.
-    // 캐릭터 시트 규칙(프레임 크기·피벗·동작별 행·프레임 수·fps)은 jelly_sheet.json 을 그대로 읽는다.
+    // 캐릭터 시트 규칙(프레임 크기·피벗·동작별 행·프레임 수·fps)은 종류별 <종류>_sheet.json 을 그대로 읽는다.
+    // 캐릭터는 종류(젤리·젤리곰·푸딩, docs/work/char-select.md) × 색 8가지. 시트 한 장이 2048 × 4096 비압축(32MB)이라
+    // 24장을 한꺼번에 읽지 않고 처음 쓰일 때 그 (종류, 색) 한 장만 읽는다. 시트가 없으면 젤리로 그린다.
     // 맵 조각이 덮는 월드 사각형은 Art/sprites/map/map.json 의 값이다.
     // 새 맵(겨울 처마·창고·디저트 가게)은 Resources/Art/map_<이름>/ 에 있고, 좌표·피벗은 그 폴더 map.json
     // (= docs/work/maps.md 5장) 값이다. 그림이 없으면 null 을 돌려주고 부르는 쪽이 단색 도형으로 그린다.
@@ -51,11 +54,12 @@ namespace OnlineSeverGame.Client.View
         }
 
         const string Dir = "Art/";
-        static readonly string[] Sheets =
+        // 시트 파일 = <종류>_<색>. 색 순서 = 플레이어 번호 순서(PlayerColors).
+        static readonly string[] ColorSheets =
         {
-            "jelly_1_strawberry", "jelly_2_blueberry", "jelly_3_lime", "jelly_4_lemon",
-            "jelly_5_grape", "jelly_6_tangerine", "jelly_7_soda", "jelly_8_peach",
+            "1_strawberry", "2_blueberry", "3_lime", "4_lemon", "5_grape", "6_tangerine", "7_soda", "8_peach",
         };
+        const int Kinds = ProtocolConstants.MaxCharacter;
 
         public const float MapPpu = 72f;
         public static readonly Rect BackgroundRect = Rect.MinMaxRect(-1.5f, -1.5f, 25.5f, 14.0f);
@@ -64,7 +68,9 @@ namespace OnlineSeverGame.Client.View
         public static readonly Rect ShelfRect = Rect.MinMaxRect(-3.25f, -1.0f, 3.25f, 0.125f);
         public static readonly Rect LidRect = Rect.MinMaxRect(-3.25f, -1.25f, 3.25f, 0.25f);
 
-        static Dictionary<string, Clip>[] _characters;
+        // [종류 - 1, 색] = 동작 이름 → 클립. null = 아직 안 읽음
+        static readonly Dictionary<string, Clip>[,] _characters = new Dictionary<string, Clip>[Kinds, 8];
+        static readonly SheetMeta[] _metas = new SheetMeta[Kinds];
         static Sprite _knife;
         static readonly Dictionary<string, Sprite> _map = new Dictionary<string, Sprite>();
         static readonly Dictionary<string, Sprite> _props = new Dictionary<string, Sprite>();
@@ -75,18 +81,52 @@ namespace OnlineSeverGame.Client.View
         public const int IceCreamBorderPx = 54;
         public const int IceCreamTopFromImageTopPx = 18;
 
-        public static Clip Character(int colorIndex, string anim)
+        // 시트 파일 이름 앞부분(jelly / bear / pudding). 모르는 값은 젤리.
+        public static string KindPrefix(CharacterKind kind)
         {
-            if (_characters == null) LoadCharacters();
-            var set = _characters[((colorIndex % Sheets.Length) + Sheets.Length) % Sheets.Length];
+            switch (kind)
+            {
+                case CharacterKind.Bear: return "bear";
+                case CharacterKind.Pudding: return "pudding";
+                default: return "jelly";
+            }
+        }
+
+        public static Clip Character(int colorIndex, string anim) => Character(CharacterKind.Jelly, colorIndex, anim);
+
+        public static Clip Character(CharacterKind kind, int colorIndex, string anim)
+        {
+            var set = CharacterSet(kind, colorIndex);
             return set.TryGetValue(anim, out var clip) ? clip : set["idle"];
         }
 
-        // 시트에 그 동작 행이 있는가(예전 8행 시트에는 엎드림·납작 기절·이모트 등이 없다).
+        // 시트에 그 동작 행이 있는가(예전 8행 시트에는 엎드림·납작 기절·이모트 등이 없다). 세 종류의 json 은 행이 같다.
         public static bool HasCharacter(string anim)
         {
-            if (_characters == null) LoadCharacters();
-            return _characters[0].ContainsKey(anim);
+            var meta = Meta(CharacterKind.Jelly);
+            foreach (var a in meta.animations) if (a.name == anim) return true;
+            return false;
+        }
+
+        static Dictionary<string, Clip> CharacterSet(CharacterKind kind, int colorIndex)
+        {
+            int k = ProtocolConstants.IsValidCharacter((byte)kind) ? (byte)kind - 1 : 0;
+            int c = ((colorIndex % ColorSheets.Length) + ColorSheets.Length) % ColorSheets.Length;
+            var set = _characters[k, c];
+            if (set != null) return set;
+            set = LoadSheet((CharacterKind)(k + 1), c);
+            if (set == null && k != 0) set = CharacterSet(CharacterKind.Jelly, c); // 그림이 없으면 젤리
+            _characters[k, c] = set;
+            return set;
+        }
+
+        static SheetMeta Meta(CharacterKind kind)
+        {
+            int k = (byte)kind - 1;
+            if (_metas[k] != null) return _metas[k];
+            var text = Resources.Load<TextAsset>(Dir + "characters/" + KindPrefix(kind) + "_sheet");
+            _metas[k] = text != null ? JsonUtility.FromJson<SheetMeta>(text.text) : null;
+            return _metas[k];
         }
 
         public static Sprite Knife
@@ -288,31 +328,29 @@ namespace OnlineSeverGame.Client.View
             }
         }
 
-        static void LoadCharacters()
+        static Dictionary<string, Clip> LoadSheet(CharacterKind kind, int color)
         {
-            var meta = JsonUtility.FromJson<SheetMeta>(Resources.Load<TextAsset>(Dir + "characters/jelly_sheet").text);
+            var meta = Meta(kind);
+            string sheet = KindPrefix(kind) + "_" + ColorSheets[color];
+            var tex = meta != null ? Resources.Load<Texture2D>(Dir + "characters/" + sheet) : null;
+            if (tex == null) return null;
             int fw = meta.frame_size[0], fh = meta.frame_size[1];
             var pivot = new Vector2((float)meta.pivot_px_from_bottom_left[0] / fw, (float)meta.pivot_px_from_bottom_left[1] / fh);
-            _characters = new Dictionary<string, Clip>[Sheets.Length];
-            for (int c = 0; c < Sheets.Length; c++)
+            var set = new Dictionary<string, Clip>();
+            foreach (var a in meta.animations)
             {
-                var tex = Resources.Load<Texture2D>(Dir + "characters/" + Sheets[c]);
-                var set = new Dictionary<string, Clip>();
-                foreach (var a in meta.animations)
+                var frames = new Sprite[a.frames];
+                for (int i = 0; i < a.frames; i++)
                 {
-                    var frames = new Sprite[a.frames];
-                    for (int i = 0; i < a.frames; i++)
-                    {
-                        // 시트 맨 위 행이 row 0
-                        var r = new Rect(i * fw, tex.height - (a.row + 1) * fh, fw, fh);
-                        frames[i] = Sprite.Create(tex, r, pivot, meta.ppu, 0, SpriteMeshType.FullRect);
-                        frames[i].name = Sheets[c] + "_" + a.name + "_" + i;
-                    }
-                    var scale = a.draw_scale != null && a.draw_scale.Length == 2 ? new Vector2(a.draw_scale[0], a.draw_scale[1]) : Vector2.one;
-                    set.Add(a.name, new Clip { Name = a.name, Frames = frames, Fps = a.fps, Loop = a.loop, DrawScale = scale });
+                    // 시트 맨 위 행이 row 0
+                    var r = new Rect(i * fw, tex.height - (a.row + 1) * fh, fw, fh);
+                    frames[i] = Sprite.Create(tex, r, pivot, meta.ppu, 0, SpriteMeshType.FullRect);
+                    frames[i].name = sheet + "_" + a.name + "_" + i;
                 }
-                _characters[c] = set;
+                var scale = a.draw_scale != null && a.draw_scale.Length == 2 ? new Vector2(a.draw_scale[0], a.draw_scale[1]) : Vector2.one;
+                set.Add(a.name, new Clip { Name = a.name, Frames = frames, Fps = a.fps, Loop = a.loop, DrawScale = scale });
             }
+            return set;
         }
     }
 }

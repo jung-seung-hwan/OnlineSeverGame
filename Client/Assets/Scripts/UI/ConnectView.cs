@@ -9,13 +9,14 @@ namespace OnlineSeverGame.Client.UI
     public sealed class ConnectView : UiView
     {
         const float CardWidth = 500f;
-        const float CardHeightForLayout = 300f; // 접속 카드(경고 두 줄까지)
+        const float CardHeightForLayout = 450f; // 접속 카드(캐릭터 고르기, 경고 두 줄까지)
 
         readonly TitleLogoElement _logo;
         readonly VisualElement _connectBox, _connectingBox, _dots;
         readonly Label _nameLabel, _serverLabel, _status, _connectingText;
         readonly TextField _name, _server;
         readonly Button _join, _preview, _settingsBtn, _langBtn, _cancel;
+        readonly CharacterPicker _picker;
         bool _fieldsLoaded;
 
         public ConnectView(GameUI ui) : base(ui)
@@ -53,6 +54,12 @@ namespace OnlineSeverGame.Client.UI
             _server.AddToClassList("field");
             _server.RegisterValueChangedCallback(e => Ui.Game.ServerAddress = e.newValue);
             row.Add(_server);
+
+            // 캐릭터 고르기(접속 전: 마지막으로 받은 번호의 색으로 미리 보기)
+            _picker = new CharacterPicker(ui, "connect", CardWidth - 44f, 118f, showNames: true);
+            _picker.Root.style.marginTop = 4;
+            _picker.Root.style.marginBottom = 4;
+            _connectBox.Add(_picker.Root);
 
             var buttons = UiKit.El(null, _connectBox);
             buttons.style.flexDirection = FlexDirection.Row;
@@ -134,6 +141,8 @@ namespace OnlineSeverGame.Client.UI
             UiKit.SetText(_settingsBtn, Loc.T("ui.settings"));
             UiKit.SetText(_langBtn, Loc.T("lang.label") + " · " + Loc.T("lang.button"));
             UiKit.SetText(_cancel, Loc.T("connect.cancel"));
+            if (!connecting)
+                _picker.Refresh(CharacterChoice.LastColor, CharacterChoice.Current, false, Loc.T("char.colorNote"), now);
             _join.SetEnabled(!string.IsNullOrWhiteSpace(Ui.Game.PlayerName));
 
             string status = Ui.Game.LastStatus;

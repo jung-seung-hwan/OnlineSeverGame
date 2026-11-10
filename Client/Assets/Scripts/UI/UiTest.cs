@@ -29,6 +29,7 @@ namespace OnlineSeverGame.Client.UI
         {
             Active = true;
             Loc.Persist = false;
+            CharacterChoice.Persist = false;
             var args = Environment.GetCommandLineArgs();
             for (int i = 0; i < args.Length - 1; i++)
                 if (args[i] == "-uitestshots") _shots = args[i + 1];
@@ -61,12 +62,23 @@ namespace OnlineSeverGame.Client.UI
             yield return Click("btn-lang-connect");
             Check(Loc.Current == Language.Korean, "connect: language chip toggles back to Korean");
             Loc.Set(startLang); // 나머지 화면은 시작 언어(-lang)로 찍는다
+            // 캐릭터 고르기(docs/work/char-select.md): 접속 전에는 고른 값만 바뀌고 Hello 에 실린다
+            yield return Click("connect-char-pudding");
+            Check(CharacterChoice.Current == CharacterKind.Pudding, "connect: pudding tile picks pudding");
+            yield return Click("connect-char-bear");
+            Check(CharacterChoice.Current == CharacterKind.Bear, "connect: bear tile picks bear");
             yield return Shot("connect");
 
             // ---------------- 접속 → 대기
             yield return Click("btn-join");
             yield return Until(() => Ui.Shown == ClientScreen.Lobby || Ui.Shown == ClientScreen.Countdown, 10f, "join: lobby screen appears");
             yield return Until(() => game.Session != null && game.Session.State.IsHost, 5f, "lobby: first player becomes host");
+            yield return Until(() => MyCharacter(game) == CharacterKind.Bear, 3f, "lobby: joined as the character picked before joining (Hello)");
+            yield return Click("lobby-char-pudding");
+            yield return Until(() => MyCharacter(game) == CharacterKind.Pudding, 3f, "lobby: pudding tile changes my character at once (server PlayerCharacter)");
+            yield return Shot("lobby-pudding");
+            yield return Click("lobby-char-bear");
+            yield return Until(() => MyCharacter(game) == CharacterKind.Bear, 3f, "lobby: bear tile changes it back");
             yield return Frames(10);
             int[] maps = { 3, 2, 4, 1 };
             foreach (int id in maps)
@@ -111,6 +123,12 @@ namespace OnlineSeverGame.Client.UI
                 yield return Until(() => game.Session != null && game.Session.State.Rotation == MapRotation.Random, 3f, "result: rotation Random button");
             }
             else Fail("result: still host on result screen");
+            // 결과 화면에서 고르면 다음 라운드부터: 지금 캐릭터는 그대로
+            yield return Click("result-char-jelly");
+            Check(CharacterChoice.Current == CharacterKind.Jelly, "result: jelly tile picks jelly");
+            yield return Frames(20);
+            Check(MyCharacter(game) == CharacterKind.Bear, "result: the drawn character stays until the next round");
+            yield return Shot("result-next-jelly");
             yield return Click("btn-leave-result");
             yield return Until(() => Ui.Shown == ClientScreen.Connect, 5f, "result: leave button returns to connect screen");
             yield return Frames(20);
@@ -148,6 +166,9 @@ namespace OnlineSeverGame.Client.UI
 
         void Pass(string what) { _pass++; Debug.Log("[UITest] PASS " + what); }
         void Fail(string what) { _fail++; Debug.Log("[UITest] FAIL " + what); }
+
+        static CharacterKind MyCharacter(OnlineSeverGame.Client.Game.GameBootstrap game) =>
+            game.Session != null && game.Session.State.TryGet(game.Session.State.LocalId, out RosterEntry me) ? me.Character : 0;
 
         static string ButtonText(string name) => UiKit.TryGetButton(name, out var b) ? UiKit.ButtonText(b) : null;
 
