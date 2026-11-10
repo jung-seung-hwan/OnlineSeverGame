@@ -24,6 +24,7 @@
 | 테스트용 MCP 도구 | [work/test-mcp.md](work/test-mcp.md) | 테스트용 MCP 도구 · 01 | 직접 만든 stdio MCP 서버(`Tools/TestMcp`, `.mcp.json`): 단위 테스트·서버+봇 경기를 백그라운드 작업으로 돌리고 요약. 만드는 법·쓰는 법 정리 |
 | 타이틀(게임 이름·로고) | [work/title.md](work/title.md) | 타이틀 · 01 | 이름 "Jelly Survival", 사각형으로 그린 로고(`UI/TitleLogo.cs`): 접속 화면에서 JELLY 글자 위 젤리 네 마리가 예고를 보고 옆 글자로 뛰어 피함, 대기 화면 작은 로고 |
 | 화면 글 점검·언어 전환·맵별 옆 위험물 | [work/side-hazards-i18n.md](work/side-hazards-i18n.md) | 전체 점검·언어·맵별 옆 위험물 · 01 | 완료: 화면 글 점검표(잘림·내부 용어 15건 고침), 한국어/영어 전환(`Loc` 표, 언어 버튼, PlayerPrefs), 옆 위험물이 맵마다 다름(칼·눈덩이·나무 상자·마카롱), 프로토콜 v6 |
+| 추가 캐릭터(젤리곰·푸딩) | [work/art-characters.md](work/art-characters.md) | 캐릭터·맵 아트 · 02 | 후보 추천, 젤리곰·푸딩 콘셉트 시트 생성·판정 띠 비교. 시안 확정·판정 방법 결정 대기 |
 
 ### 작업 문서에 들어갈 것
 
