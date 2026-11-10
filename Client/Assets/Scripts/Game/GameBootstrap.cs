@@ -11,7 +11,7 @@ namespace OnlineSeverGame.Client.Game
     // 씬에 하나만 둔다. 카메라·스테이지·뷰·UI를 코드로 만들고 세션을 바꿔 끼운다.
     //
     // 명령줄 인자(빌드·테스트용):
-    //   -name <이름>  -server <host:port>  -autoconnect  -preview  -autoplay [chase|stomp|mash](무작위 입력 / 가까운 상대 쫓아 대시 / 쫓아 밟기 / 대시 연타)
+    //   -name <이름>  -server <host:port>  -autoconnect  -preview  -autoplay [chase|stomp|mash|motion](무작위 입력 / 가까운 상대 쫓아 대시 / 쫓아 밟기 / 대시 연타 / 동작 차례로 보이기)
     //   -nostomppredict(밟기 튕김 예측 끄기, 비교 시험용)
     //   -screenshot <파일경로> -screenshotDelay <초> [-screenshotEvery <초>]  -quitAfter <초>
     //   (-screenshotEvery 를 주면 파일경로의 {n} 을 번호로 바꿔 여러 장 찍는다)
@@ -88,6 +88,7 @@ namespace OnlineSeverGame.Client.Game
                         _input.AutoChase = next == "chase" || next == "stomp";
                         _input.AutoStomp = next == "stomp";
                         _input.AutoMash = next == "mash";
+                        _input.AutoMotion = next == "motion";
                         break;
                     case "-screenshot": _screenshotPath = next; break;
                     case "-screenshotDelay": if (float.TryParse(next, out var d)) _screenshotAt = d; break;
@@ -141,6 +142,9 @@ namespace OnlineSeverGame.Client.Game
             {
                 if (_input.AutoChase) UpdateChaseTarget();
                 Session.Update(Time.deltaTime, _input);
+                // 이모트: 접속 화면(이름 입력)만 빼고. 살아 있는지는 세션·서버가 본다.
+                var emote = _input.TakeEmote();
+                if (emote != 0 && screen != ClientScreen.Connect) Session.SendEmote(emote);
                 RebuildIfMapChanged();
                 _world.Apply(Session.World);
                 _stage.Refresh(Layout);

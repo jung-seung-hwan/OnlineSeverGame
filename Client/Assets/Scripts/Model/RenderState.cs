@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using OnlineSeverGame.Shared.Protocol;
 using OnlineSeverGame.Shared.Simulation;
 using UnityEngine;
 
@@ -26,6 +27,14 @@ namespace OnlineSeverGame.Client.Model
         public bool Stomped;       // 납작 기절(밟기·대시 기절)로 땅에 붙어 있음(더 세게 눌러 그린다). 공중이면 false = 밀려남 그림
         public int ImmuneTicks;    // > 0 이면 기절 면역(깜빡인다). 남은 틱으로 깜빡임 박자를 정해 모든 화면이 같게 깜빡인다
         public float DashCooldown; // 내 캐릭터만: 0 = 대시 가능, 1 = 막 썼음. 다른 플레이어는 0
+        public EmoteKind Emote;    // 이모트 중이면 종류(v7), 아니면 0. 그림만 바뀐다(판정·예측과 무관)
+        public float EmoteAge;     // 이모트 시작 후 지난 초
+    }
+
+    // 이모트를 보여 주는 시간(초). 이 동안 서 있으면 이모트 그림, 움직이면 바로 끝난다(PlayerView).
+    public static class EmoteTiming
+    {
+        public const float Seconds = 1.6f;
     }
 
     // 밀리는 오브젝트(서버 계산, 스냅샷 보간). 위치는 아래쪽 가운데.

@@ -36,6 +36,8 @@ namespace OnlineSeverGame.Client.Game
             public bool Grounded;
             public float BotTurn;
             public float Stun;          // 밀려나는 중(그리기용)
+            public EmoteKind Emote;     // 이모트(그리기용). 미리보기 봇도 가끔 한다
+            public float EmoteAge;
         }
 
         sealed class Sword
@@ -130,6 +132,12 @@ namespace OnlineSeverGame.Client.Game
             {
                 if (!b.Alive) continue;
                 if (b.Stun > 0f) b.Stun -= dt;
+                if (b.Emote != 0 && (b.EmoteAge += dt) >= EmoteTiming.Seconds) b.Emote = 0;
+                if (b.Id != State.LocalId && b.Emote == 0 && Random.value < dt * 0.08f)
+                {
+                    b.Emote = (EmoteKind)Random.Range(1, ProtocolConstants.MaxEmote + 1);
+                    b.EmoteAge = 0f;
+                }
                 int move;
                 bool jump, dash, down = false;
                 if (b.Id == State.LocalId)
@@ -143,9 +151,9 @@ namespace OnlineSeverGame.Client.Game
                 {
                     b.BotTurn -= dt;
                     if (b.BotTurn <= 0f) { b.Facing = Random.value < 0.5f ? -1 : 1; b.BotTurn = Random.Range(0.4f, 1.6f); }
-                    move = b.Facing;
-                    jump = Random.value < dt * 0.8f;
-                    dash = Random.value < dt * 0.3f;
+                    move = b.Emote != 0 ? 0 : b.Facing;   // 이모트하는 동안은 서 있는다
+                    jump = b.Emote == 0 && Random.value < dt * 0.8f;
+                    dash = b.Emote == 0 && Random.value < dt * 0.3f;
                 }
 
                 if (move != 0) b.Facing = move;
@@ -315,6 +323,8 @@ namespace OnlineSeverGame.Client.Game
                     Crouching = b.Crouching && b.Grounded,
                     DashCooldown = b.Id == State.LocalId ? Mathf.Clamp01(b.DashCool / DashCooldown) : 0f,
                     Winner = State.Screen == ClientScreen.Result && State.WinnerIds.Contains(b.Id),
+                    Emote = b.Alive ? b.Emote : 0,
+                    EmoteAge = b.EmoteAge,
                 });
             }
             foreach (var s in _swords)
@@ -346,6 +356,16 @@ namespace OnlineSeverGame.Client.Game
         }
 
         public void RequestMap(byte stageId, MapRotation rotation) { } // 미리보기는 주방 하나
+
+        public void SendEmote(EmoteKind emote)
+        {
+            foreach (var b in _bodies)
+            {
+                if (b.Id != State.LocalId || !b.Alive || (b.Emote != 0 && b.EmoteAge < 1.1f)) continue;
+                b.Emote = emote;
+                b.EmoteAge = 0f;
+            }
+        }
 
         public void Close() { }
     }

@@ -229,7 +229,7 @@ public class SideHazardTests
         var k = Assert.Single(back.SideKnives);
         Assert.Equal((SideHazardKind.Macaron, 1, SideKnifePhase.Warning, -600, 1020, 20),
             (k.Kind, (int)k.Dir, k.Phase, k.X, k.Y, (int)k.Timer));
-        Assert.Equal(6, ProtocolConstants.Version);
+        Assert.True(ProtocolConstants.Version >= 6); // v7 added emotes
     }
 
     [Fact]

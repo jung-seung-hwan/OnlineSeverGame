@@ -533,7 +533,7 @@ def make_lattice(parent):
 # ---- faces: each expression is one object (both eyes, or the mouth), shown per frame
 
 def build_faces(parent, lat, mats):
-    ink, white, mouth, tongue = mats
+    ink, white, mouth, tongue, tear = mats
     eyes = [surface_frame(y, EYE_Z) for y in EYE_YAWS]
     mf = surface_frame(*MOUTH_AT)
     out = {}
@@ -541,7 +541,7 @@ def build_faces(parent, lat, mats):
     def part(name, build):
         bm = bmesh.new()
         build(bm)
-        ob = new_obj(name, bm, [ink, white, mouth, tongue], parent)
+        ob = new_obj(name, bm, [ink, white, mouth, tongue, tear], parent)
         add_lattice_mod(ob, lat)
         out[name] = ob
 
@@ -588,6 +588,34 @@ def build_faces(parent, lat, mats):
             add_tube(bm, pts, 0.01, m, 0, sides=6)
     part('Eyes_spiral', spiral)
 
+    # blink and emotes (char-motion): half shut, shut, teasing > <, sad with a tear
+    def half(bm):
+        for m in eyes:
+            add_ellipsoid(bm, (0, -0.03, 0.004), (0.062, 0.052, 0.022), m, 0)
+            add_tube(bm, [(-0.068, 0.016, 0.014), (0.068, 0.016, 0.014)], 0.014, m, 0)
+    part('Eyes_half', half)
+
+    def closed(bm):
+        for m in eyes:
+            us = [-0.06 + 0.12 * i / 10 for i in range(11)]
+            add_tube(bm, [(u, -0.03 + 6 * u * u, 0.012) for u in us], 0.015, m, 0)
+    part('Eyes_closed', closed)
+
+    def squint(bm):
+        for i, m in enumerate(eyes):
+            k = 1 if i == 0 else -1
+            add_tube(bm, [(-0.05 * k, 0.05, 0.012), (0.04 * k, 0.0, 0.012), (-0.05 * k, -0.05, 0.012)], 0.016, m, 0)
+    part('Eyes_squint', squint)
+
+    def sad(bm):
+        for i, m in enumerate(eyes):
+            add_ellipsoid(bm, (0, -0.02, 0.004), (0.056, 0.084, 0.022), m, 0)
+            add_ellipsoid(bm, (-0.016, 0.02, 0.02), (0.02, 0.024, 0.01), m, 1)
+            brow = [(-0.06, 0.07), (0.05, 0.14)] if i == 0 else [(-0.05, 0.14), (0.06, 0.07)]
+            add_tube(bm, [(u, v, 0.014) for u, v in brow], 0.013, m, 0)
+        add_ellipsoid(bm, (0.01, -0.15, 0.02), (0.022, 0.034, 0.014), eyes[1], 4)
+    part('Eyes_sad', sad)
+
     us = [-0.045 + 0.09 * i / 10 for i in range(11)]
     part('Mouth_smile', lambda bm: add_tube(bm, [(u, -0.014 + 8 * u * u, 0.01) for u in us], 0.009, mf, 0))
     part('Mouth_frown', lambda bm: add_tube(bm, [(u, 0.006 - 8 * u * u, 0.01) for u in us], 0.009, mf, 0))
@@ -598,6 +626,12 @@ def build_faces(parent, lat, mats):
         add_prism(bm, pts, -0.012, 0.008, mf, 2)
         add_ellipsoid(bm, (0, -0.03, 0.004), (0.028, 0.015, 0.008), mf, 3)
     part('Mouth_open', open_mouth)
+
+    def tongue_out(bm):
+        pts = [(0.04 * math.cos(math.pi * i / 16), 0.01 - 0.03 * math.sin(math.pi * i / 16)) for i in range(17)]
+        add_prism(bm, pts, -0.012, 0.008, mf, 2)
+        add_ellipsoid(bm, (0.004, -0.05, 0.016), (0.03, 0.04, 0.012), mf, 3)
+    part('Mouth_tongue', tongue_out)
     return out
 
 
@@ -734,27 +768,55 @@ def F(eyes='open', mouth='smile', **k):
     return k
 
 
-def _run(i):
-    p = i / 6
+def _run(i, n=8):
+    p = i / n
     s = math.sin(2 * math.pi * p)
     c = math.cos(2 * math.pi * p)
     a = abs(s)
     return F('open', 'open', lean=0.32, flat=0.1 * (1 - a), tall=0.08 * a, dz=0.05 * a,
              feet=((0.12 * c, 0.07 * max(0.0, s)), (-0.12 * c, 0.07 * max(0.0, -s))),
-             decor_tilt=-12 + 6 * a)
+             decor_tilt=-12 + 6 * a, decor_dz=-0.015 * s)
 
 
+# Flat stun (stomp or dash hit, lying on the ground): the middle knockback pose squashed 1.35 x 0.4 around the
+# feet, which is exactly how HitShapes.Stomped is defined, so the drawing matches the hit bands by construction.
+# Crouch is the idle pose squashed 1.15 x 0.6 (HitShapes.Crouch). The decoration and the stars are not squashed.
+# HitShapes.Stomped reaches 1.1 units behind the feet, past the 2 x 2 unit frame, so the stun row is rendered
+# narrower and the client draws it STUN_DRAW_SX wider (jelly_sheet.json "draw_scale"): 1.227 x 1.1 = 1.35.
+STUN_DRAW_SX = 1.1
+STUN_SQ = (1.35 / STUN_DRAW_SX, 0.4)
+DRAW_SCALE = dict(stun=(STUN_DRAW_SX, 1.0))
+CROUCH_SQ = (1.15, 0.6)
+
+
+def _stun(i):
+    breathe = (0.0, 0.01, 0.02, 0.01)[i]
+    return F('spiral', 'o', tilt=-28, dz=0.15, lean=-0.34, flat=0.10, long=0.08, dx=0.04, feet=((0.06, 0.05), (-0.05, 0.08)),
+             sq=(STUN_SQ[0], STUN_SQ[1] + breathe), stars=30.0 * i)
+
+
+# Rows 0-7 keep their order and names (older clients read them by name from jelly_sheet.json); new rows go below.
+# name, fps, loop, frames. Frame keys: shape keys (tall flat lean long taper puddle), dz, tilt, feet, eyes, mouth,
+# decor_tilt / decor_dz / decor_at, yaw (extra turn toward the camera, degrees), sq (sx, sz squash around the feet),
+# stars (phase in degrees of the three stun stars).
 ANIMS = [
     ('idle', 6, True, [F(flat=0.0), F(flat=0.04), F(flat=0.08), F(flat=0.04)]),
-    ('run', 12, True, [_run(i) for i in range(6)]),
-    ('jump', 10, True, [F('open', 'o', tall=0.35), F('open', 'o', tall=0.28, decor_dz=-0.01)]),
-    ('fall', 10, True, [F('wide', 'o', flat=0.28, feet=((0.02, 0.03), (-0.02, 0.03)), decor_dz=0.04),
-                        F('wide', 'o', flat=0.34, feet=((0.02, 0.04), (-0.02, 0.04)), decor_dz=0.06)]),
-    ('dash', 15, True, [F('determined', 'smile', long=1.0, taper=1.0, lean=0.1, decor_tilt=-25),
-                        F('determined', 'smile', long=0.9, taper=0.9, lean=0.12, decor_tilt=-28),
-                        F('determined', 'smile', long=1.05, taper=1.0, lean=0.08, decor_tilt=-22)]),
+    ('run', 14, True, [_run(i) for i in range(8)]),
+    ('jump', 12, False, [F('open', 'o', tall=0.35, decor_dz=-0.03, feet=((0.02, -0.01), (-0.02, -0.01))),
+                         F('open', 'o', tall=0.30, decor_dz=-0.015),
+                         F('open', 'o', tall=0.23, decor_dz=0.0),
+                         F('open', 'o', tall=0.15, decor_dz=0.015, feet=((0.02, 0.02), (-0.02, 0.02)))]),
+    ('fall', 10, True, [F('wide', 'o', flat=0.26, feet=((0.02, 0.03), (-0.02, 0.03)), decor_dz=0.04),
+                        F('wide', 'o', flat=0.30, feet=((0.02, 0.04), (-0.02, 0.035)), decor_dz=0.05, decor_tilt=-3),
+                        F('wide', 'o', flat=0.34, feet=((0.02, 0.045), (-0.02, 0.04)), decor_dz=0.065),
+                        F('wide', 'o', flat=0.30, feet=((0.02, 0.035), (-0.02, 0.045)), decor_dz=0.05, decor_tilt=3)]),
+    ('dash', 16, True, [F('determined', 'smile', long=1.0, taper=1.0, lean=0.1, decor_tilt=-25),
+                        F('determined', 'smile', long=0.92, taper=0.92, lean=0.12, decor_tilt=-28),
+                        F('determined', 'smile', long=1.04, taper=1.0, lean=0.08, decor_tilt=-22),
+                        F('determined', 'smile', long=0.97, taper=0.96, lean=0.1, decor_tilt=-26)]),
     ('knockback', 12, False, [
         F('spiral', 'o', tilt=-16, dz=0.06, lean=-0.25, flat=0.1, feet=((0.05, 0.03), (-0.05, 0.06)), decor_tilt=-12),
+        F('spiral', 'o', tilt=-23, dz=0.11, lean=-0.28, flat=0.11, feet=((0.06, 0.04), (-0.05, 0.07)), decor_tilt=-15),
         F('spiral', 'o', tilt=-28, dz=0.14, lean=-0.3, flat=0.12, feet=((0.06, 0.05), (-0.05, 0.08)), decor_tilt=-18),
         F('spiral', 'o', tilt=-22, dz=0.10, lean=-0.22, flat=0.08, feet=((0.05, 0.04), (-0.05, 0.06)), decor_tilt=-14)]),
     ('death', 10, False, [
@@ -767,6 +829,30 @@ ANIMS = [
         F('happy', 'open', tall=0.3, dz=0.12, decor_tilt=-6),
         F('happy', 'open', tall=0.15, dz=0.16, decor_tilt=-8),
         F('happy', 'open', flat=0.05, dz=0.04, decor_tilt=4)]),
+    # ---- char-motion rows (docs/work/char-motion.md)
+    ('land', 20, False, [F('half', 'smile', flat=0.34, feet=((0.05, 0.0), (-0.05, 0.0)), decor_dz=-0.04, decor_tilt=4),
+                         F('open', 'smile', flat=0.16, decor_dz=-0.01),
+                         F('open', 'smile', tall=0.06, decor_dz=0.02, decor_tilt=-3)]),
+    ('crouch', 3, True, [F('determined', 'smile', sq=CROUCH_SQ),
+                         F('determined', 'smile', sq=(CROUCH_SQ[0], CROUCH_SQ[1] - 0.015))]),
+    ('stun', 8, True, [_stun(i) for i in range(4)]),
+    ('turn', 24, False, [F('open', 'smile', yaw=-30, flat=0.06), F('open', 'smile', yaw=-60, flat=0.1)]),
+    ('blink', 16, False, [F('half'), F('closed'), F('half')]),
+    ('emote_wave', 6, True, [
+        F('happy', 'open', yaw=-25, lean=0.09, decor_tilt=-8),
+        F('happy', 'open', yaw=-25, lean=0.0, dz=0.03, tall=0.03),
+        F('happy', 'open', yaw=-25, lean=-0.09, decor_tilt=8),
+        F('happy', 'open', yaw=-25, lean=0.0, dz=0.03, tall=0.03)]),
+    ('emote_taunt', 8, True, [
+        F('squint', 'tongue', yaw=-20, lean=-0.12, decor_tilt=10),
+        F('squint', 'tongue', yaw=-20, lean=-0.04, flat=0.06),
+        F('squint', 'tongue', yaw=-20, lean=0.08, decor_tilt=-6),
+        F('squint', 'tongue', yaw=-20, lean=-0.04, flat=0.06)]),
+    ('emote_sad', 4, True, [
+        F('sad', 'frown', flat=0.14, decor_tilt=14, decor_dz=-0.02),
+        F('sad', 'frown', flat=0.18, lean=-0.04, decor_tilt=18, decor_dz=-0.03),
+        F('sad', 'frown', flat=0.14, decor_tilt=14, decor_dz=-0.02),
+        F('sad', 'frown', flat=0.18, lean=0.04, decor_tilt=10, decor_dz=-0.03)]),
 ]
 
 
@@ -780,8 +866,11 @@ def jelly_colours(base):
 
 
 def build_characters(scene):
+    squash = bpy.data.objects.new('Squash', None)      # sx, sx, sz around the feet (crouch, flat stun)
+    scene.collection.objects.link(squash)
     view = bpy.data.objects.new('View', None)
     scene.collection.objects.link(view)
+    view.parent = squash
     view.rotation_euler = (0, 0, math.radians(VIEW_TURN))
     pose = bpy.data.objects.new('Pose', None)
     scene.collection.objects.link(pose)
@@ -805,7 +894,7 @@ def build_characters(scene):
         feet.append(f)
 
     face_mats = [flat_mat('Ink', '#17131F'), flat_mat('EyeShine', '#FFFFFF'),
-                 flat_mat('MouthIn', '#5A1A2C'), flat_mat('Tongue', '#F07C8C')]
+                 flat_mat('MouthIn', '#5A1A2C'), flat_mat('Tongue', '#F07C8C'), flat_mat('Tear', '#8FD8FF')]
     faces = build_faces(pose, lat, face_mats)
 
     anchor = bpy.data.objects.new('DecorAnchor', None)
@@ -818,15 +907,43 @@ def build_characters(scene):
         build_decor(kind, anchor, coll)
         decor[pid] = coll
 
-    rig = dict(view=view, pose=pose, lat=lat, keys=keys, body=body, feet=feet, faces=faces, anchor=anchor,
-               decor=decor, body_mat=body_mat, body_line=body_line)
+    stars = build_stars(scene)
+    rig = dict(squash=squash, view=view, pose=pose, lat=lat, keys=keys, body=body, feet=feet, faces=faces,
+               anchor=anchor, decor=decor, body_mat=body_mat, body_line=body_line, stars=stars)
     keyframe_animations(scene, rig)
     return rig
+
+
+STAR_YELLOW = '#FFD84A'
+
+
+def build_stars(scene):
+    """Three five-pointed stars circling above a flat-stunned jelly. Built facing the camera in the world XZ plane."""
+    mat = toon_mat('Star', STAR_YELLOW, '#D99A1E', spec=0.0, rim=0.0)
+    line = line_mat('StarLine', DECOR_LINE)
+    pts = []
+    for i in range(10):
+        a = math.pi / 2 + math.pi * i / 5
+        r = 0.1 if i % 2 == 0 else 0.045
+        pts.append((r * math.cos(a), r * math.sin(a)))
+    out = []
+    coll = bpy.data.collections.new('Stars')
+    scene.collection.children.link(coll)
+    for i in range(3):
+        bm = bmesh.new()
+        add_prism(bm, pts, -0.015, 0.015, XZ)
+        ob = new_obj('Star%d' % i, bm, [mat], None, coll, smooth=False)
+        add_outline(ob, line, 0.014)
+        out.append(ob)
+    return out
 
 
 def _apply(rig, fr):
     for k, kb in rig['keys'].items():
         kb.value = fr.get(k, 0.0)
+    sx, sz = fr.get('sq', (1.0, 1.0))
+    rig['squash'].scale = (sx, sx, sz)
+    rig['view'].rotation_euler = (0.0, 0.0, math.radians(VIEW_TURN + fr.get('yaw', 0.0)))
     rig['pose'].location = (fr.get('dx', 0.0), 0.0, fr.get('dz', 0.0))
     rig['pose'].rotation_euler = (0.0, math.radians(fr.get('tilt', 0.0)), 0.0)
     for foot, (dx, dz) in zip(rig['feet'], fr.get('feet', ((0, 0), (0, 0)))):
@@ -862,13 +979,36 @@ def keyframe_animations(scene, rig):
                 top = _head_top(rig)
                 loc = Vector((top.x, top.y, top.z - 0.035 + fr.get('decor_dz', 0.0)))
                 tilt = fr.get('decor_tilt', 0.0)
-            frames.append((name, i, fr, loc, tilt))
+                if 'sq' in fr:
+                    tilt = -fr.get('tilt', 0.0)      # upright in the world, so undoing the squash is a plain scale
+            stars = None
+            if 'stars' in fr:
+                top = _head_top(rig)
+                w = rig['body'].matrix_world @ top
+                stars = (min(0.6, max(-0.6, w.x + 0.1)), w.z + 0.22, fr['stars'])   # kept inside the frame
+            frames.append((name, i, fr, loc, tilt, stars))
     outline.show_viewport = True
 
-    for f, (name, i, fr, loc, tilt) in enumerate(frames, start=1):
+    for f, (name, i, fr, loc, tilt, stars) in enumerate(frames, start=1):
         _apply(rig, fr)
         rig['anchor'].location = loc
         rig['anchor'].rotation_euler = (0.0, math.radians(tilt), 0.0)
+        sx, sz = fr.get('sq', (1.0, 1.0))
+        rig['anchor'].scale = (1.0 / sx, 1.0 / sx, 1.0 / sz)
+        rig['anchor'].keyframe_insert('scale', frame=f)
+        rig['squash'].keyframe_insert('scale', frame=f)
+        rig['view'].keyframe_insert('rotation_euler', frame=f)
+        for k, st in enumerate(rig['stars']):
+            if stars is None:
+                st.hide_render = st.hide_viewport = True
+            else:
+                cx, cz, phase = stars
+                a = math.radians(phase + 120 * k)
+                st.location = (cx + 0.3 * math.cos(a), -0.3 * math.sin(a), cz + 0.07 * math.sin(a))
+                st.rotation_euler = (0.0, math.radians(phase * 0.8 + 40 * k), 0.0)
+                st.hide_render = st.hide_viewport = False
+            for path in ('location', 'rotation_euler', 'hide_render', 'hide_viewport'):
+                st.keyframe_insert(path, frame=f)
         for kb in rig['keys'].values():
             kb.keyframe_insert('value', frame=f)
         for ob in (rig['pose'], rig['anchor']):
@@ -903,6 +1043,65 @@ def alpha_bbox(arr, thr=0.5):
     return xs.min(), ys.min(), xs.max() + 1, ys.max() + 1
 
 
+# HitShapes.cs bands (milli-units, facing right): what hazards hit. The drawing must match them, not the other way.
+HIT_BODY = [(0, 100, -390, 390), (100, 200, -470, 470), (200, 800, -510, 510), (800, 900, -460, 460),
+            (900, 1000, -410, 410), (1000, 1100, -360, 360), (1100, 1200, -260, 260)]
+HIT_DASH = [(0, 300, -810, 830), (300, 400, -720, 830), (400, 500, -630, 810), (500, 600, -510, 740),
+            (600, 700, -360, 640), (700, 800, -170, 460), (800, 900, -90, 30)]
+HIT_STUNNED = [(0, 100, -520, 70), (100, 200, -620, 350), (200, 300, -680, 390), (300, 400, -740, 400),
+               (400, 900, -810, 400), (900, 1000, -770, 220), (1000, 1100, -720, 130), (1100, 1200, -680, 0),
+               (1200, 1300, -680, -350), (1300, 1400, -540, -390)]
+
+
+def _round_out(v):
+    sign = -1 if v < 0 else 1
+    return sign * ((abs(v) + 999) // 1000 * 10)
+
+
+def _scale_bands(bands, xp, yp):
+    return [(_round_out(b * yp), _round_out(t * yp), _round_out(l * xp), _round_out(r * xp)) for b, t, l, r in bands]
+
+
+HIT_CROUCH = _scale_bands(HIT_BODY, 115, 60)
+HIT_STOMPED = _scale_bands(HIT_STUNNED, 135, 40)
+# Which bands each animation is judged with (HitShapes.OfPlayer). 'union' = the bands were measured over all the
+# frames together, so a single frame is expected to be smaller in places and only overflow counts.
+HIT_OF_ANIM = dict(idle=(HIT_BODY, False), run=(HIT_BODY, False), jump=(HIT_BODY, False), fall=(HIT_BODY, False),
+                   land=(HIT_BODY, False), turn=(HIT_BODY, False), blink=(HIT_BODY, False),
+                   emote_wave=(HIT_BODY, False), emote_taunt=(HIT_BODY, False), emote_sad=(HIT_BODY, False),
+                   dash=(HIT_DASH, True), knockback=(HIT_STUNNED, True),
+                   crouch=(HIT_CROUCH, False), stun=(HIT_STOMPED, False))
+
+
+def band_errors(img, bands, union, detail=None, sx=1.0):
+    """Worst overflow (drawn outside the bands) and underflow (bands not drawn) in milli-units for one frame,
+    as the client draws it (sx = its x scale around the pivot)."""
+    a = img[..., 3] >= 0.5
+    over, under = 0, 0
+    milli = lambda px: round(px * 1000 / CHAR_PPU)
+    xmilli = lambda px: round(px * sx * 1000 / CHAR_PPU)
+    ys = np.nonzero(a.any(axis=1))[0]
+    top_drawn = milli(ys.max() + 1 - CHAR_PIVOT[1]) if len(ys) else 0
+    top_band = max(t for _, t, _, _ in bands)
+    over = max(over, top_drawn - top_band)
+    for b, t, l, r in bands:
+        p0 = CHAR_PIVOT[1] + int(math.ceil(b * CHAR_PPU / 1000))
+        p1 = CHAR_PIVOT[1] + int(math.ceil(t * CHAR_PPU / 1000))
+        rows = a[max(0, p0):p1]
+        cols = np.nonzero(rows.any(axis=0))[0]
+        if len(cols) == 0:
+            if not union:
+                under = max(under, r - l)
+            continue
+        dl, dr = xmilli(cols.min() - CHAR_PIVOT[0]), xmilli(cols.max() + 1 - CHAR_PIVOT[0])
+        if detail is not None:
+            detail.append((b, t, l, r, dl, dr))
+        over = max(over, l - dl, dr - r)
+        if not union:
+            under = max(under, dl - l, r - dr)
+    return over, under
+
+
 def target_characters():
     scene = reset_scene()
     add_camera(scene, 0, 0, 2.0)
@@ -923,15 +1122,35 @@ def target_characters():
     fs = CHAR_FRAME
     report = {}
 
-    # Hit-box check: body only (no decoration), idle frame 0.
+    # Hit-box check: body only (no decoration, no stars), idle frame 0, then every frame against its hit bands.
     for coll in rig['decor'].values():
         coll.hide_render = True
+    stars = bpy.data.collections['Stars']
+    stars.hide_render = True
     scene.frame_set(1)
     render_to(scene, os.path.join(tmp, 'bodyonly.png'))
     bb = alpha_bbox(load_png(os.path.join(tmp, 'bodyonly.png')))
     report['idle_body_bbox_units'] = dict(
         left=(bb[0] - CHAR_PIVOT[0]) / CHAR_PPU, right=(bb[2] - CHAR_PIVOT[0]) / CHAR_PPU,
         bottom=(bb[1] - CHAR_PIVOT[1]) / CHAR_PPU, top=(bb[3] - CHAR_PIVOT[1]) / CHAR_PPU)
+    bands = {}
+    f = 0
+    for aname, _, _, frs in ANIMS:
+        worst = [0, 0]
+        for i in range(len(frs)):
+            f += 1
+            if aname not in HIT_OF_ANIM:
+                continue
+            scene.frame_set(f)
+            path = os.path.join(tmp, 'band.png')
+            render_to(scene, path)
+            ref, union = HIT_OF_ANIM[aname]
+            o, u = band_errors(load_png(path), ref, union, sx=DRAW_SCALE.get(aname, (1.0, 1.0))[0])
+            worst = [max(worst[0], o), max(worst[1], u)]
+        if aname in HIT_OF_ANIM:
+            bands[aname] = dict(over_milli=worst[0], under_milli=None if HIT_OF_ANIM[aname][1] else worst[1])
+    report['hit_band_errors'] = bands
+    stars.hide_render = False
 
     clipped = []
     for pid, pname, _, kind in PLAYERS:
@@ -961,7 +1180,8 @@ def target_characters():
         facing='right (flip X for left)',
         sheets={str(pid): 'jelly_%d_%s.png' % (pid, pname) for pid, pname, _, _ in PLAYERS},
         decorations={str(pid): kind for pid, _, _, kind in PLAYERS},
-        animations=[dict(name=n, row=r, frames=len(frs), fps=fps, loop=loop)
+        animations=[dict(name=n, row=r, frames=len(frs), fps=fps, loop=loop,
+                         draw_scale=list(DRAW_SCALE.get(n, (1.0, 1.0))))
                     for r, (n, fps, loop, frs) in enumerate(ANIMS)],
     )
     with open(os.path.join(out_dir, 'jelly_sheet.json'), 'w', encoding='utf-8') as fh:
@@ -2188,7 +2408,39 @@ def target_probe(out_dir):
     save_png(strip, os.path.join(out_dir, 'idle_all.png'))
 
 
-TARGETS = dict(characters=target_characters, knife=target_knife, map=target_map, preview=target_preview,
+def target_bands():
+    """Per-band drawn extents against the hit bands for the animations named in BANDS (comma list), player 1."""
+    scene = reset_scene()
+    add_camera(scene, 0, 0, 2.0)
+    add_sun(scene, CHAR_SUN, energy=3.0)
+    half = CHAR_FRAME / CHAR_PPU / 2
+    z0 = -CHAR_PIVOT[1] / CHAR_PPU
+    frame_camera(scene, -half, z0, half, z0 + CHAR_FRAME / CHAR_PPU, CHAR_PPU)
+    rig = build_characters(scene)
+    for coll in rig['decor'].values():
+        coll.hide_render = True
+    bpy.data.collections['Stars'].hide_render = True
+    want = os.environ.get('BANDS', 'stun').split(',')
+    tmp = tempfile.mkdtemp(prefix='bands_')
+    f = 0
+    for aname, _, _, frs in ANIMS:
+        for i in range(len(frs)):
+            f += 1
+            if aname not in want:
+                continue
+            scene.frame_set(f)
+            render_to(scene, os.path.join(tmp, 'b.png'))
+            img = load_png(os.path.join(tmp, 'b.png'))
+            d = []
+            ref, union = HIT_OF_ANIM[aname]
+            o, u = band_errors(img, ref, union, d, sx=DRAW_SCALE.get(aname, (1.0, 1.0))[0])
+            ys = np.nonzero((img[..., 3] >= 0.5).any(axis=1))[0]
+            print('BAND', aname, i, 'over', o, 'under', u, 'top', round((ys.max() + 1 - CHAR_PIVOT[1]) * 1000 / CHAR_PPU))
+            for row in d:
+                print('BAND   y %5d..%5d  hit %5d..%5d  drawn %5d..%5d' % row)
+
+
+TARGETS = dict(bands=target_bands, characters=target_characters, knife=target_knife, map=target_map, preview=target_preview,
                winter=target_winter, warehouse=target_warehouse, dessert=target_dessert,
                map_previews=target_map_previews, probe=lambda: target_probe(os.environ['PROBE_DIR']))
 

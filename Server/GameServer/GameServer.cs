@@ -173,6 +173,11 @@ public sealed class GameServer
                     _room.RequestMap(conn.PlayerId, e.StageId, e.Rotation);
                 break;
 
+            case NetEventKind.Emote:
+                if (conn.PlayerId != 0 && _byPlayer.TryGetValue(conn.PlayerId, out var emoter) && emoter == conn)
+                    _room.RequestEmote(conn.PlayerId, e.Emote);
+                break;
+
             case NetEventKind.Leave:
                 lock (_all) _all.Remove(conn);
                 if (conn.PlayerId != 0 && _byPlayer.TryGetValue(conn.PlayerId, out var current) && current == conn)

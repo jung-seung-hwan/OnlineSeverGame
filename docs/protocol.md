@@ -1,10 +1,10 @@
-# OnlineSeverGame 프로토콜 v6
+# OnlineSeverGame 프로토콜 v7
 
 서버(C# .NET 10)와 Unity 클라이언트가 같은 `Shared/` 소스를 쓴다. 이 문서는 그 소스의 설명이며, 바이트 배치가 바뀌면 `ProtocolConstants.Version`을 올리고 이 문서를 함께 고친다.
 
 - 패킷 정의·직렬화: `Shared/Protocol/` (`Packets.cs`, `PacketCodec.cs`, `FrameDecoder.cs`)
 - 물리·스테이지·상수: `Shared/Simulation/` (`GameConstants.cs`, `PlayerPhysics.cs`, `Stage.cs`, `Knife.cs`, `HitShapes.cs`, `DashCollision.cs`, `StompCollision.cs`, `Pushable.cs`, `SideKnife.cs`)
-- 버전 기록: v1 첫 버전 → **v2**(2026-10-27) 스냅샷 플레이어 flags에 Crouching·Stomped 비트, 스냅샷 끝에 밀리는 상자 목록 추가. 대시 쿨다운 40틱, 아래키 의미 변경(엎드리기, 아래+점프 = 발판 통과). → **v3**(2026-10-27, 다중 맵) `RoundStart`에 `stageId`, 스냅샷 위험물 항목에 `kind`, 상자 항목에 `crumble` 추가. 맵 4개(주방·겨울 처마·창고·디저트 가게)와 라운드마다 맵 교체, 위험물 4종, 얼음·녹는 발판. 설계 문서는 `docs/work/maps.md`. → **v4**(2026-10-27, 맵 선택·칼 판정) `RoomInfo`(32)·`MapRequest`(50) 추가: 방장이 다음 맵과 교체 방식을 바꾼다. 위험물 판정이 이동 상자 대신 그림 모양(`HitShapes`)으로 바뀜(바이트 배치 변화 없음). 클라이언트는 위험물을 내 예측 시각에 그린다. 작업 문서는 `docs/work/map-select-hit.md`. → **v5**(2026-10-27, 대시 기절·옆 칼) 스냅샷 플레이어 항목에 `immuneTicks`(27바이트), flags bit5 = 납작 기절(밟기 또는 대시), 스냅샷 끝에 옆 칼 목록, `RoundEnd` cause 3 = 옆 칼. 대시에 맞으면 1초 납작 기절, 납작 기절이 끝나면 1초 기절 면역. 작업 문서는 `docs/work/dash-side-knife.md`. → **v6**(2026-11-10, 맵별 옆 위험물) 스냅샷 옆 위험물 항목에 `u8 kind`(14 → 15바이트). 옆에서 오는 것이 맵마다 다르다: 주방 칼, 겨울 처마 눈덩이, 창고 나무 상자, 디저트 가게 마카롱(크기·속도·예고·레인 높이가 종류별). `RoundEnd` cause 3의 뜻이 '옆 위험물'로 넓어짐(값은 그대로). 작업 문서는 `docs/work/side-hazards-i18n.md`.
+- 버전 기록: v1 첫 버전 → **v2**(2026-10-27) 스냅샷 플레이어 flags에 Crouching·Stomped 비트, 스냅샷 끝에 밀리는 상자 목록 추가. 대시 쿨다운 40틱, 아래키 의미 변경(엎드리기, 아래+점프 = 발판 통과). → **v3**(2026-10-27, 다중 맵) `RoundStart`에 `stageId`, 스냅샷 위험물 항목에 `kind`, 상자 항목에 `crumble` 추가. 맵 4개(주방·겨울 처마·창고·디저트 가게)와 라운드마다 맵 교체, 위험물 4종, 얼음·녹는 발판. 설계 문서는 `docs/work/maps.md`. → **v4**(2026-10-27, 맵 선택·칼 판정) `RoomInfo`(32)·`MapRequest`(50) 추가: 방장이 다음 맵과 교체 방식을 바꾼다. 위험물 판정이 이동 상자 대신 그림 모양(`HitShapes`)으로 바뀜(바이트 배치 변화 없음). 클라이언트는 위험물을 내 예측 시각에 그린다. 작업 문서는 `docs/work/map-select-hit.md`. → **v5**(2026-10-27, 대시 기절·옆 칼) 스냅샷 플레이어 항목에 `immuneTicks`(27바이트), flags bit5 = 납작 기절(밟기 또는 대시), 스냅샷 끝에 옆 칼 목록, `RoundEnd` cause 3 = 옆 칼. 대시에 맞으면 1초 납작 기절, 납작 기절이 끝나면 1초 기절 면역. 작업 문서는 `docs/work/dash-side-knife.md`. → **v6**(2026-11-10, 맵별 옆 위험물) 스냅샷 옆 위험물 항목에 `u8 kind`(14 → 15바이트). 옆에서 오는 것이 맵마다 다르다: 주방 칼, 겨울 처마 눈덩이, 창고 나무 상자, 디저트 가게 마카롱(크기·속도·예고·레인 높이가 종류별). `RoundEnd` cause 3의 뜻이 '옆 위험물'로 넓어짐(값은 그대로). 작업 문서는 `docs/work/side-hazards-i18n.md`. → **v7**(2026-11-10, 캐릭터 모션) `EmoteRequest`(51)·`Emote`(33) 추가: 이모트 4종(인사·놀리기·기뻐하기·슬퍼하기)을 다른 플레이어도 본다. 게임 상태는 바뀌지 않는다(서버는 확인하고 전달만). 다른 패킷 배치는 그대로. 작업 문서는 `docs/work/char-motion.md`.
 
 ## 1. 전송과 프레이밍
 
@@ -44,9 +44,11 @@ C = 클라이언트→서버, S = 서버→클라이언트. 크기는 타입 바
 | 30 | RoundStart | S | `u16 roundNumber`, `u16 countdownTicks`, `u32 playStartTick`, `u8 stageId`, `u8 n`, `u8 participantId × n`. 맵은 여기서만 바뀐다(Welcome의 stageId는 접속 시점의 맵) |
 | 31 | RoundEnd | S | `u16 roundNumber`, `u32 endTick`, `u8 w`, `u8 winnerId × w`, `u8 r`, 결과 × r |
 | 32 | RoomInfo | S | `u8 hostId`(0 = 아무도 없음), `u8 nextStageId`, `u8 rotation`(1 순환, 2 무작위, 3 고정), `u8 flags`(bit0 = 방장이 직접 고른 다음 맵). 새로 들어온 사람에게는 PlayerJoined 목록 뒤에 바로, 모두에게는 값이 바뀐 틱 끝(스냅샷 앞)에 |
+| 33 | Emote | S | `u8 playerId`, `u8 emote`(1 인사, 2 놀리기, 3 기뻐하기, 4 슬퍼하기 = `EmoteKind`). 모두에게(보낸 사람 포함). v7, 아래 '이모트' |
 | 40 | Ping | C | `u32 clientTime` (아무 클라이언트 시계 값) |
 | 41 | Pong | S | `u32 clientTime`(그대로 반사), `u32 serverTick` |
 | 50 | MapRequest | C | `u8 stageId`(0 = 그대로), `u8 rotation`(0 = 그대로, 1 순환, 2 무작위, 3 고정). 방장만 유효(아래 '맵 교체') |
+| 51 | EmoteRequest | C | `u8 emote`(1~4, `EmoteKind`). v7, 아래 '이모트' |
 
 ### buttons (Input)
 
@@ -256,6 +258,12 @@ u8  cause            0 생존, 1 떨어지는 위험물, 2 연결 끊김, 3 옆 
 - 면역 중에는 대시에 밀려나기만 하고, 밟혀도 기절하지 않는다(밟은 쪽은 튕긴다). 위험물·옆 칼에는 그대로 죽는다.
 - `Step`이 줄이므로 클라이언트 예측도 같은 값을 갖는다. 화면은 `(ImmuneTicks / 2) % 2 == 0`이면 진하게, 아니면 흐리게(알파 0.3) 깜빡인다.
 
+### 이모트 (v7)
+
+- 클라이언트가 `EmoteRequest`를 보내면 서버(`GameRoom.RequestEmote`)는 다음이면 버린다: 모르는 플레이어, 살아 있지 않음(라운드에서 죽음, 도중 입장 관전), `emote`가 1~4가 아님, 그 플레이어의 마지막 이모트 후 `EmoteCooldownTicks`(20틱 = 1초)가 안 지남. 아니면 `Emote`를 모두에게(보낸 사람 포함) 보낸다. 대기·카운트다운·진행·결과 어느 상태에서도 된다.
+- 게임 상태(위치·판정·라운드)는 바뀌지 않는다. 스냅샷에도 실리지 않는다(지나가는 그림이므로 늦게 들어온 사람은 못 봐도 된다).
+- 클라이언트는 받은 뒤 1.6초 동안, 그 플레이어가 서 있으면(땅 위, 가로로 안 움직임, 엎드림·대시·기절 아님) 이모트 그림을 그린다. 움직이면 바로 평소 그림. 내 이모트는 보내는 즉시 그리고 서버의 되돌림은 건너뛴다. 키: Z 인사, X 놀리기, C 기뻐하기, V 슬퍼하기(숫자 1~4, R은 방장 맵 선택).
+
 ### 옆 위험물 (v5 옆 칼, v6부터 맵별)
 
 규칙(생성·움직임·판정)은 모든 맵 공통이고, **무엇이 오는지**(모양·크기·속도·예고·레인 높이)만 맵마다 다르다(`Stage.SideHazard`, `SideHazardSpec`). 설계와 검증 표는 `docs/work/dash-side-knife.md` 3장(규칙), `docs/work/side-hazards-i18n.md` 3장(종류).
@@ -310,6 +318,7 @@ u8  cause            0 생존, 1 떨어지는 위험물, 2 연결 끊김, 3 옆 
 | JumpVelocity | 800 /틱 | 최고 높이 2.8 유닛 (낮은 발판 2.4에 오를 수 있음) |
 | DashSpeed / DashTicks | 1200 /틱, 4틱 | 0.2초 동안 4.8 유닛, 중력 없음 |
 | DashCooldownTicks | 40 | 대시 시작부터 2초 |
+| EmoteCooldownTicks | 20 | 한 플레이어의 이모트 사이 1초(v7, 서버가 더 빠른 것은 버림) |
 | KnockbackSpeed / Lift / StunTicks | 900 / 500 / 8 | 수평 속도는 매 틱 1/4씩 줄어듦. 8틱은 면역 중·이미 납작할 때의 밀림 멈칫 |
 | DashStunTicks / StunImmunityTicks | 20 / 20 | 대시에 맞으면 1초 납작 기절, 납작 기절이 끝나면 1초 면역 |
 | StompStunTicks / StompBounce | 30 / 700 | 밟힌 쪽 1.5초 기절, 밟은 쪽 튕김 |

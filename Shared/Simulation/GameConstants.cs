@@ -29,6 +29,7 @@ namespace OnlineSeverGame.Shared.Simulation
         public const int DashSpeed = 1200;         // 24 u/s
         public const int DashTicks = 4;            // 0.2 s, ~4.8 u
         public const int DashCooldownTicks = 40;   // 2 s, counted from dash start
+        public const int EmoteCooldownTicks = 20;  // 1 s between one player's emotes (v7, the server drops faster ones)
 
         // Dash hit: the target is knocked back and loses control for a moment.
         public const int KnockbackSpeed = 900;
