@@ -171,7 +171,7 @@ Unity에서 쓸 때(다음 단계): 캐릭터 시트는 Sprite Mode Multiple, Gr
 "C:/Program Files/Blender Foundation/Blender 5.2/blender.exe" -b --factory-startup --python Art/blender/build_sprites.py -- all
 ```
 
-- 대상: `all`(아래 넷을 차례로, 각각 새 Blender 프로세스) / `characters`(시트 8장 + json + `jelly.blend`) / `knife`(+ `knife.blend`) / `map`(맵 조각 + `kitchen.blend`) / `preview`(앞 결과를 합친 확인 그림만, 렌더 없음). 조정용 `probe`(환경 변수 `PROBE_DIR`, `PROBE_ID`)는 동작별 한 프레임과 8명 대기만 빠르게 뽑는다.
+- 대상: `all`(아래 넷을 차례로, 각각 새 Blender 프로세스) / `characters [jelly|bear|pudding]`(시트 8장 + json + `<종류>.blend` + 판정 띠 측정 `<종류>_hitcheck.json`. 젤리곰·푸딩은 `docs/work/art-characters.md` 8장) / `knife`(+ `knife.blend`) / `map`(맵 조각 + `kitchen.blend`) / `preview`(앞 결과를 합친 확인 그림만, 렌더 없음). 조정용 `probe`(환경 변수 `PROBE_DIR`, `PROBE_ID`)는 동작별 한 프레임과 8명 대기만 빠르게 뽑는다.
 - `characters` 끝에 `REPORT` 줄이 나온다: 장식 뺀 대기 몸의 실측 범위(유닛)와 잘린 프레임 목록.
 - 바꿀 곳(스크립트 안): 색·장식 `PLAYERS`, 동작 프레임 `ANIMS`(셰이프 키 값, 높이 `dz`, 기울기 `tilt`, 발, 표정, 장식 기울기), 셰이프 키 모양 `SHAPES`, 몸 모양 `BODY_*`·`body_radius`, 눈 위치 `EYE_*`, 빛 `CHAR_SUN`, 픽셀/유닛 `CHAR_PPU`·`MAP_PPU`, 맵 좌표 `PLATFORMS`.
 - Blender로 열어 보기: `Art/blender/jelly.blend`(타임라인 1~28 프레임에 8동작, 마커 `idle_0` 등. 장식은 `Decor_<번호>_<이름>` 컬렉션, 몸 색은 1번), `knife.blend`, `kitchen.blend`(컬렉션 BG / FLOOR / SHELF / LID). 파일에서 직접 고친 내용은 스크립트를 다시 돌리면 덮어써지므로, 바꿀 것은 스크립트에 반영한다.
@@ -253,3 +253,4 @@ cp Art/sprites/characters/*.png Art/sprites/characters/jelly_sheet.json Client/A
 | 2026-10-27 | 8b31fd2 | 사용자가 Blender 기준 이미지 확정(추천대로). 콘셉트 단계 완료 |
 | 2026-10-27 | 155038f | Blender 5.2 스크립트로 캐릭터(몸 + 장식 8 + 래티스 셰이프 키 8동작)·칼·맵(Stage.Default 좌표) 모델, 툰 셰이딩 스프라이트 시트·맵 조각·확인용 합성 렌더. 평가 기록. Unity 교체는 승인 대기 |
 | 2026-10-27 | e3c4192 | 사용자 요청으로 몸을 넓힘(반지름 0.39 → 0.48, 그림 폭 1.0, 판정은 그대로) 후 전체 재렌더. 사용자 승인으로 Unity 클라이언트 임시 도형을 스프라이트로 교체(캐릭터 8동작, 칼, 맵), 공중 사망 웅덩이는 아래 면에. 빌드·미리보기·서버+봇 실행 확인 |
+| 2026-11-10 | 2c92f6a | 스크립트에 캐릭터 종류(jelly/bear/pudding)와 판정 띠 자동 측정 추가(자세한 내용은 art-characters.md). 젤리 시트는 다시 렌더만 함(그림 같음, json에 character 키) |
