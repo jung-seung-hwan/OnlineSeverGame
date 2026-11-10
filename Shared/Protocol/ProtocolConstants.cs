@@ -3,7 +3,7 @@ namespace OnlineSeverGame.Shared.Protocol
     public static class ProtocolConstants
     {
         /// <summary>Bumped whenever a packet layout changes. Hello/Welcome carry it.</summary>
-        public const ushort Version = 9;
+        public const ushort Version = 10;
 
         public const int DefaultPort = 7777;
 
@@ -20,5 +20,11 @@ namespace OnlineSeverGame.Shared.Protocol
 
         /// <summary>Highest EmoteKind value.</summary>
         public const byte MaxEmote = 4;
+
+        /// <summary>Highest CharacterKind value (v10).</summary>
+        public const byte MaxCharacter = 3;
+
+        /// <summary>True for 1..MaxCharacter.</summary>
+        public static bool IsValidCharacter(byte kind) => kind >= 1 && kind <= MaxCharacter;
     }
 }

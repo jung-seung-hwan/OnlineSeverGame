@@ -11,11 +11,16 @@ namespace OnlineSeverGame.Shared.Protocol
         void Write(PacketWriter w);
     }
 
-    /// <summary>C: first packet on a new connection.</summary>
+    /// <summary>
+    /// C: first packet on a new connection. Character (v10) is the last byte; it is read only when present so an
+    /// older client's shorter Hello still parses and gets a clean VersionMismatch Reject instead of a dropped connection.
+    /// </summary>
     public sealed class HelloPacket : IPacket
     {
         public ushort ProtocolVersion = ProtocolConstants.Version;
         public string Name = "";
+        /// <summary>Wanted character (v10). 0 or unknown = the server uses Jelly.</summary>
+        public CharacterKind Character = CharacterKind.Jelly;
 
         public PacketType Type => PacketType.Hello;
 
@@ -23,10 +28,15 @@ namespace OnlineSeverGame.Shared.Protocol
         {
             w.WriteUInt16(ProtocolVersion);
             w.WriteString(Name);
+            w.WriteByte((byte)Character);
         }
 
-        public static HelloPacket Read(PacketReader r) =>
-            new HelloPacket { ProtocolVersion = r.ReadUInt16(), Name = r.ReadString() };
+        public static HelloPacket Read(PacketReader r)
+        {
+            var p = new HelloPacket { ProtocolVersion = r.ReadUInt16(), Name = r.ReadString() };
+            p.Character = r.Remaining > 0 ? (CharacterKind)r.ReadByte() : 0;
+            return p;
+        }
     }
 
     /// <summary>S: reply to Hello when the player got a slot.</summary>
@@ -71,10 +81,12 @@ namespace OnlineSeverGame.Shared.Protocol
     }
 
     /// <summary>S: roster entry. Sent for every existing player (including yourself) after Welcome, then for each newcomer.</summary>
+    /// <summary>The character (v10) is the one the player is drawn with right now, so a late joiner learns everyone's.</summary>
     public sealed class PlayerJoinedPacket : IPacket
     {
         public byte PlayerId;
         public string Name = "";
+        public CharacterKind Character = CharacterKind.Jelly;
 
         public PacketType Type => PacketType.PlayerJoined;
 
@@ -82,10 +94,11 @@ namespace OnlineSeverGame.Shared.Protocol
         {
             w.WriteByte(PlayerId);
             w.WriteString(Name);
+            w.WriteByte((byte)Character);
         }
 
         public static PlayerJoinedPacket Read(PacketReader r) =>
-            new PlayerJoinedPacket { PlayerId = r.ReadByte(), Name = r.ReadString() };
+            new PlayerJoinedPacket { PlayerId = r.ReadByte(), Name = r.ReadString(), Character = (CharacterKind)r.ReadByte() };
     }
 
     /// <summary>S: the player is gone (and, if in a round, eliminated). The id may be reused later.</summary>
@@ -504,5 +517,39 @@ namespace OnlineSeverGame.Shared.Protocol
 
         public static EmotePacket Read(PacketReader r) =>
             new EmotePacket { PlayerId = r.ReadByte(), Emote = (EmoteKind)r.ReadByte() };
+    }
+
+    /// <summary>
+    /// C (v10): the player wants to be drawn as this character. Outside a round (Waiting, Countdown) it applies at
+    /// once; during Playing / Ended it waits for the next countdown (or the return to Waiting). Unknown kinds are ignored.
+    /// </summary>
+    public sealed class CharacterRequestPacket : IPacket
+    {
+        public CharacterKind Character;
+
+        public PacketType Type => PacketType.CharacterRequest;
+
+        public void Write(PacketWriter w) => w.WriteByte((byte)Character);
+
+        public static CharacterRequestPacket Read(PacketReader r) =>
+            new CharacterRequestPacket { Character = (CharacterKind)r.ReadByte() };
+    }
+
+    /// <summary>S (v10): a player's character changed (to everyone, the player too). Joins carry it in PlayerJoined.</summary>
+    public sealed class PlayerCharacterPacket : IPacket
+    {
+        public byte PlayerId;
+        public CharacterKind Character;
+
+        public PacketType Type => PacketType.PlayerCharacter;
+
+        public void Write(PacketWriter w)
+        {
+            w.WriteByte(PlayerId);
+            w.WriteByte((byte)Character);
+        }
+
+        public static PlayerCharacterPacket Read(PacketReader r) =>
+            new PlayerCharacterPacket { PlayerId = r.ReadByte(), Character = (CharacterKind)r.ReadByte() };
     }
 }

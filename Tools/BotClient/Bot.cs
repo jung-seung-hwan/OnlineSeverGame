@@ -37,7 +37,12 @@ public sealed class Bot
         _verbose = verbose;
         _dodge = dodge;
         _reactionTicks = _random.Next(2, 9); // 0.1 - 0.4 s to notice a warning
+        // A random character kind (v10), from its own stream so the input sequence for a seed stays as before.
+        Character = (CharacterKind)new Random(seed ^ 0xC4A2).Next(1, ProtocolConstants.MaxCharacter + 1);
     }
+
+    /// <summary>The character kind this bot asks for in Hello (random per bot, v10).</summary>
+    public CharacterKind Character { get; }
 
     public int ReactionTicks => _reactionTicks;
 
@@ -59,7 +64,7 @@ public sealed class Bot
         _stream = _client.GetStream();
         _running = true;
         Connected = true;
-        SendPacket(new HelloPacket { Name = _name });
+        SendPacket(new HelloPacket { Name = _name, Character = Character });
         new Thread(ReceiveLoop) { IsBackground = true, Name = $"bot{_index}-recv" }.Start();
         new Thread(InputLoop) { IsBackground = true, Name = $"bot{_index}-input" }.Start();
     }
@@ -196,7 +201,7 @@ public sealed class Bot
             case WelcomePacket w:
                 PlayerId = w.PlayerId;
                 _stageId = w.StageId;
-                Console.WriteLine($"[{_name}] welcome: player #{w.PlayerId}, server tick {w.ServerTick}");
+                Console.WriteLine($"[{_name}] welcome: player #{w.PlayerId}, server tick {w.ServerTick}, character {Character}");
                 break;
 
             case RejectPacket r:
