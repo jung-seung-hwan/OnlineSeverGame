@@ -162,7 +162,7 @@ Client/Build/Windows/Client.exe -server 127.0.0.1:7801 -autoconnect
 
 남은 일·다음 세션에 넘길 것
 
-- UI 개편 세션: 새 UI 버튼에서 `JuiceAudio.UiClick()` 호출, '♪ 소리' 패널을 새 UI 로 옮기기.
+- UI 개편 세션(브랜치 `claude/ui-revamp-570fe2`, UI Toolkit 으로 GameUI 전체 교체): 이 브랜치는 GameUI.cs 를 고치지 않았으므로 충돌은 없다. 그 브랜치가 병합되면 옮길 것(그쪽 `docs/work/ui-revamp.md` 5장 API): (1) 클릭 소리 `UiHooks.ButtonClicked += _ => JuiceAudio.UiClick();` (2) 설정 창 `UiHooks.AddSettingsSection("sound", 10, box => UiKit.SliderRow(...))` 에 효과음·배경음 슬라이더와 흔들림 켜기(값은 `JuiceAudio.SfxVolume/BgmVolume/ScreenShake` + `JuiceAudio.SavePrefs()`) (3) 그 뒤 `JuiceSettingsUI.cs`(IMGUI '♪ 소리' 버튼·hotControl 클릭 감지)를 지운다. 화면 전환 소리는 지금처럼 `JuiceDirector.ScreenEvents` 가 세션 상태로 내므로 `UiHooks.ScreenChanged` 는 필요 없다.
 - 캐릭터 모션 세션: `PlayerView` 의 `Body`·`Trail` 자식 이름이나 루트 배율 방식을 바꾸면 `PlayerJuice` 를 맞춘다. 새 착지·찌그러짐 프레임이 생기면 `PlayerJuice` 의 스프링 크기를 줄여 겹치지 않게.
 - 맵 레이아웃 세션: 새 위험물 종류가 생기면 `JuiceDirector.HazardLanded` 의 소리·파편 색에 한 줄 추가.
 
