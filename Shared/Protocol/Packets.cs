@@ -474,4 +474,35 @@ namespace OnlineSeverGame.Shared.Protocol
         public static MapRequestPacket Read(PacketReader r) =>
             new MapRequestPacket { StageId = r.ReadByte(), Rotation = (MapRotation)r.ReadByte() };
     }
+
+    /// <summary>C (v7): play an emote. The server drops it if the player is not alive, the kind is unknown or the
+    /// player's last emote was less than GameConstants.EmoteCooldownTicks ago; otherwise everyone gets Emote.</summary>
+    public sealed class EmoteRequestPacket : IPacket
+    {
+        public EmoteKind Emote;
+
+        public PacketType Type => PacketType.EmoteRequest;
+
+        public void Write(PacketWriter w) => w.WriteByte((byte)Emote);
+
+        public static EmoteRequestPacket Read(PacketReader r) => new EmoteRequestPacket { Emote = (EmoteKind)r.ReadByte() };
+    }
+
+    /// <summary>S (v7): player PlayerId started an emote (sent to everyone, the sender included).</summary>
+    public sealed class EmotePacket : IPacket
+    {
+        public byte PlayerId;
+        public EmoteKind Emote;
+
+        public PacketType Type => PacketType.Emote;
+
+        public void Write(PacketWriter w)
+        {
+            w.WriteByte(PlayerId);
+            w.WriteByte((byte)Emote);
+        }
+
+        public static EmotePacket Read(PacketReader r) =>
+            new EmotePacket { PlayerId = r.ReadByte(), Emote = (EmoteKind)r.ReadByte() };
+    }
 }

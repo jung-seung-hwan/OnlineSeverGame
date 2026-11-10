@@ -97,6 +97,8 @@ namespace OnlineSeverGame.Client.Model
         void Update(float deltaTime, Input.InputCollector input);
         // 방장만 의미가 있다: 다음 맵(0 = 그대로)·교체 방식(0 = 그대로). 미리보기는 무시한다.
         void RequestMap(byte stageId, MapRotation rotation);
+        // 이모트(v7): 살아 있을 때만, 1초에 한 번. 서버가 모두에게(나 포함) 알린다. 미리보기는 바로 보인다.
+        void SendEmote(EmoteKind emote);
         void Close();
     }
 }

@@ -43,6 +43,8 @@ namespace OnlineSeverGame.Shared.Protocol
                 case PacketType.Pong: packet = PongPacket.Read(r); break;
                 case PacketType.RoomInfo: packet = RoomInfoPacket.Read(r); break;
                 case PacketType.MapRequest: packet = MapRequestPacket.Read(r); break;
+                case PacketType.EmoteRequest: packet = EmoteRequestPacket.Read(r); break;
+                case PacketType.Emote: packet = EmotePacket.Read(r); break;
                 default: throw new PacketFormatException($"Unknown packet type {(byte)type}");
             }
             r.ExpectEnd();

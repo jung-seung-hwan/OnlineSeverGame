@@ -32,10 +32,14 @@ namespace OnlineSeverGame.Client.Model
             }
         }
 
+        // 시험(-uitest)에서는 false: 언어 버튼을 눌러도 사용자 저장값을 바꾸지 않는다.
+        public static bool Persist = true;
+
         public static void Set(Language lang)
         {
             _current = lang;
             _loaded = true;
+            if (!Persist) return;
             PlayerPrefs.SetString(PrefKey, Code(lang));
             PlayerPrefs.Save();
         }
@@ -159,7 +163,7 @@ namespace OnlineSeverGame.Client.Model
             { "hud.round", "라운드 {0}" },
             { "hud.ping", "핑 {0}ms" },
             { "hud.leave", "나가기" },
-            { "hint.controls", "←/→ 이동   ↑·Space 점프   Shift 대시(맞히면 1초 기절)   ↓ 엎드리기   ↓+점프 발판 아래로   머리 밟기 = 기절" },
+            { "hint.controls", "←/→ 이동   ↑·Space 점프   Shift 대시(맞히면 1초 기절)   ↓ 엎드리기   ↓+점프 발판 아래로   머리 밟기 = 기절   Z·X·C·V 이모트" },
             { "hint.side.1", "20초부터 양옆에서 칼이 날아옵니다 — 높이 오면 ↓ 엎드리기, 낮게 오면 점프" },
             { "hint.side.2", "20초부터 양옆에서 눈덩이가 날아옵니다 — 높이 오면 ↓ 엎드리기, 낮게 오면 점프" },
             { "hint.side.3", "20초부터 양옆에서 나무 상자가 날아옵니다 — 높이 오면 ↓ 엎드리기, 낮게 오면 점프" },
@@ -213,6 +217,36 @@ namespace OnlineSeverGame.Client.Model
             { "side.snowball", "눈덩이" },
             { "side.crate", "나무 상자" },
             { "side.macaron", "마카롱" },
+            // UI 개편(docs/work/ui-revamp.md): 설정·HUD·카운트다운·단상·맵 고르기
+            { "ui.settings", "설정" },
+            { "ui.close", "닫기" },
+            { "lang.ko", "한국어" },
+            { "lang.en", "English" },
+            { "settings.title", "설정" },
+            { "settings.language", "언어" },
+            { "settings.sound", "소리" },
+            { "settings.soundEmpty", "음량 조절은 곧 추가됩니다" },
+            { "settings.controls", "조작" },
+            { "settings.esc", "Esc: 설정 열기·닫기" },
+            { "ctl.move", "이동" },
+            { "ctl.jump", "점프" },
+            { "ctl.dash", "대시 (맞히면 1초 기절)" },
+            { "ctl.crouch", "엎드리기" },
+            { "ctl.drop", "발판 아래로 내려가기" },
+            { "ctl.stomp", "머리 밟기 = 기절" },
+            { "ctl.host", "방장: 다음 맵 · 교체 방식" },
+            { "ctl.headKey", "위에서" },
+            { "lobby.mapTitle", "다음 맵" },
+            { "map.youPick", "내가 방장! 다음 맵을 고르세요" },
+            { "map.hostPicks", "방장 {0} 님이 고릅니다" },
+            { "map.keysShort", "키 1~4 · R" },
+            { "countdown.round", "라운드 {0} · {1}" },
+            { "countdown.go", "시작!" },
+            { "hud.dash", "대시" },
+            { "hud.dashReady", "준비" },
+            { "hud.time", "{0:0.0}" },
+            { "result.title.round", "라운드 {0} 결과" },
+            { "result.survivedFor", "{0:0.0}초 버팀" },
             // 미리보기
             { "preview.bot", "봇-{0}" },
             // 접속 오류
@@ -260,7 +294,7 @@ namespace OnlineSeverGame.Client.Model
             { "hud.round", "Round {0}" },
             { "hud.ping", "Ping {0}ms" },
             { "hud.leave", "Leave" },
-            { "hint.controls", "←/→ Move   ↑/Space Jump   Shift Dash (a hit stuns 1 s)   ↓ Crouch   ↓+Jump Drop through   Land on a head = stun" },
+            { "hint.controls", "←/→ Move   ↑/Space Jump   Shift Dash (a hit stuns 1 s)   ↓ Crouch   ↓+Jump Drop through   Land on a head = stun   Z/X/C/V Emotes" },
             { "hint.side.1", "From 20 s, knives fly in from the sides — high: crouch (↓), low: jump" },
             { "hint.side.2", "From 20 s, snowballs fly in from the sides — high: crouch (↓), low: jump" },
             { "hint.side.3", "From 20 s, wooden crates fly in from the sides — high: crouch (↓), low: jump" },
@@ -309,6 +343,35 @@ namespace OnlineSeverGame.Client.Model
             { "side.snowball", "snowball" },
             { "side.crate", "wooden crate" },
             { "side.macaron", "macaron" },
+            { "ui.settings", "Settings" },
+            { "ui.close", "Close" },
+            { "lang.ko", "한국어" },
+            { "lang.en", "English" },
+            { "settings.title", "Settings" },
+            { "settings.language", "Language" },
+            { "settings.sound", "Sound" },
+            { "settings.soundEmpty", "Volume controls are coming soon" },
+            { "settings.controls", "Controls" },
+            { "settings.esc", "Esc: open / close settings" },
+            { "ctl.move", "Move" },
+            { "ctl.jump", "Jump" },
+            { "ctl.dash", "Dash (a hit stuns 1 s)" },
+            { "ctl.crouch", "Crouch" },
+            { "ctl.drop", "Drop through a platform" },
+            { "ctl.stomp", "Land on a head = stun" },
+            { "ctl.host", "Host: next map · rotation" },
+            { "ctl.headKey", "From above" },
+            { "lobby.mapTitle", "Next map" },
+            { "map.youPick", "You're the host! Pick the next map" },
+            { "map.hostPicks", "{0} (host) picks the map" },
+            { "map.keysShort", "Keys 1–4 · R" },
+            { "countdown.round", "Round {0} · {1}" },
+            { "countdown.go", "GO!" },
+            { "hud.dash", "Dash" },
+            { "hud.dashReady", "Ready" },
+            { "hud.time", "{0:0.0}" },
+            { "result.title.round", "Round {0} results" },
+            { "result.survivedFor", "Lasted {0:0.0}s" },
             { "preview.bot", "Bot-{0}" },
             { "net.badAddress", "Invalid server address (e.g. 127.0.0.1:7777)" },
             { "net.noResponse", "No response from the server" },

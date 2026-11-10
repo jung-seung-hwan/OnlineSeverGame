@@ -1,5 +1,6 @@
 using System;
 using OnlineSeverGame.Client.Input;
+using OnlineSeverGame.Client.Juice;
 using OnlineSeverGame.Client.Model;
 using OnlineSeverGame.Client.UI;
 using OnlineSeverGame.Client.View;
@@ -11,12 +12,13 @@ namespace OnlineSeverGame.Client.Game
     // 씬에 하나만 둔다. 카메라·스테이지·뷰·UI를 코드로 만들고 세션을 바꿔 끼운다.
     //
     // 명령줄 인자(빌드·테스트용):
-    //   -name <이름>  -server <host:port>  -autoconnect  -preview  -autoplay [chase|stomp|mash](무작위 입력 / 가까운 상대 쫓아 대시 / 쫓아 밟기 / 대시 연타)
+    //   -name <이름>  -server <host:port>  -autoconnect  -preview  -autoplay [chase|stomp|mash|motion](무작위 입력 / 가까운 상대 쫓아 대시 / 쫓아 밟기 / 대시 연타 / 동작 차례로 보이기)
     //   -nostomppredict(밟기 튕김 예측 끄기, 비교 시험용)
     //   -screenshot <파일경로> -screenshotDelay <초> [-screenshotEvery <초>]  -quitAfter <초>
     //   (-screenshotEvery 를 주면 파일경로의 {n} 을 번호로 바꿔 여러 장 찍는다)
     //   -touchshot <파일경로>: 위험물이 처음 내 몸에 닿아 보이는 프레임마다 찍는다({n} = 번호, 최대 12장. 칼 판정 확인용)
     //   -blinkshot <파일경로>: 기절 면역으로 흐리게 깜빡이는 캐릭터가 보이는 프레임을 2초 간격으로 찍는다({n}, 최대 6장)
+    //   -uitest [-uitestshots <폴더>]: 버튼 클릭 자동 시험(UI/UiTest.cs, docs/work/ui-revamp.md 7장)
     public sealed class GameBootstrap : MonoBehaviour
     {
         public string PlayerName = "Player";
@@ -30,6 +32,7 @@ namespace OnlineSeverGame.Client.Game
         InputCollector _input;
         StageView _stage;
         WorldView _world;
+        JuiceDirector _juice; // 소리·파티클·멈춤·슬로모션·카메라 연출(docs/work/juice-sound.md)
         string _screenshotPath;
         float _screenshotAt = -1f;
         float _screenshotEvery = -1f;
@@ -64,6 +67,8 @@ namespace OnlineSeverGame.Client.Game
             _input = gameObject.AddComponent<InputCollector>();
             var ui = gameObject.AddComponent<GameUI>();
             ui.Game = this;
+            _juice = gameObject.AddComponent<JuiceDirector>();
+            _juice.Init(this, _world);
 
             ParseArgs();
         }
@@ -88,6 +93,7 @@ namespace OnlineSeverGame.Client.Game
                         _input.AutoChase = next == "chase" || next == "stomp";
                         _input.AutoStomp = next == "stomp";
                         _input.AutoMash = next == "mash";
+                        _input.AutoMotion = next == "motion";
                         break;
                     case "-screenshot": _screenshotPath = next; break;
                     case "-screenshotDelay": if (float.TryParse(next, out var d)) _screenshotAt = d; break;
@@ -140,8 +146,13 @@ namespace OnlineSeverGame.Client.Game
             if (Session != null)
             {
                 if (_input.AutoChase) UpdateChaseTarget();
-                Session.Update(Time.deltaTime, _input);
+                // 세션은 실제 시간으로 돈다(연출의 멈춤·슬로모션은 Time.timeScale 로 화면만 늦춘다)
+                Session.Update(Time.unscaledDeltaTime, _input);
+                // 이모트: 접속 화면(이름 입력)만 빼고. 살아 있는지는 세션·서버가 본다.
+                var emote = _input.TakeEmote();
+                if (emote != 0 && screen != ClientScreen.Connect) Session.SendEmote(emote);
                 RebuildIfMapChanged();
+                _juice.Present(Session); // 보여 줄 시각의 그림으로 바꾸고 사건(소리·파티클)을 낸다
                 _world.Apply(Session.World);
                 _stage.Refresh(Layout);
                 if (Session.State.Screen != _loggedScreen)
@@ -251,6 +262,7 @@ namespace OnlineSeverGame.Client.Game
 
         void SavePrefs()
         {
+            if (UiTest.Active) return; // 클릭 자동 시험은 사용자 저장값(이름·서버 주소)을 바꾸지 않는다
             PlayerPrefs.SetString("name", PlayerName);
             PlayerPrefs.SetString("server", ServerAddress);
             PlayerPrefs.Save();

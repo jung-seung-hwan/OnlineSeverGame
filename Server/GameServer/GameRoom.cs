@@ -54,6 +54,8 @@ public sealed class RoomPlayer
     /// <summary>Order of arrival (1, 2, ...). The host is the lowest one still here.</summary>
     public long JoinOrder;
     public InputButtons LastButtons;
+    /// <summary>Server tick of the last emote relayed for this player (v7), or null before the first.</summary>
+    public uint? LastEmoteTick;
     /// <summary>Dashes started this round and the server tick of the last one (0 = none yet). For logs and tests.</summary>
     public int RoundDashes;
     public uint LastDashTick;
@@ -256,6 +258,23 @@ public sealed class GameRoom
             p.LastInputSeq = dropped.Seq;
             p.Backlog.Dropped();
         }
+    }
+
+    /// <summary>
+    /// A player plays an emote (v7). Purely visual: nothing in the game changes, the room only relays it to everyone
+    /// (the sender too) as Emote. Dropped when the player is unknown or not alive (dead, spectating), the kind is not
+    /// 1..ProtocolConstants.MaxEmote, or the player's last emote was less than EmoteCooldownTicks ago.
+    /// Returns true when relayed.
+    /// </summary>
+    public bool RequestEmote(byte playerId, EmoteKind emote)
+    {
+        if (!_players.TryGetValue(playerId, out var p) || !p.Alive) return false;
+        if ((byte)emote < 1 || (byte)emote > ProtocolConstants.MaxEmote) return false;
+        if (p.LastEmoteTick.HasValue && ServerTick - p.LastEmoteTick.Value < GameConstants.EmoteCooldownTicks) return false;
+        p.LastEmoteTick = ServerTick;
+        Broadcast(new EmotePacket { PlayerId = playerId, Emote = emote });
+        if (_config.LogPushes) _log($"emote #{playerId} {emote}");
+        return true;
     }
 
     /// <summary>

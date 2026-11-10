@@ -1,10 +1,11 @@
 using System.Collections.Generic;
 using OnlineSeverGame.Client.View;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace OnlineSeverGame.Client.UI
 {
-    // 타이틀 로고 "JELLY SURVIVAL". 그림 파일 없이 IMGUI 에서 단색 사각형만으로 그린다.
+    // 타이틀 로고 "JELLY SURVIVAL". 그림 파일 없이 단색 사각형만으로 그린다(UI Toolkit Painter2D, TitleLogoElement).
     // 좌표는 로고 단위(1 = ppu 픽셀, 아래로 +y). 글자는 캡 높이 13(큰 글자, 획 3)·12(팻말 글자, 획 2) 격자에 손으로 놓은
     // 사각형이고, 비스듬한 획(Y·V·R 다리)만 돌린 사각형이다. JELLY 다섯 글자는 플레이어 색 1~5번(딸기·블루베리·라임·레몬·포도),
     // SURVIVAL 은 게임 예고 색 빨간 팻말 위 흰 글자. 조각마다 0.7 단위 넓힌 어두운 사각형을 먼저 칠해 외곽선을 만든다.
@@ -165,63 +166,85 @@ namespace OnlineSeverGame.Client.UI
             p.Put(cx + 0.55f, bladeTop, 0.95f, bottom - 2.2f - bladeTop, 0f, Ink.Spine);
         }
 
-        // ---- 그리기 ----
+        // ---- 그리기(UI Toolkit, TitleLogoElement 가 부른다) ----
 
-        // 화면에서 차지하는 크기(픽셀). animated 면 위에 젤리와 떨어지는 칼 자리를 더한다.
+        // 화면에서 차지하는 크기(점). animated 면 위에 젤리와 떨어지는 칼 자리를 더한다.
         public static Vector2 Size(float ppu, bool animated) =>
             new Vector2(_bounds.width, _bounds.height + (animated ? AnimTop : 0f)) * ppu;
 
-        public static void Draw(Vector2 topLeft, float ppu, bool animated)
+        // 왼쪽 위(0, 0)에서 시작하는 로고를 painter 로 칠한다. 젤리 자세는 poses 에 돌려준다(요소로 따로 그린다).
+        internal static void Paint(Painter2D painter, float ppu, bool animated, float time, out JellyPose[] poses, out float warnAlpha)
         {
-            if (Event.current.type != EventType.Repaint) return;
-            var origin = new Vector2(topLeft.x - _bounds.xMin * ppu, topLeft.y + ((animated ? AnimTop : 0f) - _bounds.yMin) * ppu);
-            var oldColor = GUI.color;
-
-            Anim a = animated ? Animate(Time.time) : default;
+            var origin = new Vector2(-_bounds.xMin * ppu, ((animated ? AnimTop : 0f) - _bounds.yMin) * ppu);
+            Anim a = animated ? Animate(time) : default;
+            poses = animated ? a.Jelly : null;
+            warnAlpha = 0f;
             if (animated)
             {
-                if (a.Warn > 0f) DrawWarning(origin, ppu, a);
+                if (a.Warn > 0f) warnAlpha = PaintWarning(painter, origin, ppu, a, time);
                 // 칼을 글자보다 먼저 그려 글자 외곽선이 칼을 가로지르게 한다(꽂힌 것처럼 보인다).
                 if (a.KnifeAlpha > 0f)
-                    DrawParts(FallingKnife, origin + new Vector2(a.KnifeX, a.KnifeTipY - KnifeLength * FallingKnifeScale) * ppu, ppu, a.KnifeAlpha);
+                    PaintParts(painter, FallingKnife, origin + new Vector2(a.KnifeX, a.KnifeTipY - KnifeLength * FallingKnifeScale) * ppu, ppu, a.KnifeAlpha);
             }
-            DrawParts(Logo, origin, ppu, 1f);
-            if (animated)
-                for (int i = 0; i < Jellies.Length; i++) DrawJelly(origin, ppu, i, a.Jelly[i]);
-            GUI.color = oldColor;
+            PaintParts(painter, Logo, origin, ppu, 1f);
         }
 
-        static void DrawParts(List<Part> parts, Vector2 origin, float ppu, float alpha)
+        // 젤리 발밑의 점 좌표(로고 요소 기준)와 한 변 크기
+        internal static Vector2 JellyFoot(float ppu, bool animated, JellyPose pose) =>
+            new Vector2(-_bounds.xMin * ppu + pose.Foot.x * ppu,
+                ((animated ? AnimTop : 0f) - _bounds.yMin) * ppu + (pose.Foot.y - Outline + 0.3f) * ppu);
+
+        internal static float JellyPixels(float ppu) => JellySize * ppu;
+
+        internal static int JellySheet(int index) => Jellies[index];
+
+        internal const int JellyCount = 4;
+
+        internal static JellyPose[] PosesAt(float time) => Animate(time).Jelly;
+
+        static void PaintParts(Painter2D painter, List<Part> parts, Vector2 origin, float ppu, float alpha)
         {
             var c = OutlineColor;
             c.a = alpha;
-            foreach (var p in parts) Fill(origin, ppu, p, Outline, c);
+            foreach (var p in parts) Fill(painter, origin, ppu, p, Outline, c);
             foreach (var p in parts)
             {
                 c = Inks[(int)p.Ink];
                 c.a = alpha;
-                Fill(origin, ppu, p, 0f, c);
+                Fill(painter, origin, ppu, p, 0f, c);
             }
         }
 
-        static void Fill(Vector2 origin, float ppu, Part p, float grow, Color color)
+        static void Fill(Painter2D painter, Vector2 origin, float ppu, Part p, float grow, Color color)
         {
-            GUI.color = color;
-            var r = new Rect(origin.x + (p.X - grow) * ppu, origin.y + (p.Y - grow) * ppu, (p.W + 2 * grow) * ppu, (p.H + 2 * grow) * ppu);
+            float x = origin.x + (p.X - grow) * ppu, y = origin.y + (p.Y - grow) * ppu;
+            float w = (p.W + 2 * grow) * ppu, h = (p.H + 2 * grow) * ppu;
+            painter.fillColor = color;
+            painter.BeginPath();
             if (p.Angle == 0f)
             {
-                GUI.DrawTexture(r, Texture2D.whiteTexture);
-                return;
+                painter.MoveTo(new Vector2(x, y));
+                painter.LineTo(new Vector2(x + w, y));
+                painter.LineTo(new Vector2(x + w, y + h));
+                painter.LineTo(new Vector2(x, y + h));
             }
-            var m = GUI.matrix;
-            GUIUtility.RotateAroundPivot(p.Angle, r.center);
-            GUI.DrawTexture(r, Texture2D.whiteTexture);
-            GUI.matrix = m;
+            else
+            {
+                var c = new Vector2(x + w / 2f, y + h / 2f);
+                float rad = p.Angle * Mathf.Deg2Rad, cos = Mathf.Cos(rad), sin = Mathf.Sin(rad);
+                Vector2 R(float dx, float dy) => c + new Vector2(dx * cos - dy * sin, dx * sin + dy * cos);
+                painter.MoveTo(R(-w / 2f, -h / 2f));
+                painter.LineTo(R(w / 2f, -h / 2f));
+                painter.LineTo(R(w / 2f, h / 2f));
+                painter.LineTo(R(-w / 2f, h / 2f));
+            }
+            painter.ClosePath();
+            painter.Fill();
         }
 
         // ---- 움직이는 판 ----
 
-        struct JellyPose
+        internal struct JellyPose
         {
             public Vector2 Foot;
             public string Anim;
@@ -296,32 +319,92 @@ namespace OnlineSeverGame.Client.UI
         static int NextTarget(int k, int empty) => k % 8 < 4 ? empty + 1 : empty - 1;
 
         // 게임(SwordView)과 같은 예고: 낙하 지점 기둥. 낙하가 가까울수록 빠르고 진하게 깜빡인다.
-        static void DrawWarning(Vector2 origin, float ppu, Anim a)
+        static float PaintWarning(Painter2D painter, Vector2 origin, float ppu, Anim a, float time)
         {
-            float blink = Mathf.PingPong(Time.time * Mathf.Lerp(2f, 10f, a.Warn), 1f);
+            float blink = Mathf.PingPong(time * Mathf.Lerp(2f, 10f, a.Warn), 1f);
             var warn = Inks[(int)Ink.Warn];
             float top = -AnimTop + 1f;
-            GUI.color = new Color(warn.r, warn.g, warn.b, Mathf.Lerp(0.10f, 0.28f, a.Warn) * (0.5f + 0.5f * blink));
-            GUI.DrawTexture(new Rect(origin.x + (a.WarnAt.x - 2.6f) * ppu, origin.y + top * ppu, 5.2f * ppu, (a.WarnAt.y - Outline - top) * ppu), Texture2D.whiteTexture);
+            float alpha = Mathf.Lerp(0.10f, 0.28f, a.Warn) * (0.5f + 0.5f * blink);
+            var r = new Rect(origin.x + (a.WarnAt.x - 2.6f) * ppu, origin.y + top * ppu, 5.2f * ppu, (a.WarnAt.y - Outline - top) * ppu);
+            painter.fillColor = new Color(warn.r, warn.g, warn.b, alpha);
+            painter.BeginPath();
+            painter.MoveTo(new Vector2(r.xMin, r.yMin));
+            painter.LineTo(new Vector2(r.xMax, r.yMin));
+            painter.LineTo(new Vector2(r.xMax, r.yMax));
+            painter.LineTo(new Vector2(r.xMin, r.yMax));
+            painter.ClosePath();
+            painter.Fill();
+            return alpha;
+        }
+    }
+
+    // 로고 요소. Ppu(로고 단위 1 = 몇 점)와 Animated 를 정하고 매 프레임 Tick(시각)을 부른다.
+    // 글자·칼·예고는 Painter2D 로 칠하고, 젤리 네 마리는 캐릭터 스프라이트 요소로 위에 얹는다.
+    public sealed class TitleLogoElement : VisualElement
+    {
+        float _ppu = 4f;
+        readonly bool _animated;
+        float _time;
+        readonly VisualElement[] _jellies = new VisualElement[TitleLogo.JellyCount];
+
+        public TitleLogoElement(bool animated)
+        {
+            _animated = animated;
+            pickingMode = PickingMode.Ignore;
+            generateVisualContent += OnPaint;
+            if (animated)
+            {
+                for (int i = 0; i < _jellies.Length; i++)
+                {
+                    var j = new VisualElement { pickingMode = PickingMode.Ignore };
+                    j.style.position = Position.Absolute;
+                    j.style.backgroundSize = new BackgroundSize(new Length(100, LengthUnit.Percent), new Length(100, LengthUnit.Percent));
+                    Add(j);
+                    _jellies[i] = j;
+                }
+            }
+            SetPpu(_ppu);
         }
 
-        static void DrawJelly(Vector2 origin, float ppu, int index, JellyPose pose)
+        public float Ppu => _ppu;
+
+        public void SetPpu(float ppu)
         {
-            // 젤리마다 시각을 어긋나게 해서 숨 쉬는 박자가 겹치지 않게 한다
-            var sprite = ArtSprites.Character(Jellies[index], pose.Anim).At(Time.time + index * 0.37f);
-            var tex = sprite.texture;
-            var tr = sprite.textureRect;
-            var uv = new Rect(tr.x / tex.width, tr.y / tex.height, tr.width / tex.width, tr.height / tex.height);
-            float size = JellySize * ppu;
-            // 프레임 피벗(발밑)은 아래에서 8/256. 발을 글자 윗변 외곽선 위에 올린다.
-            float footX = origin.x + pose.Foot.x * ppu;
-            float footY = origin.y + (pose.Foot.y - Outline + 0.3f) * ppu;
-            var r = new Rect(footX - size / 2f, footY - size + size * 8f / 256f, size, size);
-            GUI.color = Color.white;
-            var m = GUI.matrix;
-            if (pose.FaceLeft) GUIUtility.ScaleAroundPivot(new Vector2(-1f, 1f), r.center); // 시트는 오른쪽을 본다
-            GUI.DrawTextureWithTexCoords(r, tex, uv);
-            GUI.matrix = m;
+            if (Mathf.Approximately(ppu, _ppu) && style.width.value.value > 0) return;
+            _ppu = ppu;
+            var size = TitleLogo.Size(ppu, _animated);
+            style.width = size.x;
+            style.height = size.y;
+            MarkDirtyRepaint();
+        }
+
+        public void Tick(float time)
+        {
+            if (!_animated) return;
+            _time = time;
+            MarkDirtyRepaint();
+            var poses = TitleLogo.PosesAt(time);
+            float size = TitleLogo.JellyPixels(_ppu);
+            for (int i = 0; i < _jellies.Length; i++)
+            {
+                var pose = poses[i];
+                // 젤리마다 시각을 어긋나게 해서 숨 쉬는 박자가 겹치지 않게 한다
+                var sprite = ArtSprites.Character(TitleLogo.JellySheet(i), pose.Anim).At(time + i * 0.37f);
+                UiKit.SetSprite(_jellies[i], sprite);
+                var foot = TitleLogo.JellyFoot(_ppu, _animated, pose);
+                var j = _jellies[i];
+                j.style.width = size;
+                j.style.height = size;
+                // 프레임 피벗(발밑)은 아래에서 8/256
+                j.style.left = foot.x - size / 2f;
+                j.style.top = foot.y - size + size * 8f / 256f;
+                j.style.scale = new Scale(new Vector3(pose.FaceLeft ? -1f : 1f, 1f, 1f)); // 시트는 오른쪽을 본다
+            }
+        }
+
+        void OnPaint(MeshGenerationContext mgc)
+        {
+            TitleLogo.Paint(mgc.painter2D, _ppu, _animated, _time, out _, out _);
         }
     }
 }

@@ -13,9 +13,23 @@ namespace OnlineSeverGame.Shared.Protocol
         RoundStart = 30,  // S
         RoundEnd = 31,    // S
         RoomInfo = 32,    // S
+        Emote = 33,       // S (v7)
         Ping = 40,        // C
         Pong = 41,        // S
         MapRequest = 50,  // C
+        EmoteRequest = 51, // C (v7)
+    }
+
+    /// <summary>
+    /// Emotes (v7): a short body animation everyone sees. Purely visual; the server only checks and relays them.
+    /// 0 on the wire is never sent.
+    /// </summary>
+    public enum EmoteKind : byte
+    {
+        Wave = 1,   // 인사
+        Taunt = 2,  // 놀리기
+        Cheer = 3,  // 기뻐하기
+        Sad = 4,    // 슬퍼하기
     }
 
     /// <summary>How the map changes between rounds (RoomInfo, MapRequest). 0 on the wire = none / keep.</summary>
