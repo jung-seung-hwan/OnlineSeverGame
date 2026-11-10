@@ -16,6 +16,8 @@ namespace OnlineSeverGame.BotClient;
 ///  4. Side knives (docs/work/dash-side-knife.md 3.6): for each noticed side knife whose lane meets my body,
 ///     crouch while it passes if crouching gets under it, else jump a few ticks before it arrives. While one is
 ///     coming at a height a jump would carry me into, do not jump.
+///  5. Jump pads (docs/work/jump-pad.md): fleeing a hazard, a box or jump pad right in the way is jumped over (it
+///     would stop the walk). Using the pad on purpose is SeekPad, which the bot turns on now and then while safe.
 /// Bots only notice a warning after their reaction time, so some still get hit.
 /// </summary>
 public static class DodgeBrain
@@ -304,14 +306,73 @@ public static class DodgeBrain
         if (best != int.MinValue)
         {
             int dist = Math.Abs(best - me.X);
-            buttons |= best < me.X ? InputButtons.Left : InputButtons.Right;
+            int fleeDir = best < me.X ? -1 : 1;
+            buttons |= fleeDir < 0 ? InputButtons.Left : InputButtons.Right;
             if (dist > soonest * GameConstants.MoveSpeed) buttons |= InputButtons.Dash;
+            // A box or the jump pad right ahead would stop the walk (a dash would only shove it): hop over it. A walking
+            // jump carries 6 u, past the 1.2 u pad, so it does not land on it.
+            if (me.Grounded && BoxAhead(me, fleeDir, boxes, dist)) buttons = (buttons & ~InputButtons.Dash) | InputButtons.Jump;
         }
 
         // Standing on a platform the hazard would land on: dropping below (Down + Jump) turns the platform into a
         // roof. Not when it would follow me down (an icicle over an ice sill).
         if (me.Grounded && me.Y > 0 && soonest > 6 && landsOnMySurface) buttons |= InputButtons.Down | InputButtons.Jump;
         return buttons;
+    }
+
+    /// <summary>A box on my level whose side I would walk into within the next two ticks (and before reaching dist).</summary>
+    public static bool BoxAhead(in PlayerState me, int dir, IReadOnlyList<PushableState> boxes, int dist = int.MaxValue)
+    {
+        if (boxes == null || dir == 0) return false;
+        int front = me.X + dir * GameConstants.PlayerHalfWidth;
+        foreach (var b in boxes)
+        {
+            if (!(me.Y < b.Top && b.Y < me.Y + GameConstants.PlayerHeight)) continue;
+            int gap = dir > 0 ? b.Left - front : front - b.Right;
+            if (gap >= 0 && gap <= 2 * GameConstants.MoveSpeed && gap < dist) return true;
+        }
+        return false;
+    }
+
+    /// <summary>Index of the first jump pad in boxes, -1 if none.</summary>
+    public static int FindPad(IReadOnlyList<PushableState> boxes)
+    {
+        if (boxes == null) return -1;
+        for (int i = 0; i < boxes.Count; i++)
+            if (boxes[i].IsJumpPad) return i;
+        return -1;
+    }
+
+    /// <summary>
+    /// Wander input for a bot that wants a ride on the jump pad: walk to it, jump when within three ticks of its
+    /// edge (or over a box in the way), and in the air steer over its centre so it comes down on the top (and is
+    /// launched). Standing higher up (a box, a platform), walk toward it and drop through a platform right above it.
+    /// None when there is no pad or the pad launched it recently (PadCooldown): the ride is over.
+    /// </summary>
+    public static InputButtons SeekPad(in PlayerState me, IReadOnlyList<PushableState> boxes, Stage stage = null)
+    {
+        int i = FindPad(boxes);
+        if (i < 0 || me.PadCooldown > 0) return InputButtons.None;
+        PushableState pad = boxes[i];
+        int dx = pad.X - me.X;
+        InputButtons toward = dx < 0 ? InputButtons.Left : InputButtons.Right;
+        if (!me.Grounded)
+        {
+            if (me.Y <= pad.Top) return InputButtons.None;
+            return Math.Abs(dx) > GameConstants.MoveSpeed / 2 ? toward : InputButtons.None;
+        }
+        if (me.Y > pad.Top)
+        {
+            // Above it on a platform (a pad pushed under the kitchen tray shelf): drop through right over it.
+            bool onPlatform = stage != null && stage.IsOnPlatform(me.X - GameConstants.PlayerHalfWidth, me.X + GameConstants.PlayerHalfWidth, me.Y);
+            if (onPlatform && Math.Abs(dx) <= GameConstants.MoveSpeed / 2) return InputButtons.Down | InputButtons.Jump;
+            return Math.Abs(dx) <= GameConstants.MoveSpeed / 2 ? InputButtons.None : toward;
+        }
+        if (me.Y != pad.Y) return InputButtons.None;
+        int edge = Math.Abs(dx) - pad.Width / 2 - GameConstants.PlayerHalfWidth;
+        if (edge <= 3 * GameConstants.MoveSpeed) return toward | InputButtons.Jump;
+        // Another box in the way (warehouse crates): hop over it.
+        return BoxAhead(me, dx < 0 ? -1 : 1, boxes) ? toward | InputButtons.Jump : toward;
     }
 
     private static int Dir(InputButtons b)

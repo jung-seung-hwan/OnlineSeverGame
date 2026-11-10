@@ -728,6 +728,8 @@ namespace OnlineSeverGame.Client.Game
                         new Vector2(StageLayout.ToWorld(b.X), StageLayout.ToWorld(b.Y)), t),
                     Size = new Vector2(StageLayout.ToWorld(a.Width), StageLayout.ToWorld(a.Height)),
                     Crumbling = a.Crumble > 0,
+                    JumpPad = a.IsJumpPad,
+                    Spring = a.Spring,
                 });
             }
             // 최신 스냅샷에 새로 생긴 상자(창고에서 착지한 화물)는 바로 그린다. 앞서 그린 위험물이 막 착지해
@@ -741,6 +743,8 @@ namespace OnlineSeverGame.Client.Game
                     Position = new Vector2(StageLayout.ToWorld(box.X), StageLayout.ToWorld(box.Y)),
                     Size = new Vector2(StageLayout.ToWorld(box.Width), StageLayout.ToWorld(box.Height)),
                     Crumbling = box.Crumble > 0,
+                    JumpPad = box.IsJumpPad,
+                    Spring = box.Spring,
                 });
             }
         }

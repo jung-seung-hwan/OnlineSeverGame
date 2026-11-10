@@ -100,10 +100,10 @@ public class ProtocolTests
         var oneSide = new SnapshotPacket();
         oneSide.SideKnives.Add(new SideKnifeState());
         Assert.Equal(2 + 1 + 4 + 1 + 2 + 4 + 2 + 1 + 1 + 1 + 1, Size(empty));
-        Assert.Equal(27, Size(onePlayer) - Size(empty));
+        Assert.Equal(28, Size(onePlayer) - Size(empty)); // v12: + padCooldown
         Assert.Equal(15, Size(oneSide) - Size(empty)); // v6: + kind
         Assert.Equal(14, Size(oneKnife) - Size(empty));
-        Assert.Equal(23, Size(oneBox) - Size(empty));
+        Assert.Equal(26, Size(oneBox) - Size(empty)); // v12: + launch, spring
     }
 
     [Fact]

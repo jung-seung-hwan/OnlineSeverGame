@@ -125,6 +125,10 @@ public sealed class GameRoom
     private int _roundBoxHits;
     private int _roundBoxPushTicks;
     private long _roundBoxTravel;
+    private int _roundPadLaunches;
+    private int _roundPadStunnedLaunches;
+    private int _roundPadDeaths;
+    private long _roundPadTravel;
     private int _roundHazards;
     private int _roundCratesLanded;
     private int _roundCratesCrumbled;
@@ -399,6 +403,7 @@ public sealed class GameRoom
         var states = new PlayerState[n];
         var active = new bool[n];
         var contacts = new BoxContact[n];
+        var launchedBy = new int[n];
 
         for (int i = 0; i < n; i++)
         {
@@ -406,6 +411,7 @@ public sealed class GameRoom
             before[i] = p.State;
             active[i] = p.Alive;
             contacts[i] = BoxContact.None;
+            launchedBy[i] = -1;
             // Usually one input; two when working off a backlog (both are applied, one step each).
             int take = p.Backlog.TakeCount(p.Inputs.Count, _config.TrimInputQueue);
             bool repeated = take == 0;
@@ -422,6 +428,7 @@ public sealed class GameRoom
                 if (p.Alive)
                 {
                     PlayerPhysics.Step(ref p.State, p.LastButtons, stage, _boxes, out contacts[i]);
+                    if (contacts[i].LaunchBox >= 0) launchedBy[i] = contacts[i].LaunchBox;
                     // DashTicks is still at its full value only on the tick the dash started.
                     if (p.State.DashTicks == GameConstants.DashTicks) RecordDash(p, repeated);
                     if (p.State.Crouching) _roundCrouchTicks++;
@@ -483,7 +490,22 @@ public sealed class GameRoom
                 states[i].X = Math.Clamp(states[i].X + moved[g], minX, maxX); // ride along
             }
             for (int i = 0; i < _boxes.Length; i++)
-                _roundBoxTravel += Math.Abs(moved[i]);
+            {
+                if (_boxes[i].IsJumpPad) _roundPadTravel += Math.Abs(moved[i]);
+                else _roundBoxTravel += Math.Abs(moved[i]);
+            }
+            CrumbleBoxesOnPads();
+        }
+        for (int i = 0; i < n; i++)
+        {
+            if (launchedBy[i] < 0) continue;
+            // Set after the box step (which counts Spring down) so the snapshot shows the full value on the launch tick.
+            _boxes[launchedBy[i]].Spring = GameConstants.JumpPadSpringTicks;
+            _roundPadLaunches++;
+            if (states[i].StunTicks > 0) _roundPadStunnedLaunches++;
+            if (_config.LogPushes)
+                _log($"pad   #{list[i].Id} launched by pad#{_boxes[launchedBy[i]].Id} at x={_boxes[launchedBy[i]].X}" +
+                     (states[i].StunTicks > 0 ? (states[i].Stomped ? " (flat)" : " (knocked back)") : ""));
         }
 
         for (int i = 0; i < n; i++) list[i].State = states[i];
@@ -661,10 +683,10 @@ public sealed class GameRoom
         for (int i = 0; i < _boxes.Length; i++)
         {
             var b = _boxes[i];
-            if (b.Top == k.Y && b.Left < right && left < b.Right && StackHeight(i) >= GameConstants.CrateStackLimit)
+            if (b.Top == k.Y && b.Left < right && left < b.Right && (b.IsJumpPad || StackHeight(i) >= GameConstants.CrateStackLimit))
             {
                 _roundCratesShattered++;
-                if (_config.LogPushes) _log($"crate {k.Id} shattered on a full stack at x={k.X}");
+                if (_config.LogPushes) _log($"crate {k.Id} shattered on {(b.IsJumpPad ? "the jump pad" : "a full stack")} at x={k.X}");
                 return false;
             }
         }
@@ -682,14 +704,35 @@ public sealed class GameRoom
         // Too many crates resting: the oldest ones start to crumble. Boxes are kept oldest first.
         int solid = 0;
         foreach (var b in _boxes)
-            if (b.Crumble == 0) solid++;
+            if (b.Crumble == 0 && !b.IsJumpPad) solid++;
         for (int i = 0; i < _boxes.Length && solid > GameConstants.MaxRestingCrates; i++)
         {
-            if (_boxes[i].Crumble != 0) continue;
+            if (_boxes[i].Crumble != 0 || _boxes[i].IsJumpPad) continue;
             _boxes[i].Crumble = GameConstants.CrateCrumbleTicks;
             solid--;
         }
         return true;
+    }
+
+    /// <summary>
+    /// A box that ended up resting on a jump pad (a crate pushed off the workbench, say) starts to crumble, so the
+    /// pad never stays buried under it.
+    /// </summary>
+    private void CrumbleBoxesOnPads()
+    {
+        for (int i = 0; i < _boxes.Length; i++)
+        {
+            var b = _boxes[i];
+            if (b.IsJumpPad || b.Crumble != 0 || !b.Grounded) continue;
+            for (int j = 0; j < _boxes.Length; j++)
+            {
+                var o = _boxes[j];
+                if (!o.IsJumpPad || o.Top != b.Y || !(o.Left < b.Right && b.Left < o.Right)) continue;
+                _boxes[i].Crumble = GameConstants.CrateCrumbleTicks;
+                if (_config.LogPushes) _log($"box   box#{b.Id} rests on pad#{o.Id}: crumbles");
+                break;
+            }
+        }
     }
 
     /// <summary>How many boxes high box i stands: 1 on the ground or a platform, 2 on another box, ...</summary>
@@ -732,6 +775,7 @@ public sealed class GameRoom
     private void Eliminate(RoomPlayer p, EliminationCause cause)
     {
         p.Alive = false;
+        if (p.State.PadCooldown > 0) _roundPadDeaths++; // within 2 s of a jump pad launch
         var entry = _round.Find(e => e.Id == p.Id && e.Cause == EliminationCause.None);
         if (entry != null)
         {
@@ -802,6 +846,9 @@ public sealed class GameRoom
              $" (min gap {MinDashGapOfRound()} ticks), stomps: {_roundStomps}, crouch ticks: {_roundCrouchTicks}, " +
              $"box dash hits: {_roundBoxHits}, box walk-push ticks: {_roundBoxPushTicks}, box travel: {_roundBoxTravel / 1000.0:0.0} u" +
              (_boxes.Length > 0 ? $" (box#1 now x={_boxes[0].X})" : "") +
+             $", pad launches: {_roundPadLaunches} (stunned {_roundPadStunnedLaunches}), pad travel: {_roundPadTravel / 1000.0:0.0} u" +
+             (Array.FindIndex(_boxes, b => b.IsJumpPad) is int pi && pi >= 0 ? $" (pad now x={_boxes[pi].X})" : "") +
+             $", deaths within 2 s of a launch: {_roundPadDeaths}" +
              $", hazards: {_roundHazards} {_stage.Hazard.ToString().ToLowerInvariant()}" +
              (_stage.Hazard == HazardKind.Crate
                  ? $", crates landed: {_roundCratesLanded}, crumbled: {_roundCratesCrumbled}, shattered: {_roundCratesShattered}, boxes now: {_boxes.Length}"
@@ -881,6 +928,10 @@ public sealed class GameRoom
         _roundBoxHits = 0;
         _roundBoxPushTicks = 0;
         _roundBoxTravel = 0;
+        _roundPadLaunches = 0;
+        _roundPadStunnedLaunches = 0;
+        _roundPadDeaths = 0;
+        _roundPadTravel = 0;
         _roundHazards = 0;
         _roundCratesLanded = 0;
         _roundCratesCrumbled = 0;

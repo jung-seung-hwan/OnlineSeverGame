@@ -44,6 +44,8 @@ namespace OnlineSeverGame.Client.Model
         public Vector2 Position;
         public Vector2 Size;
         public bool Crumbling;     // 창고 상자 개수 제한으로 곧 사라짐(깜빡인다)
+        public bool JumpPad;       // 강제 점프 발판(v12, JumpPadView 로 그린다)
+        public int Spring;         // 발판이 누군가를 튀어 올린 직후 8 → 0 (스냅샷 그대로, 새로 올라가면 출렁임 시작)
     }
 
     public enum SwordPhase

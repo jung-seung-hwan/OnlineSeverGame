@@ -336,10 +336,10 @@ public class MapTests
         room.SpawnKnife(18200);  // floor between the pallet's reach and the rack
         room.SpawnKnife(8500);   // crane pallet (still waiting at its left end)
         Assert.All(room.Knives, k => Assert.Equal(HazardKind.Crate, k.Kind));
-        for (int i = 0; i < 70 && room.Pushables.Length < 4; i++) room.Tick();
+        for (int i = 0; i < 70 && room.Pushables.Length < 5; i++) room.Tick();
 
         Assert.False(room.GetPlayer(a).Alive);
-        Assert.Equal(4, room.Pushables.Length);
+        Assert.Equal(5, room.Pushables.Length); // two start boxes, the jump pad, two crates
         Assert.Empty(room.Knives);
         Assert.Contains(room.Pushables, p => p.X == 18200 && p.Y == 0 && p.Width == 1400 && p.Height == 1200);
         // Landed on the pallet, then carried along as it started moving right.
@@ -369,18 +369,20 @@ public class MapTests
         var room = PlayingRoom(Stage.Warehouse, out byte a, out byte b);
         Place(room, a, 1500);
         Place(room, b, 22500);
-        foreach (int x in new[] { 6000, 10000, 12000, 14000, 18000, 2000 }) room.SpawnKnife(x);
+        foreach (int x in new[] { 6000, 10000, 16500, 14000, 18000, 2000 }) room.SpawnKnife(x); // not on the jump pad (12.0)
         for (int i = 0; i < 80 && room.RoundCratesLanded < 6; i++) room.Tick();
         Assert.Equal(6, room.RoundCratesLanded);
-        Assert.Equal(8, room.Pushables.Length);
+        Assert.Equal(9, room.Pushables.Length);
+        // The jump pad (id 3) never crumbles.
         Assert.Equal(new ushort[] { 1, 2 }, room.Pushables.Where(p => p.Crumble > 0).Select(p => p.Id).ToArray());
 
         for (int i = 0; i < CrateCrumbleTicks; i++) room.Tick();
-        Assert.Equal(MaxRestingCrates, room.Pushables.Length);
+        Assert.Equal(MaxRestingCrates + 1, room.Pushables.Length);
         Assert.DoesNotContain(room.Pushables, p => p.Id <= 2);
+        Assert.Contains(room.Pushables, p => p.IsJumpPad);
 
         var snap = Drain(room).OfType<SnapshotPacket>().Last();
-        Assert.Equal(MaxRestingCrates, snap.Pushables.Count);
+        Assert.Equal(MaxRestingCrates + 1, snap.Pushables.Count);
     }
 
     [Fact]
@@ -390,9 +392,9 @@ public class MapTests
         Place(room, b, 22500);
         room.SpawnKnife(10000);
         TickUntilNoHazards(room);
-        Assert.Equal(3, room.Pushables.Length);
+        Assert.Equal(4, room.Pushables.Length);
         FinishRound(room, a, b);
-        Assert.Equal(new ushort[] { 1, 2 }, room.Pushables.Select(p => p.Id).ToArray());
+        Assert.Equal(new ushort[] { 1, 2, 3 }, room.Pushables.Select(p => p.Id).ToArray()); // 3 = the jump pad
     }
 
     // ---------------------------------------------------------------- dessert shop

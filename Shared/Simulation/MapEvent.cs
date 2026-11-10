@@ -171,6 +171,13 @@ namespace OnlineSeverGame.Shared.Simulation
             return b.Grounded && b.Y == 0 && e.SpanContains(b.X) ? e.Dir * e.Strength : 0;
         }
 
+        /// <summary>A box resting on the floor with its centre over active syrup (it stops twice as fast).</summary>
+        public static bool BoxOnSyrup(Stage stage, in PushableState b)
+        {
+            MapEventState e = stage.Event;
+            return e.IsActive && e.Kind == MapEventKind.Syrup && b.Grounded && b.Y == 0 && e.SpanContains(b.X);
+        }
+
         /// <summary>Walking speed percent for someone standing on the floor (100 unless on active syrup).</summary>
         public static int WalkPercent(Stage stage, in PlayerState s, bool groundedAtStart)
         {

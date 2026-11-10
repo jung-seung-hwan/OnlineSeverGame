@@ -38,6 +38,7 @@ SFX_TARGET = {
     "sfx_land_knife": -22, "sfx_land_fork": -22, "sfx_land_icicle": -22, "sfx_land_crate": -21, "sfx_side_pass": -22,
     "sfx_count": -21, "sfx_go": -19, "sfx_win": -18, "sfx_lose": -19,
     "sfx_click": -26,
+    "sfx_spring": -21,
 }
 
 # --------------------------------------------------------------------------- 기본 도구
@@ -431,6 +432,19 @@ def sfx_click(rng, sr=SFX_SR):
     return osc(sweep(1300, 800, n, sr, tau=0.01), sr) * env(n, sr, 0.0015, 0.014)
 
 
+def sfx_spring(rng, sr=SFX_SR):
+    """강제 점프 발판(docs/work/jump-pad.md): 눌리는 '퉁' + 위로 휘는 스프링 '보잉' + 쇠 긁힘 조금."""
+    n = int(0.42 * sr)
+    t = np.arange(n) / sr
+    f = (210 + 560 * (1 - np.exp(-t / 0.06))) * (1 + 0.12 * np.sin(2 * np.pi * 22 * t) * np.exp(-t / 0.18))
+    boing = (osc(f, sr) + 0.35 * osc(2 * f, sr, "tri") + 0.1 * osc(3.01 * f, sr)) * env(n, sr, 0.003, 0.14, hold=0.02)
+    k = int(0.05 * sr)
+    thud = osc(sweep(140, 60, k, sr, tau=0.015), sr) * env(k, sr, 0.002, 0.02) * 0.7
+    k2 = int(0.02 * sr)
+    clank = bandpass(noise(k2, rng), sr, 1800, 4200) * env(k2, sr, 0.001, 0.006) * 0.3
+    return mix(n, (0, boing * 0.8, sr), (0, thud, sr), (0, clank, sr))
+
+
 SFX = [
     # 이름, 함수, 로우패스(Hz)
     ("sfx_jump", sfx_jump, 5000),
@@ -454,6 +468,7 @@ SFX = [
     ("sfx_win", sfx_win, 7000),
     ("sfx_lose", sfx_lose, 4500),
     ("sfx_click", sfx_click, 5000),
+    ("sfx_spring", sfx_spring, 6000),   # 맨 끝에 붙여 다른 소리의 시드(SEED + 순서)가 바뀌지 않게
 ]
 
 

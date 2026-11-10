@@ -393,7 +393,17 @@ namespace OnlineSeverGame.Client.Juice
             float pan = Pan(p.Position.x);
             Vector2 feet = p.Position;
 
-            if (q.Grounded && !p.Grounded && p.VelocityY > 5f && !p.Stunned)
+            if (p.VelocityY > 22f && q.VelocityY <= 22f)
+            {
+                // 강제 점프 발판(일반 점프 16 u/s, 밟기 튕김 14 u/s, 발판 28~30 u/s). 기절한 채 튀어 올라도 난다.
+                Queue(Sfx.Spring, 1f, pan, local);
+                _particles.Dust(feet, 6, 1.2f);
+                _particles.Impact(feet + new Vector2(0f, 0.1f), new Color(1f, 0.95f, 0.7f), 1.1f, 4);
+                if (local) AddShake(0.03f);
+                LogEvent($"pad launch #{p.Id}");
+                Shot("pad", 0.12f);
+            }
+            else if (q.Grounded && !p.Grounded && p.VelocityY > 5f && !p.Stunned)
             {
                 Queue(Sfx.Jump, 1f, pan, local);
                 _particles.Dust(feet, 3, 0.6f);
