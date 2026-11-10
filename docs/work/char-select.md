@@ -83,7 +83,7 @@ dotnet run --project Tools/BotClient -- --port 7806 --count 2
   - 합치기 전 첫 시험은 34/35: 창이 보이는 사이 누군가 대기 화면 칸을 눌러(로그에 시험이 누르지 않은 요청 5번, 클릭 소리 4번 증가) 결과 화면 확인의 기준 캐릭터가 달라졌다. 서버 동작은 맞았고, 시험이 '누르기 전 캐릭터'를 기준으로 삼도록 고침.
 - 접속 실패 시 경고 상자까지 나온 접속 화면(1280×720)이 잘리지 않음(`shots/connect-error.png`).
 - 테스트 MCP(`onlinesevergame-test`)는 원본 체크아웃(D:/OnlineSeverGame)에서 돌아 이 워크트리 테스트를 못 찾는다(필터 결과 0개) → `dotnet test`를 직접 돌림.
-- 그림 최종본: 그림 담당 '캐릭터·맵 아트 · 02 (Blender)' 세션에 최종본인지 물었으나 이 작업이 끝날 때까지 답이 없었다. main의 시트(시트 그림이 마지막으로 바뀐 커밋 52d5536 이후 그대로)를 그대로 복사했다. 새로 렌더하면 `Art/sprites/characters/{bear,pudding}_*.png`와 `*_sheet.json`을 `Client/Assets/Resources/Art/characters/`로 다시 복사하면 된다(.meta는 그대로 둠).
+- 그림 최종본: 그림 담당 '캐릭터·맵 아트 · 02 (Blender)' 세션이 main(998dfcf)의 곰·푸딩 시트와 json이 **최종본**이라고 확인해 줌(16행 모션 병합·납작 기절 판정 b38e7d4 반영, 고칠 예정 없음, 다시 렌더하면 먼저 알려 주기로). 그대로 복사해 씀. 참고(그 세션 설명): 세 캐릭터가 같은 HitShapes를 쓰고, 푸딩은 판정 띠보다 조금 좁게 그려져 있어(서 있을 때 발 0.03, 납작 기절 앞쪽 발 0.03~0.05 유닛) 그만큼은 그림이 없는 곳에서도 맞는다. 캐릭터별 판정을 두기로 하면 시트가 아니라 HitShapes를 바꾼다. 새로 렌더하면 `Art/sprites/characters/{bear,pudding}_*.png`와 `*_sheet.json`을 `Client/Assets/Resources/Art/characters/`로 다시 복사하면 된다(.meta는 그대로 둠).
 
 확인 못 함 · 사람이 보고 판단할 것:
 
@@ -100,3 +100,4 @@ dotnet run --project Tools/BotClient -- --port 7806 --count 2
 - 2026-11-10 클라이언트: 곰·푸딩 시트, 종류별 지연 로딩, 고르기 칸(접속·대기·결과), 모든 그림에 종류, `-character`, 클릭 시험 단계.
 - 2026-11-10 main(91c92eb, 납작 기절 1.25초 = 프로토콜 v10)을 합침. 같은 번호가 겹쳐 캐릭터 선택을 **v11**로 올림(`ProtocolConstants.Version`, protocol.md, 주석). 충돌은 protocol.md 버전 기록 줄과 CLAUDE.md 첫 문단뿐(두 쪽 내용 모두 살림).
 - 2026-11-10 합친 뒤 다시 확인(테스트 225, Unity 빌드, 두 클라이언트 스크린샷, 클릭 시험 35/35, 접속 실패 화면). 접속 화면 칸 높이 118 → 104, 로고 크기 계산에 경고 상자 높이 포함.
+- 2026-11-10 아트 · 02 세션이 곰·푸딩 시트 최종본임을 확인. 문서에 기록.
