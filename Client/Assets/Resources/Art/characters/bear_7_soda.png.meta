@@ -1,0 +1,1682 @@
+fileFormatVersion: 2
+guid: 8a0370f499047de42bf2110de9048745
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 1149017298256132958
+    second: bear_7_soda_0
+  - first:
+      213: -1400642745704816827
+    second: bear_7_soda_1
+  - first:
+      213: -8240038337327770841
+    second: bear_7_soda_2
+  - first:
+      213: -1072048655344019315
+    second: bear_7_soda_3
+  - first:
+      213: -4811757153249985836
+    second: bear_7_soda_4
+  - first:
+      213: -4057225094423177913
+    second: bear_7_soda_5
+  - first:
+      213: 3961847624135470142
+    second: bear_7_soda_6
+  - first:
+      213: 803677554887075447
+    second: bear_7_soda_7
+  - first:
+      213: -988799435305455656
+    second: bear_7_soda_8
+  - first:
+      213: 8007428001828209370
+    second: bear_7_soda_9
+  - first:
+      213: -7839713992865220946
+    second: bear_7_soda_10
+  - first:
+      213: -5221980359406858383
+    second: bear_7_soda_11
+  - first:
+      213: -7061976450447455761
+    second: bear_7_soda_12
+  - first:
+      213: 5498768319411193878
+    second: bear_7_soda_13
+  - first:
+      213: 4170224582041359512
+    second: bear_7_soda_14
+  - first:
+      213: 5146745727060033217
+    second: bear_7_soda_15
+  - first:
+      213: -2588670632600584541
+    second: bear_7_soda_16
+  - first:
+      213: 6268188670793918352
+    second: bear_7_soda_17
+  - first:
+      213: 3553835502061349388
+    second: bear_7_soda_18
+  - first:
+      213: -3073245375751652852
+    second: bear_7_soda_19
+  - first:
+      213: 8679827201284646123
+    second: bear_7_soda_20
+  - first:
+      213: -233769793790471264
+    second: bear_7_soda_21
+  - first:
+      213: 466895677996416124
+    second: bear_7_soda_22
+  - first:
+      213: 1707289013141909495
+    second: bear_7_soda_23
+  - first:
+      213: -4249983149906110952
+    second: bear_7_soda_24
+  - first:
+      213: -1878668973170638396
+    second: bear_7_soda_25
+  - first:
+      213: -4981361004083351702
+    second: bear_7_soda_26
+  - first:
+      213: -5105947234139441905
+    second: bear_7_soda_27
+  - first:
+      213: -4419378082118379404
+    second: bear_7_soda_28
+  - first:
+      213: 4402369815628613505
+    second: bear_7_soda_29
+  - first:
+      213: 1173014022058569964
+    second: bear_7_soda_30
+  - first:
+      213: 240004895550118849
+    second: bear_7_soda_31
+  - first:
+      213: 8903634135321744264
+    second: bear_7_soda_32
+  - first:
+      213: 8960644846249371399
+    second: bear_7_soda_33
+  - first:
+      213: -212047423751645860
+    second: bear_7_soda_34
+  - first:
+      213: 7215895956721966090
+    second: bear_7_soda_35
+  - first:
+      213: -5521211523789775646
+    second: bear_7_soda_36
+  - first:
+      213: -6662295299644933395
+    second: bear_7_soda_37
+  - first:
+      213: 718355266972308885
+    second: bear_7_soda_38
+  - first:
+      213: -314604706861455830
+    second: bear_7_soda_39
+  - first:
+      213: -3086514570827339453
+    second: bear_7_soda_40
+  - first:
+      213: 8169638012178777182
+    second: bear_7_soda_41
+  - first:
+      213: 3468039442146968282
+    second: bear_7_soda_42
+  - first:
+      213: 7840953806651746711
+    second: bear_7_soda_43
+  - first:
+      213: 976055603051281954
+    second: bear_7_soda_44
+  - first:
+      213: -8881289639706515407
+    second: bear_7_soda_45
+  - first:
+      213: -3571335912297493008
+    second: bear_7_soda_46
+  - first:
+      213: 3992428563398814988
+    second: bear_7_soda_47
+  - first:
+      213: -8117962731383032709
+    second: bear_7_soda_48
+  - first:
+      213: 5031343311959841076
+    second: bear_7_soda_49
+  - first:
+      213: -7717514422226810385
+    second: bear_7_soda_50
+  - first:
+      213: -2454794725086744706
+    second: bear_7_soda_51
+  - first:
+      213: 6816499961087402948
+    second: bear_7_soda_52
+  - first:
+      213: -4546623499251542528
+    second: bear_7_soda_53
+  - first:
+      213: -3625588037327935438
+    second: bear_7_soda_54
+  - first:
+      213: 2926759743393841552
+    second: bear_7_soda_55
+  - first:
+      213: 3817025911948583552
+    second: bear_7_soda_56
+  - first:
+      213: 703461883848856465
+    second: bear_7_soda_57
+  - first:
+      213: 2566028171188993493
+    second: bear_7_soda_58
+  - first:
+      213: -8637499587926844815
+    second: bear_7_soda_59
+  - first:
+      213: -7192286217726441375
+    second: bear_7_soda_60
+  - first:
+      213: -4486086733739475103
+    second: bear_7_soda_61
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 4096
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: bear_7_soda_0
+      rect:
+        serializedVersion: 2
+        x: 62
+        y: 3844
+        width: 132
+        height: 198
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e5bf55f152122ff00800000000000000
+      internalID: 1149017298256132958
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_1
+      rect:
+        serializedVersion: 2
+        x: 318
+        y: 3844
+        width: 132
+        height: 197
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 54f590df7daef8ce0800000000000000
+      internalID: -1400642745704816827
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_2
+      rect:
+        serializedVersion: 2
+        x: 573
+        y: 3844
+        width: 134
+        height: 195
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7235aff2ac085ad80800000000000000
+      internalID: -8240038337327770841
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_3
+      rect:
+        serializedVersion: 2
+        x: 830
+        y: 3844
+        width: 132
+        height: 197
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d88d84c8d615f11f0800000000000000
+      internalID: -1072048655344019315
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_4
+      rect:
+        serializedVersion: 2
+        x: 65
+        y: 3588
+        width: 136
+        height: 192
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4daf617ec54393db0800000000000000
+      internalID: -4811757153249985836
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_5
+      rect:
+        serializedVersion: 2
+        x: 323
+        y: 3592
+        width: 133
+        height: 195
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7451b11d547d1b7c0800000000000000
+      internalID: -4057225094423177913
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_6
+      rect:
+        serializedVersion: 2
+        x: 579
+        y: 3594
+        width: 132
+        height: 198
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e3ce1d26c6f4bf630800000000000000
+      internalID: 3961847624135470142
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_7
+      rect:
+        serializedVersion: 2
+        x: 835
+        y: 3592
+        width: 133
+        height: 195
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 776aff46a7c372b00800000000000000
+      internalID: 803677554887075447
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_8
+      rect:
+        serializedVersion: 2
+        x: 1089
+        y: 3588
+        width: 136
+        height: 192
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8dfe28807241742f0800000000000000
+      internalID: -988799435305455656
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_9
+      rect:
+        serializedVersion: 2
+        x: 1347
+        y: 3592
+        width: 133
+        height: 198
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ad28c7da759102f60800000000000000
+      internalID: 8007428001828209370
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_10
+      rect:
+        serializedVersion: 2
+        x: 1603
+        y: 3594
+        width: 132
+        height: 201
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ea6fb9af8adb33390800000000000000
+      internalID: -7839713992865220946
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_11
+      rect:
+        serializedVersion: 2
+        x: 1859
+        y: 3592
+        width: 133
+        height: 198
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 17fcc75c78cc787b0800000000000000
+      internalID: -5221980359406858383
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_12
+      rect:
+        serializedVersion: 2
+        x: 66
+        y: 3330
+        width: 124
+        height: 211
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fe9c7e295d1defd90800000000000000
+      internalID: -7061976450447455761
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_13
+      rect:
+        serializedVersion: 2
+        x: 322
+        y: 3332
+        width: 124
+        height: 209
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6180dac17ac8f4c40800000000000000
+      internalID: 5498768319411193878
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_14
+      rect:
+        serializedVersion: 2
+        x: 577
+        y: 3332
+        width: 126
+        height: 208
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8945d2e992d9fd930800000000000000
+      internalID: 4170224582041359512
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_15
+      rect:
+        serializedVersion: 2
+        x: 832
+        y: 3334
+        width: 128
+        height: 205
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1ce3caa58f9ec6740800000000000000
+      internalID: 5146745727060033217
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_16
+      rect:
+        serializedVersion: 2
+        x: 59
+        y: 3079
+        width: 138
+        height: 190
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3ae3b5766c1331cd0800000000000000
+      internalID: -2588670632600584541
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_17
+      rect:
+        serializedVersion: 2
+        x: 314
+        y: 3080
+        width: 140
+        height: 188
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 097acc3c2641df650800000000000000
+      internalID: 6268188670793918352
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_18
+      rect:
+        serializedVersion: 2
+        x: 570
+        y: 3080
+        width: 140
+        height: 189
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c0ae9826f82c15130800000000000000
+      internalID: 3553835502061349388
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_19
+      rect:
+        serializedVersion: 2
+        x: 826
+        y: 3080
+        width: 140
+        height: 190
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c0af5be0d93a955d0800000000000000
+      internalID: -3073245375751652852
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_20
+      rect:
+        serializedVersion: 2
+        x: 25
+        y: 2820
+        width: 209
+        height: 135
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: be428541ad0f47870800000000000000
+      internalID: 8679827201284646123
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_21
+      rect:
+        serializedVersion: 2
+        x: 285
+        y: 2820
+        width: 202
+        height: 139
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0a317e17c9b71ccf0800000000000000
+      internalID: -233769793790471264
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_22
+      rect:
+        serializedVersion: 2
+        x: 535
+        y: 2820
+        width: 213
+        height: 133
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c7c342a352fba7600800000000000000
+      internalID: 466895677996416124
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_23
+      rect:
+        serializedVersion: 2
+        x: 794
+        y: 2820
+        width: 207
+        height: 137
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7ff2045df4281b710800000000000000
+      internalID: 1707289013141909495
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_24
+      rect:
+        serializedVersion: 2
+        x: 35
+        y: 2567
+        width: 146
+        height: 187
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8165370b7d60505c0800000000000000
+      internalID: -4249983149906110952
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_25
+      rect:
+        serializedVersion: 2
+        x: 277
+        y: 2569
+        width: 155
+        height: 182
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4c1cd93c580ade5e0800000000000000
+      internalID: -1878668973170638396
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_26
+      rect:
+        serializedVersion: 2
+        x: 524
+        y: 2569
+        width: 161
+        height: 176
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a6fe0a52f86aedab0800000000000000
+      internalID: -4981361004083351702
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_27
+      rect:
+        serializedVersion: 2
+        x: 792
+        y: 2568
+        width: 153
+        height: 185
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f05fa330b080429b0800000000000000
+      internalID: -5105947234139441905
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_28
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 2308
+        width: 128
+        height: 207
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 478df279c073ba2c0800000000000000
+      internalID: -4419378082118379404
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_29
+      rect:
+        serializedVersion: 2
+        x: 311
+        y: 2308
+        width: 146
+        height: 199
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1870276c50c581d30800000000000000
+      internalID: 4402369815628613505
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_30
+      rect:
+        serializedVersion: 2
+        x: 540
+        y: 2308
+        width: 200
+        height: 126
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ce07a55c902674010800000000000000
+      internalID: 1173014022058569964
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_31
+      rect:
+        serializedVersion: 2
+        x: 773
+        y: 2308
+        width: 246
+        height: 81
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1cb9e9f4e2ba45300800000000000000
+      internalID: 240004895550118849
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_32
+      rect:
+        serializedVersion: 2
+        x: 59
+        y: 2052
+        width: 138
+        height: 191
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 88315e59210109b70800000000000000
+      internalID: 8903634135321744264
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_33
+      rect:
+        serializedVersion: 2
+        x: 322
+        y: 2067
+        width: 124
+        height: 209
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 707e02b130b9a5c70800000000000000
+      internalID: 8960644846249371399
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_34
+      rect:
+        serializedVersion: 2
+        x: 576
+        y: 2072
+        width: 128
+        height: 202
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c551fb7ddf7ae0df0800000000000000
+      internalID: -212047423751645860
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_35
+      rect:
+        serializedVersion: 2
+        x: 830
+        y: 2057
+        width: 132
+        height: 198
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a0c17942423042460800000000000000
+      internalID: 7215895956721966090
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_36
+      rect:
+        serializedVersion: 2
+        x: 58
+        y: 1796
+        width: 140
+        height: 181
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2ec97ba2f57b063b0800000000000000
+      internalID: -5521211523789775646
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_37
+      rect:
+        serializedVersion: 2
+        x: 316
+        y: 1796
+        width: 136
+        height: 191
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: deab8eb29b5ca83a0800000000000000
+      internalID: -6662295299644933395
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_38
+      rect:
+        serializedVersion: 2
+        x: 575
+        y: 1796
+        width: 130
+        height: 202
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5955a6e2f4c18f900800000000000000
+      internalID: 718355266972308885
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_39
+      rect:
+        serializedVersion: 2
+        x: 53
+        y: 1541
+        width: 150
+        height: 138
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a266bda9fac42abf0800000000000000
+      internalID: -314604706861455830
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_40
+      rect:
+        serializedVersion: 2
+        x: 309
+        y: 1541
+        width: 150
+        height: 136
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 349e4c3d95f7a25d0800000000000000
+      internalID: -3086514570827339453
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_41
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 1287
+        width: 189
+        height: 106
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e54c17bcc72606170800000000000000
+      internalID: 8169638012178777182
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_42
+      rect:
+        serializedVersion: 2
+        x: 258
+        y: 1287
+        width: 189
+        height: 106
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ad2c6388f73f02030800000000000000
+      internalID: 3468039442146968282
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_43
+      rect:
+        serializedVersion: 2
+        x: 514
+        y: 1287
+        width: 189
+        height: 110
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 79969b9a1f9a0dc60800000000000000
+      internalID: 7840953806651746711
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_44
+      rect:
+        serializedVersion: 2
+        x: 770
+        y: 1287
+        width: 189
+        height: 111
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 22eb6ec4665ab8d00800000000000000
+      internalID: 976055603051281954
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_45
+      rect:
+        serializedVersion: 2
+        x: 61
+        y: 1028
+        width: 134
+        height: 196
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 138afe5b0225fb480800000000000000
+      internalID: -8881289639706515407
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_46
+      rect:
+        serializedVersion: 2
+        x: 311
+        y: 1028
+        width: 146
+        height: 194
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0fd89e5d8e0107ec0800000000000000
+      internalID: -3571335912297493008
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_47
+      rect:
+        serializedVersion: 2
+        x: 62
+        y: 772
+        width: 132
+        height: 198
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c0d628820a4f76730800000000000000
+      internalID: 3992428563398814988
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_48
+      rect:
+        serializedVersion: 2
+        x: 318
+        y: 772
+        width: 132
+        height: 198
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b74fd0818e3375f80800000000000000
+      internalID: -8117962731383032709
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_49
+      rect:
+        serializedVersion: 2
+        x: 574
+        y: 772
+        width: 132
+        height: 198
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4395764c51ce2d540800000000000000
+      internalID: 5031343311959841076
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_50
+      rect:
+        serializedVersion: 2
+        x: 63
+        y: 516
+        width: 132
+        height: 195
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fe9873aa581e5e490800000000000000
+      internalID: -7717514422226810385
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_51
+      rect:
+        serializedVersion: 2
+        x: 319
+        y: 520
+        width: 130
+        height: 200
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e7fa3be1431deedd0800000000000000
+      internalID: -2454794725086744706
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_52
+      rect:
+        serializedVersion: 2
+        x: 573
+        y: 516
+        width: 132
+        height: 201
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4c324186992199e50800000000000000
+      internalID: 6816499961087402948
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_53
+      rect:
+        serializedVersion: 2
+        x: 831
+        y: 520
+        width: 130
+        height: 200
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0061ba7340627e0c0800000000000000
+      internalID: -4546623499251542528
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_54
+      rect:
+        serializedVersion: 2
+        x: 61
+        y: 260
+        width: 131
+        height: 202
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 238a925a3e25fadc0800000000000000
+      internalID: -3625588037327935438
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_55
+      rect:
+        serializedVersion: 2
+        x: 317
+        y: 260
+        width: 133
+        height: 196
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 09147efda70fd9820800000000000000
+      internalID: 2926759743393841552
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_56
+      rect:
+        serializedVersion: 2
+        x: 575
+        y: 260
+        width: 132
+        height: 196
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 082282ce7dcc8f430800000000000000
+      internalID: 3817025911948583552
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_57
+      rect:
+        serializedVersion: 2
+        x: 829
+        y: 260
+        width: 133
+        height: 196
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 19396d33bd233c900800000000000000
+      internalID: 703461883848856465
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_58
+      rect:
+        serializedVersion: 2
+        x: 60
+        y: 4
+        width: 136
+        height: 195
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5dd7d5bb60d5c9320800000000000000
+      internalID: 2566028171188993493
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_59
+      rect:
+        serializedVersion: 2
+        x: 315
+        y: 4
+        width: 137
+        height: 193
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 17a990263ef612880800000000000000
+      internalID: -8637499587926844815
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_60
+      rect:
+        serializedVersion: 2
+        x: 572
+        y: 4
+        width: 136
+        height: 195
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1684a759acddf2c90800000000000000
+      internalID: -7192286217726441375
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bear_7_soda_61
+      rect:
+        serializedVersion: 2
+        x: 828
+        y: 4
+        width: 137
+        height: 191
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 16fbddb42e73eb1c0800000000000000
+      internalID: -4486086733739475103
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable: {}
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

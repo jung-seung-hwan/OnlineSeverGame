@@ -11,6 +11,7 @@ namespace OnlineSeverGame.Client.Model
         public int Id;
         public string Name;
         public int ColorIndex;
+        public CharacterKind Character; // 젤리·젤리곰·푸딩(v11). 그림만 바뀐다
         public Vector2 Position;   // 발 중앙(바닥 접점) 기준
         public bool Alive;
         public bool Dashing;

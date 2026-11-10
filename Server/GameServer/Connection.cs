@@ -13,13 +13,15 @@ public enum NetEventKind
     MapRequest,
     /// <summary>EmoteRequest from the client (v7).</summary>
     Emote,
+    /// <summary>CharacterRequest from the client (v11).</summary>
+    Character,
 }
 
 /// <summary>What a receive thread hands to the game loop.</summary>
 public readonly record struct NetEvent(
     NetEventKind Kind, Connection Connection, string Name = null, ushort Version = 0,
     uint Seq = 0, InputButtons Buttons = InputButtons.None, LeaveReason Reason = LeaveReason.Disconnected,
-    byte StageId = 0, MapRotation Rotation = 0, EmoteKind Emote = 0);
+    byte StageId = 0, MapRotation Rotation = 0, EmoteKind Emote = 0, CharacterKind Character = 0);
 
 /// <summary>
 /// One TCP client. Two threads of its own:
@@ -129,7 +131,7 @@ public sealed class Connection
                         if (packet is not HelloPacket hello) throw new PacketFormatException("Expected Hello first");
                         joined = true;
                         _client.ReceiveTimeout = IdleTimeoutMs;
-                        _server.Events.Enqueue(new NetEvent(NetEventKind.Join, this, hello.Name, hello.ProtocolVersion));
+                        _server.Events.Enqueue(new NetEvent(NetEventKind.Join, this, hello.Name, hello.ProtocolVersion, Character: hello.Character));
                         continue;
                     }
                     switch (packet)
@@ -142,6 +144,9 @@ public sealed class Connection
                             break;
                         case EmoteRequestPacket emote:
                             _server.Events.Enqueue(new NetEvent(NetEventKind.Emote, this, Emote: emote.Emote));
+                            break;
+                        case CharacterRequestPacket character:
+                            _server.Events.Enqueue(new NetEvent(NetEventKind.Character, this, Character: character.Character));
                             break;
                         case PingPacket ping:
                             Send(PacketCodec.EncodeFrame(new PongPacket { ClientTime = ping.ClientTime, ServerTick = _server.CurrentTick }));

@@ -18,6 +18,20 @@ namespace OnlineSeverGame.Shared.Protocol
         Pong = 41,        // S
         MapRequest = 50,  // C
         EmoteRequest = 51, // C (v7)
+        PlayerCharacter = 34, // S (v11)
+        CharacterRequest = 52, // C (v11)
+    }
+
+    /// <summary>
+    /// Character kinds (v11): which body a player is drawn with. Purely visual; hazards hit the same HitShapes for
+    /// every kind (they are measured on the narrowest of the three). 0 on the wire = not given (Hello) and is never
+    /// broadcast. docs/work/char-select.md.
+    /// </summary>
+    public enum CharacterKind : byte
+    {
+        Jelly = 1,   // 젤리
+        Bear = 2,    // 젤리곰
+        Pudding = 3, // 푸딩
     }
 
     /// <summary>

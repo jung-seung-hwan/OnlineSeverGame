@@ -1,0 +1,1707 @@
+fileFormatVersion: 2
+guid: cf47c2c595d5ae64d8c88288956b0894
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 3647504968222104228
+    second: pudding_7_soda_0
+  - first:
+      213: -7185470818494553023
+    second: pudding_7_soda_1
+  - first:
+      213: -3257748786589859677
+    second: pudding_7_soda_2
+  - first:
+      213: -6361791642595659996
+    second: pudding_7_soda_3
+  - first:
+      213: 3882150377760157277
+    second: pudding_7_soda_4
+  - first:
+      213: -5685932440291262474
+    second: pudding_7_soda_5
+  - first:
+      213: 4908049391144193265
+    second: pudding_7_soda_6
+  - first:
+      213: -7254698579120715173
+    second: pudding_7_soda_7
+  - first:
+      213: 5552455804814425162
+    second: pudding_7_soda_8
+  - first:
+      213: -4483156819557066889
+    second: pudding_7_soda_9
+  - first:
+      213: 1558683580832365694
+    second: pudding_7_soda_10
+  - first:
+      213: -506474665693346341
+    second: pudding_7_soda_11
+  - first:
+      213: 999034740820110001
+    second: pudding_7_soda_12
+  - first:
+      213: 5033851582060357621
+    second: pudding_7_soda_13
+  - first:
+      213: -4943405855002584993
+    second: pudding_7_soda_14
+  - first:
+      213: 2723798856349697007
+    second: pudding_7_soda_15
+  - first:
+      213: 861026373446420097
+    second: pudding_7_soda_16
+  - first:
+      213: 1147868419163735318
+    second: pudding_7_soda_17
+  - first:
+      213: 9045458558622133395
+    second: pudding_7_soda_18
+  - first:
+      213: 5579872100834857728
+    second: pudding_7_soda_19
+  - first:
+      213: 5810973764889574379
+    second: pudding_7_soda_20
+  - first:
+      213: 181367646953166040
+    second: pudding_7_soda_21
+  - first:
+      213: 3008588458180280843
+    second: pudding_7_soda_22
+  - first:
+      213: 2790297196513305493
+    second: pudding_7_soda_23
+  - first:
+      213: 2177198108058022015
+    second: pudding_7_soda_24
+  - first:
+      213: -9063695446343550807
+    second: pudding_7_soda_25
+  - first:
+      213: -3237314996466039850
+    second: pudding_7_soda_26
+  - first:
+      213: -6851861263144754414
+    second: pudding_7_soda_27
+  - first:
+      213: 6447578863552945338
+    second: pudding_7_soda_28
+  - first:
+      213: -3151245896653107424
+    second: pudding_7_soda_29
+  - first:
+      213: -1725252603040075876
+    second: pudding_7_soda_30
+  - first:
+      213: 3868003663876002869
+    second: pudding_7_soda_31
+  - first:
+      213: 1243000777739464627
+    second: pudding_7_soda_32
+  - first:
+      213: 9093849573750209873
+    second: pudding_7_soda_33
+  - first:
+      213: 5127433078547850474
+    second: pudding_7_soda_34
+  - first:
+      213: -2758127842403687357
+    second: pudding_7_soda_35
+  - first:
+      213: 4367815175700412381
+    second: pudding_7_soda_36
+  - first:
+      213: -1564045871732817320
+    second: pudding_7_soda_37
+  - first:
+      213: -4102150863510383645
+    second: pudding_7_soda_38
+  - first:
+      213: -764126163121374869
+    second: pudding_7_soda_39
+  - first:
+      213: -7560486968390288098
+    second: pudding_7_soda_40
+  - first:
+      213: 5586826726606004963
+    second: pudding_7_soda_41
+  - first:
+      213: -6484018465447566707
+    second: pudding_7_soda_42
+  - first:
+      213: -8675483050455844528
+    second: pudding_7_soda_43
+  - first:
+      213: 4664743954665264088
+    second: pudding_7_soda_44
+  - first:
+      213: 564202811643876375
+    second: pudding_7_soda_45
+  - first:
+      213: -2012066053774404995
+    second: pudding_7_soda_46
+  - first:
+      213: -6545486850390251347
+    second: pudding_7_soda_47
+  - first:
+      213: -7371410346429374088
+    second: pudding_7_soda_48
+  - first:
+      213: 2636345084023833986
+    second: pudding_7_soda_49
+  - first:
+      213: 7626921410335180528
+    second: pudding_7_soda_50
+  - first:
+      213: -4160915735632082944
+    second: pudding_7_soda_51
+  - first:
+      213: -4835503924401127524
+    second: pudding_7_soda_52
+  - first:
+      213: 3344059457143542128
+    second: pudding_7_soda_53
+  - first:
+      213: -3833986261547161356
+    second: pudding_7_soda_54
+  - first:
+      213: -7924611456501991107
+    second: pudding_7_soda_55
+  - first:
+      213: -259818849137883289
+    second: pudding_7_soda_56
+  - first:
+      213: 8084755137099939266
+    second: pudding_7_soda_57
+  - first:
+      213: 3300141359495585823
+    second: pudding_7_soda_58
+  - first:
+      213: -2896957472715128638
+    second: pudding_7_soda_59
+  - first:
+      213: 723985546978917719
+    second: pudding_7_soda_60
+  - first:
+      213: -5476508463285061845
+    second: pudding_7_soda_61
+  - first:
+      213: 8220423025205380253
+    second: pudding_7_soda_62
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 4096
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: pudding_7_soda_0
+      rect:
+        serializedVersion: 2
+        x: 62
+        y: 3844
+        width: 132
+        height: 198
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4aad95b717a8e9230800000000000000
+      internalID: 3647504968222104228
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_1
+      rect:
+        serializedVersion: 2
+        x: 318
+        y: 3844
+        width: 132
+        height: 197
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 14462bf5c54184c90800000000000000
+      internalID: -7185470818494553023
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_2
+      rect:
+        serializedVersion: 2
+        x: 573
+        y: 3844
+        width: 134
+        height: 195
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3a00ad72db62ac2d0800000000000000
+      internalID: -3257748786589859677
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_3
+      rect:
+        serializedVersion: 2
+        x: 830
+        y: 3844
+        width: 132
+        height: 197
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 42f6900153066b7a0800000000000000
+      internalID: -6361791642595659996
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_4
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 3588
+        width: 138
+        height: 192
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d5eea07333b20e530800000000000000
+      internalID: 3882150377760157277
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_5
+      rect:
+        serializedVersion: 2
+        x: 322
+        y: 3592
+        width: 135
+        height: 195
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6ffb19722928711b0800000000000000
+      internalID: -5685932440291262474
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_6
+      rect:
+        serializedVersion: 2
+        x: 578
+        y: 3594
+        width: 134
+        height: 198
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1fcc833dae4ec1440800000000000000
+      internalID: 4908049391144193265
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_7
+      rect:
+        serializedVersion: 2
+        x: 834
+        y: 3592
+        width: 135
+        height: 195
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b5a8afe4412225b90800000000000000
+      internalID: -7254698579120715173
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_8
+      rect:
+        serializedVersion: 2
+        x: 1088
+        y: 3588
+        width: 138
+        height: 192
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a4cf405e2294e0d40800000000000000
+      internalID: 5552455804814425162
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_9
+      rect:
+        serializedVersion: 2
+        x: 1346
+        y: 3592
+        width: 135
+        height: 198
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7775ee910a0a8c1c0800000000000000
+      internalID: -4483156819557066889
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_10
+      rect:
+        serializedVersion: 2
+        x: 1602
+        y: 3594
+        width: 134
+        height: 202
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e7c3fb0657e81a510800000000000000
+      internalID: 1558683580832365694
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_11
+      rect:
+        serializedVersion: 2
+        x: 1858
+        y: 3592
+        width: 135
+        height: 198
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bd50d9799f3a8f8f0800000000000000
+      internalID: -506474665693346341
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_12
+      rect:
+        serializedVersion: 2
+        x: 66
+        y: 3330
+        width: 124
+        height: 212
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1ba6bdcbdc84ddd00800000000000000
+      internalID: 999034740820110001
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_13
+      rect:
+        serializedVersion: 2
+        x: 322
+        y: 3332
+        width: 124
+        height: 209
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5f7eeb8e755dbd540800000000000000
+      internalID: 5033851582060357621
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_14
+      rect:
+        serializedVersion: 2
+        x: 577
+        y: 3332
+        width: 126
+        height: 208
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f581cffe09e756bb0800000000000000
+      internalID: -4943405855002584993
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_15
+      rect:
+        serializedVersion: 2
+        x: 832
+        y: 3334
+        width: 128
+        height: 205
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fe3c658e0a0ecc520800000000000000
+      internalID: 2723798856349697007
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_16
+      rect:
+        serializedVersion: 2
+        x: 59
+        y: 3079
+        width: 138
+        height: 190
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 186448bbceaf2fb00800000000000000
+      internalID: 861026373446420097
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_17
+      rect:
+        serializedVersion: 2
+        x: 314
+        y: 3080
+        width: 140
+        height: 188
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 615c42dde3c0eef00800000000000000
+      internalID: 1147868419163735318
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_18
+      rect:
+        serializedVersion: 2
+        x: 570
+        y: 3080
+        width: 140
+        height: 189
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 39c603952ace78d70800000000000000
+      internalID: 9045458558622133395
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_19
+      rect:
+        serializedVersion: 2
+        x: 826
+        y: 3080
+        width: 140
+        height: 190
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 003df5ebc10bf6d40800000000000000
+      internalID: 5579872100834857728
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_20
+      rect:
+        serializedVersion: 2
+        x: 25
+        y: 2820
+        width: 210
+        height: 135
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: beb7b5fe9d9b4a050800000000000000
+      internalID: 5810973764889574379
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_21
+      rect:
+        serializedVersion: 2
+        x: 284
+        y: 2820
+        width: 204
+        height: 139
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8d4546af9e8548200800000000000000
+      internalID: 181367646953166040
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_22
+      rect:
+        serializedVersion: 2
+        x: 535
+        y: 2820
+        width: 213
+        height: 133
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b020d253347a0c920800000000000000
+      internalID: 3008588458180280843
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_23
+      rect:
+        serializedVersion: 2
+        x: 794
+        y: 2820
+        width: 207
+        height: 136
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 593a1ff348029b620800000000000000
+      internalID: 2790297196513305493
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_24
+      rect:
+        serializedVersion: 2
+        x: 34
+        y: 2567
+        width: 149
+        height: 187
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f70737cd426f63e10800000000000000
+      internalID: 2177198108058022015
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_25
+      rect:
+        serializedVersion: 2
+        x: 277
+        y: 2569
+        width: 157
+        height: 182
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9a8fd585309473280800000000000000
+      internalID: -9063695446343550807
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_26
+      rect:
+        serializedVersion: 2
+        x: 524
+        y: 2569
+        width: 163
+        height: 176
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6d3c899a92fb213d0800000000000000
+      internalID: -3237314996466039850
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_27
+      rect:
+        serializedVersion: 2
+        x: 792
+        y: 2568
+        width: 155
+        height: 186
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2136fffdb7c49e0a0800000000000000
+      internalID: -6851861263144754414
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_28
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 2308
+        width: 128
+        height: 207
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: abcd36fc0d66a7950800000000000000
+      internalID: 6447578863552945338
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_29
+      rect:
+        serializedVersion: 2
+        x: 311
+        y: 2308
+        width: 146
+        height: 141
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 02f85129d868444d0800000000000000
+      internalID: -3151245896653107424
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_30
+      rect:
+        serializedVersion: 2
+        x: 334
+        y: 2448
+        width: 59
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c9f6af7f5ebae08e0800000000000000
+      internalID: -1725252603040075876
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_31
+      rect:
+        serializedVersion: 2
+        x: 540
+        y: 2308
+        width: 200
+        height: 126
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5341d37b6d8eda530800000000000000
+      internalID: 3868003663876002869
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_32
+      rect:
+        serializedVersion: 2
+        x: 773
+        y: 2308
+        width: 246
+        height: 81
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3bfe1b42f96004110800000000000000
+      internalID: 1243000777739464627
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_33
+      rect:
+        serializedVersion: 2
+        x: 59
+        y: 2052
+        width: 138
+        height: 191
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 15df73c8108d33e70800000000000000
+      internalID: 9093849573750209873
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_34
+      rect:
+        serializedVersion: 2
+        x: 322
+        y: 2067
+        width: 124
+        height: 209
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ae4ae68f73d482740800000000000000
+      internalID: 5127433078547850474
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_35
+      rect:
+        serializedVersion: 2
+        x: 576
+        y: 2072
+        width: 128
+        height: 202
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 344e96c275929b9d0800000000000000
+      internalID: -2758127842403687357
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_36
+      rect:
+        serializedVersion: 2
+        x: 830
+        y: 2057
+        width: 132
+        height: 198
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dd7fe28b2c89d9c30800000000000000
+      internalID: 4367815175700412381
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_37
+      rect:
+        serializedVersion: 2
+        x: 58
+        y: 1796
+        width: 140
+        height: 181
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 85203faf0946b4ae0800000000000000
+      internalID: -1564045871732817320
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_38
+      rect:
+        serializedVersion: 2
+        x: 316
+        y: 1796
+        width: 136
+        height: 191
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3e3d665168b3217c0800000000000000
+      internalID: -4102150863510383645
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_39
+      rect:
+        serializedVersion: 2
+        x: 575
+        y: 1796
+        width: 130
+        height: 202
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b69719b9d474565f0800000000000000
+      internalID: -764126163121374869
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_40
+      rect:
+        serializedVersion: 2
+        x: 53
+        y: 1541
+        width: 150
+        height: 138
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e1d7020d821c31790800000000000000
+      internalID: -7560486968390288098
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_41
+      rect:
+        serializedVersion: 2
+        x: 309
+        y: 1541
+        width: 150
+        height: 136
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3e2620dbe45688d40800000000000000
+      internalID: 5586826726606004963
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_42
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 1287
+        width: 191
+        height: 106
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d82ace93f832406a0800000000000000
+      internalID: -6484018465447566707
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_43
+      rect:
+        serializedVersion: 2
+        x: 258
+        y: 1287
+        width: 191
+        height: 106
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 05938aa512e7a9780800000000000000
+      internalID: -8675483050455844528
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_44
+      rect:
+        serializedVersion: 2
+        x: 514
+        y: 1287
+        width: 191
+        height: 110
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8d359f179ef7cb040800000000000000
+      internalID: 4664743954665264088
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_45
+      rect:
+        serializedVersion: 2
+        x: 770
+        y: 1287
+        width: 191
+        height: 111
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7145f49c77374d700800000000000000
+      internalID: 564202811643876375
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_46
+      rect:
+        serializedVersion: 2
+        x: 61
+        y: 1028
+        width: 134
+        height: 196
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d729720a594b314e0800000000000000
+      internalID: -2012066053774404995
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_47
+      rect:
+        serializedVersion: 2
+        x: 317
+        y: 1028
+        width: 134
+        height: 195
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: da8af789362c925a0800000000000000
+      internalID: -6545486850390251347
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_48
+      rect:
+        serializedVersion: 2
+        x: 62
+        y: 772
+        width: 132
+        height: 198
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8712077685d73b990800000000000000
+      internalID: -7371410346429374088
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_49
+      rect:
+        serializedVersion: 2
+        x: 318
+        y: 772
+        width: 132
+        height: 198
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 285869ec2ed269420800000000000000
+      internalID: 2636345084023833986
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_50
+      rect:
+        serializedVersion: 2
+        x: 574
+        y: 772
+        width: 132
+        height: 198
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0f689d01d9448d960800000000000000
+      internalID: 7626921410335180528
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_51
+      rect:
+        serializedVersion: 2
+        x: 63
+        y: 516
+        width: 132
+        height: 195
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 00801551f257146c0800000000000000
+      internalID: -4160915735632082944
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_52
+      rect:
+        serializedVersion: 2
+        x: 319
+        y: 520
+        width: 130
+        height: 200
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c9f3014ecc6d4ecb0800000000000000
+      internalID: -4835503924401127524
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_53
+      rect:
+        serializedVersion: 2
+        x: 573
+        y: 516
+        width: 132
+        height: 201
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 07193d2db5c786e20800000000000000
+      internalID: 3344059457143542128
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_54
+      rect:
+        serializedVersion: 2
+        x: 831
+        y: 520
+        width: 130
+        height: 200
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4f8e0c6fec1facac0800000000000000
+      internalID: -3833986261547161356
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_55
+      rect:
+        serializedVersion: 2
+        x: 60
+        y: 260
+        width: 133
+        height: 202
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d393530eddf160290800000000000000
+      internalID: -7924611456501991107
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_56
+      rect:
+        serializedVersion: 2
+        x: 317
+        y: 260
+        width: 133
+        height: 196
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7678f2f1220f46cf0800000000000000
+      internalID: -259818849137883289
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_57
+      rect:
+        serializedVersion: 2
+        x: 575
+        y: 260
+        width: 132
+        height: 196
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2cd3bda56f1d23070800000000000000
+      internalID: 8084755137099939266
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_58
+      rect:
+        serializedVersion: 2
+        x: 829
+        y: 260
+        width: 133
+        height: 196
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f102f41e4157ccd20800000000000000
+      internalID: 3300141359495585823
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_59
+      rect:
+        serializedVersion: 2
+        x: 60
+        y: 4
+        width: 136
+        height: 195
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2c0c66df680fbc7d0800000000000000
+      internalID: -2896957472715128638
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_60
+      rect:
+        serializedVersion: 2
+        x: 315
+        y: 4
+        width: 137
+        height: 193
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 75df136e40d1c0a00800000000000000
+      internalID: 723985546978917719
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_61
+      rect:
+        serializedVersion: 2
+        x: 572
+        y: 4
+        width: 136
+        height: 195
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b27397481988ff3b0800000000000000
+      internalID: -5476508463285061845
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pudding_7_soda_62
+      rect:
+        serializedVersion: 2
+        x: 828
+        y: 4
+        width: 137
+        height: 191
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d940fc0103fc41270800000000000000
+      internalID: 8220423025205380253
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable: {}
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

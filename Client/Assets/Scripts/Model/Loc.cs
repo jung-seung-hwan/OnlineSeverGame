@@ -82,6 +82,10 @@ namespace OnlineSeverGame.Client.Model
 
         // ---------------------------------------------------------------- 게임 용어
 
+        // 캐릭터 이름(젤리·젤리곰·푸딩, v11). 모르는 값은 젤리.
+        public static string CharacterName(CharacterKind kind) =>
+            ProtocolConstants.IsValidCharacter((byte)kind) ? T("char." + (int)kind) : T("char.1");
+
         public static string MapName(int stageId)
         {
             switch (stageId)
@@ -249,6 +253,12 @@ namespace OnlineSeverGame.Client.Model
             { "result.survivedFor", "{0:0.0}초 버팀" },
             // 미리보기
             { "preview.bot", "봇-{0}" },
+            { "char.1", "젤리" },
+            { "char.2", "젤리곰" },
+            { "char.3", "푸딩" },
+            { "char.title", "캐릭터" },
+            { "char.next", "다음 라운드부터 {0}" },
+            { "char.colorNote", "색은 들어온 순서(플레이어 번호)로 정해져요" },
             // 접속 오류
             { "net.badAddress", "서버 주소 형식이 잘못되었습니다 (예: 127.0.0.1:7777)" },
             { "net.noResponse", "서버 응답이 없습니다" },
@@ -373,6 +383,12 @@ namespace OnlineSeverGame.Client.Model
             { "result.title.round", "Round {0} results" },
             { "result.survivedFor", "Lasted {0:0.0}s" },
             { "preview.bot", "Bot-{0}" },
+            { "char.1", "Jelly" },
+            { "char.2", "Jelly Bear" },
+            { "char.3", "Pudding" },
+            { "char.title", "Character" },
+            { "char.next", "{0} from the next round" },
+            { "char.colorNote", "Your color comes from your player number" },
             { "net.badAddress", "Invalid server address (e.g. 127.0.0.1:7777)" },
             { "net.noResponse", "No response from the server" },
             { "net.version", "Your game version differs from the server (server v{0}, yours v{1})" },

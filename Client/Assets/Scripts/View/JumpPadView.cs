@@ -12,14 +12,15 @@ namespace OnlineSeverGame.Client.View
     public sealed class JumpPadView : MonoBehaviour
     {
         const int Coils = 4;
-        const float BaseH = 0.1f;
-        const float TopH = 0.12f;
+        const float BaseH = 0.11f;
+        const float TopH = 0.14f;
+        const float Wire = 0.085f;
         const float PressSeconds = 0.05f;
         const float WobbleSeconds = 0.45f;
 
         Transform _base, _top, _springRoot;
         SpriteRenderer _topStripe;
-        readonly SpriteRenderer[] _coils = new SpriteRenderer[Coils * 2];
+        readonly SpriteRenderer[] _coils = new SpriteRenderer[Coils];
         Vector2 _size;
         int _lastSpring;
         float _kickAt = -10f;
@@ -36,27 +37,27 @@ namespace OnlineSeverGame.Client.View
             {
                 case 2: return new Theme   // 겨울: 썰매 스프링
                 {
-                    Base = new Color(0.45f, 0.30f, 0.18f), BaseEdge = new Color(0.25f, 0.16f, 0.10f),
-                    Spring = new Color(0.55f, 0.70f, 0.85f), SpringAlt = new Color(0.40f, 0.52f, 0.68f),
+                    Base = new Color(0.55f, 0.37f, 0.22f), BaseEdge = new Color(0.86f, 0.92f, 1f),
+                    Spring = new Color(0.62f, 0.80f, 0.95f), SpringAlt = new Color(0.50f, 0.68f, 0.86f),
                     Top = new Color(0.55f, 0.37f, 0.22f), TopStripe = new Color(0.96f, 0.98f, 1f),
                 };
                 case 3: return new Theme   // 창고: 팔레트 스프링
                 {
-                    Base = new Color(0.62f, 0.45f, 0.26f), BaseEdge = new Color(0.32f, 0.22f, 0.12f),
-                    Spring = new Color(0.62f, 0.64f, 0.66f), SpringAlt = new Color(0.42f, 0.44f, 0.47f),
-                    Top = new Color(0.16f, 0.16f, 0.16f), TopStripe = new Color(0.98f, 0.80f, 0.10f),
+                    Base = new Color(0.70f, 0.52f, 0.30f), BaseEdge = new Color(0.98f, 0.80f, 0.10f),
+                    Spring = new Color(0.80f, 0.82f, 0.85f), SpringAlt = new Color(0.66f, 0.68f, 0.72f),
+                    Top = new Color(0.20f, 0.20f, 0.20f), TopStripe = new Color(0.98f, 0.80f, 0.10f),
                 };
                 case 4: return new Theme   // 디저트: 젤리 스프링
                 {
-                    Base = new Color(0.93f, 0.50f, 0.66f), BaseEdge = new Color(0.62f, 0.27f, 0.40f),
-                    Spring = new Color(1f, 0.95f, 0.97f), SpringAlt = new Color(0.95f, 0.35f, 0.55f),
+                    Base = new Color(0.93f, 0.50f, 0.66f), BaseEdge = new Color(1f, 0.86f, 0.92f),
+                    Spring = new Color(1f, 0.95f, 0.97f), SpringAlt = new Color(0.98f, 0.45f, 0.62f),
                     Top = new Color(1f, 0.93f, 0.80f), TopStripe = new Color(0.96f, 0.45f, 0.62f),
                 };
                 default: return new Theme  // 주방: 냄비 받침 스프링
                 {
-                    Base = new Color(0.22f, 0.22f, 0.25f), BaseEdge = new Color(0.10f, 0.10f, 0.12f),
-                    Spring = new Color(0.86f, 0.52f, 0.26f), SpringAlt = new Color(0.62f, 0.34f, 0.16f),
-                    Top = new Color(0.78f, 0.58f, 0.38f), TopStripe = new Color(0.80f, 0.20f, 0.18f),
+                    Base = new Color(0.36f, 0.36f, 0.40f), BaseEdge = new Color(0.72f, 0.72f, 0.76f),
+                    Spring = new Color(0.98f, 0.62f, 0.30f), SpringAlt = new Color(0.86f, 0.48f, 0.22f),
+                    Top = new Color(0.85f, 0.64f, 0.42f), TopStripe = new Color(0.92f, 0.24f, 0.20f),
                 };
             }
         }
@@ -74,7 +75,7 @@ namespace OnlineSeverGame.Client.View
             v._springRoot = new GameObject("Spring").transform;
             v._springRoot.SetParent(go.transform, false);
             for (int i = 0; i < v._coils.Length; i++)
-                v._coils[i] = Shapes.Rect(v._springRoot, "Coil" + i, i % 2 == 0 ? th.Spring : th.SpringAlt, Vector2.one, 6);
+                v._coils[i] = Shapes.Rect(v._springRoot, "Coil" + i, i % 2 == 0 ? th.Spring : th.SpringAlt, Vector2.one, 7);
             v._top = new GameObject("Top").transform;
             v._top.SetParent(go.transform, false);
             Shapes.Rect(v._top, "Edge", th.BaseEdge, Vector2.one, 8);
@@ -117,21 +118,17 @@ namespace OnlineSeverGame.Client.View
             _top.localPosition = new Vector3(0f, topY + TopH / 2f, 0f);
             _top.localScale = new Vector3(w, TopH, 1f);
 
-            // 지그재그: 칸마다 두 막대가 X 자로 엇갈려 감긴 코일처럼 보인다.
-            float coilW = w * 0.62f;
+            // 지그재그 스프링: 칸마다 막대 하나가 왼쪽 아래 → 오른쪽 위, 다음 칸은 반대로(옆에서 본 코일).
+            float coilW = w * 0.66f;
             float seg = springH / Coils;
-            float len = Mathf.Sqrt(coilW * coilW + seg * seg);
+            float len = Mathf.Sqrt(coilW * coilW + seg * seg) + Wire * 0.5f;
             float ang = Mathf.Atan2(seg, coilW) * Mathf.Rad2Deg;
             for (int i = 0; i < Coils; i++)
             {
-                float y = BaseH + seg * (i + 0.5f);
-                for (int k = 0; k < 2; k++)
-                {
-                    var t = _coils[i * 2 + k].transform;
-                    t.localPosition = new Vector3(0f, y, 0f);
-                    t.localScale = new Vector3(len, 0.06f, 1f);
-                    t.localRotation = Quaternion.Euler(0f, 0f, k == 0 ? ang : -ang);
-                }
+                var t = _coils[i].transform;
+                t.localPosition = new Vector3(0f, BaseH + seg * (i + 0.5f), 0f);
+                t.localScale = new Vector3(len, Wire, 1f);
+                t.localRotation = Quaternion.Euler(0f, 0f, i % 2 == 0 ? ang : -ang);
             }
         }
     }

@@ -4,7 +4,7 @@
 
 - 패킷 정의·직렬화: `Shared/Protocol/` (`Packets.cs`, `PacketCodec.cs`, `FrameDecoder.cs`)
 - 물리·스테이지·상수: `Shared/Simulation/` (`GameConstants.cs`, `PlayerPhysics.cs`, `Stage.cs`, `PlatformMotion.cs`, `MapEvent.cs`, `Knife.cs`, `HitShapes.cs`, `DashCollision.cs`, `StompCollision.cs`, `Pushable.cs`, `SideKnife.cs`)
-- 버전 기록: v1 첫 버전 → **v2**(2026-10-27) 스냅샷 플레이어 flags에 Crouching·Stomped 비트, 스냅샷 끝에 밀리는 상자 목록 추가. 대시 쿨다운 40틱, 아래키 의미 변경(엎드리기, 아래+점프 = 발판 통과). → **v3**(2026-10-27, 다중 맵) `RoundStart`에 `stageId`, 스냅샷 위험물 항목에 `kind`, 상자 항목에 `crumble` 추가. 맵 4개(주방·겨울 처마·창고·디저트 가게)와 라운드마다 맵 교체, 위험물 4종, 얼음·녹는 발판. 설계 문서는 `docs/work/maps.md`. → **v4**(2026-10-27, 맵 선택·칼 판정) `RoomInfo`(32)·`MapRequest`(50) 추가: 방장이 다음 맵과 교체 방식을 바꾼다. 위험물 판정이 이동 상자 대신 그림 모양(`HitShapes`)으로 바뀜(바이트 배치 변화 없음). 클라이언트는 위험물을 내 예측 시각에 그린다. 작업 문서는 `docs/work/map-select-hit.md`. → **v5**(2026-10-27, 대시 기절·옆 칼) 스냅샷 플레이어 항목에 `immuneTicks`(27바이트), flags bit5 = 납작 기절(밟기 또는 대시), 스냅샷 끝에 옆 칼 목록, `RoundEnd` cause 3 = 옆 칼. 대시에 맞으면 1초 납작 기절, 납작 기절이 끝나면 1초 기절 면역. 작업 문서는 `docs/work/dash-side-knife.md`. → **v6**(2026-11-10, 맵별 옆 위험물) 스냅샷 옆 위험물 항목에 `u8 kind`(14 → 15바이트). 옆에서 오는 것이 맵마다 다르다: 주방 칼, 겨울 처마 눈덩이, 창고 나무 상자, 디저트 가게 마카롱(크기·속도·예고·레인 높이가 종류별). `RoundEnd` cause 3의 뜻이 '옆 위험물'로 넓어짐(값은 그대로). 작업 문서는 `docs/work/side-hazards-i18n.md`. → **v7**(2026-11-10, 캐릭터 모션) `EmoteRequest`(51)·`Emote`(33) 추가: 이모트 4종(인사·놀리기·기뻐하기·슬퍼하기)을 다른 플레이어도 본다. 게임 상태는 바뀌지 않는다(서버는 확인하고 전달만). 다른 패킷 배치는 그대로. 작업 문서는 `docs/work/char-motion.md`. → **v8**(2026-11-10, 맵 레이아웃·이벤트) 바이트 배치는 그대로, `RoundEnd` cause **4 = 맵 이벤트**(주방 화구 불)가 생겨 버전을 올림. 네 맵 배치를 새로(비대칭·높낮이·위쪽 공간), 움직이는 발판(창고 크레인 팔레트, 디저트 케이크 리프트)·사라지는 발판(겨울 눈 차양), 라운드 중간 맵 이벤트(불·강풍·컨베이어·시럽). 발판 움직임과 이벤트는 **roundTick만으로 정해져 패킷에 싣지 않는다.** 작업 문서는 `docs/work/map-layout.md`. → **v9**(2026-11-10) 패킷 배치는 그대로, 대시 기절 30틱과 '납작 기절은 땅에서만 줄어듦' 규칙 변경. 예측 물리가 달라 예전 서버·클라이언트와 섞이지 않게 버전만 올림(5장 대시 기절). → **v10**(2026-11-10) 패킷 배치 그대로, 대시·밟기 납작 기절 25틱(1.25초)으로 변경. 같은 이유로 버전만 올림. → (v11은 캐릭터 선택 브랜치가 쓴다.) → **v12**(2026-11-10, 점프 발판) 스냅샷 플레이어 항목 끝에 `u8 padCooldown`(27 → 28바이트), 상자 항목 끝에 `u16 launch`·`u8 spring`(23 → 26바이트). 네 맵 가운데(x 12.0)에 밀어서 옮기는 강제 점프 발판(5장 '점프 발판'), 그 자리에 있던 스폰 지점과 디저트 마카롱을 옆으로 옮김(7장), 시럽 위 상자는 두 배로 빨리 멈춤. 작업 문서는 `docs/work/jump-pad.md`.
+- 버전 기록: v1 첫 버전 → **v2**(2026-10-27) 스냅샷 플레이어 flags에 Crouching·Stomped 비트, 스냅샷 끝에 밀리는 상자 목록 추가. 대시 쿨다운 40틱, 아래키 의미 변경(엎드리기, 아래+점프 = 발판 통과). → **v3**(2026-10-27, 다중 맵) `RoundStart`에 `stageId`, 스냅샷 위험물 항목에 `kind`, 상자 항목에 `crumble` 추가. 맵 4개(주방·겨울 처마·창고·디저트 가게)와 라운드마다 맵 교체, 위험물 4종, 얼음·녹는 발판. 설계 문서는 `docs/work/maps.md`. → **v4**(2026-10-27, 맵 선택·칼 판정) `RoomInfo`(32)·`MapRequest`(50) 추가: 방장이 다음 맵과 교체 방식을 바꾼다. 위험물 판정이 이동 상자 대신 그림 모양(`HitShapes`)으로 바뀜(바이트 배치 변화 없음). 클라이언트는 위험물을 내 예측 시각에 그린다. 작업 문서는 `docs/work/map-select-hit.md`. → **v5**(2026-10-27, 대시 기절·옆 칼) 스냅샷 플레이어 항목에 `immuneTicks`(27바이트), flags bit5 = 납작 기절(밟기 또는 대시), 스냅샷 끝에 옆 칼 목록, `RoundEnd` cause 3 = 옆 칼. 대시에 맞으면 1초 납작 기절, 납작 기절이 끝나면 1초 기절 면역. 작업 문서는 `docs/work/dash-side-knife.md`. → **v6**(2026-11-10, 맵별 옆 위험물) 스냅샷 옆 위험물 항목에 `u8 kind`(14 → 15바이트). 옆에서 오는 것이 맵마다 다르다: 주방 칼, 겨울 처마 눈덩이, 창고 나무 상자, 디저트 가게 마카롱(크기·속도·예고·레인 높이가 종류별). `RoundEnd` cause 3의 뜻이 '옆 위험물'로 넓어짐(값은 그대로). 작업 문서는 `docs/work/side-hazards-i18n.md`. → **v7**(2026-11-10, 캐릭터 모션) `EmoteRequest`(51)·`Emote`(33) 추가: 이모트 4종(인사·놀리기·기뻐하기·슬퍼하기)을 다른 플레이어도 본다. 게임 상태는 바뀌지 않는다(서버는 확인하고 전달만). 다른 패킷 배치는 그대로. 작업 문서는 `docs/work/char-motion.md`. → **v8**(2026-11-10, 맵 레이아웃·이벤트) 바이트 배치는 그대로, `RoundEnd` cause **4 = 맵 이벤트**(주방 화구 불)가 생겨 버전을 올림. 네 맵 배치를 새로(비대칭·높낮이·위쪽 공간), 움직이는 발판(창고 크레인 팔레트, 디저트 케이크 리프트)·사라지는 발판(겨울 눈 차양), 라운드 중간 맵 이벤트(불·강풍·컨베이어·시럽). 발판 움직임과 이벤트는 **roundTick만으로 정해져 패킷에 싣지 않는다.** 작업 문서는 `docs/work/map-layout.md`. → **v9**(2026-11-10) 패킷 배치는 그대로, 대시 기절 30틱과 '납작 기절은 땅에서만 줄어듦' 규칙 변경. 예측 물리가 달라 예전 서버·클라이언트와 섞이지 않게 버전만 올림(5장 대시 기절). → **v10**(2026-11-10) 패킷 배치 그대로, 대시·밟기 납작 기절 25틱(1.25초)으로 변경. 같은 이유로 버전만 올림. → **v11**(2026-11-10, 캐릭터 선택) `Hello`·`PlayerJoined` 끝에 `u8 character`, `PlayerCharacter`(34)·`CharacterRequest`(52) 추가: 젤리·젤리곰·푸딩 중 고른 캐릭터를 모두가 본다. 그림만 바뀌고 판정·물리는 그대로(아래 '캐릭터'). 작업 문서는 `docs/work/char-select.md`. → **v12**(2026-11-10, 점프 발판) 스냅샷 플레이어 항목 끝에 `u8 padCooldown`(27 → 28바이트), 상자 항목 끝에 `u16 launch`·`u8 spring`(23 → 26바이트). 네 맵 가운데(x 12.0)에 밀어서 옮기는 강제 점프 발판(5장 '점프 발판'), 그 자리에 있던 스폰 지점과 디저트 마카롱을 옆으로 옮김(7장), 시럽 위 상자는 두 배로 빨리 멈춤. 작업 문서는 `docs/work/jump-pad.md`.
 
 ## 1. 전송과 프레이밍
 
@@ -34,10 +34,10 @@ C = 클라이언트→서버, S = 서버→클라이언트. 크기는 타입 바
 
 | 타입 | 이름 | 방향 | 본문 |
 |---|---|---|---|
-| 1 | Hello | C | `u16 protocolVersion`, `string name` |
+| 1 | Hello | C | `u16 protocolVersion`, `string name`, `u8 character`(v11, 1 젤리 2 젤리곰 3 푸딩 = `CharacterKind`. 0이나 모르는 값이면 서버가 젤리로. **있을 때만 읽는다** — 예전 클라이언트의 짧은 Hello도 읽혀서 '버전 불일치' Reject를 받는다) |
 | 2 | Welcome | S | `u16 protocolVersion`, `u8 playerId`, `u8 tickRate(20)`, `u32 serverTick`, `u8 stageId`, `u8 maxPlayers(8)` |
 | 3 | Reject | S | `u8 reason` (1 방 가득 참, 2 버전 불일치, 3 잘못된 Hello). 보낸 뒤 서버가 연결을 닫는다 |
-| 4 | PlayerJoined | S | `u8 playerId`, `string name` |
+| 4 | PlayerJoined | S | `u8 playerId`, `string name`, `u8 character`(v11, 그 플레이어의 **지금** 캐릭터. 새로 들어온 사람은 명단으로 모두의 캐릭터를 안다) |
 | 5 | PlayerLeft | S | `u8 playerId`, `u8 reason` (1 연결 끊김, 2 시간 초과, 3 프로토콜 오류) |
 | 10 | Input | C | `u32 seq`, `u8 buttons` |
 | 20 | Snapshot | S | 아래 참고 |
@@ -45,10 +45,12 @@ C = 클라이언트→서버, S = 서버→클라이언트. 크기는 타입 바
 | 31 | RoundEnd | S | `u16 roundNumber`, `u32 endTick`, `u8 w`, `u8 winnerId × w`, `u8 r`, 결과 × r |
 | 32 | RoomInfo | S | `u8 hostId`(0 = 아무도 없음), `u8 nextStageId`, `u8 rotation`(1 순환, 2 무작위, 3 고정), `u8 flags`(bit0 = 방장이 직접 고른 다음 맵). 새로 들어온 사람에게는 PlayerJoined 목록 뒤에 바로, 모두에게는 값이 바뀐 틱 끝(스냅샷 앞)에 |
 | 33 | Emote | S | `u8 playerId`, `u8 emote`(1 인사, 2 놀리기, 3 기뻐하기, 4 슬퍼하기 = `EmoteKind`). 모두에게(보낸 사람 포함). v7, 아래 '이모트' |
+| 34 | PlayerCharacter | S | `u8 playerId`, `u8 character`(1~3). 그 플레이어의 캐릭터가 바뀌었을 때 모두에게(고른 사람 포함). v11, 아래 '캐릭터' |
 | 40 | Ping | C | `u32 clientTime` (아무 클라이언트 시계 값) |
 | 41 | Pong | S | `u32 clientTime`(그대로 반사), `u32 serverTick` |
 | 50 | MapRequest | C | `u8 stageId`(0 = 그대로), `u8 rotation`(0 = 그대로, 1 순환, 2 무작위, 3 고정). 방장만 유효(아래 '맵 교체') |
 | 51 | EmoteRequest | C | `u8 emote`(1~4, `EmoteKind`). v7, 아래 '이모트' |
+| 52 | CharacterRequest | C | `u8 character`(1~3, `CharacterKind`). v11, 아래 '캐릭터' |
 
 ### buttons (Input)
 
@@ -291,6 +293,16 @@ u8  cause            0 생존, 1 떨어지는 위험물, 2 연결 끊김, 3 옆 
 - 클라이언트가 `EmoteRequest`를 보내면 서버(`GameRoom.RequestEmote`)는 다음이면 버린다: 모르는 플레이어, 살아 있지 않음(라운드에서 죽음, 도중 입장 관전), `emote`가 1~4가 아님, 그 플레이어의 마지막 이모트 후 `EmoteCooldownTicks`(20틱 = 1초)가 안 지남. 아니면 `Emote`를 모두에게(보낸 사람 포함) 보낸다. 대기·카운트다운·진행·결과 어느 상태에서도 된다.
 - 게임 상태(위치·판정·라운드)는 바뀌지 않는다. 스냅샷에도 실리지 않는다(지나가는 그림이므로 늦게 들어온 사람은 못 봐도 된다).
 - 클라이언트는 받은 뒤 1.6초 동안, 그 플레이어가 서 있으면(땅 위, 가로로 안 움직임, 엎드림·대시·기절 아님) 이모트 그림을 그린다. 움직이면 바로 평소 그림. 내 이모트는 보내는 즉시 그리고 서버의 되돌림은 건너뛴다. 키: Z 인사, X 놀리기, C 기뻐하기, V 슬퍼하기(숫자 1~4, R은 방장 맵 선택).
+
+### 캐릭터 (v11)
+
+- 종류: 1 젤리, 2 젤리곰, 3 푸딩(`CharacterKind`, `ProtocolConstants.MaxCharacter = 3`). 색은 예전처럼 플레이어 번호(1~8)로 정해지고 고르지 않는다.
+- **그림만 바뀐다.** 위험물 판정 모양(`HitShapes`)·이동 상자·물리는 종류와 상관없이 같다(판정 띠는 세 종류 중 가장 좁은 그림에 맞춤). `Shared/Simulation`에는 종류를 받는 곳이 없고, 같은 시드·입력이면 종류를 어떻게 고르든 스냅샷과 결과가 바이트 단위로 같다(테스트 `CharSelectTests`).
+- 접속: `Hello.character`가 그 플레이어의 처음 캐릭터다(0·모르는 값 = 젤리). 라운드 도중 들어와 관전하는 사람도 바로 그 캐릭터. 새로 들어온 사람에게 가는 `PlayerJoined` 명단과 기존 접속자에게 가는 새 사람의 `PlayerJoined`에 지금 캐릭터가 실린다.
+- 바꾸기: `CharacterRequest`를 받으면 서버(`GameRoom.RequestCharacter`)는 모르는 플레이어·1~3이 아닌 값을 버린다. 아니면 '원하는 캐릭터'로 기억하고,
+  - **Waiting·Countdown**이면 바로 바꾸고 `PlayerCharacter`를 모두에게 보낸다(같은 값이면 안 보냄).
+  - **Playing·Ended**(라운드 진행 중과 그 결과 화면)이면 지금 캐릭터는 그대로 두고, **다음 Countdown이 시작될 때**(또는 인원이 모자라 Waiting으로 돌아갈 때) 바꾼다. 그때 `PlayerCharacter`가 그 틱의 `RoundStart`보다 먼저 간다. 그사이 여러 번 보내면 마지막 값.
+- 스냅샷에는 싣지 않는다. 바뀔 때만 한 번 알리면 되는 값이고, 늦게 들어온 사람은 `PlayerJoined`로 안다.
 
 ### 옆 위험물 (v5 옆 칼, v6부터 맵별)
 

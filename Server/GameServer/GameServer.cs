@@ -152,7 +152,7 @@ public sealed class GameServer
                     Reject(conn, RejectReason.VersionMismatch);
                     return;
                 }
-                byte id = _room.AddPlayer(e.Name);
+                byte id = _room.AddPlayer(e.Name, e.Character);
                 if (id == 0)
                 {
                     Reject(conn, RejectReason.RoomFull);
@@ -176,6 +176,11 @@ public sealed class GameServer
             case NetEventKind.Emote:
                 if (conn.PlayerId != 0 && _byPlayer.TryGetValue(conn.PlayerId, out var emoter) && emoter == conn)
                     _room.RequestEmote(conn.PlayerId, e.Emote);
+                break;
+
+            case NetEventKind.Character:
+                if (conn.PlayerId != 0 && _byPlayer.TryGetValue(conn.PlayerId, out var chooser) && chooser == conn)
+                    _room.RequestCharacter(conn.PlayerId, e.Character);
                 break;
 
             case NetEventKind.Leave:

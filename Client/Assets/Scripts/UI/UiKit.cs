@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using OnlineSeverGame.Client.Model;
 using OnlineSeverGame.Client.View;
+using OnlineSeverGame.Shared.Protocol;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -67,7 +68,9 @@ namespace OnlineSeverGame.Client.UI
         public static IEnumerable<string> ButtonNames => _buttons.Keys;
 
         // 위아래로 쌓인 젤리 몸 가운데를 둥근 테 안에 크게 보여 주는 얼굴. 색은 플레이어 색 테두리.
-        public static VisualElement Face(int colorIndex, float size, VisualElement parent = null)
+        // kind = 캐릭터 종류(젤리·젤리곰·푸딩, v11). 세 종류 모두 프레임 안 몸 위치가 같아 같은 배율로 보인다.
+        public static VisualElement Face(int colorIndex, float size, VisualElement parent = null,
+            CharacterKind kind = CharacterKind.Jelly)
         {
             var ring = El("face", parent);
             ring.style.width = size;
@@ -84,7 +87,7 @@ namespace OnlineSeverGame.Client.UI
             sprite.style.height = s;
             sprite.style.left = (size - s) / 2f;
             sprite.style.top = size - s * 0.97f;
-            var frame = ArtSprites.Character(colorIndex, "idle").Frames[0];
+            var frame = ArtSprites.Character(kind, colorIndex, "idle").Frames[0];
             sprite.style.backgroundImage = new StyleBackground(frame);
             return ring;
         }

@@ -14,6 +14,7 @@ namespace OnlineSeverGame.Client.UI
         readonly Label _rosterTitle, _head, _sub, _tip, _ping, _bigNumber, _roundLine;
         readonly Button _settingsBtn, _leaveBtn;
         readonly MapPicker _map;
+        readonly CharacterPicker _picker;
         readonly TitleLogoElement _logo;
         readonly HintBar _hint;
         readonly StringBuilder _sig = new StringBuilder();
@@ -33,6 +34,10 @@ namespace OnlineSeverGame.Client.UI
             _rosterTitle = UiKit.Text("", "t-h2", left);
             _rosterTitle.style.marginBottom = 8;
             _cards = UiKit.El(null, left);
+            // 내 캐릭터 고르기(카운트다운 중에도 바로 바뀐다)
+            _picker = new CharacterPicker(ui, "lobby", 300f - 28f - 6f, 96f, showNames: true);
+            _picker.Root.style.marginTop = 6;
+            left.Add(_picker.Root);
 
             // ---- 위 가운데: 상태 띠
             _status = UiKit.El("panel panel--tight panel--soft", Root);
@@ -88,6 +93,8 @@ namespace OnlineSeverGame.Client.UI
             bool counting = s.Screen == ClientScreen.Countdown;
 
             RefreshCards(s);
+            if (s.TryGet(s.LocalId, out RosterEntry me)) _picker.Refresh(me.ColorIndex, me.Character, false, null, now);
+            else _picker.Refresh(CharacterChoice.LastColor, CharacterChoice.Current, false, null, now);
             UiKit.SetText(_rosterTitle, Loc.F("lobby.roster", s.Roster.Count, s.Capacity));
 
             UiKit.SetText(_head, counting ? Loc.F("lobby.countdown", Mathf.CeilToInt(Mathf.Max(0f, s.CountdownSeconds))) : Loc.T("lobby.waiting"));
@@ -127,7 +134,8 @@ namespace OnlineSeverGame.Client.UI
         {
             _sig.Clear();
             _sig.Append(s.LocalId).Append('|').Append(s.HostId).Append('|');
-            foreach (var p in s.Roster) _sig.Append(p.Id).Append(':').Append(p.ColorIndex).Append(':').Append(p.Name).Append(';');
+            foreach (var p in s.Roster)
+                _sig.Append(p.Id).Append(':').Append(p.ColorIndex).Append(':').Append((int)p.Character).Append(':').Append(p.Name).Append(';');
             _sig.Append(Loc.Current);
             string sig = _sig.ToString();
             if (sig == _builtSig) return;
@@ -143,7 +151,7 @@ namespace OnlineSeverGame.Client.UI
             if (me) card.AddToClassList("card--me");
             card.name = "card-" + p.Id;
             var color = PlayerColors.Get(p.ColorIndex);
-            var face = UiKit.Face(p.ColorIndex, 40, card);
+            var face = UiKit.Face(p.ColorIndex, 40, card, p.Character);
             face.style.borderLeftColor = color; face.style.borderRightColor = color;
             face.style.borderTopColor = color; face.style.borderBottomColor = color;
             var name = UiKit.Text(p.Name, "card-name", card);

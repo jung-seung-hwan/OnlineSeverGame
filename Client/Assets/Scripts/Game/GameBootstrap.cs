@@ -12,6 +12,7 @@ namespace OnlineSeverGame.Client.Game
     // 씬에 하나만 둔다. 카메라·스테이지·뷰·UI를 코드로 만들고 세션을 바꿔 끼운다.
     //
     // 명령줄 인자(빌드·테스트용):
+    //   -character jelly|bear|pudding(이번 실행만, 저장 안 함)
     //   -name <이름>  -server <host:port>  -autoconnect  -preview  -autoplay [chase|stomp|mash|motion|pad](무작위 입력 / 가까운 상대 쫓아 대시 / 쫓아 밟기 / 대시 연타 / 동작 차례로 보이기 / 점프 발판 밀고 타기)
     //   -nostomppredict(밟기 튕김 예측 끄기, 비교 시험용)
     //   -screenshot <파일경로> -screenshotDelay <초> [-screenshotEvery <초>]  -quitAfter <초>
@@ -89,6 +90,7 @@ namespace OnlineSeverGame.Client.Game
                     case "-autoconnect": autoConnect = true; break;
                     case "-preview": preview = true; break;
                     case "-lang": if (next != null && Loc.TryParse(next, out var lang)) Loc.Override(lang); break;
+                    case "-character": if (next != null && CharacterChoice.TryParse(next, out var kind)) CharacterChoice.Override(kind); break;
                     case "-autoplay":
                         _input.AutoPlay = true;
                         _input.AutoChase = next == "chase" || next == "stomp";

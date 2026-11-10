@@ -20,5 +20,11 @@ namespace OnlineSeverGame.Shared.Protocol
 
         /// <summary>Highest EmoteKind value.</summary>
         public const byte MaxEmote = 4;
+
+        /// <summary>Highest CharacterKind value (v11).</summary>
+        public const byte MaxCharacter = 3;
+
+        /// <summary>True for 1..MaxCharacter.</summary>
+        public static bool IsValidCharacter(byte kind) => kind >= 1 && kind <= MaxCharacter;
     }
 }
