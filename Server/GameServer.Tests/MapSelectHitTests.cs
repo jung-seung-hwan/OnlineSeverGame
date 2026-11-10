@@ -126,9 +126,11 @@ public class MapSelectHitTests
         stunned.StunTicks = 5;
         Assert.True(HitShapes.Hits(stunned, HazardKind.Knife, 10000 - 900, 3000, 0));   // falls over backwards
         Assert.False(HitShapes.Hits(stunned, HazardKind.Knife, 10000 + 560, 3000, 0));
-        stunned.Stomped = true;                                                          // flattened: 0.44 tall over the feet
-        Assert.True(HitShapes.Hits(stunned, HazardKind.Knife, 10000, 3000, 400));
-        Assert.True(HitShapes.Hits(stunned, HazardKind.Knife, 10000, 3000, 400));
+        stunned.Stomped = true; // lying flat (the stun sheet row): 0.48 tall over the feet, front edge +0.53
+        Assert.False(HitShapes.Hits(stunned, HazardKind.Knife, 10000, 3000, 480)); // stops just above: no hit
+        Assert.True(HitShapes.Hits(stunned, HazardKind.Knife, 10000, 3000, 470));
+        Assert.True(HitShapes.Hits(stunned, HazardKind.Knife, 10000 + 640, 3000, 0)); // blade 0.12 + front 0.53
+        Assert.False(HitShapes.Hits(stunned, HazardKind.Knife, 10000 + 655, 3000, 0)); // the old 1.35 x 0.4 shape hit here
     }
 
     [Fact]
