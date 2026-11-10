@@ -60,8 +60,25 @@ xattr -dr com.apple.quarantine mac-server && chmod +x mac-server/OnlineSeverGame
 - 인터넷 지연(수십 ms 이상)에서의 예측·보정 느낌. 지금까지 시험은 같은 PC·같은 네트워크뿐.
 - 보안: 비밀번호·암호화가 없어 주소를 아는 누구나 들어온다. 방은 하나, 최대 8명.
 
+## 6. 서버 설치 패키지 (2026-11-10, 조율 세션)
+
+서버 컴퓨터에 그대로 풀어서 쓰는 패키지를 만든다. .NET 설치가 필요 없다.
+
+```bash
+python -I Tools/ServerPackage/package_server.py
+```
+
+- 결과: `artifacts/server/JellySurvivalServer-v<프로토콜>-<런타임>.tar.gz`(macOS Apple Silicon·인텔, Linux) 와 `...-win-x64.zip`. 이름의 v 번호가 프로토콜 버전이고, 플레이어 게임과 같아야 접속된다. 게임을 새로 배포할 때마다 이 스크립트를 다시 돌려 서버도 바꾼다.
+- 들어 있는 것: `bin/`(서버), `server.conf`(포트 7771, 시작 인원 2, 맵 교체 방식, 추가 옵션), `README.txt`(설치·포트포워딩·확인 방법), 맥·리눅스 `start.sh`, 맥 `install-autostart-mac.sh`·`uninstall-autostart-mac.sh`(로그인 때 자동 시작하는 LaunchAgent), 윈도우 `run-server.bat`.
+- `start.sh`: 서버가 꺼지면 3초 뒤 다시 켬, `logs/server.log`에 기록, 맥에서는 `caffeinate -i`로 잠자기 방지. 맥에서 처음 실행할 때 다운로드 격리 표시를 지우고, 윈도우에서 만든 실행 파일이라 서명이 없으므로 `codesign --sign -`로 이 맥용 서명을 붙인다(Apple Silicon은 서명 없는 실행 파일을 바로 종료).
+- 맥·리눅스 압축본은 tar.gz로 만들어 스크립트 줄바꿈을 LF로, 실행 권한(755)을 넣었다. 윈도우에서 zip으로 만들면 둘 다 깨진다.
+- 맥·리눅스는 단일 파일로 묶지 않고 폴더째 둔다(묶은 파일 안 라이브러리 서명 문제를 피하려고). 윈도우는 단일 exe.
+
+확인한 것: v10 패키지 4종 생성, tar 안 권한·줄바꿈 확인, 맥 스크립트 3개 `bash -n` 문법 통과, 윈도우 패키지를 `run-server.bat`으로 띄워 설정 파일 포트(시험 7795·7796)로 열리고 봇 3명 한 라운드 종료, v10 게임이 그 서버에 접속(welcome). **맥에서 실제 실행은 못 했다**(이 PC는 윈도우). 맥에서 처음 실행할 때 서명·방화벽 창이 뜨는지 사람이 확인해야 한다.
+
 ## 5. 변경 기록
 
 | 날짜 | 커밋 | 내용 |
 |---|---|---|
 | 2026-11-10 | `da0499b` | 클라이언트 기본 서버 주소를 `wildmagic.co.kr:7771`로. DNS·포트 확인 결과, 맥 서버 실행 방법 정리 |
+| 2026-11-10 | (이 커밋) | 서버 설치 패키지 스크립트(`Tools/ServerPackage/package_server.py`)와 6장 추가(조율 세션) |
