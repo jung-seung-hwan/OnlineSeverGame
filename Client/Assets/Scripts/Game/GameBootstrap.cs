@@ -18,6 +18,7 @@ namespace OnlineSeverGame.Client.Game
     //   (-screenshotEvery 를 주면 파일경로의 {n} 을 번호로 바꿔 여러 장 찍는다)
     //   -touchshot <파일경로>: 위험물이 처음 내 몸에 닿아 보이는 프레임마다 찍는다({n} = 번호, 최대 12장. 칼 판정 확인용)
     //   -blinkshot <파일경로>: 기절 면역으로 흐리게 깜빡이는 캐릭터가 보이는 프레임을 2초 간격으로 찍는다({n}, 최대 6장)
+    //   -uitest [-uitestshots <폴더>]: 버튼 클릭 자동 시험(UI/UiTest.cs, docs/work/ui-revamp.md 7장)
     public sealed class GameBootstrap : MonoBehaviour
     {
         public string PlayerName = "Player";
@@ -261,6 +262,7 @@ namespace OnlineSeverGame.Client.Game
 
         void SavePrefs()
         {
+            if (UiTest.Active) return; // 클릭 자동 시험은 사용자 저장값(이름·서버 주소)을 바꾸지 않는다
             PlayerPrefs.SetString("name", PlayerName);
             PlayerPrefs.SetString("server", ServerAddress);
             PlayerPrefs.Save();

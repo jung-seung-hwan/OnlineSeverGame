@@ -27,6 +27,7 @@
 | 캐릭터 모션(프레임 보강·새 동작·출렁임·이모트) | [work/char-motion.md](work/char-motion.md) | 캐릭터 모션 · 01 | 브랜치 `claude/char-motion-3de3bd`: 시트 16행(달리기 8, 점프·낙하 4, 착지·엎드림·납작 기절+별·방향 전환·깜빡임·이모트 3), 판정 띠에 맞춘 그림, 출렁임, 이모트 Z·X·C·V(프로토콜 v7). main 병합 전 |
 | 추가 캐릭터(젤리곰·푸딩) | [work/art-characters.md](work/art-characters.md) | 캐릭터·맵 아트 · 02 | 후보 추천, 젤리곰·푸딩 콘셉트 시트, Blender 모델·스프라이트 시트(판정 띠를 젤리와 맞춤, 자동 측정). 캐릭터 고르기 기능·Unity 연결 남음 |
 | 타격감·사운드 | [work/juice-sound.md](work/juice-sound.md) | 타격감·사운드 · 01 | 완료(브랜치 `claude/juice-sound-d7d11d`, main 병합 대기): 직접 생성한 효과음 21개·맵별 배경음 4곡·음량 설정, 파티클, 대시 충돌 멈춤·근처 흔들림·늘어남 강화, 마지막 두 명 카메라·마지막 사망 슬로모션. 서버·프로토콜 변경 없음 |
+| UI 개편 | [work/ui-revamp.md](work/ui-revamp.md) | UI 개편 · 01 | 모든 화면을 UI Toolkit으로 다시 만듦: 둥근 젤리 패널·버튼, 주아체(OFL), 창 크기 배율(1280×720 기준), 접속자 젤리 카드, 맵 미리보기 고르기, 카운트다운 숫자, 가장자리 HUD, 결과 단상, 설정 창(언어·소리 자리), 화면 전환. 확장 자리 `UiHooks`, 클릭 자동 시험 `-uitest` |
 
 ### 작업 문서에 들어갈 것
 
