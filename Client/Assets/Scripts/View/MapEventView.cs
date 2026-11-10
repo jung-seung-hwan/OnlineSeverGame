@@ -79,7 +79,7 @@ namespace OnlineSeverGame.Client.View
                         foreach (var f in set)
                         {
                             float l = StageLayout.ToWorld(f.Left), r = StageLayout.ToWorld(f.Right);
-                            _syrup.Add(Rect("Syrup", Syrup, (l + r) / 2f, 0.03f, r - l, 0.14f, -7));
+                            _syrup.Add(Rect("Syrup", Syrup, (l + r) / 2f, 0.07f, r - l, 0.22f, -7));
                             _syrupSpans.Add(f);
                         }
                     break;
@@ -152,7 +152,7 @@ namespace OnlineSeverGame.Client.View
                     for (int i = 0; i < _syrup.Count; i++)
                     {
                         bool on = (warning || active) && Contains(e.Spans, _syrupSpans[i]);
-                        SetAlpha(_syrup[i], Syrup, on ? (active ? 0.75f * Mathf.Max(0.3f, fade) : 0.15f + 0.4f * blink) : 0f);
+                        SetAlpha(_syrup[i], Syrup, on ? (active ? 0.9f * Mathf.Max(0.3f, fade) : 0.2f + 0.5f * blink) : 0f);
                     }
                     break;
             }

@@ -184,12 +184,12 @@ namespace OnlineSeverGame.Client.UI
             GUI.Label(new Rect(16, 10, 400, 30), Loc.F("hud.alive", s.AliveCount, s.ParticipantCount) + "    " + Loc.F("hud.seconds", s.RoundSeconds), _label);
             DrawTopBar(s, showRound: true);
             if (s.Screen == ClientScreen.Playing) DrawHint();
-            DrawMapEvent();
+            DrawMapEvent(s.Screen == ClientScreen.Spectating ? 184f : 44f); // 관전 패널(48~148) 아래로
         }
 
         // 맵 이벤트 알림(docs/work/map-layout.md 4.5): 예고 2초는 깜빡이며 "곧: 강풍 →", 켜져 있는 동안 "강풍 →  7초".
         // 이벤트는 라운드 틱만으로 정해지므로 맵이 그리는 시각(Layout.DrawRoundTick)의 상태를 그대로 읽는다.
-        void DrawMapEvent()
+        void DrawMapEvent(float y)
         {
             var layout = Game.Layout;
             if (layout == null || layout.Source == null || layout.Source.EventSpec == null) return;
@@ -203,7 +203,7 @@ namespace OnlineSeverGame.Client.UI
             var style = new GUIStyle(_big) { fontSize = 24 };
             style.normal.textColor = e.Kind == MapEventKind.Fire ? new Color(1f, 0.55f, 0.2f) : new Color(1f, 0.95f, 0.7f);
             float w = 520f;
-            GUI.Label(new Rect((UnityEngine.Screen.width - w) / 2f, 44, w, 34), text, FitStyle(style, text, w));
+            GUI.Label(new Rect((UnityEngine.Screen.width - w) / 2f, y, w, 34), text, FitStyle(style, text, w));
         }
 
         void DrawTopBar(SessionState s, bool showRound)
