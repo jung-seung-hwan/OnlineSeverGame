@@ -3,8 +3,11 @@ Jelly kitchen sprites: builds the models in Blender and renders the sprite sheet
 
 Run from the repository root (Blender 5.2):
   blender -b --factory-startup --python Art/blender/build_sprites.py -- all
-Targets: all | characters | knife | map | preview | maps | winter | warehouse | dessert | map_previews
-  all runs characters, knife, map, preview and then maps, each in its own Blender process.
+Targets: all | characters [jelly|bear|pudding] | knife | map | preview | maps | winter | warehouse | dessert |
+         map_previews
+  all runs characters (jelly, bear, pudding), knife, map, preview and then maps, each in its own Blender process.
+  characters writes <kind>_<id>_<name>.png sheets, <kind>_sheet.json and <kind>_hitcheck.json (drawn body
+  vs Shared/Simulation/HitShapes.cs bands).
   maps runs the three new maps (docs/work/maps.md section 5) and their previews: winter, warehouse, dessert,
   map_previews.
 
@@ -18,6 +21,7 @@ import json
 import math
 import os
 import random
+import re
 import subprocess
 import sys
 import tempfile
@@ -438,6 +442,36 @@ BODY_Z1 = 1.19
 EYE_Z = 0.68
 EYE_YAWS = (-47.0, -13.0)      # local yaw (0 = forward, -60 = toward the camera)
 MOUTH_AT = (-29.0, 0.52)
+MOUTH_LIFT = 0.0               # extra distance off the body surface (the bear's mouth sits on its muzzle)
+
+# Character kinds (docs/work/art-characters.md). All share the animations, decorations and sheet layout, and
+# all must fill the same hazard hit bands (Shared/Simulation/HitShapes.cs Body: 1.02 at the belly, 0.52 at the
+# top). The bear keeps the jelly body exactly and adds ears, arms and a muzzle; the pudding has its own profile
+# fitted band by band. set_kind() switches the module before building.
+CHAR_KINDS = ('jelly', 'bear', 'pudding')
+KIND = 'jelly'
+
+# pudding profile: rounded bottom, straight sides, shoulder taper, flat top with a rounded edge
+PUD_SIDE = 0.48
+PUD_BOTTOM = 0.32              # straight sides start here
+PUD_SHOULDER = 0.68            # taper starts here
+PUD_TOP = 1.10                 # taper ends here at PUD_TOP_R
+PUD_TOP_R = 0.24
+PUD_CORNER = 0.07              # radius of the rounded top edge; the flat top is PUD_TOP_R - PUD_CORNER
+# shoulder radius at the band edges: band half-width (0.46 / 0.41 / 0.36 / 0.26) minus the 0.02 outline
+PUD_SHOULDER_PTS = ((PUD_SHOULDER, PUD_SIDE), (0.80, 0.44), (0.90, 0.39), (1.00, 0.34), (PUD_TOP, PUD_TOP_R))
+
+
+def set_kind(kind):
+    global KIND, EYE_Z, MOUTH_AT, MOUTH_LIFT
+    if kind not in CHAR_KINDS:
+        raise ValueError('unknown character kind ' + kind)
+    KIND = kind
+    EYE_Z, MOUTH_AT, MOUTH_LIFT = {
+        'jelly': (0.68, (-29.0, 0.52), 0.0),
+        'bear': (0.72, (-30.0, 0.505), 0.04),
+        'pudding': (0.64, (-29.0, 0.49), 0.0),
+    }[kind]
 FEET = ((0.49 * BODY_R, 0.03, 0.066), (-0.49 * BODY_R, -0.03, 0.066))
 LAT_LOC = Vector((0.0, 0.0, 0.95))
 LAT_SIZE = Vector((1.7, 1.3, 2.0))
@@ -453,6 +487,10 @@ SHAPES = {
 
 
 def body_radius(z):
+    return pudding_radius(z) if KIND == 'pudding' else jelly_radius(z)
+
+
+def jelly_radius(z):
     t = (z - BODY_Z0) / (BODY_Z1 - BODY_Z0)
     if t <= 0 or t >= 1:
         return 0.0
@@ -462,6 +500,40 @@ def body_radius(z):
         return BODY_R * (1 - u ** 4) ** 0.25
     u = (t - k) / (1 - k)
     return BODY_R * (1 - 0.07 * u) * math.sqrt(max(0.0, 1 - u * u))
+
+
+def pudding_radius(z):
+    # Each section stays inside the hit band it falls in (radius + 0.02 outline <= band half-width).
+    if z <= BODY_Z0 or z >= BODY_Z1:
+        return 0.0
+    if z < PUD_BOTTOM:
+        u = (PUD_BOTTOM - z) / (PUD_BOTTOM - BODY_Z0)
+        return PUD_SIDE * max(0.0, 1 - u ** 2.5) ** 0.4
+    if z < PUD_SHOULDER:
+        return PUD_SIDE
+    if z < PUD_TOP:
+        # straight segments through each band edge, so the drawing fills every band without spilling over
+        pts = PUD_SHOULDER_PTS
+        for (z0, r0), (z1, r1) in zip(pts, pts[1:]):
+            if z <= z1:
+                return r0 + (r1 - r0) * (z - z0) / (z1 - z0)
+    edge = BODY_Z1 - PUD_CORNER
+    if z <= edge:
+        return PUD_TOP_R
+    return PUD_TOP_R - PUD_CORNER + math.sqrt(max(0.0, PUD_CORNER ** 2 - (z - edge) ** 2))
+
+
+# caramel drips: (yaw in degrees, depth); kept away from the eyes (yaw -47 / -13) and the mouth (-29)
+CARAMEL_DRIPS = ((-100.0, 0.16), (-140.0, 0.1), (-74.0, 0.08), (20.0, 0.1), (75.0, 0.14), (150.0, 0.1))
+
+
+def caramel_line(angle):
+    """Lower edge of the pudding's caramel at this yaw: it covers the whole shoulder taper, with rounded drips."""
+    line = 0.84
+    for yaw, depth in CARAMEL_DRIPS:
+        d = math.degrees(math.atan2(math.sin(angle - math.radians(yaw)), math.cos(angle - math.radians(yaw))))
+        line -= depth * math.exp(-(d / 16.0) ** 2)
+    return line
 
 
 def surface_frame(yaw_deg, z):
@@ -481,7 +553,7 @@ def surface_frame(yaw_deg, z):
 
 def body_bmesh():
     bm = bmesh.new()
-    seg, n = 48, 40
+    seg, n = (240, 150) if KIND == 'pudding' else (48, 40)   # fine mesh: the caramel edge follows faces
     zs = [BODY_Z0 + (BODY_Z1 - BODY_Z0) * (0.5 - 0.5 * math.cos(math.pi * i / n)) for i in range(1, n)]
     rings = []
     for z in zs:
@@ -496,6 +568,37 @@ def body_bmesh():
     for k in range(seg):
         bm.faces.new((bottom, rings[0][(k + 1) % seg], rings[0][k]))
         bm.faces.new((top, rings[-1][k], rings[-1][(k + 1) % seg]))
+    if KIND == 'pudding':
+        # caramel is material 1 on the body's own faces, so it adds no width to the silhouette
+        for f in bm.faces:
+            c = f.calc_center_median()
+            if c.z > caramel_line(math.atan2(c.y, c.x)):
+                f.material_index = 1
+    return bm
+
+
+def bear_parts_bmesh():
+    """Ears (on top, turned with the head toward the camera), arms pressed onto the belly: material 0 = body."""
+    bm = bmesh.new()
+    for yaw in (60.0, -120.0):
+        a = math.radians(yaw)
+        # above 1.2 is outside the hit table; on screen the ears stay within the top band's 0.26 half-width
+        add_ellipsoid(bm, (0.14 * math.cos(a), 0.14 * math.sin(a), 1.17), (0.095, 0.07, 0.095), seg=20, rings=10)
+    for yaw in (-90.0, 90.0):
+        a = math.radians(yaw)
+        r = jelly_radius(0.45) - 0.03
+        tilt = Matrix.Rotation(math.radians(-20 if yaw < 0 else 20), 4, 'X')
+        add_ellipsoid(bm, (0, 0, 0), (0.075, 0.07, 0.13),
+                      Matrix.Translation((r * math.cos(a), r * math.sin(a), 0.45)) @ tilt, seg=16, rings=8)
+    return bm
+
+
+def bear_muzzle_bmesh():
+    """Lighter muzzle oval under the eyes (material 0) with a dark nose (material 1)."""
+    bm = bmesh.new()
+    m = surface_frame(-30.0, 0.53)
+    add_ellipsoid(bm, (0, 0, 0.0), (0.125, 0.09, 0.04), m, 0, seg=20, rings=10)
+    add_ellipsoid(bm, (0, 0.04, 0.036), (0.034, 0.024, 0.016), m, 1, seg=12, rings=6)
     return bm
 
 
@@ -535,7 +638,7 @@ def make_lattice(parent):
 def build_faces(parent, lat, mats):
     ink, white, mouth, tongue = mats
     eyes = [surface_frame(y, EYE_Z) for y in EYE_YAWS]
-    mf = surface_frame(*MOUTH_AT)
+    mf = surface_frame(*MOUTH_AT) @ Matrix.Translation((0, 0, MOUTH_LIFT))
     out = {}
 
     def part(name, build):
@@ -789,12 +892,28 @@ def build_characters(scene):
     lat, keys = make_lattice(pose)
 
     c = jelly_colours(PLAYERS[0][2])
-    body_mat = toon_mat('Jelly', c['base'], c['shadow'], spec=0.9, rim=0.35, rim_col=c['rim'], spec_at=1.5)
+    if KIND == 'pudding':
+        # custard: less glossy than jelly; the caramel is the same for every player
+        body_mat = toon_mat('Custard', c['base'], c['shadow'], spec=0.0, rim=0.25, rim_col=c['rim'])
+        body_mats = [body_mat, toon_mat('Caramel', '#B4532A', '#7A3418', spec=0.8, spec_at=2.4)]
+    else:
+        body_mat = toon_mat('Jelly', c['base'], c['shadow'], spec=0.9, rim=0.35, rim_col=c['rim'], spec_at=1.5)
+        body_mats = [body_mat]
     body_line = line_mat('JellyLine', c['line'])
 
-    body = new_obj('Body', body_bmesh(), [body_mat], pose)
+    body = new_obj('Body', body_bmesh(), body_mats, pose)
     add_outline(body, body_line, 0.02)
     add_lattice_mod(body, lat)
+    extras = []
+    muzzle_mat = None
+    if KIND == 'bear':
+        parts = new_obj('BearParts', bear_parts_bmesh(), [body_mat], pose)
+        add_outline(parts, body_line, 0.02)
+        add_lattice_mod(parts, lat)
+        muzzle_mat = toon_mat('Muzzle', mix_hex(c['base'], '#FFFFFF', 0.6), mix_hex(c['shadow'], '#FFFFFF', 0.45))
+        muzzle = new_obj('Muzzle', bear_muzzle_bmesh(), [muzzle_mat, flat_mat('Nose', '#17131F')], pose)
+        add_lattice_mod(muzzle, lat)
+        extras = [parts, muzzle]
     feet = []
     for i, (x, y, z) in enumerate(FEET):
         bm = bmesh.new()
@@ -819,7 +938,7 @@ def build_characters(scene):
         decor[pid] = coll
 
     rig = dict(view=view, pose=pose, lat=lat, keys=keys, body=body, feet=feet, faces=faces, anchor=anchor,
-               decor=decor, body_mat=body_mat, body_line=body_line)
+               decor=decor, body_mat=body_mat, body_line=body_line, muzzle_mat=muzzle_mat, extras=extras)
     keyframe_animations(scene, rig)
     return rig
 
@@ -842,9 +961,11 @@ def _head_top(rig):
     dg = bpy.context.evaluated_depsgraph_get()
     ev = rig['body'].evaluated_get(dg)
     me = ev.to_mesh()
-    top = max((v.co.copy() for v in me.vertices), key=lambda co: co.z)
+    zmax = max(v.co.z for v in me.vertices)
+    # average of the top-most vertices: the jelly's single pole, or the middle of the pudding's flat top
+    tops = [v.co.copy() for v in me.vertices if v.co.z > zmax - 0.004]
     ev.to_mesh_clear()
-    return top
+    return sum(tops, Vector()) / len(tops)
 
 
 def keyframe_animations(scene, rig):
@@ -891,6 +1012,9 @@ def set_player(rig, pid):
     set_rgb(rig['body_mat'], 'SHADOW', c['shadow'])
     set_rgb(rig['body_mat'], 'RIM', c['rim'])
     set_rgb(rig['body_line'], 'BASE', c['line'])
+    if rig['muzzle_mat'] is not None:
+        set_rgb(rig['muzzle_mat'], 'BASE', mix_hex(c['base'], '#FFFFFF', 0.6))
+        set_rgb(rig['muzzle_mat'], 'SHADOW', mix_hex(c['shadow'], '#FFFFFF', 0.45))
     for k, coll in rig['decor'].items():
         coll.hide_render = k != pid
         coll.hide_viewport = k != pid
@@ -903,7 +1027,32 @@ def alpha_bbox(arr, thr=0.5):
     return xs.min(), ys.min(), xs.max() + 1, ys.max() + 1
 
 
-def target_characters():
+def hit_table(name):
+    """HitBand rows (bottom, top, left, right) of HitShapes.<name>, read from the C# source."""
+    src = open(os.path.join(os.path.dirname(ART), 'Shared', 'Simulation', 'HitShapes.cs'), encoding='utf-8').read()
+    body = re.search(r'HitBand\[\] ' + name + r' =\s*\{(.*?)\};', src, re.S).group(1)
+    return [tuple(int(v) for v in t) for t in re.findall(r'new HitBand\((-?\d+), (-?\d+), (-?\d+), (-?\d+)\)', body)]
+
+
+def measure_bands(imgs, table):
+    """Per band of table: left/right extent (milli-units from the pivot, alpha >= 0.5, rounded outward to 10)
+    of all imgs together, next to the table's numbers. Same rule as the HitShapes measurement."""
+    a = np.maximum.reduce([im[..., 3] for im in imgs])
+    out = []
+    for b, t, l, r in table:
+        rows = [y for y in range(a.shape[0]) if b <= (y - CHAR_PIVOT[1] + 0.5) * 1000 / CHAR_PPU < t]
+        xs = np.nonzero((a[rows] >= 0.5).any(0))[0] if rows else np.array([])
+        if len(xs) == 0:
+            out.append(dict(band=[b, t], drawn=None, table=[l, r]))
+            continue
+        ml = math.floor((xs.min() - CHAR_PIVOT[0]) * 1000 / CHAR_PPU / 10) * 10
+        mr = math.ceil((xs.max() + 1 - CHAR_PIVOT[0]) * 1000 / CHAR_PPU / 10) * 10
+        out.append(dict(band=[b, t], drawn=[ml, mr], table=[l, r], diff=[ml - l, mr - r]))
+    return out
+
+
+def target_characters(kind='jelly'):
+    set_kind(kind)
     scene = reset_scene()
     add_camera(scene, 0, 0, 2.0)
     add_sun(scene, CHAR_SUN, energy=3.0)
@@ -913,28 +1062,63 @@ def target_characters():
     rig = build_characters(scene)
     set_player(rig, 1)
     scene.frame_set(1)
-    bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, 'jelly.blend'), compress=True)
+    bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, kind + '.blend'), compress=True)
 
     out_dir = os.path.join(SPRITES, 'characters')
     os.makedirs(out_dir, exist_ok=True)
-    tmp = tempfile.mkdtemp(prefix='jelly_')
+    tmp = tempfile.mkdtemp(prefix=kind + '_')
     cols = max(len(frs) for _, _, _, frs in ANIMS)
     rows = len(ANIMS)
     fs = CHAR_FRAME
     report = {}
 
-    # Hit-box check: body only (no decoration), idle frame 0.
+    # Hit check: body only (no decoration) against HitShapes: idle frame 0, all dash frames, all knockback frames.
     for coll in rig['decor'].values():
         coll.hide_render = True
-    scene.frame_set(1)
-    render_to(scene, os.path.join(tmp, 'bodyonly.png'))
-    bb = alpha_bbox(load_png(os.path.join(tmp, 'bodyonly.png')))
+    first, f = {}, 1
+    for n, _, _, frs in ANIMS:
+        first[n] = (f, len(frs))
+        f += len(frs)
+
+    def body_frames(anim, count=None):
+        start, n = first[anim]
+        imgs = []
+        for i in range(count or n):
+            scene.frame_set(start + i)
+            path = os.path.join(tmp, 'bodyonly_%s_%d.png' % (anim, i))
+            render_to(scene, path)
+            imgs.append(load_png(path))
+        return imgs
+
+    idle = body_frames('idle', 1)
+    bb = alpha_bbox(idle[0])
     report['idle_body_bbox_units'] = dict(
         left=(bb[0] - CHAR_PIVOT[0]) / CHAR_PPU, right=(bb[2] - CHAR_PIVOT[0]) / CHAR_PPU,
         bottom=(bb[1] - CHAR_PIVOT[1]) / CHAR_PPU, top=(bb[3] - CHAR_PIVOT[1]) / CHAR_PPU)
+    hit = dict(Body=measure_bands(idle, hit_table('Body')),
+               Dash=measure_bands(body_frames('dash'), hit_table('Dash')),
+               Stunned=measure_bands(body_frames('knockback'), hit_table('Stunned')))
+    report['hit_max_diff_milli'] = {k: max((max(abs(d) for d in r['diff']) for r in v if 'diff' in r), default=None)
+                                    for k, v in hit.items()}
+    # The tables have slack where the jelly drawing itself does not reach, so also compare with the jelly measured
+    # the same way (drawn - jelly; negative left / positive right = drawn wider than the jelly).
+    jelly_path = os.path.join(out_dir, 'jelly_hitcheck.json')
+    if kind != 'jelly' and os.path.exists(jelly_path):
+        jelly = json.load(open(jelly_path, encoding='utf-8'))['bands']
+        for k, v in hit.items():
+            for r, j in zip(v, jelly[k]):
+                if r['drawn'] and j['drawn']:
+                    r['vs_jelly'] = [r['drawn'][0] - j['drawn'][0], r['drawn'][1] - j['drawn'][1]]
+        report['vs_jelly_max_diff_milli'] = {
+            k: max((max(abs(d) for d in r['vs_jelly']) for r in v if 'vs_jelly' in r), default=None)
+            for k, v in hit.items()}
+    with open(os.path.join(out_dir, kind + '_hitcheck.json'), 'w', encoding='utf-8') as fh:
+        json.dump(dict(kind=kind, rule='alpha >= 0.5, milli-units from the pivot, rounded outward to 10; '
+                                       'diff = drawn - HitShapes (negative left / positive right = drawn wider)',
+                       bands=hit), fh, indent=1)
 
     clipped = []
-    for pid, pname, _, kind in PLAYERS:
+    for pid, pname, _, _ in PLAYERS:
         set_player(rig, pid)
         sheet = np.zeros((rows * fs, cols * fs, 4), np.float32)
         f = 0
@@ -950,8 +1134,8 @@ def target_characters():
                     clipped.append('%d %s %d' % (pid, aname, i))
                 y0 = (rows - 1 - r) * fs
                 sheet[y0:y0 + fs, i * fs:(i + 1) * fs] = img
-        save_png(sheet, os.path.join(out_dir, 'jelly_%d_%s.png' % (pid, pname)))
-        print('sheet', pid, pname)
+        save_png(sheet, os.path.join(out_dir, '%s_%d_%s.png' % (kind, pid, pname)))
+        print('sheet', kind, pid, pname)
     report['clipped_frames'] = clipped
 
     meta = dict(
@@ -959,12 +1143,13 @@ def target_characters():
         pivot_normalized=[CHAR_PIVOT[0] / fs, CHAR_PIVOT[1] / fs],
         layout='one row per animation, top row first; frames left to right; empty cells are transparent',
         facing='right (flip X for left)',
-        sheets={str(pid): 'jelly_%d_%s.png' % (pid, pname) for pid, pname, _, _ in PLAYERS},
-        decorations={str(pid): kind for pid, _, _, kind in PLAYERS},
+        character=kind,
+        sheets={str(pid): '%s_%d_%s.png' % (kind, pid, pname) for pid, pname, _, _ in PLAYERS},
+        decorations={str(pid): deco for pid, _, _, deco in PLAYERS},
         animations=[dict(name=n, row=r, frames=len(frs), fps=fps, loop=loop)
                     for r, (n, fps, loop, frs) in enumerate(ANIMS)],
     )
-    with open(os.path.join(out_dir, 'jelly_sheet.json'), 'w', encoding='utf-8') as fh:
+    with open(os.path.join(out_dir, kind + '_sheet.json'), 'w', encoding='utf-8') as fh:
         json.dump(meta, fh, indent=2)
     print('REPORT', json.dumps(report))
 
@@ -2163,6 +2348,7 @@ def target_probe(out_dir):
     half = CHAR_FRAME / CHAR_PPU / 2
     z0 = -CHAR_PIVOT[1] / CHAR_PPU
     frame_camera(scene, -half, z0, half, z0 + CHAR_FRAME / CHAR_PPU, CHAR_PPU)
+    set_kind(os.environ.get('PROBE_KIND', 'jelly'))
     rig = build_characters(scene)
     os.makedirs(out_dir, exist_ok=True)
     pid = int(os.environ.get('PROBE_ID', '2'))
@@ -2197,10 +2383,14 @@ def main():
     args = sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else []
     target = args[0] if args else 'all'
     if target in ('all', 'maps'):
-        order = ('characters', 'knife', 'map', 'preview') if target == 'all' else ()
-        for t in order + ('winter', 'warehouse', 'dessert', 'map_previews'):
+        order = (('characters', 'jelly'), ('characters', 'bear'), ('characters', 'pudding'), ('knife',), ('map',),
+                 ('preview',)) if target == 'all' else ()
+        for t in order + (('winter',), ('warehouse',), ('dessert',), ('map_previews',)):
             subprocess.run([bpy.app.binary_path, '-b', '--factory-startup', '--python', os.path.abspath(__file__),
-                            '--', t], check=True)
+                            '--', *t], check=True)
+        return
+    if target == 'characters':
+        target_characters(args[1] if len(args) > 1 else 'jelly')
         return
     TARGETS[target]()
 
