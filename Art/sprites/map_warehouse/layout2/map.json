@@ -1,0 +1,91 @@
+{
+  "ppu": 72,
+  "layout": "map-layout.md b3c88ca",
+  "note": "pieces: world_rect [x0, y0, x1, y1], pivot bottom-left; moving pieces: 72 px per unit, pivot px from bottom-left = platform top centre, world_rect = start position. Rules: docs/work/map-visual.md section 6.",
+  "pieces": {
+    "warehouse_bg.png": {
+      "world_rect": [
+        -1.5,
+        -1.5,
+        25.5,
+        14.0
+      ],
+      "note": "far + attach, for a client without layers"
+    },
+    "warehouse_floor.png": {
+      "world_rect": [
+        -1.5,
+        -1.5,
+        25.5,
+        0.25
+      ],
+      "note": "conveyor frame x 6..19; belt = conveyor_belt tile"
+    },
+    "workbench.png": {
+      "world_rect": [
+        -0.25,
+        0.0,
+        6.25,
+        1.325
+      ]
+    },
+    "wall_shelf.png": {
+      "world_rect": [
+        0.25,
+        3.1,
+        3.75,
+        3.725
+      ]
+    },
+    "catwalk.png": {
+      "world_rect": [
+        2.25,
+        5.5,
+        6.25,
+        6.125
+      ]
+    },
+    "warehouse_rack3.png": {
+      "world_rect": [
+        18.75,
+        0.0,
+        23.75,
+        7.325
+      ]
+    }
+  },
+  "moving": {
+    "crane_pallet.png": {
+      "size": [
+        324,
+        410
+      ],
+      "pivot_px_from_bottom_left": [
+        162,
+        36
+      ],
+      "pivot_normalized": [
+        0.5,
+        0.0878
+      ],
+      "start_world_rects": [
+        [
+          6.25,
+          7.9,
+          10.75,
+          13.6
+        ]
+      ]
+    }
+  },
+  "sprites": {
+    "conveyor_belt.png": {
+      "ppu": 72,
+      "size": [
+        72,
+        18
+      ],
+      "note": "tile 1.0 x 0.25, repeat along x over 6..19, y -0.25..0; scroll during the event"
+    }
+  }
+}

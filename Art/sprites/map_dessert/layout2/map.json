@@ -1,0 +1,104 @@
+{
+  "ppu": 72,
+  "layout": "map-layout.md b3c88ca",
+  "note": "pieces: world_rect [x0, y0, x1, y1], pivot bottom-left; moving pieces: 72 px per unit, pivot px from bottom-left = platform top centre, world_rect = start position. Rules: docs/work/map-visual.md section 6.",
+  "pieces": {
+    "dessert_bg.png": {
+      "world_rect": [
+        -1.5,
+        -1.5,
+        25.5,
+        14.0
+      ],
+      "note": "far + attach, for a client without layers"
+    },
+    "cherry_cake.png": {
+      "world_rect": [
+        13.25,
+        8.85,
+        16.25,
+        9.725
+      ]
+    },
+    "wafer_shelf.png": {
+      "world_rect": [
+        18.25,
+        6.7,
+        22.75,
+        7.325
+      ]
+    }
+  },
+  "moving": {
+    "cake_lift_plate.png": {
+      "size": [
+        216,
+        45
+      ],
+      "pivot_px_from_bottom_left": [
+        108,
+        36
+      ],
+      "pivot_normalized": [
+        0.5,
+        0.8
+      ],
+      "start_world_rects": [
+        [
+          15.75,
+          0.7,
+          18.75,
+          1.325
+        ]
+      ]
+    }
+  },
+  "sprites": {
+    "cake_lift_column.png": {
+      "ppu": 72,
+      "size": [
+        43,
+        72
+      ],
+      "pivot": "top centre",
+      "note": "0.6 x 1.0 tile, repeat downward from under the plate to the floor"
+    },
+    "syrup.png": {
+      "ppu": 72,
+      "size": [
+        792,
+        22
+      ],
+      "nine_slice": {
+        "left_px": 36,
+        "right_px": 36
+      },
+      "instances": [
+        [
+          0.5,
+          -0.05,
+          11.5,
+          0.25
+        ],
+        [
+          12.5,
+          -0.05,
+          23.5,
+          0.25
+        ]
+      ],
+      "note": "even events left half, odd right half"
+    },
+    "syrup_drip.png": {
+      "ppu": 128,
+      "size": [
+        64,
+        128
+      ],
+      "pivot_px_from_bottom_left": [
+        32,
+        128
+      ]
+    }
+  }
+}

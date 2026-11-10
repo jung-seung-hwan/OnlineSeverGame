@@ -246,8 +246,7 @@ def mid_winter(kit):
         rect(bm, 20.47 + dx, 8.0 + dz, 20.53 + dx, 8.55 + dz, y, mat)
     kit.obj('HatSled', 'MID', m, lambda bm: (
         lit(bm, hat, 2.4), lit(bm, sled, 2.4),
-        [rect(bm, sx, 7.6, sx + 0.04, 7.95, 2.38, 1) for sx in (20.0, 20.4, 20.8)],
-        ring(bm, 3.9, 8.15, 0.55, 0.58, 2.38, 1)))
+        [rect(bm, sx, 7.6, sx + 0.04, 7.95, 2.38, 1) for sx in (20.0, 20.4, 20.8)]))
     # wall arms for the two swaying lanterns (fx, hang points 7.75 / 16.25, 10.86)
     def arms(bm, y, mat, o):
         dx, dz = o
@@ -644,4 +643,5 @@ def main():
     TARGETS[target]()
 
 
-main()
+if __name__ == '__main__':   # build_layout2.py imports this module
+    main()

@@ -1,0 +1,122 @@
+{
+ "ppu": 72,
+ "map": "kitchen",
+ "layout": "map-layout.md b3c88ca",
+ "layers": [
+  {
+   "name": "far",
+   "file": "kitchen_far",
+   "rect": [
+    -1.5,
+    -1.5,
+    25.5,
+    14.0
+   ],
+   "depth": 0.5,
+   "order": -100,
+   "size": [
+    1944,
+    1116
+   ]
+  },
+  {
+   "name": "mid",
+   "file": "kitchen_mid",
+   "rect": [
+    2.1389,
+    5.4583,
+    23.9306,
+    13.2639
+   ],
+   "depth": 0.25,
+   "order": -95,
+   "size": [
+    1569,
+    562
+   ]
+  },
+  {
+   "name": "attach",
+   "file": "kitchen_attach",
+   "rect": [
+    -1.5,
+    -0.0417,
+    25.5,
+    14.0
+   ],
+   "depth": 0.0,
+   "order": -90,
+   "size": [
+    1944,
+    1011
+   ]
+  },
+  {
+   "name": "front",
+   "file": "kitchen_front",
+   "rect": [
+    -1.5,
+    -1.5,
+    25.5,
+    2.0139
+   ],
+   "depth": -0.6,
+   "order": 35,
+   "size": [
+    1944,
+    253
+   ]
+  }
+ ],
+ "fx": [
+  {
+   "kind": "steam",
+   "layer": "mid",
+   "at": [
+    17.6,
+    7.4
+   ],
+   "size": 0.34,
+   "count": 6,
+   "rise": 2.2,
+   "period": 4.6,
+   "color": "#9AA3B5",
+   "alpha": [
+    0.0,
+    0.14
+   ]
+  },
+  {
+   "kind": "steam",
+   "layer": "mid",
+   "at": [
+    19.0,
+    7.4
+   ],
+   "size": 0.3,
+   "count": 5,
+   "rise": 1.9,
+   "period": 5.3,
+   "color": "#9AA3B5",
+   "alpha": [
+    0.0,
+    0.12
+   ]
+  },
+  {
+   "kind": "glow",
+   "layer": "far",
+   "at": [
+    18.25,
+    5.3
+   ],
+   "size": 2.4,
+   "color": "#F0C27A",
+   "alpha": [
+    0.03,
+    0.07
+   ],
+   "period": 3.4
+  }
+ ]
+}

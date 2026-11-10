@@ -1,7 +1,7 @@
 # 맵 비주얼 (배경 깊이층 · 움직이는 배경 · 빈 공간 채우기)
 
 - 담당 세션: `[OnlineSeverGame] 맵 비주얼 · 01`, 브랜치 `claude/map-visual-baa34f` (main 병합은 사용자 승인 후 조율 세션)
-- 범위: 네 맵(주방·겨울 처마·창고·디저트 가게)의 배경을 여러 겹으로 나누고, 배경에 움직임을 넣고, 화면 위쪽 빈 공간을 소품으로 채운다(단계 A). 맵 레이아웃 세션의 새 구조물·맵 이벤트 그림은 그 세션 설계 문서가 나온 뒤(단계 B).
+- 범위: 네 맵(주방·겨울 처마·창고·디저트 가게)의 배경을 여러 겹으로 나누고, 배경에 움직임을 넣고, 화면 위쪽 빈 공간을 소품으로 채운다(단계 A, 지금 배치). 맵 레이아웃 세션의 새 배치·새 구조물·맵 이벤트 그림을 그 세션 설계 문서(`map-layout.md`, 커밋 b3c88ca) 좌표·크기대로 렌더한다(단계 B, 6장).
 - 지킨 기준(다시 정하지 않음): progress 확정 사항 3의 화면 대비 규칙 — 배경은 어둡고 저채도, 발판 윗면 밝은 테두리, 캐릭터는 중간 밝기의 선명한 색, 위험물과 예고만 최고 대비. 그림 방식은 기존 Blender 스크립트(`Art/blender/build_sprites.py`)와 같은 평면 색·계단 빛 무리.
 
 ## 1. 어떻게 보이게 되는가
@@ -106,8 +106,52 @@
 - 다른 브랜치(타격감·UI)의 카메라 흔들림·프레이밍과 합친 뒤의 모습. 카메라 쉬는 자리가 바뀌면 오프셋이 생기므로 0.6으로 제한해 두었다.
 - 색약 시뮬레이션.
 
+## 6. 단계 B: 새 배치 그림 (맵 레이아웃 세션 설계 b3c88ca)
+
+### 6.1 무엇을 그렸나
+
+기준: 레이아웃 세션 브랜치의 `docs/work/map-layout.md` 6장 그림 목록(`git show refs/heads/claude/map-layout-ea33fc:docs/work/map-layout.md`). **파일 이름·픽셀 크기·world_rect·피벗은 그 표와 글자 그대로 같다**(스크립트 REPORT로 크기 확인). 숫자가 바뀌면 그 문서가 먼저 바뀌고 이 스크립트 상수를 고쳐 다시 렌더한다.
+
+| 맵 | 정지 조각 (72 px/유닛) | 움직이는 발판 (72 px/유닛, 피벗 = 윗면 가운데) | 이벤트·기타 그림 |
+|---|---|---|---|
+| 주방 | kitchen_bg(다시), kitchen_floor(도마 + 가스레인지, 화구 링 4개 + 손잡이), spice_rack(3단 탑, 칸 아래 매단 양념 깡통), ladle_rail, wall_board, tray_shelf, range_hood(윗면 7.2 평평) | — | burner_flame(4프레임 가로 1536 × 128, 피벗 아래 가운데), burner_glow(예고: 빨갛게 달아오른 링), butter(버터 블록) |
+| 겨울 처마 | winter_bg(다시: 창문을 새 창턱 위로, 돌 선반 받치는 굴뚝은 attach), winter_floor(얼음 7~13), winter_ice_sill(폭 4.0, 고드름 술 8개), winter_beam(폭 4.0), stone_ledge, icy_gutter | snow_awning, snow_awning_crack(무너지기 직전: 금 + 흘러내리는 눈) | snow_dump(무너질 때 떨어지는 눈 덩어리), wind_streak(바람 줄, 흰색), snowflake |
+| 창고 | warehouse_bg(다시: 팔레트 사슬 뺌), warehouse_floor(컨베이어 틀·롤러), workbench, wall_shelf, catwalk, warehouse_rack3 | crane_pallet(팔레트 + 사슬 두 줄 + 레일 위 활차 통째) | conveyor_belt(1.0 × 0.25 이어 붙이는 무늬, 윗줄 밝음) |
+| 디저트 가게 | dessert_bg(다시: 리프트 기둥 홈, 메뉴판을 웨하스 위로 옮김), cherry_cake(체리는 앞면 장식, 윗면 위로 안 나옴), wafer_shelf | cake_lift_plate | cake_lift_column(0.6 × 1.0 세로 반복), syrup(9-slice 양 끝 36 px, 반투명), syrup_drip. 아이스크림 4장은 지금 그림 그대로(9-slice) |
+
+- 모든 발판 윗면에 밝은 선(대비 규칙), 발판 외곽선 #121318 0.03, 움직이는 그림 외곽선 #14161D. 불꽃·달아오른 링만 밝은 주황·빨강(위험물·예고 = 최고 대비).
+- 새 배치에 맞춘 깊이층도 같이 만들었다(`<맵>_far/mid/attach/front.png` + `layers.json`): 중간 소품을 새 발판 높이(1.2·2.4·3.6·4.8·6.0·7.2·8.4·9.6)와 겹치지 않게 다시 놓음(주방 냄비 걸이·접시 건조대를 후드 오른쪽 위로, 시계를 국자 걸이 위로, 김은 후드 뒤에서 덕트를 따라 오름 / 겨울 화환·삿갓·썰매(세로로 걸기)·등불 팔 위치 / 창고 환풍기를 5.0으로 내리고 경고판 대신 공구판 / 디저트 진열장 왼쪽으로, 사탕 병 선반은 웨하스 높이와 가까워 뺌). 움직이는 배경 위치도 맞춤.
+- `<맵>_bg.png` = far + attach(안개 없이) 한 장: layers.json을 안 읽는 클라이언트용.
+
+### 6.2 출력 위치와 파일 규칙
+
+- 폴더: `Art/sprites/<맵 폴더>/layout2/` (map, map_winter, map_warehouse, map_dessert). **지금 main은 옛 배치라서** 옛 그림을 덮어쓰지 않으려고 따로 둔다. 레이아웃 브랜치가 병합되면 이 폴더 파일을 한 단계 위(맵 폴더)로 옮기고(이름이 같은 "다시" 파일은 교체), `Client/Assets/Resources/Art/`에도 복사한다.
+- 폴더마다 `map.json`: `pieces`(정지 조각 world_rect, 창턱은 instances 2개), `moving`(움직이는 발판: size, `pivot_px_from_bottom_left` = 윗면 가운데, `pivot_normalized`, `start_world_rects` = 처음 자리), `sprites`(128 px/유닛 그림의 크기·피벗·프레임, 72 px/유닛 반복 무늬·9-slice 정보).
+- 확인 그림: `Art/preview/<맵>_layout2.png` (far + mid + attach + 조각 + 움직이는 발판 처음 자리 + 이벤트 그림 몇 개 + 캐릭터 5명 + front). 주방은 화구 1·3에 불, 2에 예고 링, 창고는 벨트, 겨울은 바람 줄·눈 덩어리, 디저트는 왼쪽 시럽·리프트 기둥.
+- 다시 렌더(루트, 약 4분): `"C:/Program Files/Blender Foundation/Blender 5.2/blender.exe" -b --factory-startup --python Art/blender/build_layout2.py -- layout2` (맵 하나: `-- kitchen` 등). 스크립트는 `build_sprites.py`의 맵 모델 함수를 배치 상수만 바꿔 다시 쓰고(겨울 창턱·들보·얼음, 옛 발판·사슬 삭제), 새 조각을 더한다.
+
+### 6.3 클라이언트 연결: 레이아웃 세션 코드와 겹치는 파일
+
+원칙: 레이아웃 브랜치가 먼저 main에 병합되고(조율 세션 순서), 이 세션이 병합 뒤 맞춘다. 지금 이 브랜치의 클라이언트는 옛 배치 + 단계 A 깊이층만 그린다.
+
+| 파일 | 레이아웃 세션 | 이 세션이 병합 뒤 할 일 |
+|---|---|---|
+| `Client/Assets/Scripts/View/StageView.cs` | 새 배치를 그림(옛 그림 늘려 쓰기 / 단색 도형), 움직이는 발판·차양 위치 갱신 | 새 조각 그림으로 교체, `BackdropView.TryBuild`가 `layout2` 층을 읽게(이 세션이 감싼 배경 줄 4곳) |
+| `Client/Assets/Scripts/View/MapEventView.cs` (레이아웃 세션 새 파일) | 불꽃·바람·벨트·시럽을 단색 도형으로 | burner_flame/glow, wind_streak, conveyor_belt, syrup/syrup_drip 그림으로 교체 |
+| `Client/Assets/Scripts/View/ArtSprites.cs` | (새 그림 불러오기를 더할 수 있음) | 72 px/유닛 움직이는 발판(윗면 가운데 피벗)·반복 무늬 불러오기 추가 |
+| `Client/Assets/Scripts/View/WorldView.cs` | (바뀔 수 있음) | 이 세션은 `BackdropView.SetFocus` 한 줄만 |
+| `Client/Assets/Resources/Art/<맵 폴더>/` | — | layout2 그림 복사, 옛 배치 전용 파일(shelf, pot_lid, winter_bench 등)은 쓰는 코드가 없을 때 정리 |
+| `docs/README.md` | 자기 행 | 자기 행 |
+
+### 6.4 확인한 것과 남은 일 (단계 B)
+
+확인한 것: 네 맵 그림 31장 + 깊이층 + map.json 렌더 오류 없음, 크기가 map-layout.md 6장 표와 모두 같음(REPORT), 잘림 검사에서 가장자리에 닿는 것은 바닥까지 내려가는 탑 기둥·작업대 다리·랙 기둥·후드 아래 끝(문서 rect 아래 끝)뿐(의도). 확인 그림 4장을 직접 열어 봄: 발판 높이마다 밝은 윗면 선, 배경 소품이 새 발판 높이와 겹치지 않음, 캐릭터 발이 윗면에 닿음, 불꽃·예고 링이 가장 눈에 띔. 첫 렌더 뒤 고친 것: 짧아진 창턱 밖으로 나온 고드름 술, 새 웅덩이 밖에 남은 얼음 반짝임, 삿갓 둘레 원, 보이지 않던 체리, 너무 작은 허브 다발.
+
+확인 안 한 것: 게임 화면(레이아웃 코드 병합 전이라 연결 안 함), 움직이는 발판이 실제로 움직일 때의 모습, 불꽃 4프레임 반복 속도, 차양이 무너지는 연출, 벨트 흐름. 병합 뒤 6.3대로 연결하고 서버 + 봇 + 클라이언트로 맵별 확인이 남는다.
+
 ## 5. 변경 기록
 
 | 날짜 | 커밋 | 내용 |
 |---|---|---|
-| 2026-11-10 | (작성 중) | 단계 A: 네 맵 깊이층(far/mid/attach/front)·움직이는 배경·빈 공간 소품, `build_depth.py`, `BackdropView` |
+| 2026-11-10 | 148649c | 단계 A: 네 맵 깊이층(far/mid/attach/front)·움직이는 배경·빈 공간 소품, `build_depth.py`, `BackdropView` |
+| 2026-11-10 | (이 커밋) | 단계 B: 레이아웃 설계(b3c88ca) 그림 31장 + 새 배치 깊이층(`build_layout2.py`, `layout2/` 폴더), 겨울 삿갓 둘레 원 제거(단계 A 그림도) |
