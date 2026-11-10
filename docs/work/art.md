@@ -253,4 +253,4 @@ cp Art/sprites/characters/*.png Art/sprites/characters/jelly_sheet.json Client/A
 | 2026-10-27 | 8b31fd2 | 사용자가 Blender 기준 이미지 확정(추천대로). 콘셉트 단계 완료 |
 | 2026-10-27 | 155038f | Blender 5.2 스크립트로 캐릭터(몸 + 장식 8 + 래티스 셰이프 키 8동작)·칼·맵(Stage.Default 좌표) 모델, 툰 셰이딩 스프라이트 시트·맵 조각·확인용 합성 렌더. 평가 기록. Unity 교체는 승인 대기 |
 | 2026-10-27 | e3c4192 | 사용자 요청으로 몸을 넓힘(반지름 0.39 → 0.48, 그림 폭 1.0, 판정은 그대로) 후 전체 재렌더. 사용자 승인으로 Unity 클라이언트 임시 도형을 스프라이트로 교체(캐릭터 8동작, 칼, 맵), 공중 사망 웅덩이는 아래 면에. 빌드·미리보기·서버+봇 실행 확인 |
-| 2026-11-10 | (이 커밋) | 스크립트에 캐릭터 종류(jelly/bear/pudding)와 판정 띠 자동 측정 추가(자세한 내용은 art-characters.md). 젤리 시트는 다시 렌더만 함(그림 같음, json에 character 키) |
+| 2026-11-10 | 2c92f6a | 스크립트에 캐릭터 종류(jelly/bear/pudding)와 판정 띠 자동 측정 추가(자세한 내용은 art-characters.md). 젤리 시트는 다시 렌더만 함(그림 같음, json에 character 키) |
