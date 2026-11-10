@@ -1175,9 +1175,10 @@ def hit_table(name):
     return [tuple(int(v) for v in t) for t in re.findall(r'new HitBand\((-?\d+), (-?\d+), (-?\d+), (-?\d+)\)', body)]
 
 
-def measure_bands(imgs, table):
+def measure_bands(imgs, table, sx=1.0):
     """Per band of table: left/right extent (milli-units from the pivot, alpha >= 0.5, rounded outward to 10)
-    of all imgs together, next to the table's numbers. Same rule as the HitShapes measurement."""
+    of all imgs together, next to the table's numbers. Same rule as the HitShapes measurement. sx = the x scale
+    the client draws the frames at (jelly_sheet.json draw_scale; the flat stun is drawn 1.1 wide)."""
     a = np.maximum.reduce([im[..., 3] for im in imgs])
     out = []
     for b, t, l, r in table:
@@ -1186,8 +1187,8 @@ def measure_bands(imgs, table):
         if len(xs) == 0:
             out.append(dict(band=[b, t], drawn=None, table=[l, r]))
             continue
-        ml = math.floor((xs.min() - CHAR_PIVOT[0]) * 1000 / CHAR_PPU / 10) * 10
-        mr = math.ceil((xs.max() + 1 - CHAR_PIVOT[0]) * 1000 / CHAR_PPU / 10) * 10
+        ml = math.floor((xs.min() - CHAR_PIVOT[0]) * sx * 1000 / CHAR_PPU / 10) * 10
+        mr = math.ceil((xs.max() + 1 - CHAR_PIVOT[0]) * sx * 1000 / CHAR_PPU / 10) * 10
         out.append(dict(band=[b, t], drawn=[ml, mr], table=[l, r], diff=[ml - l, mr - r]))
     return out
 
@@ -1295,7 +1296,11 @@ def target_characters(kind='jelly'):
         bottom=(bb[1] - CHAR_PIVOT[1]) / CHAR_PPU, top=(bb[3] - CHAR_PIVOT[1]) / CHAR_PPU)
     hit = dict(Body=measure_bands(idle, hit_table('Body')),
                Dash=measure_bands(body_frames('dash'), hit_table('Dash')),
-               Stunned=measure_bands(body_frames('knockback'), hit_table('Stunned')))
+               Stunned=measure_bands(body_frames('knockback'), hit_table('Stunned')),
+               # HitShapes.cs builds these two with Scale(), so they are scaled here the same way
+               Crouch=measure_bands(body_frames('crouch'), _scale_bands(hit_table('Body'), 115, 60)),
+               Stomped=measure_bands(body_frames('stun'), _scale_bands(hit_table('Stunned'), 135, 40),
+                                     sx=DRAW_SCALE['stun'][0]))
     report['hit_max_diff_milli'] = {k: max((max(abs(d) for d in r['diff']) for r in v if 'diff' in r), default=None)
                                     for k, v in hit.items()}
     # The tables have slack where the jelly drawing itself does not reach, so also compare with the jelly measured
@@ -1304,7 +1309,7 @@ def target_characters(kind='jelly'):
     if kind != 'jelly' and os.path.exists(jelly_path):
         jelly = json.load(open(jelly_path, encoding='utf-8'))['bands']
         for k, v in hit.items():
-            for r, j in zip(v, jelly[k]):
+            for r, j in zip(v, jelly.get(k, [])):
                 if r['drawn'] and j['drawn']:
                     r['vs_jelly'] = [r['drawn'][0] - j['drawn'][0], r['drawn'][1] - j['drawn'][1]]
         report['vs_jelly_max_diff_milli'] = {
