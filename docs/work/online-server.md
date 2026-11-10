@@ -64,4 +64,4 @@ xattr -dr com.apple.quarantine mac-server && chmod +x mac-server/OnlineSeverGame
 
 | 날짜 | 커밋 | 내용 |
 |---|---|---|
-| 2026-11-10 | (이 커밋) | 클라이언트 기본 서버 주소를 `wildmagic.co.kr:7771`로. DNS·포트 확인 결과, 맥 서버 실행 방법 정리 |
+| 2026-11-10 | `da0499b` | 클라이언트 기본 서버 주소를 `wildmagic.co.kr:7771`로. DNS·포트 확인 결과, 맥 서버 실행 방법 정리 |
