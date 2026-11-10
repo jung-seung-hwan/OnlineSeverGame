@@ -6,7 +6,7 @@ namespace OnlineSeverGame.Client.View
 {
     // 옆 위험물과 그 높이의 가로줄 예고(docs/work/dash-side-knife.md 3.5, 맵별 종류는 docs/work/side-hazards-i18n.md 3장).
     // 맵마다 그림이 다르다: 주방 칼(낙하 칼 그림을 눕힘), 겨울 눈덩이(굴러가며 돈다), 창고 나무 상자, 디저트 마카롱.
-    // 예고 중: 맵 폭 전체에 빨간 띠(위험물 두께 + 0.2), 들어올 쪽 끝에 화살표 세 개와 무엇이 오는지 보이는 흐린 그림.
+    // 예고 중: 맵 폭 전체에 빨간 띠(위험물 두께 + 0.2), 들어올 쪽 끝에 무엇이 오는지 보이는 흐린 그림.
     // 끝날수록 빠르고 진하게 깜빡인다(낙하 예고 기둥과 같은 박자).
     // 날아가는 중: 위험물 그림, 뒤로 흐린 잔상 두 개(바닥에 놓인 같은 그림의 상자·마카롱·눈덩이와 구별되게), 아직 지나가지 않은 쪽 띠만 옅게.
     public sealed class SideKnifeView : MonoBehaviour
@@ -14,7 +14,6 @@ namespace OnlineSeverGame.Client.View
         static readonly Color WarnColor = new Color(1f, 0.25f, 0.2f);
 
         SpriteRenderer _band;
-        SpriteRenderer[] _arrows;
         SpriteRenderer _body;
         SpriteRenderer _icon;
         SpriteRenderer[] _trail;
@@ -30,12 +29,6 @@ namespace OnlineSeverGame.Client.View
             var v = go.AddComponent<SideKnifeView>();
             v._stageWidth = stageWidth;
             v._band = Shapes.Rect(go.transform, "Band", WarnColor, new Vector2(stageWidth, 0.45f), -4);
-            v._arrows = new SpriteRenderer[3];
-            for (int i = 0; i < v._arrows.Length; i++)
-            {
-                v._arrows[i] = Shapes.Rect(go.transform, "Arrow" + i, WarnColor, new Vector2(0.32f, 0.32f), 20);
-                v._arrows[i].transform.localRotation = Quaternion.Euler(0, 0, 45f);
-            }
             v._body = NewSprite(go.transform, "Body", 15);
             v._icon = NewSprite(go.transform, "Icon", 19);
             v._trail = new[] { NewSprite(go.transform, "Trail0", 14), NewSprite(go.transform, "Trail1", 13) };
@@ -88,14 +81,8 @@ namespace OnlineSeverGame.Client.View
                 Shapes.Resize(_band, new Vector2(_stageWidth, bandH));
                 _band.transform.localPosition = new Vector3(_stageWidth / 2f, 0, 0);
                 _band.color = new Color(WarnColor.r, WarnColor.g, WarnColor.b, Mathf.Lerp(0.10f, 0.32f, p) * (0.5f + 0.5f * blink));
-                for (int i = 0; i < _arrows.Length; i++)
-                {
-                    _arrows[i].enabled = true;
-                    _arrows[i].transform.localPosition = new Vector3(entryX + dir * (0.35f + 0.45f * i), 0, 0);
-                    _arrows[i].color = new Color(WarnColor.r, WarnColor.g, WarnColor.b, 0.5f + 0.5f * blink);
-                }
-                // 화살표 뒤에 무엇이 올지 흐리게(앞 끝이 화살표 다음).
-                float iconTip = entryX + dir * (0.35f + 0.45f * _arrows.Length + 2f * halfLen);
+                // 들어올 쪽 끝에 무엇이 올지 흐리게.
+                float iconTip = entryX + dir * (0.35f + 2f * halfLen);
                 Place(_icon, iconTip, halfLen, dir, 0f);
                 _icon.color = new Color(1f, 1f, 1f, 0.35f + 0.3f * blink);
                 _body.enabled = false;
@@ -104,7 +91,6 @@ namespace OnlineSeverGame.Client.View
                 return;
             }
 
-            foreach (var a in _arrows) a.enabled = false;
             _icon.enabled = false;
             // 아직 지나가지 않은 구간(앞 끝 앞 ~ 반대쪽 벽)만 옅게 남긴다.
             float from = Mathf.Clamp(s.TipX, 0f, _stageWidth);

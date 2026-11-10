@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace OnlineSeverGame.Client.View
 {
-    // 떨어지는 위험물과 낙하 예고. 예고 중에는 낙하 지점 기둥(위험물 폭 + 0.6)과 위쪽 경고 표시를 깜빡이며 보여준다.
+    // 떨어지는 위험물과 낙하 예고. 예고 중에는 낙하 지점 기둥(위험물 폭 + 0.6)과 꽂힐 면의 띠를 깜빡이며 보여준다.
     // 그림은 ArtSprites.Hazard(피벗 = 끝, 아래 가운데). 착지 뒤에는 HazardLanded(고드름 조각, 금 간 상자).
     // 그림이 없는 종류는 단색 도형으로 그린다.
     // 고드름은 예고 중에도 처마 아래 제자리에 매달려 점점 세게 떨린다.
@@ -15,7 +15,6 @@ namespace OnlineSeverGame.Client.View
         Transform _body;
         SpriteRenderer[] _bodyParts;
         SpriteRenderer _warnColumn;
-        SpriteRenderer _warnMark;
         SpriteRenderer _warnGround;
         HazardKind _kind;
         SpriteRenderer _art;   // 그림 한 장으로 그릴 때
@@ -33,7 +32,6 @@ namespace OnlineSeverGame.Client.View
             v._stageHeight = stageHeight;
             v._columnWidth = size.x + 0.6f;
             v._warnColumn = Shapes.Rect(go.transform, "WarnColumn", WarnColor, new Vector2(v._columnWidth, stageHeight), -5);
-            v._warnMark = Shapes.Rect(go.transform, "WarnMark", WarnColor, new Vector2(0.7f, 0.7f), 20);
             v._warnGround = Shapes.Rect(go.transform, "WarnGround", WarnColor, new Vector2(size.x + 1.2f, 0.12f), 8);
             v._body = new GameObject("Body").transform;
             v._body.SetParent(go.transform, false);
@@ -113,7 +111,6 @@ namespace OnlineSeverGame.Client.View
         {
             bool warning = s.Phase == SwordPhase.Warning;
             _warnColumn.enabled = warning;
-            _warnMark.enabled = warning;
             _warnGround.enabled = warning;
             bool hanging = warning && _kind == HazardKind.Icicle;
             _body.gameObject.SetActive(!warning || hanging);
@@ -131,15 +128,11 @@ namespace OnlineSeverGame.Client.View
                 _warnColumn.transform.localPosition = new Vector3(0, s.LandingY + columnH / 2f, 0);
                 _warnGround.color = new Color(WarnColor.r, WarnColor.g, WarnColor.b, 0.4f + 0.6f * blink);
                 _warnGround.transform.localPosition = new Vector3(0, s.LandingY + 0.06f, 0);
-                _warnMark.color = new Color(WarnColor.r, WarnColor.g, WarnColor.b, 0.5f + 0.5f * blink);
-                _warnMark.transform.localPosition = new Vector3(0, hanging ? s.SpawnY - 0.6f : _stageHeight - 0.6f, 0);
-                _warnMark.transform.localRotation = Quaternion.Euler(0, 0, 45f);
                 if (hanging)
                 {
                     // 처마 아래에 매달려 떨린다(낙하가 가까울수록 세게).
                     float shake = Mathf.Sin(Time.time * 40f) * Mathf.Lerp(0.01f, 0.07f, p);
                     _body.localPosition = new Vector3(shake, s.SpawnY, 0);
-                    _warnMark.enabled = false;
                     SetAlpha(1f);
                 }
                 return;

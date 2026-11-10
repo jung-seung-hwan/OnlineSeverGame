@@ -9,7 +9,7 @@ namespace OnlineSeverGame.Client.UI
     // 사각형이고, 비스듬한 획(Y·V·R 다리)만 돌린 사각형이다. JELLY 다섯 글자는 플레이어 색 1~5번(딸기·블루베리·라임·레몬·포도),
     // SURVIVAL 은 게임 예고 색 빨간 팻말 위 흰 글자. 조각마다 0.7 단위 넓힌 어두운 사각형을 먼저 칠해 외곽선을 만든다.
     // 움직이는 판(접속 화면): JELLY 글자 다섯 개 위 자리 중 넷에 젤리가 서 있다. 빈자리 옆 젤리 머리 위로 게임과 같은 빨간 예고
-    // (기둥 + 마름모)가 깜빡이면 그 젤리가 빈자리로 뛰어 옮기고, 칼이 떨어져 비운 글자에 꽂혔다가 사라진다. 3초마다 되풀이하며
+    // 기둥이 깜빡이면 그 젤리가 빈자리로 뛰어 옮기고, 칼이 떨어져 비운 글자에 꽂혔다가 사라진다. 3초마다 되풀이하며
     // 빈자리는 J → Y → J 로 오간다.
     public static class TitleLogo
     {
@@ -42,7 +42,7 @@ namespace OnlineSeverGame.Client.UI
         const float Big = 1.35f, BigGap = 1.6f;          // JELLY: 캡 13 × 1.35
         const float Small = 0.78f, SmallGap = 1.6f;      // SURVIVAL: 캡 12 × 0.78
         const float TagPad = 2.2f, LineGap = 2.6f;
-        const float AnimTop = 15f;                       // 움직이는 판에서 로고 위로 비워 두는 높이(젤리 + 예고 마름모 자리)
+        const float AnimTop = 15f;                       // 움직이는 판에서 로고 위로 비워 두는 높이(젤리 + 떨어지는 칼 자리)
         const float FallingKnifeScale = 0.55f;
         const float KnifeLength = 22f;
         const float Cycle = 3f;
@@ -167,7 +167,7 @@ namespace OnlineSeverGame.Client.UI
 
         // ---- 그리기 ----
 
-        // 화면에서 차지하는 크기(픽셀). animated 면 위에 젤리와 예고 마름모 자리를 더한다.
+        // 화면에서 차지하는 크기(픽셀). animated 면 위에 젤리와 떨어지는 칼 자리를 더한다.
         public static Vector2 Size(float ppu, bool animated) =>
             new Vector2(_bounds.width, _bounds.height + (animated ? AnimTop : 0f)) * ppu;
 
@@ -295,7 +295,7 @@ namespace OnlineSeverGame.Client.UI
         // 빈자리가 0 → 4 → 0 으로 오가도록, k 번째 이동에서 빈자리 옆 어느 젤리가 움직일지 고른다.
         static int NextTarget(int k, int empty) => k % 8 < 4 ? empty + 1 : empty - 1;
 
-        // 게임(SwordView)과 같은 예고: 낙하 지점 기둥 + 위쪽 마름모. 낙하가 가까울수록 빠르고 진하게 깜빡인다.
+        // 게임(SwordView)과 같은 예고: 낙하 지점 기둥. 낙하가 가까울수록 빠르고 진하게 깜빡인다.
         static void DrawWarning(Vector2 origin, float ppu, Anim a)
         {
             float blink = Mathf.PingPong(Time.time * Mathf.Lerp(2f, 10f, a.Warn), 1f);
@@ -303,9 +303,6 @@ namespace OnlineSeverGame.Client.UI
             float top = -AnimTop + 1f;
             GUI.color = new Color(warn.r, warn.g, warn.b, Mathf.Lerp(0.10f, 0.28f, a.Warn) * (0.5f + 0.5f * blink));
             GUI.DrawTexture(new Rect(origin.x + (a.WarnAt.x - 2.6f) * ppu, origin.y + top * ppu, 5.2f * ppu, (a.WarnAt.y - Outline - top) * ppu), Texture2D.whiteTexture);
-            var mark = new Part { X = a.WarnAt.x - 1.3f, Y = top + 0.6f, W = 2.6f, H = 2.6f, Angle = 45f };
-            Fill(origin, ppu, mark, Outline, new Color(OutlineColor.r, OutlineColor.g, OutlineColor.b, 0.5f + 0.5f * blink));
-            Fill(origin, ppu, mark, 0f, new Color(warn.r, warn.g, warn.b, 0.5f + 0.5f * blink));
         }
 
         static void DrawJelly(Vector2 origin, float ppu, int index, JellyPose pose)
