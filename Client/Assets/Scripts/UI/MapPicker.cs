@@ -91,7 +91,7 @@ namespace OnlineSeverGame.Client.UI
                 _rots[i] = b;
             }
             _rots[_rots.Length - 1].style.marginRight = 0;
-            _keys = UiKit.Text("", "t-tiny t-muted t-center", _hostBox);
+            _keys = UiKit.Text("", "t-tiny t-muted t-center t-wrap", _hostBox);
             _keys.style.marginTop = 6;
 
             _guest = UiKit.Text("", "t-small t-muted t-wrap", Root);
