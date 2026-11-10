@@ -145,7 +145,7 @@ public class GameplayTwoTests
         Assert.Equal(PlayerHeight, top.State.Y);
         Assert.False(top.State.Grounded);
 
-        // Stunned for 30 ticks in total, flattened until it ends, then control returns.
+        // Stunned for StompStunTicks in total, flattened until it ends, then control returns.
         for (int i = 0; i < StompStunTicks - 1; i++)
         {
             room.QueueInput(ids[1], (uint)(i + 1), InputButtons.Right);
