@@ -206,10 +206,12 @@ public class DashStunSideKnifeTests
     [Fact]
     public void Lanes_are_low_and_head_height_over_each_hiding_surface()
     {
+        // v6: the offsets depend on the map's side hazard (knife 0.35/1.0, snowball 0.3/1.06, crate 0.33/1.11,
+        // macaron 0.3/1.02).
         Assert.Equal(new[] { 350, 1000 }, SideKnifePhysics.Lanes(Stage.Kitchen));
-        Assert.Equal(new[] { 350, 1000, 2750, 3400 }, SideKnifePhysics.Lanes(Stage.Winter));
-        Assert.Equal(new[] { 350, 1000, 2750, 3400 }, SideKnifePhysics.Lanes(Stage.Warehouse));
-        Assert.Equal(new[] { 350, 1000, 3950, 4600 }, SideKnifePhysics.Lanes(Stage.Dessert));
+        Assert.Equal(new[] { 300, 1060, 2700, 3460 }, SideKnifePhysics.Lanes(Stage.Winter));
+        Assert.Equal(new[] { 330, 1110, 2730, 3510 }, SideKnifePhysics.Lanes(Stage.Warehouse));
+        Assert.Equal(new[] { 300, 1020, 3900, 4620 }, SideKnifePhysics.Lanes(Stage.Dessert));
     }
 
     /// <summary>Heights above the take-off point on each tick of a jump (index 0 = the tick the jump is pressed).</summary>
@@ -227,22 +229,22 @@ public class DashStunSideKnifeTests
         return ys.ToArray();
     }
 
-    private enum Outcome { Misses, Duck, Jump, Undodgeable }
+    internal enum Outcome { Misses, Duck, Jump, Undodgeable }
 
     /// <summary>
     /// What a player standing on a surface at height t must do about a side knife on the lane at y: nothing,
     /// crouch, or jump at the right moment. Checked with the knife flying the whole way past the player.
     /// </summary>
-    private static Outcome Judge(int t, int laneY, sbyte dir)
+    internal static Outcome Judge(int t, int laneY, sbyte dir, SideHazardKind kind = SideHazardKind.Knife)
     {
         const int px = 12000;
         bool HitsAlong(Func<int, PlayerState> poseAt)
         {
-            var k = new SideKnifeState { Dir = dir, Phase = SideKnifePhase.Flying, X = px - dir * 4000, Y = laneY };
+            var k = new SideKnifeState { Kind = kind, Dir = dir, Phase = SideKnifePhase.Flying, X = px - dir * 4000, Y = laneY };
             for (int tick = 0; tick < 40; tick++)
             {
                 SideKnifePhysics.Step(ref k, 24000, out _, out int from);
-                if (HitShapes.SideKnifeHits(poseAt(tick), dir, laneY, from, k.X)) return true;
+                if (HitShapes.SideHazardHits(poseAt(tick), kind, dir, laneY, from, k.X)) return true;
             }
             return false;
         }
@@ -273,8 +275,9 @@ public class DashStunSideKnifeTests
         foreach (var stage in Stage.All)
             foreach (int surface in stage.SideKnifeSurfaces)
             {
-                Assert.Equal(Outcome.Jump, Judge(surface, surface + SideKnifeLowOffset, (sbyte)dir));
-                Assert.Equal(Outcome.Duck, Judge(surface, surface + SideKnifeHeadOffset, (sbyte)dir));
+                var spec = SideHazardSpec.Of(stage.SideHazard);
+                Assert.Equal(Outcome.Jump, Judge(surface, surface + spec.LowOffset, (sbyte)dir, spec.Kind));
+                Assert.Equal(Outcome.Duck, Judge(surface, surface + spec.HeadOffset, (sbyte)dir, spec.Kind));
             }
     }
 
@@ -289,20 +292,30 @@ public class DashStunSideKnifeTests
             if (stage.Hazard == HazardKind.Crate) { surfaces.Add(1200); surfaces.Add(2400); } // landed crates, two high
             foreach (int t in surfaces)
                 foreach (int lane in SideKnifePhysics.Lanes(stage))
-                    Assert.True(Judge(t, lane, 1) != Outcome.Undodgeable, $"{stage.Name}: lane {lane} from surface {t}");
+                    foreach (sbyte dir in new sbyte[] { 1, -1 })
+                        Assert.True(Judge(t, lane, dir, stage.SideHazard) != Outcome.Undodgeable,
+                            $"{stage.Name}: {stage.SideHazard} lane {lane} from surface {t} dir {dir}");
         }
     }
 
     [Fact]
     public void Design_table_spot_checks()
     {
+        // Kitchen keeps the v5 knife; the other maps are checked with their own side hazard (v6 table in
+        // docs/work/side-hazards-i18n.md).
         Assert.Equal(Outcome.Jump, Judge(1000, 1000, 1));     // kitchen butter block top vs floor head lane
-        Assert.Equal(Outcome.Duck, Judge(1600, 2750, 1));     // winter bench vs sill low lane
-        Assert.Equal(Outcome.Misses, Judge(1600, 3400, -1));  // winter bench vs sill head lane
-        Assert.Equal(Outcome.Misses, Judge(1200, 3400, 1));   // warehouse crate top
-        Assert.Equal(Outcome.Misses, Judge(2000, 3950, 1));   // dessert strawberry vs vanilla low lane
-        Assert.Equal(Outcome.Jump, Judge(700, 1000, 1));      // macaron top vs floor head lane
-        Assert.Equal(Outcome.Misses, Judge(4800, 3400, 1));   // beam / upper rack above everything
+        var snow = SideHazardKind.Snowball;
+        Assert.Equal(Outcome.Duck, Judge(1600, 2700, 1, snow));     // winter bench vs sill low lane
+        Assert.Equal(Outcome.Misses, Judge(1600, 3460, -1, snow));  // winter bench vs sill head lane
+        Assert.Equal(Outcome.Jump, Judge(1000, 1060, 1, snow));     // winter snowball (box) top vs floor head lane
+        var crate = SideHazardKind.Crate;
+        Assert.Equal(Outcome.Misses, Judge(1200, 3510, 1, crate));  // warehouse crate top vs rack head lane
+        Assert.Equal(Outcome.Misses, Judge(1200, 2730, 1, crate));  // warehouse crate top vs rack low lane
+        Assert.Equal(Outcome.Misses, Judge(4800, 3510, 1, crate));  // upper rack above everything
+        var mac = SideHazardKind.Macaron;
+        Assert.Equal(Outcome.Misses, Judge(2000, 3900, 1, mac));    // dessert strawberry vs vanilla low lane
+        Assert.Equal(Outcome.Jump, Judge(700, 1020, 1, mac));       // macaron top vs floor head lane
+        Assert.Equal(Outcome.Misses, Judge(4800, 3400, 1));   // beam above everything (knife)
     }
 
     [Fact]
@@ -457,7 +470,7 @@ public class DashStunSideKnifeTests
             pending.Enqueue(DodgeBrain.Decide(me, new KnifeState[0], ground, reactionTicks: 4, InputButtons.None, null, new[] { k }, lag));
             PlayerPhysics.Step(ref me, pending.Dequeue(), ground);
             if (!SideKnifePhysics.Step(ref k, stage.Width, out bool dangerous, out int from)) return true;
-            if (dangerous && HitShapes.SideKnifeHits(me, k.Dir, k.Y, from, k.X)) return false;
+            if (dangerous && HitShapes.SideHazardHits(me, k.Kind, k.Dir, k.Y, from, k.X)) return false;
         }
         return true;
     }
@@ -472,8 +485,9 @@ public class DashStunSideKnifeTests
             foreach (int surface in stage.SideKnifeSurfaces)
                 foreach (sbyte dir in new sbyte[] { 1, -1 })
                 {
-                    Assert.True(BotSurvives(stage, surface, surface + SideKnifeHeadOffset, dir, lag), $"{stage.Name} head {surface} dir {dir}");
-                    Assert.True(BotSurvives(stage, surface, surface + SideKnifeLowOffset, dir, lag), $"{stage.Name} low {surface} dir {dir}");
+                    var spec = SideHazardSpec.Of(stage.SideHazard);
+                    Assert.True(BotSurvives(stage, surface, surface + spec.HeadOffset, dir, lag), $"{stage.Name} head {surface} dir {dir}");
+                    Assert.True(BotSurvives(stage, surface, surface + spec.LowOffset, dir, lag), $"{stage.Name} low {surface} dir {dir}");
                 }
     }
 

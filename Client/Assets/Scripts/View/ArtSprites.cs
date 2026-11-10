@@ -174,6 +174,46 @@ namespace OnlineSeverGame.Client.View
             }
         }
 
+        // 옆 위험물 그림(칼은 Knife 를 눕혀 쓰므로 null). 피벗 = 보이는 그림의 가운데(판정 띠를 잰 기준, HitShapes).
+        // 밀리는 상자·낙하물과 같은 그림이라 캐시 키를 따로 둔다(피벗이 다르다). 크기는 SideHazardScale 배로 그린다.
+        public static Sprite SideHazard(SideHazardKind kind)
+        {
+            switch (kind)
+            {
+                case SideHazardKind.Snowball: return CenteredProp("map_winter", "snowball", 72f, 70f);
+                case SideHazardKind.Crate: return CenteredProp("map_warehouse", "crate", 96f, 85f);
+                case SideHazardKind.Macaron: return CenteredProp("map_dessert", "macaron", 72f, 52.5f);
+                default: return null;
+            }
+        }
+
+        // 옆 위험물 그림 배율(128 px/유닛 그림 기준). HitShapes 의 띠를 잴 때 쓴 배율과 같아야 한다.
+        public static float SideHazardScale(SideHazardKind kind)
+        {
+            switch (kind)
+            {
+                case SideHazardKind.Snowball: return 0.5f;
+                case SideHazardKind.Crate: return 0.5f;
+                case SideHazardKind.Macaron: return 0.6f;
+                default: return 1f;
+            }
+        }
+
+        static Sprite CenteredProp(string folder, string name, float pivotX, float pivotY)
+        {
+            string key = folder + "/" + name + "#center";
+            if (_props.TryGetValue(key, out var s)) return s;
+            var tex = Resources.Load<Texture2D>(Dir + folder + "/" + name);
+            if (tex != null)
+            {
+                s = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(pivotX / tex.width, pivotY / tex.height),
+                    PropPpu, 0, SpriteMeshType.FullRect);
+                s.name = name + "_side";
+            }
+            _props[key] = s;
+            return s;
+        }
+
         // 맵별 밀리는 상자 그림(피벗 = 아래 가운데). 주방 버터 블록은 그림이 없어 null.
         public static Sprite Box(int stageId, bool cracked)
         {

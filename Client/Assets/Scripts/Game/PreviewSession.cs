@@ -61,7 +61,9 @@ namespace OnlineSeverGame.Client.Game
         {
             _layout = layout;
             State.LocalId = 0;
-            string[] names = { localName, "봇-1", "봇-2", "봇-3", "봇-4", "봇-5", "봇-6", "봇-7" };
+            var names = new string[8];
+            names[0] = localName;
+            for (int i = 1; i < names.Length; i++) names[i] = Loc.F("preview.bot", i);
             for (int i = 0; i < names.Length; i++)
             {
                 State.Roster.Add(new RosterEntry { Id = i, Name = names[i], ColorIndex = i, Alive = true, InRound = true, Connected = true });

@@ -185,6 +185,8 @@ namespace OnlineSeverGame.Shared.Simulation
         /// safe from falling hazards). Each gives a low and a head-height lane (SideKnifePhysics.Lanes).
         /// </summary>
         public readonly IReadOnlyList<int> SideKnifeSurfaces;
+        /// <summary>What flies in from the sides on this map (v6): knife, snowball, crate or macaron.</summary>
+        public readonly SideHazardKind SideHazard;
 
         private readonly Stage _base;          // set on the melted copies AtRoundTick makes
         private readonly bool _melts;
@@ -199,7 +201,8 @@ namespace OnlineSeverGame.Shared.Simulation
         public Stage(byte id, string name, int width, int viewHeight, int knifeSpawnY,
             Platform[] platforms, SpawnPoint[] spawnPoints, PushableSpawn[] pushables = null,
             Decoration[] decorations = null, HazardKind hazard = HazardKind.Knife, HazardSchedule? schedule = null,
-            int[] hazardSlots = null, FloorSpan[] floorIce = null, int[] sideKnifeSurfaces = null)
+            int[] hazardSlots = null, FloorSpan[] floorIce = null, int[] sideKnifeSurfaces = null,
+            SideHazardKind sideHazard = SideHazardKind.Knife)
         {
             Pushables = pushables ?? new PushableSpawn[0];
             Decorations = decorations ?? new Decoration[0];
@@ -215,6 +218,7 @@ namespace OnlineSeverGame.Shared.Simulation
             HazardSlots = hazardSlots ?? new int[0];
             FloorIce = floorIce ?? new FloorSpan[0];
             SideKnifeSurfaces = sideKnifeSurfaces ?? new[] { 0 };
+            SideHazard = sideHazard;
             for (int i = 0; i < platforms.Length; i++)
                 if (platforms[i].MeltPerTick > 0) _melts = true;
         }
@@ -223,7 +227,7 @@ namespace OnlineSeverGame.Shared.Simulation
             : this(baseStage.Id, baseStage.Name, baseStage.Width, baseStage.ViewHeight, baseStage.KnifeSpawnY,
                 platforms, ToArray(baseStage.SpawnPoints), ToArray(baseStage.Pushables), ToArray(baseStage.Decorations),
                 baseStage.Hazard, baseStage.Schedule, ToArray(baseStage.HazardSlots), ToArray(baseStage.FloorIce),
-                ToArray(baseStage.SideKnifeSurfaces))
+                ToArray(baseStage.SideKnifeSurfaces), baseStage.SideHazard)
         {
             _base = baseStage;
         }
@@ -357,7 +361,8 @@ namespace OnlineSeverGame.Shared.Simulation
             schedule: new HazardSchedule(30, 5, 5 * GameConstants.TickRate, 4, 30 * GameConstants.TickRate),
             hazardSlots: Slots(500, 1000, 24),
             floorIce: new[] { new FloorSpan(8000, 16000) },
-            sideKnifeSurfaces: new[] { 0, 2400 });   // window sills are roofed by the beams
+            sideKnifeSurfaces: new[] { 0, 2400 },    // window sills are roofed by the beams
+            sideHazard: SideHazardKind.Snowball);
 
         /// <summary>
         /// Map 3, warehouse (docs/work/maps.md 2.3). Two-level steel racks on both walls and a pallet hanging in
@@ -400,7 +405,8 @@ namespace OnlineSeverGame.Shared.Simulation
             },
             hazard: HazardKind.Crate,
             schedule: new HazardSchedule(40, 10, 3 * GameConstants.TickRate, 2, 45 * GameConstants.TickRate),
-            sideKnifeSurfaces: new[] { 0, 2400 });   // lower rack shelves are roofed by the upper ones
+            sideKnifeSurfaces: new[] { 0, 2400 },    // lower rack shelves are roofed by the upper ones
+            sideHazard: SideHazardKind.Crate);
 
         /// <summary>
         /// Map 4, dessert shop (docs/work/maps.md 2.4). Four ice-cream platforms melt toward their centers from
@@ -442,7 +448,8 @@ namespace OnlineSeverGame.Shared.Simulation
             },
             hazard: HazardKind.Fork,
             schedule: new HazardSchedule(30, 5, 5 * GameConstants.TickRate, 4, 30 * GameConstants.TickRate),
-            sideKnifeSurfaces: new[] { 0, 3600 });   // vanilla is roofed by chocolate
+            sideKnifeSurfaces: new[] { 0, 3600 },    // vanilla is roofed by chocolate
+            sideHazard: SideHazardKind.Macaron);
 
         /// <summary>Every map, in the default rotation order.</summary>
         public static readonly IReadOnlyList<Stage> All = new[] { Default, Winter, Warehouse, Dessert };

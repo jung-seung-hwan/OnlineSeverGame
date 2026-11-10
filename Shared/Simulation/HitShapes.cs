@@ -109,6 +109,51 @@ namespace OnlineSeverGame.Shared.Simulation
             new HitBand(600, 1200, -100, 100),
         };
 
+        // ---- side hazards (v6): bands for one flying right, Bottom/Top around the lane centre, Left/Right behind
+        // the tip (leading edge). SideHazardSpec says how they fly. Measured like the falling ones: the sprite at
+        // the size the client draws it (docs/work/side-hazards-i18n.md has the table).
+
+        /// <summary>The knife lying tip-right: the falling knife turned a quarter counterclockwise.</summary>
+        public static readonly HitBand[] SideKnife = Lie(Knife);
+
+        /// <summary>Snowball sprite at 0.5 (0.52 across). It spins while flying, so this is the circle around it.</summary>
+        public static readonly HitBand[] Snowball =
+        {
+            new HitBand(-260, -200, -430, -90),
+            new HitBand(-200, -100, -500, -20),
+            new HitBand(-100, 100, -520, 0),
+            new HitBand(100, 200, -500, -20),
+            new HitBand(200, 260, -430, -90),
+        };
+
+        /// <summary>Warehouse crate sprite at 0.5: a solid 0.72 x 0.62 box.</summary>
+        public static readonly HitBand[] SideCrate =
+        {
+            new HitBand(-310, 310, -720, 0),
+        };
+
+        /// <summary>Macaron sprite at 0.6 (0.6 x 0.44), shells rounded at the top.</summary>
+        public static readonly HitBand[] Macaron =
+        {
+            new HitBand(-220, -100, -600, 0),
+            new HitBand(-100, 0, -600, -10),
+            new HitBand(0, 100, -600, 0),
+            new HitBand(100, 200, -590, -20),
+            new HitBand(200, 220, -430, -180),
+        };
+
+        /// <summary>Falling-hazard bands (tip at the bottom) turned to lie tip-right.</summary>
+        private static HitBand[] Lie(HitBand[] upright)
+        {
+            var result = new HitBand[upright.Length];
+            for (int i = 0; i < upright.Length; i++)
+            {
+                var h = upright[i];
+                result[i] = new HitBand(h.Left, h.Right, -h.Top, -h.Bottom);
+            }
+            return result;
+        }
+
         /// <summary>Widest half-width of the plain body, for bots that keep clear of hazards.</summary>
         public const int BodyHalfWidth = 510;
 
@@ -179,33 +224,33 @@ namespace OnlineSeverGame.Shared.Simulation
         }
 
         /// <summary>
-        /// A side knife (the knife lying flat, tip first) flying along the lane at centre height y, whose tip went from
-        /// fromX to toX this tick, against the player's drawn body. Same band rule as Separation; the knife's
-        /// length bands sweep the whole move. Negative = a hit.
+        /// A side hazard flying along the lane at centre height y, whose tip went from fromX to toX this tick, against
+        /// the player's drawn body. Same band rule as Separation; every band sweeps the whole move (from its place
+        /// at fromX to its place at toX), so nothing tunnels. Negative = a hit.
         /// </summary>
-        public static int SideKnifeSeparation(in PlayerState p, int dir, int y, int fromX, int toX)
+        public static int SideHazardSeparation(in PlayerState p, SideHazardKind kind, int dir, int y, int fromX, int toX)
         {
             HitBand[] body = OfPlayer(p);
+            SideHazardSpec spec = SideHazardSpec.Of(kind);
             bool right = p.Facing >= 0;
             int best = int.MaxValue;
-            foreach (var h in Knife)
+            foreach (var h in spec.Shape)
             {
-                // Knife bands run along the blade (Bottom..Top from the tip) and across it (Left..Right).
-                // Lying tip-right it is rotated a quarter turn counterclockwise, tip-left clockwise.
                 int hl, hr, hb, ht;
                 if (dir > 0)
                 {
-                    hl = fromX - h.Top;
-                    hr = toX - h.Bottom;
-                    hb = y + h.Left;
-                    ht = y + h.Right;
+                    hl = fromX + h.Left;
+                    hr = toX + h.Right;
+                    hb = y + h.Bottom;
+                    ht = y + h.Top;
                 }
                 else
                 {
-                    hl = toX + h.Bottom;
-                    hr = fromX + h.Top;
-                    hb = y - h.Right;
-                    ht = y - h.Left;
+                    // Mirrored in x; the knife is turned the other way, which also mirrors it in y.
+                    hl = toX - h.Right;
+                    hr = fromX - h.Left;
+                    hb = spec.FlipYWhenLeft ? y - h.Top : y + h.Bottom;
+                    ht = spec.FlipYWhenLeft ? y - h.Bottom : y + h.Top;
                 }
                 foreach (var b in body)
                 {
@@ -219,12 +264,15 @@ namespace OnlineSeverGame.Shared.Simulation
             return best;
         }
 
+        public static bool SideHazardHits(in PlayerState p, SideHazardKind kind, int dir, int y, int fromX, int toX) =>
+            SideHazardSeparation(p, kind, dir, y, fromX, toX) < 0;
+
+        /// <summary>The kitchen knife (v5 rule): SideHazardSeparation with SideHazardKind.Knife.</summary>
+        public static int SideKnifeSeparation(in PlayerState p, int dir, int y, int fromX, int toX) =>
+            SideHazardSeparation(p, SideHazardKind.Knife, dir, y, fromX, toX);
+
         public static bool SideKnifeHits(in PlayerState p, int dir, int y, int fromX, int toX) =>
             SideKnifeSeparation(p, dir, y, fromX, toX) < 0;
-
-        /// <summary>Lowest and highest y a side knife at lane centre y covers (the blade's drawn thickness).</summary>
-        public static int SideKnifeBottom(int y) => y - KnifeHalfThickness;
-        public static int SideKnifeTop(int y) => y + KnifeHalfThickness;
 
         /// <summary>Widest across-the-blade extent of the knife on either side of its centre line.</summary>
         public const int KnifeHalfThickness = 130;

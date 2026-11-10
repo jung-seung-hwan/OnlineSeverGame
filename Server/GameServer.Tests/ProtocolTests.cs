@@ -101,7 +101,7 @@ public class ProtocolTests
         oneSide.SideKnives.Add(new SideKnifeState());
         Assert.Equal(2 + 1 + 4 + 1 + 2 + 4 + 2 + 1 + 1 + 1 + 1, Size(empty));
         Assert.Equal(27, Size(onePlayer) - Size(empty));
-        Assert.Equal(14, Size(oneSide) - Size(empty));
+        Assert.Equal(15, Size(oneSide) - Size(empty)); // v6: + kind
         Assert.Equal(14, Size(oneKnife) - Size(empty));
         Assert.Equal(23, Size(oneBox) - Size(empty));
     }

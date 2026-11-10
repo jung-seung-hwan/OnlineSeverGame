@@ -80,7 +80,8 @@ namespace OnlineSeverGame.Shared.Simulation
 
         // Side knives (every map): fly straight across at a lane height from one wall to the other.
         // Lanes are SideKnifeHeadOffset (duck under) and SideKnifeLowOffset (jump over) above each of the map's
-        // Stage.SideKnifeSurfaces. docs/work/dash-side-knife.md.
+        // Stage.SideKnifeSurfaces. docs/work/dash-side-knife.md. These are the kitchen knife's numbers; the other
+        // maps' side hazards (v6) have their own in SideHazardSpec. The schedule below is shared by all maps.
         public const int SideKnifeLength = 1000;   // tip to handle end, same as the knife
         public const int SideKnifeSpeed = 400;     // 8 u/s, constant
         public const int SideKnifeWarningTicks = 20;

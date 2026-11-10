@@ -50,6 +50,7 @@ namespace OnlineSeverGame.Client.Game
             Application.targetFrameRate = 60;
             QualitySettings.vSyncCount = 0;
 
+            _ = Loc.Current; // 언어를 메인 스레드에서 먼저 읽어 둔다(접속 스레드의 오류 문구도 이 언어로)
             PlayerName = PlayerPrefs.GetString("name", "Player" + UnityEngine.Random.Range(100, 1000));
             ServerAddress = PlayerPrefs.GetString("server", ServerAddress);
 
@@ -81,6 +82,7 @@ namespace OnlineSeverGame.Client.Game
                     case "-server": if (next != null) ServerAddress = next; break;
                     case "-autoconnect": autoConnect = true; break;
                     case "-preview": preview = true; break;
+                    case "-lang": if (next != null && Loc.TryParse(next, out var lang)) Loc.Override(lang); break;
                     case "-autoplay":
                         _input.AutoPlay = true;
                         _input.AutoChase = next == "chase" || next == "stomp";

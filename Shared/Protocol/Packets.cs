@@ -250,6 +250,7 @@ namespace OnlineSeverGame.Shared.Protocol
             {
                 SideKnifeState k = SideKnives[i];
                 w.WriteUInt16(k.Id);
+                w.WriteByte((byte)k.Kind);
                 w.WriteSByte(k.Dir);
                 w.WriteByte((byte)k.Phase);
                 w.WriteInt32(k.X);
@@ -293,7 +294,7 @@ namespace OnlineSeverGame.Shared.Protocol
             {
                 s.SideKnives.Add(new SideKnifeState
                 {
-                    Id = r.ReadUInt16(), Dir = r.ReadSByte(), Phase = (SideKnifePhase)r.ReadByte(),
+                    Id = r.ReadUInt16(), Kind = (SideHazardKind)r.ReadByte(), Dir = r.ReadSByte(), Phase = (SideKnifePhase)r.ReadByte(),
                     X = r.ReadInt32(), Y = r.ReadInt32(), Timer = r.ReadUInt16(),
                 });
             }

@@ -131,8 +131,9 @@ public static class DodgeBrain
         int front = HitShapes.BodyHalfWidth + SideMargin;
         foreach (var k in knives)
         {
-            if (k.Phase == SideKnifePhase.Warning && GameConstants.SideKnifeWarningTicks - k.Timer < reactionTicks) continue;
-            int bottom = HitShapes.SideKnifeBottom(k.Y), top = HitShapes.SideKnifeTop(k.Y);
+            SideHazardSpec spec = k.Spec; // knife, snowball, crate or macaron: own size, speed and warning
+            if (k.Phase == SideKnifePhase.Warning && spec.WarningTicks - k.Timer < reactionTicks) continue;
+            int bottom = spec.BottomAt(k.Y), top = spec.TopAt(k.Y);
             if (top < me.Y || bottom > me.Y + JumpReach) continue;
             // Ticks until the tip reaches my near edge, and until the tail clears my far edge.
             int near = k.Dir > 0 ? (me.X - front) - k.X : k.X - (me.X + front);
@@ -140,7 +141,7 @@ public static class DodgeBrain
             if (far < 0) continue; // already past
             int wait = k.Phase == SideKnifePhase.Warning ? k.Timer : 0;
             // Walking toward it closes the gap faster; walking away is stopped below.
-            int closing = GameConstants.SideKnifeSpeed + Math.Max(0, -k.Dir * me.Vx);
+            int closing = spec.Speed + Math.Max(0, -k.Dir * me.Vx);
             int arrive = wait + Math.Max(0, (near + closing - 1) / closing) - lagTicks;
             bool atBodyHeight = bottom < me.Y + GameConstants.PlayerHeight + SideMargin;
             if (atBodyHeight && arrive <= 20) holdDir = k.Dir;

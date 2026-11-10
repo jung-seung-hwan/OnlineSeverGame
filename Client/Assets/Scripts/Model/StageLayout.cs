@@ -72,18 +72,9 @@ namespace OnlineSeverGame.Client.Model
             return new Vector2(ToWorld(spec.Width), ToWorld(spec.Height));
         }
 
-        // 화면에 보일 맵 이름
-        public static string DisplayName(byte stageId)
-        {
-            switch (stageId)
-            {
-                case 1: return "주방";
-                case 2: return "겨울 처마";
-                case 3: return "창고";
-                case 4: return "디저트 가게";
-                default: return "맵 " + stageId;
-            }
-        }
+        // 화면에 보일 맵 이름(지금 언어). 서버의 Stage.Name("Kitchen" 등)은 로그용이라 화면에 쓰지 않는다. 언어를 바꾸면 다시
+        // 불러야 하므로 UI 는 맵 id(SessionState.MapId·NextMapId)로 그때그때 Loc.MapName 을 부른다.
+        public static string DisplayName(byte stageId) => Loc.MapName(stageId);
 
         // 공중에서 죽은 캐릭터의 웅덩이를 그릴 높이: 발 아래 첫 바닥·발판 윗면
         public float SurfaceBelow(float x, float y)

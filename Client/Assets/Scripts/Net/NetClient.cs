@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Net.Sockets;
 using System.Threading;
+using OnlineSeverGame.Client.Model;
 using OnlineSeverGame.Shared.Protocol;
 
 namespace OnlineSeverGame.Client.Net
@@ -64,7 +65,7 @@ namespace OnlineSeverGame.Client.Net
             if (_closed || _stream == null) return;
             byte[] frame = PacketCodec.EncodeFrame(packet);
             if (!_sendQueue.TryAdd(frame))
-                Fail("송신 큐가 가득 찼습니다 (서버 응답 없음)");
+                Fail(Loc.T("net.sendStuck"));
         }
 
         void ReceiveLoop()
@@ -80,7 +81,7 @@ namespace OnlineSeverGame.Client.Net
                 var connect = tcp.ConnectAsync(Host, Port);
                 if (!connect.Wait(ConnectTimeoutMs))
                 {
-                    Fail($"서버에 연결할 수 없습니다 ({Host}:{Port}, 시간 초과)");
+                    Fail(Loc.F("net.timeout", Host + ":" + Port));
                     return;
                 }
                 if (connect.IsFaulted) throw connect.Exception.GetBaseException();
@@ -98,7 +99,7 @@ namespace OnlineSeverGame.Client.Net
                     int n = _stream.Read(buffer, 0, buffer.Length);
                     if (n <= 0)
                     {
-                        Fail("서버가 연결을 끊었습니다");
+                        Fail(Loc.T("net.closed"));
                         return;
                     }
                     Interlocked.Add(ref _bytesReceived, n);
@@ -112,7 +113,7 @@ namespace OnlineSeverGame.Client.Net
             }
             catch (PacketFormatException ex)
             {
-                Fail("잘못된 패킷: " + ex.Message);
+                Fail(Loc.F("net.badPacket", ex.Message));
             }
             catch (Exception ex)
             {
@@ -145,15 +146,15 @@ namespace OnlineSeverGame.Client.Net
             {
                 switch (se.SocketErrorCode)
                 {
-                    case SocketError.ConnectionRefused: return "서버가 응답하지 않습니다 (연결 거부)";
-                    case SocketError.ConnectionReset: return "서버와의 연결이 끊어졌습니다";
+                    case SocketError.ConnectionRefused: return Loc.T("net.refused");
+                    case SocketError.ConnectionReset: return Loc.T("net.reset");
                     case SocketError.HostNotFound:
-                    case SocketError.NoData: return "서버 주소를 찾을 수 없습니다";
-                    case SocketError.TimedOut: return "서버 응답 시간 초과";
+                    case SocketError.NoData: return Loc.T("net.noHost");
+                    case SocketError.TimedOut: return Loc.T("net.timedOut");
                 }
-                return "네트워크 오류: " + se.SocketErrorCode;
+                return Loc.F("net.error", se.SocketErrorCode);
             }
-            return "네트워크 오류: " + ex.Message;
+            return Loc.F("net.error", ex.Message);
         }
 
         // 오류로 끊김. 이벤트는 한 번만 보낸다.

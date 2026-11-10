@@ -110,7 +110,7 @@ namespace OnlineSeverGame.Client.Game
             State.Screen = ClientScreen.Connecting;
             if (!TryParseAddress(address, out string host, out int port))
             {
-                Fail("서버 주소 형식이 잘못되었습니다 (예: 127.0.0.1:7777)");
+                Fail(Loc.T("net.badAddress"));
                 return;
             }
             Debug.Log($"[Net] connecting {host}:{port} as '{_name}'");
@@ -151,7 +151,7 @@ namespace OnlineSeverGame.Client.Game
             {
                 if (Now - _lastPacketTime > ServerSilenceSeconds)
                 {
-                    Fail("서버 응답이 없습니다");
+                    Fail(Loc.T("net.noResponse"));
                     return;
                 }
 
@@ -245,16 +245,17 @@ namespace OnlineSeverGame.Client.Game
         {
             if (w.ProtocolVersion != ProtocolConstants.Version)
             {
-                Fail($"프로토콜 버전이 다릅니다 (서버 {w.ProtocolVersion}, 클라이언트 {ProtocolConstants.Version})");
+                Fail(Loc.F("net.version", w.ProtocolVersion, ProtocolConstants.Version));
                 return;
             }
             _stage = Stage.ById(w.StageId);
             if (_stage == null)
             {
-                Fail($"모르는 스테이지 id {w.StageId}");
+                Fail(Loc.F("net.unknownMap", w.StageId));
                 return;
             }
             _layout.SetStage(_stage);
+            State.MapId = _stage.Id;
             State.MapName = StageLayout.DisplayName(_stage.Id);
             _welcomed = true;
             _localId = w.PlayerId;
@@ -269,10 +270,10 @@ namespace OnlineSeverGame.Client.Game
             string why;
             switch (r.Reason)
             {
-                case RejectReason.RoomFull: why = "방이 가득 찼습니다 (최대 8명)"; break;
-                case RejectReason.VersionMismatch: why = "서버와 클라이언트 버전이 다릅니다"; break;
-                case RejectReason.BadHello: why = "서버가 접속 요청을 거부했습니다 (이름 확인)"; break;
-                default: why = "접속이 거부되었습니다 (" + r.Reason + ")"; break;
+                case RejectReason.RoomFull: why = Loc.T("net.full"); break;
+                case RejectReason.VersionMismatch: why = Loc.T("net.versionRejected"); break;
+                case RejectReason.BadHello: why = Loc.T("net.badHello"); break;
+                default: why = Loc.F("net.rejected", (int)r.Reason); break;
             }
             Fail(why);
         }
@@ -290,6 +291,7 @@ namespace OnlineSeverGame.Client.Game
                 _layout.SetStage(stage);
                 Debug.Log($"[Net] map {stage.Id} '{stage.Name}'");
             }
+            State.MapId = _stage.Id;
             State.MapName = StageLayout.DisplayName(_stage.Id);
             // Countdown 중 누가 들어오면 같은 번호로 다시 온다. 그때는 참가자 목록만 갱신한다.
             if (rs.RoundNumber == _lastRoundStartNumber)
@@ -579,6 +581,7 @@ namespace OnlineSeverGame.Client.Game
                 entry.LeftGame = res.Cause == EliminationCause.Disconnected;
                 entry.Survived = res.Cause == EliminationCause.None;
                 entry.BySideKnife = res.Cause == EliminationCause.SideKnife;
+                entry.Cause = res.Cause;
                 entry.InRound = true;
                 State.Roster[idx] = entry;
             }
@@ -780,28 +783,29 @@ namespace OnlineSeverGame.Client.Game
             }
         }
 
-        // tick 시점의 옆 칼. 지형과 무관한 등속 직선이라 최신 스냅샷 값에서 바로 계산한다(앞이든 뒤든).
-        // 예고가 끝난 틱부터 출발 위치에서 틱마다 SideKnifeSpeed 씩 간다(SideKnifePhysics.Step 과 같음).
+        // tick 시점의 옆 위험물(칼·눈덩이·나무 상자·마카롱). 지형과 무관한 등속 직선이라 최신 스냅샷 값에서 바로 계산한다(앞이든 뒤든).
+        // 예고가 끝난 틱부터 출발 위치에서 틱마다 종류별 속도(SideHazardSpec.Speed)씩 간다(SideKnifePhysics.Step 과 같음).
         void CollectSideKnives(double tick, List<SideKnifeRender> into)
         {
             double dt = tick - _latest.ServerTick;
             foreach (var k in _latest.SideKnives)
             {
+                SideHazardSpec spec = k.Spec;
                 bool flying = k.Phase == SideKnifePhase.Flying;
                 double flown = (flying ? k.Timer : -k.Timer) + dt;   // 음수 = 아직 예고 중(남은 틱)
-                int startX = flying ? k.X - k.Dir * GameConstants.SideKnifeSpeed * k.Timer : k.X;
-                var r = new SideKnifeRender { Id = k.Id, Dir = k.Dir, LaneY = StageLayout.ToWorld(k.Y) };
+                int startX = flying ? k.X - k.Dir * spec.Speed * k.Timer : k.X;
+                var r = new SideKnifeRender { Id = k.Id, Kind = spec.Kind, Dir = k.Dir, LaneY = StageLayout.ToWorld(k.Y) };
                 if (flown <= 0)
                 {
                     r.Warning = true;
-                    r.WarningProgress = Mathf.Clamp01(1f - (float)(-flown) / GameConstants.SideKnifeWarningTicks);
+                    r.WarningProgress = Mathf.Clamp01(1f - (float)(-flown) / spec.WarningTicks);
                     r.TipX = StageLayout.ToWorld(startX);
                 }
                 else
                 {
-                    double tip = startX + k.Dir * GameConstants.SideKnifeSpeed * flown;
-                    double tail = tip - k.Dir * GameConstants.SideKnifeLength;
-                    if (k.Dir > 0 ? tail > _stage.Width + GameConstants.SideKnifeLength : tail < -GameConstants.SideKnifeLength) continue;
+                    double tip = startX + k.Dir * spec.Speed * flown;
+                    double tail = tip - k.Dir * spec.Length;
+                    if (k.Dir > 0 ? tail > _stage.Width + spec.Length : tail < -spec.Length) continue;
                     r.TipX = (float)(tip / GameConstants.UnitsPerWorldUnit);
                 }
                 into.Add(r);
@@ -918,7 +922,7 @@ namespace OnlineSeverGame.Client.Game
         {
             Debug.Log("[Net] disconnected: " + reason);
             State.Screen = ClientScreen.Connect;
-            State.Status = string.IsNullOrEmpty(reason) ? "연결이 끊어졌습니다" : reason;
+            State.Status = string.IsNullOrEmpty(reason) ? Loc.T("net.lost") : reason;
             _net.Dispose();
         }
 

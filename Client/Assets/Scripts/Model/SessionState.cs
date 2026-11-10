@@ -26,7 +26,8 @@ namespace OnlineSeverGame.Client.Model
         public float SurvivedSeconds; // 결과 화면용 생존 시간
         public bool LeftGame;         // 연결 끊김으로 탈락
         public bool Survived;         // 라운드 끝까지 살아남음(동시 사망 공동 승자는 false)
-        public bool BySideKnife;      // 옆 칼에 맞아 탈락
+        public bool BySideKnife;      // 옆 위험물(맵마다 칼·눈덩이·나무 상자·마카롱)에 맞아 탈락
+        public EliminationCause Cause; // 결과 화면에 보일 탈락 이유
     }
 
     // UI 가 읽는 세션 상태. 네트워크 세션과 오프라인 미리보기가 같은 형태로 채운다.
@@ -36,7 +37,8 @@ namespace OnlineSeverGame.Client.Model
         public int LocalId = -1;
         public int Capacity = 8;
         public int RoundNumber;
-        public string MapName = "";   // 이번 라운드 맵(화면 표시용)
+        public int MapId = 1;         // 이번 라운드 맵 id. 화면 이름은 Loc.MapName(MapId)(언어를 바꾸면 바로 바뀌게)
+        public string MapName = "";   // 이번 라운드 맵(로그용, 받은 때의 언어)
         public readonly List<RosterEntry> Roster = new List<RosterEntry>();
         public float RoundSeconds;
         public float CountdownSeconds;  // Countdown: 시작까지, Result: 다음 라운드까지

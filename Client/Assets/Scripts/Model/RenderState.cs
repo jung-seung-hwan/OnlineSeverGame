@@ -57,15 +57,16 @@ namespace OnlineSeverGame.Client.Model
         public bool AsBox;            // 앞서 계산한 창고 화물이 막 착지함: 서버에서 상자가 되므로 금 간 그림 대신 상자 그림
     }
 
-    // 옆 칼: 맵 끝에서 끝까지 한 높이로 날아가는 칼(docs/work/dash-side-knife.md). 기존 칼 그림을 눕혀 그린다.
+    // 옆 위험물: 맵 끝에서 끝까지 한 높이로 날아간다(docs/work/dash-side-knife.md, 맵별 종류는 side-hazards-i18n.md).
     public struct SideKnifeRender
     {
         public int Id;
+        public SideHazardKind Kind;   // 주방 칼, 겨울 눈덩이, 창고 나무 상자, 디저트 마카롱
         public int Dir;               // +1 오른쪽으로 날아감(왼쪽에서 옴), -1 왼쪽으로
         public bool Warning;          // 아직 날아오기 전: 가로줄 예고만
         public float WarningProgress; // 0..1
-        public float TipX;            // 칼끝 x(예고 중에는 출발 위치)
-        public float LaneY;           // 칼 가운데 줄 높이
+        public float TipX;            // 앞 끝 x(예고 중에는 출발 위치)
+        public float LaneY;           // 가운데 줄 높이
     }
 
     public sealed class WorldRender

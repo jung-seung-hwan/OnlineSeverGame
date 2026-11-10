@@ -1,10 +1,10 @@
-# OnlineSeverGame 프로토콜 v5
+# OnlineSeverGame 프로토콜 v6
 
 서버(C# .NET 10)와 Unity 클라이언트가 같은 `Shared/` 소스를 쓴다. 이 문서는 그 소스의 설명이며, 바이트 배치가 바뀌면 `ProtocolConstants.Version`을 올리고 이 문서를 함께 고친다.
 
 - 패킷 정의·직렬화: `Shared/Protocol/` (`Packets.cs`, `PacketCodec.cs`, `FrameDecoder.cs`)
 - 물리·스테이지·상수: `Shared/Simulation/` (`GameConstants.cs`, `PlayerPhysics.cs`, `Stage.cs`, `Knife.cs`, `HitShapes.cs`, `DashCollision.cs`, `StompCollision.cs`, `Pushable.cs`, `SideKnife.cs`)
-- 버전 기록: v1 첫 버전 → **v2**(2026-10-27) 스냅샷 플레이어 flags에 Crouching·Stomped 비트, 스냅샷 끝에 밀리는 상자 목록 추가. 대시 쿨다운 40틱, 아래키 의미 변경(엎드리기, 아래+점프 = 발판 통과). → **v3**(2026-10-27, 다중 맵) `RoundStart`에 `stageId`, 스냅샷 위험물 항목에 `kind`, 상자 항목에 `crumble` 추가. 맵 4개(주방·겨울 처마·창고·디저트 가게)와 라운드마다 맵 교체, 위험물 4종, 얼음·녹는 발판. 설계 문서는 `docs/work/maps.md`. → **v4**(2026-10-27, 맵 선택·칼 판정) `RoomInfo`(32)·`MapRequest`(50) 추가: 방장이 다음 맵과 교체 방식을 바꾼다. 위험물 판정이 이동 상자 대신 그림 모양(`HitShapes`)으로 바뀜(바이트 배치 변화 없음). 클라이언트는 위험물을 내 예측 시각에 그린다. 작업 문서는 `docs/work/map-select-hit.md`. → **v5**(2026-10-27, 대시 기절·옆 칼) 스냅샷 플레이어 항목에 `immuneTicks`(27바이트), flags bit5 = 납작 기절(밟기 또는 대시), 스냅샷 끝에 옆 칼 목록, `RoundEnd` cause 3 = 옆 칼. 대시에 맞으면 1초 납작 기절, 납작 기절이 끝나면 1초 기절 면역. 작업 문서는 `docs/work/dash-side-knife.md`.
+- 버전 기록: v1 첫 버전 → **v2**(2026-10-27) 스냅샷 플레이어 flags에 Crouching·Stomped 비트, 스냅샷 끝에 밀리는 상자 목록 추가. 대시 쿨다운 40틱, 아래키 의미 변경(엎드리기, 아래+점프 = 발판 통과). → **v3**(2026-10-27, 다중 맵) `RoundStart`에 `stageId`, 스냅샷 위험물 항목에 `kind`, 상자 항목에 `crumble` 추가. 맵 4개(주방·겨울 처마·창고·디저트 가게)와 라운드마다 맵 교체, 위험물 4종, 얼음·녹는 발판. 설계 문서는 `docs/work/maps.md`. → **v4**(2026-10-27, 맵 선택·칼 판정) `RoomInfo`(32)·`MapRequest`(50) 추가: 방장이 다음 맵과 교체 방식을 바꾼다. 위험물 판정이 이동 상자 대신 그림 모양(`HitShapes`)으로 바뀜(바이트 배치 변화 없음). 클라이언트는 위험물을 내 예측 시각에 그린다. 작업 문서는 `docs/work/map-select-hit.md`. → **v5**(2026-10-27, 대시 기절·옆 칼) 스냅샷 플레이어 항목에 `immuneTicks`(27바이트), flags bit5 = 납작 기절(밟기 또는 대시), 스냅샷 끝에 옆 칼 목록, `RoundEnd` cause 3 = 옆 칼. 대시에 맞으면 1초 납작 기절, 납작 기절이 끝나면 1초 기절 면역. 작업 문서는 `docs/work/dash-side-knife.md`. → **v6**(2026-11-10, 맵별 옆 위험물) 스냅샷 옆 위험물 항목에 `u8 kind`(14 → 15바이트). 옆에서 오는 것이 맵마다 다르다: 주방 칼, 겨울 처마 눈덩이, 창고 나무 상자, 디저트 가게 마카롱(크기·속도·예고·레인 높이가 종류별). `RoundEnd` cause 3의 뜻이 '옆 위험물'로 넓어짐(값은 그대로). 작업 문서는 `docs/work/side-hazards-i18n.md`.
 
 ## 1. 전송과 프레이밍
 
@@ -75,7 +75,7 @@ u8  knifeCount
 u8  boxCount
     밀리는 상자 × boxCount (각 23바이트)
 u8  sideKnifeCount
-    옆 칼 × sideKnifeCount (각 14바이트)
+    옆 위험물 × sideKnifeCount (각 15바이트)
 ```
 
 플레이어 항목 (27바이트):
@@ -120,14 +120,15 @@ u8  crumble          0 = 보통. >0 = 개수 제한으로 사라지기까지 남
 
 크기가 상자 항목에 들어 있으므로 클라이언트는 스테이지 정의 없이도 상자를 그릴 수 있다. Grounded는 보내지 않는다(디코더는 `vy == 0`으로 채운다, 그리기 전용).
 
-옆 칼 항목 (14바이트, `SideKnifeState`):
+옆 위험물 항목 (15바이트, 코드 이름은 첫 종류에서 온 `SideKnifeState`):
 
 ```
 u16 id
+u8  kind             1 칼, 2 눈덩이, 3 나무 상자, 4 마카롱 (SideHazardKind, 0은 칼로 읽음). v6
 i8  dir              +1 오른쪽으로 날아감(왼쪽 벽에서 옴), -1 왼쪽으로
 u8  phase            1 Warning(예고, 가로줄), 2 Flying
-i32 x                칼끝. Warning 중에는 출발 위치(들어오는 벽 밖 1.0: -1000 또는 너비+1000)
-i32 y                칼 가운데 줄 높이(레인)
+i32 x                앞 끝(칼이면 칼끝). Warning 중에는 출발 위치(들어오는 벽 밖으로 길이만큼: -길이 또는 너비+길이)
+i32 y                가운데 줄 높이(레인)
 u16 timer            Warning: 날아가기까지 남은 틱 / Flying: 날아간 틱 수
 ```
 
@@ -137,7 +138,7 @@ u16 timer            Warning: 날아가기까지 남은 틱 / Flying: 날아간 
 u8  playerId
 u8  place            1 = 승자. 같은 틱에 탈락한 사람끼리 같은 순위
 u32 survivedTicks    Playing 시작부터 탈락(또는 종료)까지 틱
-u8  cause            0 생존, 1 떨어지는 위험물, 2 연결 끊김, 3 옆 칼
+u8  cause            0 생존, 1 떨어지는 위험물, 2 연결 끊김, 3 옆 위험물(v5까지 '옆 칼')
 ```
 
 결과는 순위순으로 정렬되어 있다.
@@ -255,15 +256,22 @@ u8  cause            0 생존, 1 떨어지는 위험물, 2 연결 끊김, 3 옆 
 - 면역 중에는 대시에 밀려나기만 하고, 밟혀도 기절하지 않는다(밟은 쪽은 튕긴다). 위험물·옆 칼에는 그대로 죽는다.
 - `Step`이 줄이므로 클라이언트 예측도 같은 값을 갖는다. 화면은 `(ImmuneTicks / 2) % 2 == 0`이면 진하게, 아니면 흐리게(알파 0.3) 깜빡인다.
 
-### 옆 칼 (v5)
+### 옆 위험물 (v5 옆 칼, v6부터 맵별)
 
-모든 맵 공통. 설계와 검증 표는 `docs/work/dash-side-knife.md` 3장.
+규칙(생성·움직임·판정)은 모든 맵 공통이고, **무엇이 오는지**(모양·크기·속도·예고·레인 높이)만 맵마다 다르다(`Stage.SideHazard`, `SideHazardSpec`). 설계와 검증 표는 `docs/work/dash-side-knife.md` 3장(규칙), `docs/work/side-hazards-i18n.md` 3장(종류).
 
-- 레인: 맵의 `Stage.SideKnifeSurfaces`(바닥과 '지붕 있는 발판' 윗면)마다 낮은 레인 `면 + 350`(점프로 넘음)과 머리 레인 `면 + 1000`(엎드려 피함). 주방 0 / 겨울 처마 0·2400 / 창고 0·2400 / 디저트 가게 0·3600 (`SideKnifePhysics.Lanes`).
+| kind | 맵 | 그림 | 길이 × 두께 | 속도 | 예고 | 낮은 레인 / 머리 레인 (면 위) |
+|---|---|---|---|---|---|---|
+| 1 칼 | 주방 | 식칼을 눕힘 | 1.0 × 0.25 | 400/틱 (8 u/s) | 20틱 | 0.35 / 1.00 |
+| 2 눈덩이 | 겨울 처마 | 눈덩이 0.5배, 굴러가며 돎(판정은 지름 0.52 원) | 0.52 × 0.52 | 550/틱 (11 u/s) | 25틱 | 0.30 / 1.06 |
+| 3 나무 상자 | 창고 | 화물 상자 0.5배 | 0.72 × 0.62 | 300/틱 (6 u/s) | 20틱 | 0.33 / 1.11 |
+| 4 마카롱 | 디저트 가게 | 마카롱 0.6배 | 0.60 × 0.44 | 450/틱 (9 u/s) | 20틱 | 0.30 / 1.02 |
+
+- 레인: 맵의 `Stage.SideKnifeSurfaces`(바닥과 '지붕 있는 발판' 윗면)마다 낮은 레인 `면 + LowOffset`(점프로 넘음)과 머리 레인 `면 + HeadOffset`(엎드려 피함). 면: 주방 0 / 겨울 처마 0·2400 / 창고 0·2400 / 디저트 가게 0·3600. 레인(`SideKnifePhysics.Lanes`): 주방 350·1000, 겨울 300·1060·2700·3460, 창고 330·1110·2730·3510, 디저트 300·1020·3900·4620. 머리 레인 아래 끝은 모두 면 + 0.80 이상(엎드린 몸 0.72와 0.08 이상 떨어짐), 낮은 레인 위 끝은 면 + 0.64 이하.
 - 생성: Playing 400틱(20초)에 첫 예고, 이후 간격 = `max(30, 120 − (roundTick − 400) / 20)`틱. 한 번에 하나, 레인은 무작위. 방향은 이미 나와 있는(예고·비행 중) 옆 칼이 있으면 **그것과 같은 방향**, 없으면 무작위. 같은 방향·같은 속도라 어느 자리에도 두 칼이 1.5초 넘는 간격으로 온다. 서버 난수는 낙하 위험물과 따로(같은 시드에서 낙하물 순서가 바뀌지 않게).
-- 움직임(`SideKnifePhysics.Step`): Warning 20틱 동안 timer를 줄이고, 0이 된 틱에 Flying(그 틱은 안 움직임). Flying은 매 틱 `x += dir × 400`, timer +1. 손잡이 끝(`x − dir × 1000`)이 반대쪽 벽 밖 1000을 넘으면 사라진다(약 68틱).
+- 움직임(`SideKnifePhysics.Step`): Warning(종류별 예고 틱) 동안 timer를 줄이고, 0이 된 틱에 Flying(그 틱은 안 움직임). Flying은 매 틱 `x += dir × 속도`, timer +1. 뒤 끝(`x − dir × 길이`)이 반대쪽 벽 밖으로 길이만큼 넘으면 사라진다(칼 약 68틱, 눈덩이 약 47틱, 나무 상자 약 88틱, 마카롱 약 58틱).
 - **발판·상자·벽에 막히지 않는다.** 그래서 위치는 시작 정보만으로 정해지고 클라이언트가 아무 시각이나 계산할 수 있다.
-- 판정: 그림 모양(`HitShapes.SideKnifeSeparation`). 칼 띠(`HitShapes.Knife`)를 눕혀(오른쪽으로 날면 반시계 90°, 왼쪽이면 시계 90°) 그 틱에 칼끝이 지나간 구간 전체(이전 손잡이 끝 ~ 새 칼끝)를 쓸고, 플레이어의 지금 자세 띠와 겹치면 사망(cause 3). 칼 두께는 레인 ±0.12~0.13.
+- 판정: 그림 모양(`HitShapes.SideHazardSeparation`). 종류별 띠(`SideHazardSpec.Shape`, 오른쪽으로 날 때 기준: 세로는 레인 기준, 가로는 앞 끝 기준)를 그 틱에 지나간 구간 전체(이전 위치 ~ 새 위치)만큼 쓸고, 플레이어의 지금 자세 띠와 겹치면 사망(cause 3). 왼쪽으로 날면 좌우를 뒤집는다. 칼만은 그림을 반대쪽으로 90° 돌리므로 위아래도 뒤집는다(v5와 같은 판정: 칼 띠 `HitShapes.Knife`를 눕힌 `HitShapes.SideKnife`, 두께 레인 ±0.12~0.13). 눈덩이는 그림이 돌므로 그림을 감싸는 원(반지름 0.26)의 띠, 나무 상자는 0.72 × 0.62 사각형, 마카롱은 잰 띠.
 - Ended·Countdown·Waiting으로 가면 모두 없앤다. 같은 틱의 낙하물·옆 칼 사망은 함께 '위험물 사망'으로 동시 사망 규칙(공동 승리)에 들어간다.
 - A: B의 머리 위에 놓이고 `vy = +700`으로 튕겨 오른다(최고 약 2.45유닛).
 - 판정은 서버. 단 클라이언트는 **밟은 쪽(자기) 튕김만** `StompCollision.PredictBounce`로 예측한다: 최신 스냅샷의 살아 있는 다른 플레이어를 각자 마지막으로 누른 버튼(`prevButtons`)으로 내 예측과 같은 틱만큼 함께 `Step`하고, 그 틱의 전/후 위치로 서버와 같은 조건(`StompCollision.Lands`)을 검사한다. 예측하지 않으면 상대를 지나쳐 바닥까지 떨어졌다가 다음 스냅샷에서 약 2유닛 위로 끌려 올라간다. 상대 기절은 예측하지 않는다(내가 밟힌 경우는 다음 스냅샷에서 멈춤으로 보정, 보정 거리가 작다).
@@ -285,7 +293,7 @@ u8  cause            0 생존, 1 떨어지는 위험물, 2 연결 끊김, 3 옆 
 3. `DashCollision.Resolve`
 4. `StompCollision.Resolve`
 5. 상자: 이번 틱에 옆면을 민 플레이어의 힘 적용 → `PushablePhysics.Step` → 위에 선 플레이어 같이 옮기기
-6. (Playing) 위험물 생성 → `KnifePhysics.Step`(상자 윗면 포함) → 판정 → 사망 처리 → 착지한 화물 상자를 상자로 → 옆 칼 생성 → `SideKnifePhysics.Step` → 판정 → 사망 처리 → 종료 검사
+6. (Playing) 위험물 생성 → `KnifePhysics.Step`(상자 윗면 포함) → 판정 → 사망 처리 → 착지한 화물 상자를 상자로 → 옆 위험물 생성 → `SideKnifePhysics.Step` → 판정 → 사망 처리 → 종료 검사
 
 (틱 맨 앞, 2보다 먼저: 사라지는 중인 상자의 crumble을 줄이고 0이 된 것을 없앤다.)
 7. 상태 타이머 진행(Countdown/Ended)
@@ -313,9 +321,9 @@ u8  cause            0 생존, 1 떨어지는 위험물, 2 연결 끊김, 3 옆 
 | IceAccel / IceStunDecayDivisor / IceBoxFriction | 50 / 8 / 25 | 얼음 위 걷기 가감속, 스턴 감속, 상자 마찰 |
 | MeltDelayTicks | 200 | 녹는 발판이 줄기 시작하는 roundTick |
 | MaxRestingCrates / CrateStackLimit / CrateCrumbleTicks | 6 / 2 / 20 | 창고 상자 |
-| SideKnifeLength / Speed / WarningTicks | 1000 / 400 / 20 | 옆 칼 길이, 8 u/s 등속, 예고 1초 |
-| SideKnifeHeadOffset / LowOffset | 1000 / 350 | 면 위 머리 레인, 낮은 레인 |
-| SideKnifeStartTick / IntervalStart / IntervalMin / IntervalStepTicks | 400 / 120 / 30 / 20 | 20초부터, 6초 간격 → 1.5초 |
+| SideKnifeLength / Speed / WarningTicks | 1000 / 400 / 20 | 주방 옆 칼 길이, 8 u/s 등속, 예고 1초. 다른 맵은 `SideHazardSpec`(5장 표) |
+| SideKnifeHeadOffset / LowOffset | 1000 / 350 | 주방 칼의 면 위 머리 레인, 낮은 레인 |
+| SideKnifeStartTick / IntervalStart / IntervalMin / IntervalStepTicks | 400 / 120 / 30 / 20 | 20초부터, 6초 간격 → 1.5초 (모든 맵 공통) |
 
 ### `PlayerPhysics.Step(ref state, buttons, stage)` 순서
 
@@ -380,7 +388,7 @@ new Stage(id, name, width, viewHeight, knifeSpawnY, platforms, spawnPoints,
    - 남은 입력을 순서대로 다시 `Step` + `PredictBounce` 한다(재시뮬레이션. 상자는 최신 스냅샷 값 고정, 다른 플레이어는 최신 스냅샷에서 다시 굴리기 시작).
    - 다시 굴릴 입력이 없으면(서버가 보낸 입력을 모두 적용함. 서버 대기 줄이 없으면 같은 PC에서는 보통 이렇다) 화면 보간의 시작점(직전 예측 스텝의 시작 상태)은 그대로 둔다. 새 상태로 덮으면 틱 사이에 그리던 몸이 틱 끝으로 한 스텝 튄다.
    - 화면 위치는 이전 예측 위치에서 새 예측 위치로 짧게 보정해 튀지 않게 한다.
-3. 다른 플레이어와 상자는 스냅샷 두 개 사이를 보간해서 그린다(예: 2~3틱 = 100~150ms 늦게). **위험물은 내가 살아 있는 동안 내 예측 시각에 그린다**: 내 화면 몸은 서버 틱 `최신 스냅샷 + 미확인 입력 수`(틱 사이는 보간)이므로, 같은 틱의 위험물을 최신 스냅샷에서 `KnifePhysics.Step`으로 그만큼 앞서 계산한다(그 틱의 `Stage.AtRoundTick`, 최신 스냅샷 상자). 그러면 화면에서 칼과 몸이 닿는 순간이 서버 판정 틱과 같다. 아직 서버가 만들지 않은 위험물은 그만큼 늦게 나타난다(예고가 그만큼 짧아 보임). 죽거나 관전하면 보간 시각으로 돌아가며, 되감지 않고 잠깐 멈춘다. 착지해 상자가 된 화물은 최신 스냅샷의 새 상자로 바로 그린다. 옆 칼도 같은 시각에 그린다: 등속 직선이라 최신 스냅샷의 x·phase·timer에서 그 시각의 칼끝 위치를 바로 계산한다(`NetworkSession.CollectSideKnives`).
+3. 다른 플레이어와 상자는 스냅샷 두 개 사이를 보간해서 그린다(예: 2~3틱 = 100~150ms 늦게). **위험물은 내가 살아 있는 동안 내 예측 시각에 그린다**: 내 화면 몸은 서버 틱 `최신 스냅샷 + 미확인 입력 수`(틱 사이는 보간)이므로, 같은 틱의 위험물을 최신 스냅샷에서 `KnifePhysics.Step`으로 그만큼 앞서 계산한다(그 틱의 `Stage.AtRoundTick`, 최신 스냅샷 상자). 그러면 화면에서 칼과 몸이 닿는 순간이 서버 판정 틱과 같다. 아직 서버가 만들지 않은 위험물은 그만큼 늦게 나타난다(예고가 그만큼 짧아 보임). 죽거나 관전하면 보간 시각으로 돌아가며, 되감지 않고 잠깐 멈춘다. 착지해 상자가 된 화물은 최신 스냅샷의 새 상자로 바로 그린다. 옆 위험물도 같은 시각에 그린다: 등속 직선이라 최신 스냅샷의 kind·x·phase·timer에서 그 시각의 앞 끝 위치를 바로 계산한다(`NetworkSession.CollectSideKnives`).
 4. 죽었거나(Alive=0) 관전자면 예측을 멈추고 스냅샷만 그린다. 입력은 계속 보내도 된다.
 
 ### 서버

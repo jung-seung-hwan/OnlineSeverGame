@@ -319,9 +319,7 @@ public sealed class GameRoom
         _sideKnives.Add(k);
         _nextSideKnifeId = (ushort)(_nextSideKnifeId == ushort.MaxValue ? 1 : _nextSideKnifeId + 1);
         _roundSideKnives++;
-        bool low = false;
-        foreach (int surface in _stage.SideKnifeSurfaces)
-            if (laneY == surface + GameConstants.SideKnifeLowOffset) low = true;
+        bool low = SideKnifePhysics.IsLowLane(_stage, laneY);
         if (low) _roundSideLow++;
         if (_config.LogPushes) _log($"side  {k} ({(low ? "low" : "head")}) at roundTick {RoundTick}");
         return k;
@@ -565,7 +563,7 @@ public sealed class GameRoom
             foreach (var p in _players.Values)
             {
                 if (!p.Alive || !p.InRound) continue;
-                int gap = HitShapes.SideKnifeSeparation(p.State, k.Dir, k.Y, fromX, k.X);
+                int gap = HitShapes.SideHazardSeparation(p.State, k.Kind, k.Dir, k.Y, fromX, k.X);
                 if (gap >= 0)
                 {
                     if (gap < 100) _roundSideNear++;
@@ -573,7 +571,7 @@ public sealed class GameRoom
                 }
                 Eliminate(p, EliminationCause.SideKnife);
                 _roundSideKills++;
-                _log($"death #{p.Id} '{p.Name}' by side knife#{k.Id} at roundTick {RoundTick} (lane y {k.Y / 1000.0:0.00}, " +
+                _log($"death #{p.Id} '{p.Name}' by side {k.Kind}#{k.Id} at roundTick {RoundTick} (lane y {k.Y / 1000.0:0.00}, " +
                      $"{(k.Dir > 0 ? "flying right" : "flying left")}, player at ({p.State.X},{p.State.Y})" +
                      (p.State.Crouching ? " crouching" : p.State.Grounded ? "" : " airborne") + $", drawn-shape gap {gap / 1000.0:0.00} u)");
             }
@@ -736,7 +734,7 @@ public sealed class GameRoom
              (_stage.Hazard == HazardKind.Crate
                  ? $", crates landed: {_roundCratesLanded}, crumbled: {_roundCratesCrumbled}, shattered: {_roundCratesShattered}, boxes now: {_boxes.Length}"
                  : "") +
-             $", side knives: {_roundSideKnives} (low {_roundSideLow}, head {_roundSideKnives - _roundSideLow}), side kills: {_roundSideKills}" +
+             $", side hazards: {_roundSideKnives} {_stage.SideHazard.ToString().ToLowerInvariant()} (low {_roundSideLow}, head {_roundSideKnives - _roundSideLow}), side kills: {_roundSideKills}" +
              $", side near misses (< 0.1 u): {_roundSideNear}, dash stuns: {_roundDashStuns}, immune pushes: {_roundImmunePushes}" +
              $", immune stomps: {_roundImmuneStomps}");
         _log("    " + _hitStats.TakeSummary(_config.LegacyHitbox));
