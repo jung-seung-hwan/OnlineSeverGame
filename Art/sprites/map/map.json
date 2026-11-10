@@ -1,6 +1,7 @@
 {
   "ppu": 72,
-  "note": "world_rect = [x0, y0, x1, y1] in game units covered by the image; pivot bottom-left at (x0, y0). kitchen_full has only the left shelf: draw shelf.png again at the right shelf rect.",
+  "layout": "map-layout.md d8e6b45",
+  "note": "pieces: world_rect [x0, y0, x1, y1], pivot bottom-left; moving pieces: 72 px per unit, pivot px from bottom-left = platform top centre, world_rect = start position. Rules: docs/work/map-visual.md section 6.",
   "pieces": {
     "kitchen_bg.png": {
       "world_rect": [
@@ -8,9 +9,10 @@
         -1.5,
         25.5,
         14.0
-      ]
+      ],
+      "note": "far + attach, for a client without layers"
     },
-    "floor_board.png": {
+    "kitchen_floor.png": {
       "world_rect": [
         -1.5,
         -1.5,
@@ -18,43 +20,89 @@
         0.25
       ]
     },
-    "shelf.png": {
+    "spice_rack.png": {
       "world_rect": [
-        2.75,
-        1.4,
+        0.75,
+        0.0,
+        4.25,
+        7.325
+      ]
+    },
+    "ladle_rail.png": {
+      "world_rect": [
+        4.75,
+        9.1,
         9.25,
+        9.725
+      ]
+    },
+    "wall_board.png": {
+      "world_rect": [
+        9.25,
+        4.3,
+        13.75,
+        4.925
+      ]
+    },
+    "tray_shelf.png": {
+      "world_rect": [
+        12.25,
+        1.9,
+        15.75,
         2.525
+      ]
+    },
+    "range_hood.png": {
+      "world_rect": [
+        15.75,
+        5.6,
+        20.75,
+        7.325
+      ]
+    }
+  },
+  "moving": {},
+  "sprites": {
+    "butter.png": {
+      "ppu": 128,
+      "size": [
+        154,
+        128
       ],
-      "instances": [
-        [
-          2.75,
-          1.4,
-          9.25,
-          2.525
-        ],
-        [
-          14.75,
-          1.4,
-          21.25,
-          2.525
-        ]
-      ]
+      "pivot_px_from_bottom_left": [
+        77,
+        0
+      ],
+      "note": "pivot = bottom centre, 1.2 x 1.0"
     },
-    "pot_lid.png": {
-      "world_rect": [
-        8.75,
-        3.55,
-        15.25,
-        5.05
-      ]
+    "burner_flame.png": {
+      "ppu": 128,
+      "size": [
+        1536,
+        128
+      ],
+      "frames": 4,
+      "frame_size": [
+        384,
+        128
+      ],
+      "pivot_px_from_bottom_left": [
+        192,
+        0
+      ],
+      "note": "3.0 x 1.0, loop the 4 frames"
     },
-    "kitchen_full.png": {
-      "world_rect": [
-        -1.5,
-        -1.5,
-        25.5,
-        14.0
-      ]
+    "burner_glow.png": {
+      "ppu": 128,
+      "size": [
+        384,
+        48
+      ],
+      "pivot_px_from_bottom_left": [
+        192,
+        0
+      ],
+      "note": "warning: burner ring glowing red, 3.0 x 0.375"
     }
   }
 }

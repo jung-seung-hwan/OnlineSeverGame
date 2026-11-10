@@ -1,7 +1,7 @@
 {
  "ppu": 72,
  "map": "kitchen",
- "note": "Depth layers and moving background, docs/work/map-visual.md. rect = world rect of the image (pivot bottom-left). depth = parallax factor. fx are drawn by the client (BackdropView).",
+ "layout": "map-layout.md d8e6b45",
  "layers": [
   {
    "name": "far",
@@ -23,16 +23,16 @@
    "name": "mid",
    "file": "kitchen_mid",
    "rect": [
-    6.1806,
-    6.1667,
-    25.5,
+    2.1389,
+    5.4583,
+    23.9306,
     13.2639
    ],
    "depth": 0.25,
    "order": -95,
    "size": [
-    1391,
-    511
+    1569,
+    562
    ]
   },
   {
@@ -40,7 +40,7 @@
    "file": "kitchen_attach",
    "rect": [
     -1.5,
-    4.7778,
+    -0.0417,
     25.5,
     14.0
    ],
@@ -48,7 +48,7 @@
    "order": -90,
    "size": [
     1944,
-    664
+    1011
    ]
   },
   {
@@ -73,46 +73,48 @@
    "kind": "steam",
    "layer": "mid",
    "at": [
-    8.35,
-    10.1
+    17.6,
+    7.4
    ],
    "size": 0.34,
-   "count": 7,
-   "rise": 1.7,
-   "period": 4.2,
+   "count": 6,
+   "rise": 2.2,
+   "period": 4.6,
    "color": "#9AA3B5",
    "alpha": [
     0.0,
-    0.15
+    0.14
+   ]
+  },
+  {
+   "kind": "steam",
+   "layer": "mid",
+   "at": [
+    19.0,
+    7.4
+   ],
+   "size": 0.3,
+   "count": 5,
+   "rise": 1.9,
+   "period": 5.3,
+   "color": "#9AA3B5",
+   "alpha": [
+    0.0,
+    0.12
    ]
   },
   {
    "kind": "glow",
    "layer": "far",
    "at": [
-    20.0,
-    9.0
+    18.25,
+    5.3
    ],
-   "size": 2.6,
+   "size": 2.4,
    "color": "#F0C27A",
    "alpha": [
     0.03,
     0.07
-   ],
-   "period": 3.4
-  },
-  {
-   "kind": "glow",
-   "layer": "far",
-   "at": [
-    20.0,
-    9.28
-   ],
-   "size": 0.9,
-   "color": "#F6D49A",
-   "alpha": [
-    0.05,
-    0.1
    ],
    "period": 3.4
   }

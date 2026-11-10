@@ -1,7 +1,8 @@
 # 맵 비주얼 (배경 깊이층 · 움직이는 배경 · 빈 공간 채우기)
 
 - 담당 세션: `[OnlineSeverGame] 맵 비주얼 · 01`, 브랜치 `claude/map-visual-baa34f` (main 병합은 사용자 승인 후 조율 세션)
-- 범위: 네 맵(주방·겨울 처마·창고·디저트 가게)의 배경을 여러 겹으로 나누고, 배경에 움직임을 넣고, 화면 위쪽 빈 공간을 소품으로 채운다(단계 A, 지금 배치). 맵 레이아웃 세션의 새 배치·새 구조물·맵 이벤트 그림을 그 세션 설계 문서(`map-layout.md`, 커밋 b3c88ca) 좌표·크기대로 렌더한다(단계 B, 6장).
+- 범위: 네 맵(주방·겨울 처마·창고·디저트 가게)의 배경을 여러 겹으로 나누고, 배경에 움직임을 넣고, 화면 위쪽 빈 공간을 소품으로 채운다(단계 A, 지금 배치). 맵 레이아웃 세션의 새 배치·새 구조물·맵 이벤트 그림을 그 세션 설계 문서(`map-layout.md`) 좌표·크기대로 렌더하고, 레이아웃 브랜치가 main에 합쳐진 뒤 클라이언트에 연결한다(단계 B, 6장).
+- 상태: **완료.** 단계 A·B 끝, main(4e5e937: 맵 레이아웃 v8 + 사운드 보강)을 합쳐 새 배치 그림을 클라이언트에 연결하고 포트 7805 실제 경기로 네 맵을 확인함. main 병합은 사용자 승인 후 조율 세션.
 - 지킨 기준(다시 정하지 않음): progress 확정 사항 3의 화면 대비 규칙 — 배경은 어둡고 저채도, 발판 윗면 밝은 테두리, 캐릭터는 중간 밝기의 선명한 색, 위험물과 예고만 최고 대비. 그림 방식은 기존 Blender 스크립트(`Art/blender/build_sprites.py`)와 같은 평면 색·계단 빛 무리.
 
 ## 1. 어떻게 보이게 되는가
@@ -80,11 +81,19 @@
 
 ## 3. 직접 돌려 보기
 
+새 배치(지금 main) 그림 전부 — 발판 조각·이벤트 그림·깊이층·`_full`:
+
 ```bash
-"C:/Program Files/Blender Foundation/Blender 5.2/blender.exe" -b --factory-startup --python Art/blender/build_depth.py -- depth
+"C:/Program Files/Blender Foundation/Blender 5.2/blender.exe" -b --factory-startup --python Art/blender/build_layout2.py -- layout2
 ```
 
-(약 4분: fx 그림 + 네 맵. 맵 하나만: `-- kitchen` / `winter` / `warehouse` / `dessert`, fx만 `-- fx`.) 렌더 뒤 새 파일을 `Client/Assets/Resources/Art/`의 같은 폴더로 복사한다.
+공통 fx 그림(빛 무리·김·눈송이·먼지·반짝임·형광등 막대, 창고 환풍기)만:
+
+```bash
+"C:/Program Files/Blender Foundation/Blender 5.2/blender.exe" -b --factory-startup --python Art/blender/build_depth.py -- fx
+```
+
+(각각 약 4분. 맵 하나만: `-- kitchen` / `winter` / `warehouse` / `dessert`.) **`build_depth.py -- depth`나 그 맵 이름 대상은 옛 배치 깊이층이라 이제 돌리지 않는다**(새 배치 층을 덮어씀). 렌더 뒤 새 파일을 `Client/Assets/Resources/Art/`의 같은 폴더로 복사하고, 맵 고르기 그림은 `ui-revamp.md` 6장 명령으로 다시 만든다.
 
 확인 그림: `Art/preview/<맵>_depth.png`(far + mid + attach + 발판 + front), `Art/preview/<맵>_depth_shift.png`(내 캐릭터가 오른쪽 끝에 있을 때처럼 층을 옮긴 것).
 
@@ -108,11 +117,12 @@
 - 다른 브랜치(타격감·UI)의 카메라 흔들림·프레이밍과 합친 뒤의 모습. 카메라 쉬는 자리가 바뀌면 오프셋이 생기므로 0.6으로 제한해 두었다.
 - 색약 시뮬레이션.
 
-## 6. 단계 B: 새 배치 그림 (맵 레이아웃 세션 설계 b3c88ca)
+## 6. 단계 B: 새 배치 그림 (맵 레이아웃 최종 좌표 d8e6b45 = main 1aca2c7)
 
 ### 6.1 무엇을 그렸나
 
-기준: 레이아웃 세션 브랜치의 `docs/work/map-layout.md` 6장 그림 목록(`git show refs/heads/claude/map-layout-ea33fc:docs/work/map-layout.md`). **파일 이름·픽셀 크기·world_rect·피벗은 그 표와 글자 그대로 같다**(스크립트 REPORT로 크기 확인). 숫자가 바뀌면 그 문서가 먼저 바뀌고 이 스크립트 상수를 고쳐 다시 렌더한다.
+기준: `docs/work/map-layout.md` 6장 그림 목록(처음 렌더는 설계 커밋 b3c88ca, 병합 뒤 최종 좌표로 다시 렌더). **파일 이름·픽셀 크기·world_rect·피벗은 그 표와 글자 그대로 같다**(스크립트 REPORT로 크기 확인). 숫자가 바뀌면 그 문서가 먼저 바뀌고 이 스크립트 상수를 고쳐 다시 렌더한다.
+- b3c88ca 이후 레이아웃 세션이 구현 중 바꾼 좌표(숨는 자리 검사 때문): 겨울 돌 선반 14.5~18.0 → **15.0~18.0**(stone_ledge world_rect 14.75부터, 굴뚝도 오른쪽으로), 바닥 얼음 7~13 → **6.5~14.0**, 디저트 체리 케이크 13.5~16 → **14.5~17**, 케이크 리프트 16~18.5 → **17~19.5**(리프트 홈·기둥도), 웨하스 18.5~22.5 → **19.5~23.5**, 초코 가운데 12 → 13, 민트 21 → 21.5. 주방·창고는 그대로.
 
 | 맵 | 정지 조각 (72 px/유닛) | 움직이는 발판 (72 px/유닛, 피벗 = 윗면 가운데) | 이벤트·기타 그림 |
 |---|---|---|---|
@@ -127,29 +137,41 @@
 
 ### 6.2 출력 위치와 파일 규칙
 
-- 폴더: `Art/sprites/<맵 폴더>/layout2/` (map, map_winter, map_warehouse, map_dessert). **지금 main은 옛 배치라서** 옛 그림을 덮어쓰지 않으려고 따로 둔다. 레이아웃 브랜치가 병합되면 이 폴더 파일을 한 단계 위(맵 폴더)로 옮기고(이름이 같은 "다시" 파일은 교체), `Client/Assets/Resources/Art/`에도 복사한다.
+- 폴더: `Art/sprites/<맵 폴더>/` (map, map_winter, map_warehouse, map_dessert). "다시" 파일은 같은 이름의 옛 배치 그림을 바꿔 쓴다. 클라이언트는 같은 이름으로 `Client/Assets/Resources/Art/<맵 폴더>/`에 복사한 것을 읽는다(map.json은 복사하지 않음, 좌표는 `StageView.PlatformArt`에 같은 값). 레이아웃 브랜치 병합 전에는 옛 배치를 덮지 않으려고 `layout2/` 하위 폴더에 두었고, 병합 뒤 없앴다.
+- `<맵>_full.png`(배경 + 바닥 + 모든 발판의 처음 자리, 캐릭터·이벤트·front 없음)도 같이 만든다. UI 대기 화면 맵 고르기 그림 `Client/Assets/Resources/UI/maps/map1~4.png`는 이것을 640 폭으로 줄인 것(`ui-revamp.md` 6장 명령 그대로).
+- 옛 배치 전용 그림(주방 shelf·pot_lid·floor_board, 겨울 winter_bench 등)은 새 그림이 없을 때의 대체 경로(`StageView`의 늘려 쓰기)가 아직 읽으므로 남겨 둔다. `build_depth.py`의 깊이층은 옛 배치용이라 네 맵은 이제 `build_layout2.py`가 만든 층을 쓴다.
 - 폴더마다 `map.json`: `pieces`(정지 조각 world_rect, 창턱은 instances 2개), `moving`(움직이는 발판: size, `pivot_px_from_bottom_left` = 윗면 가운데, `pivot_normalized`, `start_world_rects` = 처음 자리), `sprites`(128 px/유닛 그림의 크기·피벗·프레임, 72 px/유닛 반복 무늬·9-slice 정보).
 - 확인 그림: `Art/preview/<맵>_layout2.png` (far + mid + attach + 조각 + 움직이는 발판 처음 자리 + 이벤트 그림 몇 개 + 캐릭터 5명 + front). 주방은 화구 1·3에 불, 2에 예고 링, 창고는 벨트, 겨울은 바람 줄·눈 덩어리, 디저트는 왼쪽 시럽·리프트 기둥.
-- 다시 렌더(루트, 약 4분): `"C:/Program Files/Blender Foundation/Blender 5.2/blender.exe" -b --factory-startup --python Art/blender/build_layout2.py -- layout2` (맵 하나: `-- kitchen` 등). 스크립트는 `build_sprites.py`의 맵 모델 함수를 배치 상수만 바꿔 다시 쓰고(겨울 창턱·들보·얼음, 옛 발판·사슬 삭제), 새 조각을 더한다.
+- 다시 렌더(루트, 약 4분, 그 뒤 Resources로 복사): `"C:/Program Files/Blender Foundation/Blender 5.2/blender.exe" -b --factory-startup --python Art/blender/build_layout2.py -- layout2` (맵 하나: `-- kitchen` 등). 스크립트는 `build_sprites.py`의 맵 모델 함수를 배치 상수만 바꿔 다시 쓰고(겨울 창턱·들보·얼음, 옛 발판·사슬 삭제), 새 조각을 더한다.
 
-### 6.3 클라이언트 연결: 레이아웃 세션 코드와 겹치는 파일
+### 6.3 클라이언트 연결 (병합 뒤, 레이아웃 세션 코드와 겹치는 파일)
 
-원칙: 레이아웃 브랜치가 먼저 main에 병합되고(조율 세션 순서), 이 세션이 병합 뒤 맞춘다. 지금 이 브랜치의 클라이언트는 옛 배치 + 단계 A 깊이층만 그린다.
+레이아웃 브랜치가 먼저 main에 들어가고(조율 세션 순서) 이 세션이 main을 합친 뒤 맞췄다. 병합 충돌은 `StageView.cs`(주방·창고 배경 줄을 `BackdropView.TryBuild`로 감싼 곳 2군데)와 `docs/README.md` 표뿐이었다. **그림이 없으면 레이아웃 세션의 예전 그리기(옛 그림 늘려 쓰기 / 단색 도형)가 그대로 돈다**: 맵마다 새 조각 하나(주방 spice_rack, 겨울 stone_ledge, 창고 crane_pallet, 디저트 cherry_cake)가 Resources에 있는지로 고른다.
 
-| 파일 | 레이아웃 세션 | 이 세션이 병합 뒤 할 일 |
+| 파일 | 레이아웃 세션이 한 것 | 이 세션이 바꾼 것 |
 |---|---|---|
-| `Client/Assets/Scripts/View/StageView.cs` | 새 배치를 그림(옛 그림 늘려 쓰기 / 단색 도형), 움직이는 발판·차양 위치 갱신 | 새 조각 그림으로 교체, `BackdropView.TryBuild`가 `layout2` 층을 읽게(이 세션이 감싼 배경 줄 4곳) |
-| `Client/Assets/Scripts/View/MapEventView.cs` (레이아웃 세션 새 파일) | 불꽃·바람·벨트·시럽을 단색 도형으로 | burner_flame/glow, wind_streak, conveyor_belt, syrup/syrup_drip 그림으로 교체 |
-| `Client/Assets/Scripts/View/ArtSprites.cs` | (새 그림 불러오기를 더할 수 있음) | 72 px/유닛 움직이는 발판(윗면 가운데 피벗)·반복 무늬 불러오기 추가 |
-| `Client/Assets/Scripts/View/WorldView.cs` | (바뀔 수 있음) | 이 세션은 `BackdropView.SetFocus` 한 줄만 |
-| `Client/Assets/Resources/Art/<맵 폴더>/` | — | layout2 그림 복사, 옛 배치 전용 파일(shelf, pot_lid, winter_bench 등)은 쓰는 코드가 없을 때 정리 |
+| `Client/Assets/Scripts/View/StageView.cs` | 새 배치 그리기, 발판 뿌리(윗면 가운데)를 매 프레임 그 시각 모양으로 옮김 | `PlatformArt`: 발판 번호 → 조각 이름·월드 좌표(map.json 값). 조각을 발판 뿌리 밑에 붙여 움직이는 팔레트·리프트·사라지는 차양이 그대로 따라감(여러 칸을 덮는 양념 선반 탑·3단 랙은 첫 칸에만). 차양은 무너지기 직전 `snow_awning_crack`으로 바뀌고, 사라지는 순간 `snow_dump` 눈 덩어리가 0.9초 떨어지며 옅어짐. 케이크 리프트 기둥은 `cake_lift_column`을 접시 아래부터 바닥까지 세로로 늘림. 주방 바닥은 `kitchen_floor`. 그림에 이미 있는 임시 도형(탑 기둥, 가스레인지 상판·화구, 겨울 얼음 웅덩이·굴뚝, 벨트 바탕·랙·작업대·통로 기둥, 팔레트 사슬)은 그리지 않음 |
+| `Client/Assets/Scripts/View/MapEventView.cs` | 불·바람·벨트·시럽을 단색 도형으로, 예고 깜빡임·끝나기 전 옅어짐 | 같은 자리·같은 깜빡임 값에 그림: 화구 예고 = `burner_glow`가 깜빡이며 달아오름, 켜지면 `burner_flame` 4프레임(초당 12, 화구마다 한 프레임씩 어긋남) / 바람 줄 = `wind_streak`, 켜진 동안 눈송이 24개가 바람 방향으로 / 벨트 = `conveyor_belt` 타일 14장을 x 6~19 마스크(`SpriteMask`) 안에서 벨트 속도로 흘림(화살 무늬는 그대로 위에) / 시럽 = `syrup` 9-slice 웅덩이, 예고 2초 동안 그 절반 위에서 `syrup_drip` 줄기 5개가 흘러내림 |
+| `Client/Assets/Scripts/View/ArtSprites.cs` | — | `MapSprite`(72 px/유닛, 임의 피벗·9-slice), `PropFrames`(가로 프레임 띠), `Box(1)` = 주방 버터 블록 그림 `butter` |
+| `Client/Assets/Scripts/View/WorldView.cs` | — | 이 세션은 `BackdropView.SetFocus` 한 줄만(병합 때 자동으로 합쳐짐) |
+| `Client/Assets/Resources/Art/<맵 폴더>/`, `Resources/UI/maps/` | — | 새 그림·깊이층 복사, 맵 고르기 그림 4장 다시 만듦 |
 | `docs/README.md` | 자기 행 | 자기 행 |
 
 ### 6.4 확인한 것과 남은 일 (단계 B)
 
 확인한 것: 네 맵 그림 36장 + 깊이층 + map.json 렌더 오류 없음, 크기가 map-layout.md 6장 표와 모두 같음(REPORT), 잘림 검사에서 가장자리에 닿는 것은 바닥까지 내려가는 탑 기둥·작업대 다리·랙 기둥·후드 아래 끝(문서 rect 아래 끝)뿐(의도). 확인 그림 4장을 직접 열어 봄: 발판 높이마다 밝은 윗면 선, 배경 소품이 새 발판 높이와 겹치지 않음, 캐릭터 발이 윗면에 닿음, 불꽃·예고 링이 가장 눈에 띔. 첫 렌더 뒤 고친 것: 짧아진 창턱 밖으로 나온 고드름 술, 새 웅덩이 밖에 남은 얼음 반짝임, 삿갓 둘레 원, 보이지 않던 체리, 너무 작은 허브 다발.
 
-확인 안 한 것: 게임 화면(레이아웃 코드 병합 전이라 연결 안 함), 움직이는 발판이 실제로 움직일 때의 모습, 불꽃 4프레임 반복 속도, 차양이 무너지는 연출, 벨트 흐름. 병합 뒤 6.3대로 연결하고 서버 + 봇 + 클라이언트로 맵별 확인이 남는다.
+#### 병합 뒤 연결 확인 (2026-11-10, main 4e5e937을 합친 상태)
+- 최종 좌표로 네 맵 다시 렌더(오류 0, REPORT 크기 = map-layout.md 6장 표), 확인 그림 4장과 `_full` 4장을 열어 봄: 겨울 돌 선반·굴뚝, 디저트 케이크·리프트 홈·기둥·웨하스가 새 자리에 맞음.
+- `dotnet build` 오류 0, Unity 배치 빌드 성공(컴파일 오류 0).
+- 포트 7805, 맵마다 서버(`--min-players 6 --map N --seed 7`) + 클라이언트 1(`-autoplay`, 3초마다 스크린샷 22장) + 봇 5, 75초. **네 맵 모두 클라이언트 예외 0**, 서버 로그에 이벤트 예고·켜짐·꺼짐이 한 번씩(주방 불 화구 10~13·17~20, 강풍 오른쪽, 컨베이어 오른쪽, 시럽 왼쪽 절반).
+- 이벤트 중 스크린샷으로 본 것(`Art/preview/map_visual_ingame.png` 2×2): 주방 화구 두 곳 그림 불꽃 + 양념 선반 탑·국자 걸이·도마·쟁반 선반·후드 / 겨울 바람 줄·눈송이가 흐르고 차양 1이 금 간 그림으로 흔들림 / 창고 팔레트가 사슬·활차째 옮겨 가 있고 벨트 무늬 위 화살이 노랗게 / 디저트 리프트 접시가 4.8쯤 올라가 기둥이 늘어나 있고 왼쪽 바닥에 시럽 웅덩이. 위험물·예고(칼 예고, 옆 칼 빨간 띠, 불꽃)가 여전히 가장 눈에 띔.
+
+확인 안 한 것:
+- 3초 간격 스크린샷이라 **예고 순간**(화구 링이 빨갛게 깜빡임, 시럽 줄기가 흘러내림)과 **차양이 사라지는 순간의 눈 덩어리**는 화면으로 못 봤다(코드는 같은 예고 값을 씀). 벨트 무늬가 흐르는 속도·불꽃 4프레임 반복 속도도 정지 화면이라 못 봄.
+- 시럽 웅덩이(반투명 0.3 높이)가 바닥 위에서 조금 옅게 보인다. 알림 알약이 있어 두었지만 사람이 보기에 약하면 알파를 올린다.
+- 레이아웃 세션이 적어 둔 대로 이벤트 알림 알약(아래 가운데)이 주방 화구 1 불꽃을 가린다(이 세션 범위 밖, UI 확장 자리 문제).
+- 주방 장식(마늘·수건·국자·허브)은 아직 단색 도형(6장 목록에 없음).
 
 ## 5. 변경 기록
 
@@ -158,4 +180,6 @@
 | 2026-11-10 | 148649c | 단계 A: 네 맵 깊이층(far/mid/attach/front)·움직이는 배경·빈 공간 소품, `build_depth.py`, `BackdropView` |
 | 2026-11-10 | 57bc10b | 단계 B: 레이아웃 설계(b3c88ca) 그림 36장 + 새 배치 깊이층(`build_layout2.py`, `layout2/` 폴더), 겨울 삿갓 둘레 원 제거(단계 A 그림도) |
 | 2026-11-10 | ef1713e | main 병합(캐릭터 추가 그림, 충돌은 docs/README.md 표 한 줄), Unity 빌드·네 맵 다시 확인 |
-| 2026-11-10 | (이 커밋) | 병합 뒤 확인 기록, 게임 화면 모음 `Art/preview/map_visual_ingame.png` |
+| 2026-11-10 | 33c643d | 병합 뒤 확인 기록, 게임 화면 모음 `Art/preview/map_visual_ingame.png` |
+| 2026-11-10 | 0dc9813 | main 병합(맵 레이아웃 v8, 사운드 보강). 충돌: StageView 배경 줄 2곳, README 표 |
+| 2026-11-10 | (이 커밋) | 새 배치 그림 클라이언트 연결: 최종 좌표로 다시 렌더(겨울 돌 선반·얼음, 디저트 케이크·리프트·웨하스), `layout2/` 없애고 맵 폴더·Resources로, StageView 발판 조각·차양 금·눈 덩어리·리프트 기둥, MapEventView 불꽃·바람·벨트·시럽 그림, 버터 블록, `_full`·UI 맵 고르기 그림 다시 만듦, 7805 네 맵 확인 |

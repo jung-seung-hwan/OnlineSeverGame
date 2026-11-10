@@ -1,7 +1,7 @@
 {
  "ppu": 72,
  "map": "winter",
- "note": "Depth layers and moving background, docs/work/map-visual.md. rect = world rect of the image (pivot bottom-left). depth = parallax factor. fx are drawn by the client (BackdropView).",
+ "layout": "map-layout.md d8e6b45",
  "layers": [
   {
    "name": "far",
@@ -23,32 +23,32 @@
    "name": "mid",
    "file": "winter_mid",
    "rect": [
-    2.9861,
-    7.1667,
-    21.625,
+    2.3611,
+    7.5139,
+    23.0972,
     13.3611
    ],
    "depth": 0.25,
    "order": -95,
    "size": [
-    1342,
-    446
+    1493,
+    421
    ]
   },
   {
    "name": "attach",
    "file": "winter_attach",
    "rect": [
-    1.5694,
+    1.0694,
     2.5694,
-    22.4306,
-    5.4444
+    18.4306,
+    9.0417
    ],
    "depth": 0.0,
    "order": -90,
    "size": [
-    1502,
-    207
+    1250,
+    466
    ]
   },
   {
@@ -120,7 +120,7 @@
     160
    ],
    "at": [
-    7.75,
+    5.95,
     10.86
    ],
    "scale": 0.72,
@@ -142,7 +142,7 @@
     160
    ],
    "at": [
-    16.25,
+    22.65,
     10.86
    ],
    "scale": 0.72,
@@ -159,7 +159,7 @@
    "kind": "glow",
    "layer": "attach",
    "at": [
-    4.0,
+    3.0,
     3.9
    ],
    "size": 1.9,
@@ -175,7 +175,7 @@
    "kind": "glow",
    "layer": "attach",
    "at": [
-    20.0,
+    16.5,
     3.9
    ],
    "size": 1.9,

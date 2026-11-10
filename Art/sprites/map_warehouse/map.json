@@ -1,6 +1,7 @@
 {
   "ppu": 72,
-  "note": "pieces: world_rect = [x0, y0, x1, y1] in game units covered by the image, pivot bottom-left at (x0, y0); draw again at every rect in instances. sprites: ppu 128, pivot in px from the bottom-left. Rules: docs/work/art-maps.md section 4.",
+  "layout": "map-layout.md d8e6b45",
+  "note": "pieces: world_rect [x0, y0, x1, y1], pivot bottom-left; moving pieces: 72 px per unit, pivot px from bottom-left = platform top centre, world_rect = start position. Rules: docs/work/map-visual.md section 6.",
   "pieces": {
     "warehouse_bg.png": {
       "world_rect": [
@@ -9,7 +10,7 @@
         25.5,
         14.0
       ],
-      "note": "rail y 13.2..13.6, pallet chains x 10 / 14 included"
+      "note": "far + attach, for a client without layers"
     },
     "warehouse_floor.png": {
       "world_rect": [
@@ -18,98 +19,73 @@
         25.5,
         0.25
       ],
-      "note": "top y = 0"
+      "note": "conveyor frame x 6..19; belt = conveyor_belt tile"
     },
-    "warehouse_rack.png": {
+    "workbench.png": {
       "world_rect": [
-        0.75,
+        -0.25,
         0.0,
-        5.25,
-        4.925
-      ],
-      "instances": [
-        [
-          0.75,
-          0.0,
-          5.25,
-          4.925
-        ],
-        [
-          18.75,
-          0.0,
-          23.25,
-          4.925
-        ]
-      ],
-      "note": "shelf tops y = 2.4 and 4.8"
+        6.25,
+        1.325
+      ]
     },
-    "warehouse_pallet.png": {
+    "wall_shelf.png": {
       "world_rect": [
-        9.25,
+        0.25,
         3.1,
-        14.75,
+        3.75,
         3.725
-      ],
-      "note": "top y = 3.6"
+      ]
     },
-    "warehouse_full.png": {
+    "catwalk.png": {
       "world_rect": [
-        -1.5,
-        -1.5,
-        25.5,
-        14.0
+        2.25,
+        5.5,
+        6.25,
+        6.125
+      ]
+    },
+    "warehouse_rack3.png": {
+      "world_rect": [
+        18.75,
+        0.0,
+        23.75,
+        7.325
+      ]
+    }
+  },
+  "moving": {
+    "crane_pallet.png": {
+      "size": [
+        324,
+        410
       ],
-      "note": "bg + floor + all platforms (ice cream at start width), check / simple use"
+      "pivot_px_from_bottom_left": [
+        162,
+        36
+      ],
+      "pivot_normalized": [
+        0.5,
+        0.0878
+      ],
+      "start_world_rects": [
+        [
+          6.25,
+          7.9,
+          10.75,
+          13.6
+        ]
+      ]
     }
   },
   "sprites": {
-    "crate.png": {
-      "ppu": 128,
+    "conveyor_belt.png": {
+      "ppu": 72,
       "size": [
-        192,
-        168
+        72,
+        18
       ],
-      "pivot_px_from_bottom_left": [
-        96,
-        8
-      ],
-      "pivot_normalized": [
-        0.5,
-        0.04762
-      ],
-      "note": "pivot = bottom centre. Hit box 1.4 x 1.2. Falling, resting and start crates"
-    },
-    "crate_cracked.png": {
-      "ppu": 128,
-      "size": [
-        192,
-        168
-      ],
-      "pivot_px_from_bottom_left": [
-        96,
-        8
-      ],
-      "pivot_normalized": [
-        0.5,
-        0.04762
-      ],
-      "note": "last 20 ticks before a resting crate disappears"
-    },
-    "crane_hook.png": {
-      "ppu": 128,
-      "size": [
-        64,
-        256
-      ],
-      "pivot_px_from_bottom_left": [
-        32,
-        248
-      ],
-      "pivot_normalized": [
-        0.5,
-        0.96875
-      ],
-      "note": "pivot = hang point (top); sway around it"
+      "note": "tile 1.0 x 0.25, repeat along x over 6..19, y -0.25..0; scroll during the event"
     }
   }
 }

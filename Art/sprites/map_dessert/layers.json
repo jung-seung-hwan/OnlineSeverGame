@@ -1,7 +1,7 @@
 {
  "ppu": 72,
  "map": "dessert",
- "note": "Depth layers and moving background, docs/work/map-visual.md. rect = world rect of the image (pivot bottom-left). depth = parallax factor. fx are drawn by the client (BackdropView).",
+ "layout": "map-layout.md d8e6b45",
  "layers": [
   {
    "name": "far",
@@ -24,7 +24,7 @@
    "file": "dessert_mid",
    "rect": [
     -1.5,
-    8.7361,
+    8.8194,
     25.5,
     13.3611
    ],
@@ -32,7 +32,7 @@
    "order": -95,
    "size": [
     1944,
-    333
+    327
    ]
   },
   {
@@ -40,7 +40,7 @@
    "file": "dessert_attach",
    "rect": [
     -1.5,
-    13.4583,
+    -0.0417,
     25.5,
     14.0
    ],
@@ -48,7 +48,7 @@
    "order": -90,
    "size": [
     1944,
-    39
+    1011
    ]
   },
   {
@@ -144,22 +144,16 @@
    "kind": "sparkle",
    "layer": "mid",
    "points": [
-    5.55,
+    4.85,
     10.9,
-    9.95,
+    9.25,
     10.72,
-    6.95,
+    6.25,
     9.78,
-    9.4,
+    8.7,
     9.15,
-    8.05,
-    11.58,
-    21.05,
-    9.35,
-    22.0,
-    9.55,
-    22.95,
-    9.25
+    7.0,
+    11.58
    ],
    "size": 0.32,
    "color": "#F4EEF8",

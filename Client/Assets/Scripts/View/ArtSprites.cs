@@ -68,6 +68,7 @@ namespace OnlineSeverGame.Client.View
         static Sprite _knife;
         static readonly Dictionary<string, Sprite> _map = new Dictionary<string, Sprite>();
         static readonly Dictionary<string, Sprite> _props = new Dictionary<string, Sprite>();
+        static readonly Dictionary<string, Sprite[]> _frames = new Dictionary<string, Sprite[]>();
 
         public const float PropPpu = 128f;
         // 아이스크림 9-slice: 양 끝 고정 폭(여백 0.25 + 둥근 끝 0.5 유닛), 윗면은 그림 위에서 18 px 아래
@@ -127,6 +128,43 @@ namespace OnlineSeverGame.Client.View
             }
             _map[key] = s;
             return s;
+        }
+
+        // 새 배치의 72 px/유닛 그림을 임의 피벗(0~1)·9-slice 테두리(px)로 자른다: 케이크 리프트 기둥(위 가운데),
+        // 시럽 웅덩이(양 끝 36 px), 컨베이어 벨트 무늬(왼쪽 아래). docs/work/map-visual.md 6장.
+        public static Sprite MapSprite(string folder, string name, Vector2 pivot, Vector4 border = default)
+        {
+            string key = folder + "/" + name + "#" + pivot.x + "," + pivot.y;
+            if (_map.TryGetValue(key, out var s)) return s;
+            var tex = Resources.Load<Texture2D>(Dir + folder + "/" + name);
+            if (tex != null)
+            {
+                s = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), pivot, MapPpu, 0, SpriteMeshType.FullRect, border);
+                s.name = name;
+            }
+            _map[key] = s;
+            return s;
+        }
+
+        // 프레임이 가로로 늘어선 128 px/유닛 그림(화구 불꽃 4프레임). pivotPx 는 한 프레임 왼쪽 아래에서 잰 피벗. 없으면 null.
+        public static Sprite[] PropFrames(string folder, string name, int frames, float pivotX, float pivotY)
+        {
+            string key = folder + "/" + name + "#" + frames;
+            if (_frames.TryGetValue(key, out var list)) return list;
+            var tex = Resources.Load<Texture2D>(Dir + folder + "/" + name);
+            if (tex != null)
+            {
+                int fw = tex.width / frames;
+                list = new Sprite[frames];
+                for (int i = 0; i < frames; i++)
+                {
+                    list[i] = Sprite.Create(tex, new Rect(i * fw, 0, fw, tex.height), new Vector2(pivotX / fw, pivotY / tex.height),
+                        PropPpu, 0, SpriteMeshType.FullRect);
+                    list[i].name = name + "_" + i;
+                }
+            }
+            _frames[key] = list;
+            return list;
         }
 
         // 녹는 아이스크림 발판(9-slice). 피벗 = 윗면 가운데. SpriteRenderer.drawMode = Sliced 로 폭을 바꾼다.
@@ -225,7 +263,7 @@ namespace OnlineSeverGame.Client.View
             return s;
         }
 
-        // 맵별 밀리는 상자 그림(피벗 = 아래 가운데). 주방 버터 블록은 그림이 없어 null.
+        // 맵별 밀리는 상자 그림(피벗 = 아래 가운데). 주방 버터 블록은 새 배치 그림(butter.png, 1.2 × 1.0, 여백 없음).
         public static Sprite Box(int stageId, bool cracked)
         {
             switch (stageId)
@@ -233,7 +271,7 @@ namespace OnlineSeverGame.Client.View
                 case 2: return Prop("map_winter", "snowball", 72, 8);
                 case 3: return cracked ? Prop("map_warehouse", "crate_cracked", 96, 8) : Prop("map_warehouse", "crate", 96, 8);
                 case 4: return Prop("map_dessert", "macaron", 72, 8);
-                default: return null;
+                default: return Prop("map", "butter", 77, 0);
             }
         }
 

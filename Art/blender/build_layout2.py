@@ -1,17 +1,18 @@
 """
-New map layouts (docs/work/map-layout.md, map layout session, design commit b3c88ca): pieces, sprites and depth
+New map layouts (docs/work/map-layout.md, map layout session, final coordinates d8e6b45 = main 1aca2c7): pieces, sprites and depth
 layers for the second layout of all four maps. Output rules: docs/work/map-visual.md section 6.
 
 Run from the repository root (Blender 5.2):
   blender -b --factory-startup --python Art/blender/build_layout2.py -- layout2
 Targets: layout2 (all) | kitchen | winter | warehouse | dessert
 
-Everything goes to Art/sprites/<map folder>/layout2/ with the file names, pixel sizes, world rects and pivots of
-map-layout.md section 6 (the files marked "again" there keep their names: kitchen_bg, winter_floor, ...). The
-folder is separate because main still runs the first layout until the layout branch is merged; after the merge
-the files move up into the map folder. Besides the listed files each map gets the depth layers of build_depth.py
-re-placed for the new layout (<map>_far/mid/attach/front.png + layers.json) and a check image
-Art/preview/<map>_layout2.png.
+Everything goes to Art/sprites/<map folder>/ with the file names, pixel sizes, world rects and pivots of
+map-layout.md section 6 (the files marked "again" there keep their names and replace the first-layout files:
+kitchen_bg, winter_floor, ...). Until the layout branch was merged this wrote to <map folder>/layout2/; copy the
+output to Client/Assets/Resources/Art/<map folder>/ (docs/work/map-visual.md section 6).
+Besides the listed files each map gets the depth layers of build_depth.py
+re-placed for the new layout (<map>_far/mid/attach/front.png + layers.json), <map>_full.png (the whole map
+without characters, source of the UI map previews) and a check image Art/preview/<map>_layout2.png.
 
 Coordinates as everywhere: world X = game x, Z = game y, platform pieces 72 px per unit with the platform top
 9 px (0.125 u) below the image top, moving things 128 px per unit around their pivot.
@@ -263,7 +264,7 @@ def outline_img(img, col, px):
 def winter_build(kit):
     bs.W_SILLS = [(1.0, 5.0), (14.5, 18.5)]
     bs.W_BEAMS = [(6.5, 10.5)]
-    bs.W_ICE_FLOOR = (7.0, 13.0)
+    bs.W_ICE_FLOOR = (6.5, 14.0)
     bs.build_winter(kit)
     delete(['Bench', 'SillTassels', 'IcePuddle'])
     a, b = bs.W_ICE_FLOOR
@@ -272,14 +273,14 @@ def winter_build(kit):
                                   -1.06, -1.04, XZ, 0),
                         _box(bm, a + 0.05, -0.05, b - 0.05, 0.0, -1.07, -1.06, 1),
                         [add_prism(bm, [(s, -0.08), (s + 0.5, -0.08), (s + 0.42, -0.12), (s - 0.08, -0.12)], -1.08, -1.07, XZ, 2)
-                         for s in (7.9, 10.0, 12.0)]), outline=0.03)
+                         for s in (7.5, 9.9, 12.4)]), outline=0.03)
     x0, x1 = bs.W_SILLS[0]
     kit.obj('SillTassels', 'SILL', [flat_mat('Tassel', '#6A9CC4')], lambda bm: [
         add_prism(bm, [(tx - 0.05, 2.07), (tx + 0.05, 2.07), (tx, 2.07 - ln)], -0.2, 0.0, XZ)
         for tx, ln in zip([x0 + 0.35 + 0.47 * k for k in range(8)], [0.18, 0.28, 0.14, 0.24, 0.32, 0.16, 0.26, 0.2])],
         outline=0.02)
     stone = tex_wall_mat('Chimney', '#2E333D', '#2A2F38', '#20242B', 0.6, 0.35, 0.04, offset=0.5)
-    kit.obj('Chimney', 'BG', [stone], lambda bm: _box(bm, 15.4, 5.9, 17.1, 9.0, 5.4, 5.6))
+    kit.obj('Chimney', 'BG', [stone], lambda bm: _box(bm, 15.65, 5.9, 17.35, 9.0, 5.4, 5.6))
 
 
 def winter_mid(kit):
@@ -354,12 +355,12 @@ def winter_pieces(kit):
                     add_prism(bm, [(sx - 0.07, -0.12), (sx + 0.07, -0.12), (sx + 0.03, -0.12 - ln), (sx - 0.03, -0.12 - ln)],
                               -0.37, -0.36, XZ, 5)
         kit.obj('Awning' + coll, coll, [wood, snow, snow_top, strut, crack, slide], awn, outline=0.03)
-    # stone ledge (top 9.6, x 14.5..18)
+    # stone ledge (top 9.6, x 15..18)
     stone = tex_wall_mat('Ledge', '#6A7280', '#626A78', '#3A3F48', 0.9, 0.5, 0.04, offset=0.5)
     kit.obj('Ledge', 'LEDGE', [stone, snow, snow_top], lambda bm: (
-        _box(bm, 14.5, 9.1, 18.0, 9.52, -0.3, 0.3, 0),
-        add_prism(bm, drip_band(14.46, 18.04, 9.6, 9.5, 0.08, 8, 32), -0.33, -0.31, XZ, 1),
-        _box(bm, 14.5, 9.55, 18.0, 9.6, -0.34, -0.33, 2)), outline=0.03)
+        _box(bm, 15.0, 9.1, 18.0, 9.52, -0.3, 0.3, 0),
+        add_prism(bm, drip_band(14.96, 18.04, 9.6, 9.5, 0.08, 7, 32), -0.33, -0.31, XZ, 1),
+        _box(bm, 15.0, 9.55, 18.0, 9.6, -0.34, -0.33, 2)), outline=0.03)
     # icy gutter (top 7.2, x 19..23.5), small icicle tassels under it
     gut = toon_mat('Gutter2', '#3A4150', '#232833')
     ice = flat_mat('Ice2', bs.ICE)
@@ -547,8 +548,8 @@ def dessert_build(kit):
     slot = flat_mat('LiftSlot', '#1C1720')
     slot_lit = flat_mat('LiftSlotLit', '#2E2633')
     kit.obj('LiftSlot', 'BG', [slot, slot_lit], lambda bm: (
-        _box(bm, 16.95, 0.0, 17.55, 8.1, 4.6, 4.8, 0), _box(bm, 16.95, 0.0, 17.0, 8.1, 4.5, 4.6, 1),
-        _box(bm, 17.5, 0.0, 17.55, 8.1, 4.5, 4.6, 1)))
+        _box(bm, 17.95, 0.0, 18.55, 8.1, 4.6, 4.8, 0), _box(bm, 17.95, 0.0, 18.0, 8.1, 4.5, 4.6, 1),
+        _box(bm, 18.5, 0.0, 18.55, 8.1, 4.5, 4.6, 1)))
 
 
 def dessert_mid(kit):
@@ -587,27 +588,27 @@ def dessert_mid(kit):
 
 
 def dessert_pieces(kit):
-    # cherry cake top (9.6, x 13.5..16): sponge layers, cream top, cherry at the back below the top line
+    # cherry cake top (9.6, x 14.5..17): sponge layers, cream top, cherry at the back below the top line
     sponge = flat_mat('Sponge', '#C99A62')
     jam = flat_mat('Jam', '#A04A5A')
     cream = flat_mat('Cream', '#EADFCB')
     cream_top = flat_mat('CreamTop', '#FFF6E4')
     cherry = toon_mat('Cherry', '#C8324A', '#7E1E30', spec=0.6)
     kit.obj('Cake', 'CAKE', [sponge, jam, cream, cream_top], lambda bm: (
-        _box(bm, 13.5, 8.98, 16.0, 9.2, -0.3, 0.3, 0), _box(bm, 13.5, 9.2, 16.0, 9.27, -0.31, -0.3, 1),
-        _box(bm, 13.5, 9.27, 16.0, 9.45, -0.3, 0.3, 0),
-        add_prism(bm, drip_band(13.46, 16.04, 9.6, 9.46, 0.1, 7, 41), -0.33, -0.31, XZ, 2),
-        top_line(bm, 13.48, 16.02, 9.6, -0.33, 3)), outline=0.03)
+        _box(bm, 14.5, 8.98, 17.0, 9.2, -0.3, 0.3, 0), _box(bm, 14.5, 9.2, 17.0, 9.27, -0.31, -0.3, 1),
+        _box(bm, 14.5, 9.27, 17.0, 9.45, -0.3, 0.3, 0),
+        add_prism(bm, drip_band(14.46, 17.04, 9.6, 9.46, 0.1, 7, 41), -0.33, -0.31, XZ, 2),
+        top_line(bm, 14.48, 17.02, 9.6, -0.33, 3)), outline=0.03)
     kit.obj('CakeCherry', 'CAKE', [cherry], lambda bm: [add_ellipsoid(bm, (cx, -0.36, 9.235), (0.09, 0.05, 0.08))
-                                                        for cx in (13.85, 14.45, 15.05, 15.65)], outline=0.015, smooth=True)
-    # wafer shelf (7.2, x 18.5..22.5)
+                                                        for cx in (14.85, 15.45, 16.05, 16.65)], outline=0.015, smooth=True)
+    # wafer shelf (7.2, x 19.5..23.5)
     wafer = flat_mat('Wafer2', '#B98A52')
     wafer_line = flat_mat('WaferLine2', '#8A6236')
     wafer_top = flat_mat('WaferTop2', '#F2D29A')
     kit.obj('Wafer', 'WAFER', [wafer, wafer_line, wafer_top], lambda bm: (
-        _box(bm, 18.5, 6.88, 22.5, 7.2, -0.3, 0.3, 0),
-        [_box(bm, wx, 6.9, wx + 0.04, 7.15, -0.31, -0.3, 1) for wx in [18.7 + 0.3 * k for k in range(13)]],
-        _box(bm, 18.5, 7.02, 22.5, 7.05, -0.31, -0.3, 1), top_line(bm, 18.5, 22.5, 7.2, -0.32, 2)), outline=0.03)
+        _box(bm, 19.5, 6.88, 23.5, 7.2, -0.3, 0.3, 0),
+        [_box(bm, wx, 6.9, wx + 0.04, 7.15, -0.31, -0.3, 1) for wx in [19.7 + 0.3 * k for k in range(13)]],
+        _box(bm, 19.5, 7.02, 23.5, 7.05, -0.31, -0.3, 1), top_line(bm, 19.5, 23.5, 7.2, -0.32, 2)), outline=0.03)
     # cake stand plate around its pivot (top centre): plate 2.5 wide with a doily edge
     plate = toon_mat('LiftPlate', '#E8DCEA', '#A898B0', spec=0.4, mid=0.7)
     doily = flat_mat('Doily', '#F6EEF6')
@@ -688,7 +689,7 @@ MAPS2 = {
               ('winter_ice_sill.png', 'SILL', (0.75, 1.525, 5.25, 2.525),
                dict(instances=[[0.75, 1.525, 5.25, 2.525], [14.25, 1.525, 18.75, 2.525]])),
               ('winter_beam.png', 'BEAM', (6.25, 4.3, 10.75, 4.925), {}),
-              ('stone_ledge.png', 'LEDGE', (14.25, 8.975, 18.25, 9.725), {}),
+              ('stone_ledge.png', 'LEDGE', (14.75, 8.975, 18.25, 9.725), {}),
               ('icy_gutter.png', 'GUTTER', (18.75, 6.6, 23.75, 7.325), {})],
         moving=[('snow_awning.png', 'AWNING', (252, 65), (126, 56), [[10.75, 6.425, 14.25, 7.325], [18.25, 4.025, 21.75, 4.925]]),
                 ('snow_awning_crack.png', 'AWNINGCRACK', (252, 65), (126, 56), [])],
@@ -739,9 +740,9 @@ MAPS2 = {
     'dessert': dict(
         folder='map_dessert', build=dessert_build, mid=dessert_mid, front=bd.front_dessert, pieces=dessert_pieces,
         fxsprites=dessert_fx_sprites, attach=('Molding', 'LiftSlot'), fog=('#221C26', 0.12),
-        list=[('cherry_cake.png', 'CAKE', (13.25, 8.85, 16.25, 9.725), {}),
-              ('wafer_shelf.png', 'WAFER', (18.25, 6.7, 22.75, 7.325), {})],
-        moving=[('cake_lift_plate.png', 'LIFT', (216, 45), (108, 36), [[15.75, 0.7, 18.75, 1.325]])],
+        list=[('cherry_cake.png', 'CAKE', (14.25, 8.85, 17.25, 9.725), {}),
+              ('wafer_shelf.png', 'WAFER', (19.25, 6.7, 23.75, 7.325), {})],
+        moving=[('cake_lift_plate.png', 'LIFT', (216, 45), (108, 36), [[16.75, 0.7, 19.75, 1.325]])],
         extra={'cake_lift_column.png': dict(ppu=72, size=[43, 72], pivot='top centre',
                                             note='0.6 x 1.0 tile, repeat downward from under the plate to the floor'),
                'syrup.png': dict(ppu=72, size=[792, 22], nine_slice=dict(left_px=36, right_px=36),
@@ -779,7 +780,7 @@ def target_map(name):
     cfg['mid'](kit)
     cfg['front'](kit)
     cfg['pieces'](kit)
-    out = os.path.join(bs.SPRITES, cfg['folder'], 'layout2')
+    out = os.path.join(bs.SPRITES, cfg['folder'])
     os.makedirs(out, exist_ok=True)
     tmp = os.path.join(out, '_tmp.png')
 
@@ -790,7 +791,7 @@ def target_map(name):
         render_to(scene, tmp)
         return load_png(tmp)
 
-    meta = dict(ppu=MAP_PPU, layout='map-layout.md b3c88ca', note='pieces: world_rect [x0, y0, x1, y1], pivot '
+    meta = dict(ppu=MAP_PPU, layout='map-layout.md d8e6b45', note='pieces: world_rect [x0, y0, x1, y1], pivot '
                 'bottom-left; moving pieces: 72 px per unit, pivot px from bottom-left = platform top centre, '
                 'world_rect = start position. Rules: docs/work/map-visual.md section 6.', pieces={}, moving={},
                 sprites={})
@@ -835,7 +836,7 @@ def target_map(name):
         save_png(img, os.path.join(out, fname))
         layers.append(dict(name=key, file=fname[:-4], rect=r, depth=depth, order=order, size=[img.shape[1], img.shape[0]]))
     with open(os.path.join(out, 'layers.json'), 'w', encoding='utf-8') as fh:
-        json.dump(dict(ppu=MAP_PPU, map=name, layout='map-layout.md b3c88ca', layers=layers, fx=cfg['fx']()), fh, indent=1)
+        json.dump(dict(ppu=MAP_PPU, map=name, layout='map-layout.md d8e6b45', layers=layers, fx=cfg['fx']()), fh, indent=1)
     with open(os.path.join(out, 'map.json'), 'w', encoding='utf-8') as fh:
         json.dump(meta, fh, indent=2)
     print('REPORT', json.dumps(report))
@@ -868,7 +869,7 @@ def preview(name, cfg, out, imgs, meta):
     if name == 'dessert':      # first-layout ice creams stretched to the new widths (9-slice) as the client will
         put(load_png(os.path.join(bs.SPRITES, 'map_dessert', 'dessert_floor.png')), -1.5, -1.5)
         for fname, cx, w, top in (('icecream_strawberry.png', 4.0, 5.0, 2.4), ('icecream_vanilla.png', 8.5, 6.0, 4.8),
-                                  ('icecream_chocolate.png', 12.0, 3.0, 7.2), ('icecream_mint.png', 21.0, 4.0, 2.4)):
+                                  ('icecream_chocolate.png', 13.0, 3.0, 7.2), ('icecream_mint.png', 21.5, 4.0, 2.4)):
             src = load_png(os.path.join(bs.SPRITES, 'map_dessert', fname))
             W = round((w + 0.5) * MAP_PPU)
             mid = bs.resize(src[:, 54:-54].copy(), W - 108, src.shape[0])
@@ -876,8 +877,7 @@ def preview(name, cfg, out, imgs, meta):
             put(img, cx - (w + 0.5) / 2, top + 0.25 - src.shape[0] / MAP_PPU)
         col = load_png(os.path.join(out, 'cake_lift_column.png'))
         for k in range(1):
-            put(col, 16.95, 0.0)
-        put(load_png(os.path.join(out, 'syrup.png')), 0.5, -0.05)
+            put(col, 17.95, 0.0)
     for fname, p in meta['pieces'].items():
         if fname.endswith('_bg.png'):
             continue
@@ -886,15 +886,20 @@ def preview(name, cfg, out, imgs, meta):
     for fname, p in meta['moving'].items():
         for r in p['start_world_rects']:
             put(load_png(os.path.join(out, fname)), r[0], r[1])
+    if name == 'warehouse':
+        belt = load_png(os.path.join(out, 'conveyor_belt.png'))
+        for k in range(13):
+            put(belt, 6.0 + k, -0.25)
+    # <map>_full.png: background + floor + every platform at round tick 0 (no events, characters or front layer);
+    # the UI map picker previews are this image shrunk to 640 wide (docs/work/ui-revamp.md section 6)
+    save_png(base, os.path.join(out, name + '_full.png'))
+    if name == 'dessert':
+        put(load_png(os.path.join(out, 'syrup.png')), 0.5, -0.05)
     if name == 'kitchen':
         for a in (10.0, 17.0):
             put_sprite('burner_flame.png', a + 1.5, 0.0, (192, 0), 4, 1)
         put_sprite('burner_glow.png', 15.0, 0.0, (192, 0))
         put_sprite('butter.png', 7.0, 0.0, (77, 0))
-    if name == 'warehouse':
-        belt = load_png(os.path.join(out, 'conveyor_belt.png'))
-        for k in range(13):
-            put(belt, 6.0 + k, -0.25)
     if name == 'winter':
         put_sprite('snow_dump.png', 20.0, 4.5, (128, 256))
         for k, (x, y) in enumerate(((4.0, 6.0), (9.0, 8.5), (13.0, 5.0), (17.0, 11.0))):
@@ -905,9 +910,9 @@ def preview(name, cfg, out, imgs, meta):
     rows = len(cmeta['animations'])
     sheets = {int(k): load_png(os.path.join(cdir, v)) for k, v in cmeta['sheets'].items()}
     cast = dict(kitchen=[(1, 2.5, 7.2), (2, 7.0, 9.6), (3, 11.5, 4.8), (4, 18.0, 7.2), (5, 14.0, 2.4)],
-                winter=[(1, 3.0, 2.4), (2, 8.5, 4.8), (3, 16.2, 9.6), (4, 21.0, 7.2), (5, 12.5, 7.2)],
+                winter=[(1, 3.0, 2.4), (2, 8.5, 4.8), (3, 16.5, 9.6), (4, 21.0, 7.2), (5, 12.5, 7.2)],
                 warehouse=[(1, 3.0, 1.2), (2, 4.0, 6.0), (3, 8.5, 8.4), (4, 21.0, 7.2), (5, 12.0, 0.0)],
-                dessert=[(1, 4.0, 2.4), (2, 8.5, 4.8), (3, 14.8, 9.6), (4, 20.5, 7.2), (5, 17.2, 1.2)])[name]
+                dessert=[(1, 4.0, 2.4), (2, 8.5, 4.8), (3, 15.8, 9.6), (4, 21.5, 7.2), (5, 18.2, 1.2)])[name]
     for pid, x, y in cast:
         fr = bs._frame(sheets[pid], 0, 0, rows)
         img = bs.resize(fr, round(fr.shape[1] * s), round(fr.shape[0] * s))

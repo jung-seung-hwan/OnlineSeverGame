@@ -5,6 +5,9 @@ Run from the repository root (Blender 5.2):
   blender -b --factory-startup --python Art/blender/build_depth.py -- depth
 Targets: depth (all four maps + fx sprites + check images) | kitchen | winter | warehouse | dessert | fx
 
+Since the map layout v8 merge the four maps use the new-layout layers written by build_layout2.py (which reuses
+the builders here). The map targets of this script draw the FIRST layout and would overwrite them: run only `fx`.
+
 Each map keeps its existing pieces (build_sprites.py, map.json) untouched and gets, in the same folder:
   <map>_far.png     far background: the old <map>_bg minus everything tied to a platform, slightly fogged
   <map>_attach.png  things fixed to the play plane (platform chains, rails, brackets, sill windows); no parallax
