@@ -10,6 +10,16 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
+  <!-- Small self-contained server packages (Tools/ServerPackage): `-p:SmallServer=true` trims unused framework
+       code and compresses the single file. Set here, not as PublishTrimmed on the command line, because a global
+       PublishTrimmed would also hit the netstandard2.1 Shared project and fail. -->
+  <PropertyGroup Condition="'$(SmallServer)' == 'true'">
+    <PublishTrimmed>true</PublishTrimmed>
+    <PublishSingleFile>true</PublishSingleFile>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\Shared\OnlineSeverGame.Shared.csproj" />
   </ItemGroup>

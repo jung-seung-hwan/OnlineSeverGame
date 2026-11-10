@@ -7,6 +7,7 @@ adds start scripts and a README, and writes one archive:
   - macOS / Linux: <name>.tar.gz  (scripts with LF line endings and the execute bit set)
   - Windows:       <name>.zip
 The archive name carries the protocol version: the server and the players' clients must match.
+By default the server is one trimmed, compressed file (about 6 MB per archive); --full builds the untrimmed folder (about 35 MB).
 See docs/work/online-server.md.
 """
 import argparse
@@ -185,14 +186,18 @@ def add_text(tar, name, text, mode):
     tar.addfile(info, io.BytesIO(data))
 
 
-def package(rid, out_dir, version, commit, port, min_players):
-    name = f"JellySurvivalServer-v{version}-{rid}"
+def package(rid, out_dir, version, commit, port, min_players, full=False):
+    name = f"JellySurvivalServer-v{version}-{rid}" + ("-full" if full else "")
     stage = os.path.join(out_dir, name)
     shutil.rmtree(stage, ignore_errors=True)
     is_win = rid.startswith("win")
     publish = ["dotnet", "publish", "Server/GameServer", "-c", "Release", "-r", rid, "--self-contained", "true",
                "-o", os.path.join(stage, "bin"), "-p:DebugType=none"]
-    if is_win:
+    if not full:
+        # Default: one trimmed, compressed file (about 6 MB per archive, fits a 10 MB chat upload).
+        # See SmallServer in Server/GameServer/GameServer.csproj.
+        publish += ["-p:SmallServer=true"]
+    elif is_win:
         publish += ["-p:PublishSingleFile=true", "-p:IncludeNativeLibrariesForSelfExtract=true"]
     sh(publish)
 
@@ -249,11 +254,13 @@ def main():
     ap.add_argument("--rid", nargs="*", default=DEFAULT_RIDS)
     ap.add_argument("--port", type=int, default=DEFAULT_PORT)
     ap.add_argument("--min-players", type=int, default=DEFAULT_MIN_PLAYERS)
+    ap.add_argument("--full", action="store_true",
+                    help="untrimmed build (about 35 MB): use if the small one ever misbehaves")
     a = ap.parse_args()
     out_dir = os.path.join(ROOT, a.out)
     os.makedirs(out_dir, exist_ok=True)
     version, commit = protocol_version(), git_commit()
-    made = [package(rid, out_dir, version, commit, a.port, a.min_players) for rid in a.rid]
+    made = [package(rid, out_dir, version, commit, a.port, a.min_players, a.full) for rid in a.rid]
     print("\nprotocol v%d, commit %s" % (version, commit))
     for m in made:
         print("  %s  (%.1f MB)" % (os.path.relpath(m, ROOT), os.path.getsize(m) / 1e6))
