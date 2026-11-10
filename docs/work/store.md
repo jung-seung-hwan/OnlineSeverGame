@@ -316,7 +316,12 @@ Partner Center > 제출 > **Age ratings**에서 처음 한 번 IARC 설문을 �
 - 이름: `Jelly Survival`은 이미 다른 곳에서 예약되어 쓸 수 없었다. 사용자 선택으로 **`Jelly Survival Party`** 예약(Store ID `9N6RLMM91V9V`, 3개월 안에 제출하지 않으면 예약이 풀림). 게임 안 로고·창 제목은 그대로 Jelly Survival, Store 이름과 패키지 표시 이름만 Jelly Survival Party.
 - 패키지 신원(Product identity)을 `store_config.json`에 넣고 MSIX를 다시 만듦: `Jungsh.JellySurvivalParty`, `CN=DBC07E0C-E4E0-44BE-86F5-2CCC1C9BE29A`, `Jungsh`. 패키지 패밀리 이름 `Jungsh.JellySurvivalParty_xvqktr22c5wf0`.
 - 제출 1(초안): 가격 = 무료(USD 0, 전 세계, 공개, 검색 가능, 가능한 한 빨리) **완료**. 속성 = 게임 / 플랫포머·액션+어드벤처, 개인정보 사용 "예", 웹 사이트 wildmagic.co.kr, 온라인 멀티 2~8명(최소는 2보다 작게 못 넣음), 최소 하드웨어 키보드·마우스, DirectX 11 — **처리방침 URL만 비어 있어 미완료**. 연령 등급 = IARC 설문 7장대로(사용자끼리 소통 기능 '아니요': 도움말 "소통·공유에 쓰이지 않는 멀티플레이는 '예'일 필요 없음"), 사용자 승인으로 IARC 약관 동의 → **완료**. 결과: IARC 3+, 한국 GRAC 전체이용가(폭력), ESRB Everyone(가벼운 판타지 폭력), PEGI 3, USK 6, 러시아 12+, 인도네시아 13+.
-- 남은 것: 패키지 업로드(81 MB라 브라우저 자동 업로드 도구 한도 10 MB를 넘어 사용자가 끌어 놓아야 함), Store 목록(패키지를 올리면 en-us·ko-kr 언어가 자동으로 생김), 제출 옵션(심사 메모·runFullTrust 이유), 처리방침 URL, 공개 서버 `MIN_PLAYERS=1`, 마지막 "인증을 위해 제출".
+- 2026-11-11 이어서 한 것:
+  - 패키지: 사용자가 `JellySurvival_1.0.0.0_x64.msix`를 끌어 놓음 → **Validated, 완료**. 경고는 "runFullTrust는 승인이 필요한 제한 기능" 하나뿐. 기기군은 Windows 10/11 Desktop만 체크(Mobile·Xbox·Team·Mixed Reality 꺼짐), "앞으로의 기기군은 Microsoft가 결정"은 기본값(켜짐) 그대로.
+  - Store 목록 ko-kr·en-us **둘 다 완료**: `Art/store/listing.md`의 설명·제품 기능 10개·짧은 설명·키워드 7개·저작권, 개발자 `Jungsh`. 그 언어의 스크린샷 7장(1920×1080, 01~07 순서), 포스터 1440×2160, 박스 아트 2160, 앱 타일 300, 히어로 3840×2160. 스크린샷 캡션과 Xbox 전용 이미지는 넣지 않음(선택 항목). 파일 칸이 한 번에 한 장만 받아 한 장씩 올림.
+  - 제출 옵션 **완료**: runFullTrust 이유는 8장 문구 그대로. 게시 시점은 기본값 "인증 통과하면 바로 게시".
+  - 심사 메모: 지금은 제출 옵션이 아니라 제품의 **추가 정보 > 추가적인 테스트 정보 > 인증에 대한 참고 사항**에 넣는다. 8장 문구를 날짜 2026-11-11, 이름 Jelly Survival Party, "혼자여도 판이 시작됨"(MIN_PLAYERS=1 전제)으로 넣고 "게임 안 로고는 Jelly Survival" 한 줄을 더함. 다시 열어 저장된 것 확인.
+- 남은 것: 처리방침을 올리고 URL을 속성에 넣기(속성만 미완료), 공개 서버 `MIN_PLAYERS=1`, 마지막 "인증을 위해 제출"(사용자 확인 후).
 
 ## 13. 변경 기록
 
@@ -325,3 +330,4 @@ Partner Center > 제출 > **Age ratings**에서 처음 한 번 IARC 설문을 �
 | 2026-11-10 | `865a1ea` | 작업 시작·완료: 이름 Jelly Survival·버전 1.0.0·앱 아이콘, MSIX 스크립트(`Tools/StorePackage`), Store 그림·스크린샷·등록 글·처리방침·IARC 답안·제출 안내서, 설치·실행·제거와 WACK 확인 |
 | 2026-11-10 | (이 커밋) | main(`e2112ab`)을 합치려 했으나 이미 최신(바뀐 것 없음). 변경 기록에 커밋 번호 |
 | 2026-11-10 | (이 커밋) | Partner Center 진행: `Jelly Survival Party` 예약, 신원 값 반영해 MSIX 다시 만듦, 가격·속성·연령 등급 입력(14장) |
+| 2026-11-11 | (이 커밋) | 패키지 검증 통과, Store 목록(한국어·영어)·제출 옵션·심사 메모 입력. 남은 것은 처리방침 URL과 최종 제출(14장) |
