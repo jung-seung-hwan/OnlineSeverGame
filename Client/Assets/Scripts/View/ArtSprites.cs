@@ -19,6 +19,7 @@ namespace OnlineSeverGame.Client.View
             public int frames;
             public float fps;
             public bool loop;
+            public float[] draw_scale;   // 그릴 때 곱할 (x, y) 배율. 없으면 1. 납작 기절은 프레임보다 넓어 x 1.1
         }
 
         [System.Serializable]
@@ -36,6 +37,9 @@ namespace OnlineSeverGame.Client.View
             public Sprite[] Frames;
             public float Fps;
             public bool Loop;
+            public Vector2 DrawScale = Vector2.one;
+
+            public float Duration => Frames.Length / Fps;
 
             // 반복하지 않는 동작은 마지막 프레임에서 멈춘다.
             public Sprite At(float time)
@@ -75,6 +79,13 @@ namespace OnlineSeverGame.Client.View
             if (_characters == null) LoadCharacters();
             var set = _characters[((colorIndex % Sheets.Length) + Sheets.Length) % Sheets.Length];
             return set.TryGetValue(anim, out var clip) ? clip : set["idle"];
+        }
+
+        // 시트에 그 동작 행이 있는가(예전 8행 시트에는 엎드림·납작 기절·이모트 등이 없다).
+        public static bool HasCharacter(string anim)
+        {
+            if (_characters == null) LoadCharacters();
+            return _characters[0].ContainsKey(anim);
         }
 
         public static Sprite Knife
@@ -259,7 +270,8 @@ namespace OnlineSeverGame.Client.View
                         frames[i] = Sprite.Create(tex, r, pivot, meta.ppu, 0, SpriteMeshType.FullRect);
                         frames[i].name = Sheets[c] + "_" + a.name + "_" + i;
                     }
-                    set.Add(a.name, new Clip { Name = a.name, Frames = frames, Fps = a.fps, Loop = a.loop });
+                    var scale = a.draw_scale != null && a.draw_scale.Length == 2 ? new Vector2(a.draw_scale[0], a.draw_scale[1]) : Vector2.one;
+                    set.Add(a.name, new Clip { Name = a.name, Frames = frames, Fps = a.fps, Loop = a.loop, DrawScale = scale });
                 }
                 _characters[c] = set;
             }
