@@ -1,4 +1,4 @@
-# Jelly Survival — Store 등록 글 (복사해 붙이는 원문)
+# Jelly Survival Party — Store 등록 글 (복사해 붙이는 원문)
 
 Partner Center > 앱 > 제출 > **Store listings** > 언어(한국어 / English)마다 아래 칸을 그대로 붙여 넣는다.
 글자 수 한도(2026-11-10 Microsoft Learn 확인): 설명 10,000자, 짧은 설명 1,000자(앞 270자만 보이는 화면이 있음),
@@ -10,13 +10,13 @@ Partner Center > 앱 > 제출 > **Store listings** > 언어(한국어 / English)
 ## 한국어 (ko-KR)
 
 ### 제품 이름
-Jelly Survival
+Jelly Survival Party (예약됨, Store ID 9N6RLMM91V9V. "Jelly Survival"은 다른 곳이 이미 예약)
 
 ### 짧은 설명 (권장 270자 이내)
 손바닥만 한 젤리가 되어 주방 위에서 떨어지는 식칼을 피하세요! 최대 8명이 함께 접속해 마지막까지 살아남는 사람이 이기는 온라인 생존 파티 게임입니다. 대시로 밀치고, 머리를 밟아 기절시키고, 엎드려 날아오는 칼을 피하세요.
 
 ### 설명
-Jelly Survival은 최대 8명이 함께 하는 2D 온라인 생존 파티 게임입니다. 커다란 주방에 사는 말랑한 젤리·젤리곰·푸딩이 되어, 위에서 떨어지는 식칼을 피하고 마지막 한 명이 될 때까지 버티세요.
+Jelly Survival Party는 최대 8명이 함께 하는 2D 온라인 생존 파티 게임입니다. 커다란 주방에 사는 말랑한 젤리·젤리곰·푸딩이 되어, 위에서 떨어지는 식칼을 피하고 마지막 한 명이 될 때까지 버티세요.
 
 무엇이든 떨어지기 전에 빨간 예고 표시가 뜹니다. 보고, 판단하고, 피하면 됩니다. 맵마다 식칼, 고드름, 화물 상자, 포크가 떨어지고, 시간이 갈수록 더 자주 떨어집니다. 20초가 지나면 양옆에서 칼·눈덩이·나무 상자·마카롱이 일자로 날아옵니다. 머리 높이로 오면 엎드리고, 낮게 오면 점프하세요.
 
@@ -70,7 +70,7 @@ Jelly Survival은 최대 8명이 함께 하는 2D 온라인 생존 파티 게임
 - 07_result: 마지막까지 살아남은 젤리가 1등
 
 ### 저작권·상표 정보
-© 2026 [게시자 이름]. 글꼴: 배달의민족 주아체(SIL Open Font License 1.1).
+© 2026 Jungsh. 글꼴: 배달의민족 주아체(SIL Open Font License 1.1).
 
 ### 추가 시스템 요구 사항 (최소)
 인터넷 연결
@@ -82,13 +82,13 @@ DirectX 11 이상을 지원하는 그래픽
 ## English (en-US)
 
 ### Product name
-Jelly Survival
+Jelly Survival Party
 
 ### Short description (keep under 270 characters)
 Become a tiny jelly and dodge the kitchen knives raining from above! Up to 8 players join online and the last one standing wins. Dash to shove, stomp heads to stun, and duck under knives flying in from the side.
 
 ### Description
-Jelly Survival is a 2D online survival party game for up to 8 players. Play as a squishy jelly, jelly bear or pudding living in a giant kitchen, dodge the knives that drop from above, and hold out until you are the last one left.
+Jelly Survival Party is a 2D online survival party game for up to 8 players. Play as a squishy jelly, jelly bear or pudding living in a giant kitchen, dodge the knives that drop from above, and hold out until you are the last one left.
 
 Everything that falls is announced by a red warning marker first. Watch, decide, dodge. Each map drops its own hazard (kitchen knives, icicles, cargo crates, forks), faster as the round goes on, and after 20 seconds knives, snowballs, wooden crates and macarons fly straight in from the sides: duck when they come at head height, jump when they come low.
 
@@ -142,7 +142,7 @@ platformer
 - 07_result: The last jelly standing takes first place
 
 ### Copyright and trademark info
-© 2026 [Publisher name]. Font: Jua by Woowahan Brothers (SIL Open Font License 1.1).
+© 2026 Jungsh. Font: Jua by Woowahan Brothers (SIL Open Font License 1.1).
 
 ### Additional system requirements (minimum)
 Internet connection

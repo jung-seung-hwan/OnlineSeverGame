@@ -1,15 +1,18 @@
 {
-  "_readme": "The one place for the Store package identity. The three TEMP values must be replaced with the values from Partner Center > (app) > Product management > Product identity before uploading. See docs/work/store.md section 4.",
-  "identityName": "JellySurvivalDev.JellySurvival",
-  "publisher": "CN=JellySurvivalDev",
-  "publisherDisplayName": "JellySurvivalDev",
-  "displayName": "Jelly Survival",
+  "_readme": "Store package identity, from Partner Center > Jelly Survival Party > Product management > Product identity (2026-11-10, Store ID 9N6RLMM91V9V). Values are case-sensitive. See docs/work/store.md section 4.",
+  "identityName": "Jungsh.JellySurvivalParty",
+  "publisher": "CN=DBC07E0C-E4E0-44BE-86F5-2CCC1C9BE29A",
+  "publisherDisplayName": "Jungsh",
+  "displayName": "Jelly Survival Party",
   "description": "8-player online survival party game: dodge falling knives as a little jelly.",
   "version": "1.0.0.0",
   "processorArchitecture": "x64",
   "minVersion": "10.0.19043.0",
   "maxVersionTested": "10.0.26200.0",
-  "languages": ["en-us", "ko-kr"],
+  "languages": [
+    "en-us",
+    "ko-kr"
+  ],
   "applicationId": "JellySurvival",
   "executable": "Client.exe",
   "unityBuildDir": "Client/Build/Windows"
