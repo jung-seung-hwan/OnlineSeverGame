@@ -14,6 +14,7 @@
   ],
   "layout": "one row per animation, top row first; frames left to right; empty cells are transparent",
   "facing": "right (flip X for left)",
+  "character": "jelly",
   "sheets": {
     "1": "jelly_1_strawberry.png",
     "2": "jelly_2_blueberry.png",
