@@ -105,6 +105,9 @@ public sealed class Bot
                 _lastSent = buttons;
                 SendPacket(new InputPacket { Seq = Seq, Buttons = buttons });
                 if (Seq % 100 == 0) SendPacket(new PingPacket { ClientTime = (uint)Clock.ElapsedMilliseconds });
+                // Now and then (about every 10 s) an emote, so clients see other players' emotes (v7).
+                if (_random.Next(200) == 0)
+                    SendPacket(new EmoteRequestPacket { Emote = (EmoteKind)(1 + _random.Next(ProtocolConstants.MaxEmote)) });
 
                 next += GameConstants.TickMilliseconds;
                 double wait = next - Clock.Elapsed.TotalMilliseconds;

@@ -1,3 +1,4 @@
+using OnlineSeverGame.Shared.Protocol;
 using UnityEngine;
 
 namespace OnlineSeverGame.Client.Input
@@ -16,7 +17,8 @@ namespace OnlineSeverGame.Client.Input
     }
 
     // 매 프레임 키보드를 읽고, 틱마다 Consume() 으로 한 번에 가져간다.
-    // 조작: ←/→ 또는 A/D 이동, ↑·W·Space 점프, Shift·J 대시, ↓·S 엎드리기(↓ + 점프 = 발판 아래로).
+    // 조작: ←/→ 또는 A/D 이동, ↑·W·Space 점프, Shift·J 대시, ↓·S 엎드리기(↓ + 점프 = 발판 아래로),
+    // Z 인사·X 놀리기·C 기뻐하기·V 슬퍼하기 이모트(숫자 1~4와 R 은 방장의 맵 선택이 쓴다).
     public sealed class InputCollector : MonoBehaviour
     {
         bool _jumpLatch;
@@ -34,14 +36,64 @@ namespace OnlineSeverGame.Client.Input
         // 시험용: 상대를 쫓다 가까우면 뛰어올라 머리를 밟으려 한다(-autoplay stomp). AutoChase 와 같이 켠다.
         public bool AutoStomp { get; set; }
         float _mashAt;
+        // 시험용: 동작을 차례로 보여 준다(-autoplay motion): 대기 → 오른쪽·왼쪽 달리기(방향 전환) → 점프·착지 →
+        // 엎드리기 → 이모트 4종 → 대시. 스크린샷으로 각 동작 그림을 확인하는 데 쓴다.
+        public bool AutoMotion { get; set; }
+        float _motionAt;
+        int _motionStep = -1;
+        bool _autoDown;
+        EmoteKind _emoteLatch;
         public Vector2 ChaseDelta { get; set; }
         readonly System.Random _rng = new System.Random();
         int _autoMove = 1;
         float _autoTurnAt;
 
+        // 이번 프레임에 누른 이모트(없으면 0). 화면이 이모트를 받을 수 있을 때 GameBootstrap 이 가져간다.
+        public EmoteKind TakeEmote()
+        {
+            var e = _emoteLatch;
+            _emoteLatch = 0;
+            if (e != 0 || AutoPlay) return e;
+            if (UnityEngine.Input.GetKeyDown(KeyCode.Z)) return EmoteKind.Wave;
+            if (UnityEngine.Input.GetKeyDown(KeyCode.X)) return EmoteKind.Taunt;
+            if (UnityEngine.Input.GetKeyDown(KeyCode.C)) return EmoteKind.Cheer;
+            if (UnityEngine.Input.GetKeyDown(KeyCode.V)) return EmoteKind.Sad;
+            return 0;
+        }
+
+        void UpdateMotionScript()
+        {
+            if (Time.time < _motionAt) return;
+            _motionStep = (_motionStep + 1) % 12;
+            _autoMove = 0;
+            _autoDown = false;
+            float hold = 1.6f;
+            switch (_motionStep)
+            {
+                case 0: hold = 3f; break;                                   // 대기(눈 깜빡임)
+                case 1: _autoMove = 1; hold = 1.2f; break;                  // 달리기
+                case 2: _autoMove = -1; hold = 1.2f; break;                 // 방향 전환 + 달리기
+                case 3: _jumpLatch = true; hold = 1.4f; break;              // 점프 → 낙하 → 착지
+                case 4: _autoDown = true; hold = 2f; break;                 // 엎드리기
+                case 5: _emoteLatch = EmoteKind.Wave; hold = 2f; break;
+                case 6: _emoteLatch = EmoteKind.Taunt; hold = 2f; break;
+                case 7: _emoteLatch = EmoteKind.Cheer; hold = 2f; break;
+                case 8: _emoteLatch = EmoteKind.Sad; hold = 2f; break;
+                case 9: _autoMove = 1; _dashLatch = true; hold = 0.8f; break;
+                case 10: _autoMove = -1; _jumpLatch = true; hold = 1.2f; break;
+                case 11: hold = 1f; break;
+            }
+            _motionAt = Time.time + hold;
+        }
+
         void Update()
         {
             if (!Enabled) return;
+            if (AutoPlay && AutoMotion)
+            {
+                UpdateMotionScript();
+                return;
+            }
             if (AutoPlay && AutoChase)
             {
                 _autoMove = 0;
@@ -81,7 +133,7 @@ namespace OnlineSeverGame.Client.Input
         {
             if (!Enabled) return default;
             if (AutoPlay)
-                return new InputFrame { MoveX = _autoMove, JumpPressed = _jumpLatch, DashPressed = _dashLatch };
+                return new InputFrame { MoveX = _autoMove, JumpPressed = _jumpLatch, DashPressed = _dashLatch, DownHeld = _autoDown };
             int x = 0;
             if (UnityEngine.Input.GetKey(KeyCode.LeftArrow) || UnityEngine.Input.GetKey(KeyCode.A)) x -= 1;
             if (UnityEngine.Input.GetKey(KeyCode.RightArrow) || UnityEngine.Input.GetKey(KeyCode.D)) x += 1;

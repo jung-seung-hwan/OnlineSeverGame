@@ -24,7 +24,11 @@
 | 테스트용 MCP 도구 | [work/test-mcp.md](work/test-mcp.md) | 테스트용 MCP 도구 · 01 | 직접 만든 stdio MCP 서버(`Tools/TestMcp`, `.mcp.json`): 단위 테스트·서버+봇 경기를 백그라운드 작업으로 돌리고 요약. 만드는 법·쓰는 법 정리 |
 | 타이틀(게임 이름·로고) | [work/title.md](work/title.md) | 타이틀 · 01 | 이름 "Jelly Survival", 사각형으로 그린 로고(`UI/TitleLogo.cs`): 접속 화면에서 JELLY 글자 위 젤리 네 마리가 예고를 보고 옆 글자로 뛰어 피함, 대기 화면 작은 로고 |
 | 화면 글 점검·언어 전환·맵별 옆 위험물 | [work/side-hazards-i18n.md](work/side-hazards-i18n.md) | 전체 점검·언어·맵별 옆 위험물 · 01 | 완료: 화면 글 점검표(잘림·내부 용어 15건 고침), 한국어/영어 전환(`Loc` 표, 언어 버튼, PlayerPrefs), 옆 위험물이 맵마다 다름(칼·눈덩이·나무 상자·마카롱), 프로토콜 v6 |
+| 캐릭터 모션(프레임 보강·새 동작·출렁임·이모트) | [work/char-motion.md](work/char-motion.md) | 캐릭터 모션 · 01 | 브랜치 `claude/char-motion-3de3bd`: 시트 16행(달리기 8, 점프·낙하 4, 착지·엎드림·납작 기절+별·방향 전환·깜빡임·이모트 3), 판정 띠에 맞춘 그림, 출렁임, 이모트 Z·X·C·V(프로토콜 v7). main 병합 전 |
 | 추가 캐릭터(젤리곰·푸딩) | [work/art-characters.md](work/art-characters.md) | 캐릭터·맵 아트 · 02 | 후보 추천, 젤리곰·푸딩 콘셉트 시트, Blender 모델·스프라이트 시트(판정 띠를 젤리와 맞춤, 자동 측정). 캐릭터 고르기 기능·Unity 연결 남음 |
+| 타격감·사운드 | [work/juice-sound.md](work/juice-sound.md) | 타격감·사운드 · 01 | 1차 main 병합됨. 2차 완료(브랜치 `claude/juice-sound-d7d11d`, main 병합 대기): 소리 기준 v2 — 효과음 들리는 크기 맞춤(튀는 소리 해결)·배경음 4곡 손으로 쓴 스테레오 곡으로 교체·설정을 UI Toolkit 설정 창으로. 서버·프로토콜 변경 없음 |
+| UI 개편 | [work/ui-revamp.md](work/ui-revamp.md) | UI 개편 · 01 | 모든 화면을 UI Toolkit으로 다시 만듦: 둥근 젤리 패널·버튼, 주아체(OFL), 창 크기 배율(1280×720 기준), 접속자 젤리 카드, 맵 미리보기 고르기, 카운트다운 숫자, 가장자리 HUD, 결과 단상, 설정 창(언어·소리 자리), 화면 전환. 확장 자리 `UiHooks`, 클릭 자동 시험 `-uitest` |
+| 맵 레이아웃·이벤트 | [work/map-layout.md](work/map-layout.md) | 맵 레이아웃·이벤트 · 01 | 네 맵 비대칭 새 배치·특징 구조(주방 탑, 겨울 사라지는 눈 차양, 창고 움직이는 크레인 팔레트, 디저트 케이크 리프트), 라운드 중간 맵 이벤트(불·강풍·컨베이어·시럽), 숨는 자리·동선 수치 검증 테스트, 프로토콜 v7. 브랜치 `claude/map-layout-ea33fc`(main 병합 대기). 새 그림은 맵 비주얼 세션 |
 | 맵 비주얼(배경 깊이층·움직이는 배경·빈 공간 채우기) | [work/map-visual.md](work/map-visual.md) | 맵 비주얼 · 01 | 단계 A 완료: 네 맵 배경 4층(far/mid/attach/front)과 시차, 김·눈·등불·먼지·형광등·환풍기·꼬마전구·반짝임, 위쪽 빈 공간 소품. 단계 B: 레이아웃 설계대로 새 배치·구조물·이벤트 그림 렌더(`Art/sprites/*/layout2/`), 클라이언트 연결은 레이아웃 브랜치 병합 후 |
 
 ### 작업 문서에 들어갈 것

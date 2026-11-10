@@ -5,7 +5,7 @@ namespace OnlineSeverGame.Server.Tests;
 
 public class KnifeTests
 {
-    private static readonly Stage S = Stage.Default;
+    private static readonly Stage S = TestStages.Arena;
 
     [Fact]
     public void Warns_then_falls_then_lands_on_the_floor_then_disappears()
@@ -137,7 +137,7 @@ public class DashPushTests
         var states = new[] { Dashing(5000, 1), PlayerState.SpawnAt(5500, 0, -1) };
         DashCollision.Resolve(states, new[] { true, true }, 2);
         var target = states[1];
-        for (int i = 0; i < DashStunTicks; i++) PlayerPhysics.Step(ref target, InputButtons.Left, Stage.Default);
+        for (int i = 0; i < DashStunTicks; i++) PlayerPhysics.Step(ref target, InputButtons.Left, TestStages.Arena);
         Assert.True(target.X > 5500 + 2000, $"moved only to {target.X}");
         Assert.Equal(0, target.StunTicks);
     }

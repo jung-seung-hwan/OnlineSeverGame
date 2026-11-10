@@ -45,6 +45,9 @@ namespace OnlineSeverGame.Client.Game
         readonly SortedDictionary<byte, string> _names = new SortedDictionary<byte, string>();
         readonly Dictionary<byte, string> _departedNames = new Dictionary<byte, string>(); // 결과 화면에 남길 이름
         readonly HashSet<byte> _participants = new HashSet<byte>();
+        // 이모트(v7): 플레이어별 (종류, 시작 시각). 내 이모트는 보내는 즉시 보이고 서버의 되돌림은 건너뛴다.
+        readonly Dictionary<byte, (EmoteKind Kind, double Start)> _emotes = new Dictionary<byte, (EmoteKind, double)>();
+        double _localEmoteSentAt = -10.0;
         RoundEndPacket _lastRoundEnd;
         ushort _lastRoundStartNumber;
         double _lastPacketTime;
@@ -235,6 +238,12 @@ namespace OnlineSeverGame.Client.Game
                 case RoundStartPacket rs: OnRoundStart(rs); break;
                 case RoundEndPacket re: OnRoundEnd(re); break;
                 case RoomInfoPacket info: OnRoomInfo(info); break;
+                case EmotePacket e:
+                    // 내가 보낸 것의 되돌림이면 이미 보이고 있다
+                    if (e.PlayerId == _localId && _emotes.TryGetValue(e.PlayerId, out var mine) && mine.Kind == e.Emote
+                        && Now - mine.Start < 1.0) break;
+                    _emotes[e.PlayerId] = (e.Emote, Now);
+                    break;
                 case PongPacket p:
                     State.PingMs = (int)((uint)_clock.ElapsedMilliseconds - p.ClientTime);
                     break;
@@ -333,6 +342,16 @@ namespace OnlineSeverGame.Client.Game
             State.NextChosen = info.NextChosen;
             Debug.Log($"[Net] room host=#{info.HostId} next map {info.NextStageId} '{State.NextMapName}' rotation={info.Rotation}" +
                       (info.NextChosen ? " (host pick)" : ""));
+        }
+
+        // 이모트: 살아 있을 때만, 서버 제한(1초)보다 조금 길게 1.1초에 한 번. 내 화면에는 바로 보인다.
+        public void SendEmote(EmoteKind emote)
+        {
+            if (!_welcomed || Now - _localEmoteSentAt < 1.1) return;
+            if (_latest == null || !TryFindPlayer(_latest, _localId, out PlayerSnapshot me) || !me.Alive) return;
+            _localEmoteSentAt = Now;
+            _emotes[_localId] = (emote, Now);
+            _net.Send(new EmoteRequestPacket { Emote = emote });
         }
 
         // 방장만 보낸다(UI 가 막는다). 서버도 방장인지 확인하고, 바뀌면 RoomInfo 로 모두에게 알린다.
@@ -663,6 +682,15 @@ namespace OnlineSeverGame.Client.Game
                     render.Spectator = true;
                 }
                 render.Winner = State.Screen == ClientScreen.Result && State.WinnerIds.Contains(p.PlayerId);
+                if (_emotes.TryGetValue(p.PlayerId, out var emote))
+                {
+                    if (Now - emote.Start < EmoteTiming.Seconds && render.Alive)
+                    {
+                        render.Emote = emote.Kind;
+                        render.EmoteAge = (float)(Now - emote.Start);
+                    }
+                    else _emotes.Remove(p.PlayerId);
+                }
                 // 서버는 죽은 캐릭터를 죽은 자리(공중일 수 있음)에 멈춰 둔다. 웅덩이와 이름표는 아래 면 위에 그린다.
                 if (!render.Alive && !render.Spectator)
                     render.Position.y = _layout.SurfaceBelow(render.Position.x, render.Position.y);
@@ -672,6 +700,10 @@ namespace OnlineSeverGame.Client.Game
 
             // 그리는 시점의 지형(녹는 아이스크림 발판의 폭)
             _layout.RoundTick = s0.RoomState == RoomState.Playing ? s0.RoundTick : 0;
+            // 움직이는 발판·이벤트는 위험물과 같은 시각(_hazardTick, 살아 있으면 내 예측 시각)에 그린다.
+            _layout.DrawRoundTick = _latest.RoomState == RoomState.Playing
+                ? Math.Max(0.0, _latest.RoundTick + (_hazardTick - _latest.ServerTick))
+                : 0.0;
 
             CollectHazards(_hazardTick, World.Swords);
             CollectSideKnives(_hazardTick, World.SideKnives);

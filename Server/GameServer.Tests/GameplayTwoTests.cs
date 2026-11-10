@@ -7,7 +7,7 @@ namespace OnlineSeverGame.Server.Tests;
 /// <summary>Dash cooldown, stomp, crouch and pushable boxes (docs/work/gameplay-2.md).</summary>
 public class GameplayTwoTests
 {
-    private static readonly Stage S = Stage.Default;
+    private static readonly Stage S = TestStages.Arena;
 
     /// <summary>A stage with no platforms and one box, to keep box tests independent of the kitchen layout.</summary>
     private static readonly Stage Flat = new Stage(9, "Flat", 24000, 13500, 14000, new Platform[0],
@@ -254,8 +254,8 @@ public class GameplayTwoTests
     [Fact]
     public void Kitchen_has_one_box_and_some_decorations()
     {
-        Assert.Single(S.Pushables);
-        Assert.True(S.Decorations.Count >= 3);
+        Assert.Single(Stage.Kitchen.Pushables);
+        Assert.True(Stage.Kitchen.Decorations.Count >= 3);
         var room = PlayingRoom(2, out _);
         Assert.Single(room.Pushables);
         Assert.Equal((ushort)1, room.Pushables[0].Id);

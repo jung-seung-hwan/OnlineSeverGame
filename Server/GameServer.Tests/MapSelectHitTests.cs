@@ -126,9 +126,11 @@ public class MapSelectHitTests
         stunned.StunTicks = 5;
         Assert.True(HitShapes.Hits(stunned, HazardKind.Knife, 10000 - 900, 3000, 0));   // falls over backwards
         Assert.False(HitShapes.Hits(stunned, HazardKind.Knife, 10000 + 560, 3000, 0));
-        stunned.Stomped = true;                                                          // flattened: 0.44 tall over the feet
-        Assert.True(HitShapes.Hits(stunned, HazardKind.Knife, 10000, 3000, 400));
-        Assert.True(HitShapes.Hits(stunned, HazardKind.Knife, 10000, 3000, 400));
+        stunned.Stomped = true; // lying flat (the stun sheet row): 0.48 tall over the feet, front edge +0.53
+        Assert.False(HitShapes.Hits(stunned, HazardKind.Knife, 10000, 3000, 480)); // stops just above: no hit
+        Assert.True(HitShapes.Hits(stunned, HazardKind.Knife, 10000, 3000, 470));
+        Assert.True(HitShapes.Hits(stunned, HazardKind.Knife, 10000 + 640, 3000, 0)); // blade 0.12 + front 0.53
+        Assert.False(HitShapes.Hits(stunned, HazardKind.Knife, 10000 + 655, 3000, 0)); // the old 1.35 x 0.4 shape hit here
     }
 
     [Fact]
@@ -150,9 +152,9 @@ public class MapSelectHitTests
             byte a = room.AddPlayer("a"), b = room.AddPlayer("b");
             room.Tick();
             TickToPlaying(room);
-            room.GetPlayer(a).State = PlayerState.SpawnAt(1500, 0, 1); // open floor left of the low shelf
-            room.GetPlayer(b).State = PlayerState.SpawnAt(23000, 0, 1);
-            room.SpawnKnife(1500 + 620); // drawn edges overlap, old boxes 0.02 apart
+            room.GetPlayer(a).State = PlayerState.SpawnAt(22500, 0, 1); // open floor right of the range hood
+            room.GetPlayer(b).State = PlayerState.SpawnAt(500, 0, 1);
+            room.SpawnKnife(22500 - 620); // drawn edges overlap, old boxes 0.02 apart
             for (int i = 0; i < KnifeWarningTicks + 25; i++) room.Tick();
             Assert.Equal(!legacy, room.State == RoomState.Ended);
             Assert.Equal(legacy, room.GetPlayer(a).Alive);

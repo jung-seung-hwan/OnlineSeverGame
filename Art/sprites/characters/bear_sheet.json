@@ -41,56 +41,176 @@
       "row": 0,
       "frames": 4,
       "fps": 6,
-      "loop": true
+      "loop": true,
+      "draw_scale": [
+        1.0,
+        1.0
+      ]
     },
     {
       "name": "run",
       "row": 1,
-      "frames": 6,
-      "fps": 12,
-      "loop": true
+      "frames": 8,
+      "fps": 14,
+      "loop": true,
+      "draw_scale": [
+        1.0,
+        1.0
+      ]
     },
     {
       "name": "jump",
       "row": 2,
-      "frames": 2,
-      "fps": 10,
-      "loop": true
+      "frames": 4,
+      "fps": 12,
+      "loop": false,
+      "draw_scale": [
+        1.0,
+        1.0
+      ]
     },
     {
       "name": "fall",
       "row": 3,
-      "frames": 2,
+      "frames": 4,
       "fps": 10,
-      "loop": true
+      "loop": true,
+      "draw_scale": [
+        1.0,
+        1.0
+      ]
     },
     {
       "name": "dash",
       "row": 4,
-      "frames": 3,
-      "fps": 15,
-      "loop": true
+      "frames": 4,
+      "fps": 16,
+      "loop": true,
+      "draw_scale": [
+        1.0,
+        1.0
+      ]
     },
     {
       "name": "knockback",
       "row": 5,
-      "frames": 3,
+      "frames": 4,
       "fps": 12,
-      "loop": false
+      "loop": false,
+      "draw_scale": [
+        1.0,
+        1.0
+      ]
     },
     {
       "name": "death",
       "row": 6,
       "frames": 4,
       "fps": 10,
-      "loop": false
+      "loop": false,
+      "draw_scale": [
+        1.0,
+        1.0
+      ]
     },
     {
       "name": "victory",
       "row": 7,
       "frames": 4,
       "fps": 8,
-      "loop": true
+      "loop": true,
+      "draw_scale": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "name": "land",
+      "row": 8,
+      "frames": 3,
+      "fps": 20,
+      "loop": false,
+      "draw_scale": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "name": "crouch",
+      "row": 9,
+      "frames": 2,
+      "fps": 3,
+      "loop": true,
+      "draw_scale": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "name": "stun",
+      "row": 10,
+      "frames": 4,
+      "fps": 8,
+      "loop": true,
+      "draw_scale": [
+        1.1,
+        1.0
+      ]
+    },
+    {
+      "name": "turn",
+      "row": 11,
+      "frames": 2,
+      "fps": 24,
+      "loop": false,
+      "draw_scale": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "name": "blink",
+      "row": 12,
+      "frames": 3,
+      "fps": 16,
+      "loop": false,
+      "draw_scale": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "name": "emote_wave",
+      "row": 13,
+      "frames": 4,
+      "fps": 6,
+      "loop": true,
+      "draw_scale": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "name": "emote_taunt",
+      "row": 14,
+      "frames": 4,
+      "fps": 8,
+      "loop": true,
+      "draw_scale": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "name": "emote_sad",
+      "row": 15,
+      "frames": 4,
+      "fps": 4,
+      "loop": true,
+      "draw_scale": [
+        1.0,
+        1.0
+      ]
     }
   ]
 }
