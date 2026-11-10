@@ -22,7 +22,8 @@ namespace OnlineSeverGame.Client.Game
     public sealed class GameBootstrap : MonoBehaviour
     {
         public string PlayerName = "Player";
-        public string ServerAddress = "127.0.0.1:7777";
+        // 공개 서버(docs/work/online-server.md). 처음 켤 때의 기본값이고, 접속 화면에서 바꾼 주소는 PlayerPrefs가 기억한다.
+        public string ServerAddress = "wildmagic.co.kr:7771";
 
         public IGameSession Session { get; private set; }
         public Camera WorldCamera { get; private set; }

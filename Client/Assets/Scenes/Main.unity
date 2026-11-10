@@ -149,7 +149,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OnlineSeverGame.Client.Game.GameBootstrap
   PlayerName: Player
-  ServerAddress: 127.0.0.1:7777
+  ServerAddress: wildmagic.co.kr:7771
 --- !u!4 &698469364
 Transform:
   m_ObjectHideFlags: 0
