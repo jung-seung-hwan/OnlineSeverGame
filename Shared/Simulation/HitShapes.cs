@@ -247,6 +247,28 @@ namespace OnlineSeverGame.Shared.Simulation
         }
 
         /// <summary>
+        /// The player's drawn body against a fixed rectangle (a burner's flames): same band rule as Separation.
+        /// Negative = overlapping.
+        /// </summary>
+        public static int RectSeparation(in PlayerState p, int left, int right, int bottom, int top)
+        {
+            HitBand[] body = OfPlayer(p);
+            bool facingRight = p.Facing >= 0;
+            int best = int.MaxValue;
+            foreach (var b in body)
+            {
+                int bl = facingRight ? p.X + b.Left : p.X - b.Right;
+                int br = facingRight ? p.X + b.Right : p.X - b.Left;
+                int bb = p.Y + b.Bottom, bt = p.Y + b.Top;
+                int gx = Math.Max(bl - right, left - br);
+                int gy = Math.Max(bb - top, bottom - bt);
+                int gap = Math.Max(gx, gy);
+                if (gap < best) best = gap;
+            }
+            return best;
+        }
+
+        /// <summary>
         /// A side hazard flying along the lane at centre height y, whose tip went from fromX to toX this tick, against
         /// the player's drawn body. Same band rule as Separation; every band sweeps the whole move (from its place
         /// at fromX to its place at toX), so nothing tunnels. Negative = a hit.

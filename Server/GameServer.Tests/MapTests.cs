@@ -43,13 +43,19 @@ public class MapTests
     private static void Place(GameRoom room, byte id, int x, int y = 0) =>
         room.GetPlayer(id).State = PlayerState.SpawnAt(x, y, 1);
 
-    /// <summary>An x on the floor where the map's hazard falls straight to the floor and no box is near.</summary>
-    private static int OpenFloorX(Stage stage)
+    /// <summary>
+    /// An x on the floor where the map's hazard falls straight to the floor (now and for the next 3 s, the crane
+    /// pallet moves) and no box is near.
+    /// </summary>
+    private static int OpenFloorX(Stage stage, uint roundTick = 0)
     {
         int half = HazardSpec.Of(stage.Hazard).HalfWidth + PlayerHalfWidth;
         for (int x = 500; x < stage.Width; x += 250)
         {
-            if (stage.HazardLandingY(stage.Hazard, x, stage.KnifeSpawnY) != 0) continue;
+            bool open = true;
+            for (uint t = roundTick; t <= roundTick + 60; t += 5)
+                if (stage.AtRoundTick(t).HazardLandingY(stage.Hazard, x, stage.KnifeSpawnY) != 0) open = false;
+            if (!open) continue;
             if (stage.Pushables.Any(p => Math.Abs(p.X - x) < p.Width / 2 + half)) continue;
             return x;
         }
@@ -59,7 +65,7 @@ public class MapTests
     /// <summary>Kills the first player with the map's own hazard so the round ends, then waits for the next countdown.</summary>
     private static void FinishRound(GameRoom room, byte victim, byte other)
     {
-        int x = OpenFloorX(room.Stage);
+        int x = OpenFloorX(room.Stage, room.RoundTick);
         Place(room, victim, x);
         Place(room, other, x < 12000 ? 23000 : 1000);
         room.SpawnKnife(x);
@@ -194,7 +200,10 @@ public class MapTests
         Assert.Equal(0, k.Y);
         Assert.Equal(19, ticks);
         Assert.Equal(4800, DropUntilLanded(w, HazardKind.Icicle, 7000, out _).Y);  // left beam
-        Assert.Equal(1600, DropUntilLanded(w, HazardKind.Icicle, 12000, out _).Y); // bench
+        Assert.Equal(7200, DropUntilLanded(w, HazardKind.Icicle, 12500, out _).Y); // snow awning 1 (while it is there)
+        Assert.Equal(9600, DropUntilLanded(w, HazardKind.Icicle, 16500, out _).Y); // stone ledge over the right ice sill
+        Assert.Equal(4800, DropUntilLanded(w, HazardKind.Icicle, 20500, out _).Y); // through the icy gutter onto snow awning 2
+        Assert.Equal(0, DropUntilLanded(w, HazardKind.Icicle, 22500, out _).Y);    // icy gutter alone is no roof
         Assert.Equal(0, w.KnifeLandingY(3500, w.KnifeSpawnY));
         // A knife at the same spot would have stuck in the sill.
         Assert.Equal(2400, w.HazardLandingY(HazardKind.Knife, 3500, w.KnifeSpawnY));
@@ -220,7 +229,7 @@ public class MapTests
     public void Walking_on_ice_eases_in_and_slides_on_release()
     {
         var w = Stage.Winter;
-        var s = PlayerState.SpawnAt(12000, 0, 1); // frozen puddle 8..16
+        var s = PlayerState.SpawnAt(8000, 0, 1); // frozen puddle 6.5..14
         var speeds = new List<int>();
         for (int i = 0; i < 9; i++)
         {
@@ -286,7 +295,7 @@ public class MapTests
         Assert.Equal(0, states[1].Vy);          // no lift on ice
         Assert.True(states[1].Grounded);
 
-        int ice = KnockDistance(Stage.Winter, 10000);
+        int ice = KnockDistance(Stage.Winter, 7200);
         int snow = KnockDistance(Stage.Winter, 1500);
         Assert.InRange(snow, 2000, 2800);
         Assert.InRange(ice, 5500, 6400); // about 5.9: the 1 s dash stun keeps the ice decay (vx/8) going longer (dash-side-knife.md 2.3)
@@ -319,20 +328,21 @@ public class MapTests
         var room = Room(Stage.Warehouse);
         byte a = room.AddPlayer("a"), b = room.AddPlayer("b"), c = room.AddPlayer("c");
         TickToPlaying(room);
-        Place(room, a, 6000);
-        Place(room, b, 21000, 2400); // under the right rack's top shelf
+        Place(room, a, 18200);
+        Place(room, b, 21000, 2400); // under the rack's second level
         room.GetPlayer(b).State.Grounded = true;
         Place(room, c, 1500);
-        room.SpawnKnife(6000);   // floor
-        room.SpawnKnife(12000);  // hanging pallet
+        room.SpawnKnife(18200);  // floor between the pallet's reach and the rack
+        room.SpawnKnife(8500);   // crane pallet (still waiting at its left end)
         Assert.All(room.Knives, k => Assert.Equal(HazardKind.Crate, k.Kind));
         for (int i = 0; i < 70 && room.Pushables.Length < 4; i++) room.Tick();
 
         Assert.False(room.GetPlayer(a).Alive);
         Assert.Equal(4, room.Pushables.Length);
         Assert.Empty(room.Knives);
-        Assert.Contains(room.Pushables, p => p.X == 6000 && p.Y == 0 && p.Width == 1400 && p.Height == 1200);
-        Assert.Contains(room.Pushables, p => p.X == 12000 && p.Y == 3600);
+        Assert.Contains(room.Pushables, p => p.X == 18200 && p.Y == 0 && p.Width == 1400 && p.Height == 1200);
+        // Landed on the pallet, then carried along as it started moving right.
+        Assert.Contains(room.Pushables, p => p.Y == 8400 && p.X >= 8500 && p.X <= 8500 + 70 * 20);
         Assert.Equal(2, room.RoundCratesLanded);
     }
 
@@ -344,10 +354,10 @@ public class MapTests
         Place(room, b, 22500);
         for (int n = 0; n < 3; n++)
         {
-            room.SpawnKnife(6000);
+            room.SpawnKnife(18200);
             TickUntilNoHazards(room);
         }
-        var stack = room.Pushables.Where(p => p.X == 6000).OrderBy(p => p.Y).Select(p => p.Y).ToArray();
+        var stack = room.Pushables.Where(p => p.X == 18200).OrderBy(p => p.Y).Select(p => p.Y).ToArray();
         Assert.Equal(new[] { 0, 1200 }, stack);
         Assert.Equal(2, room.RoundCratesLanded);
     }
@@ -391,31 +401,38 @@ public class MapTests
     {
         var d = Stage.Dessert;
         Assert.Same(d, d.AtRoundTick(0));
-        Assert.Same(d, d.AtRoundTick(MeltDelayTicks));
+        Assert.Equal(d.Platforms.Select(p => p.Width), d.AtRoundTick(MeltDelayTicks).Platforms.Select(p => p.Width));
         var t300 = d.AtRoundTick(MeltDelayTicks + 100);
         Assert.Equal((1700, 6300), (t300.Platforms[0].Left, t300.Platforms[0].Right)); // strawberry: 2 per tick per side
-        Assert.Equal((10800, 13200), (t300.Platforms[3].Left, t300.Platforms[3].Right)); // chocolate: 3 per tick
+        Assert.Equal((11800, 14200), (t300.Platforms[3].Left, t300.Platforms[3].Right)); // chocolate: 3 per tick
         Assert.Same(t300, d.AtRoundTick(MeltDelayTicks + 100)); // cached
         Assert.Same(d, t300.Base);
 
         var late = d.AtRoundTick(RoundTimeLimitTicks);
-        Assert.Equal(new[] { 1600, 1600, 2000, 1000 }, late.Platforms.Select(p => p.Width).ToArray());
-        Assert.Equal(new[] { 4000, 20000, 12000, 12000 }, late.Platforms.Select(p => p.CenterX).ToArray());
-        // Minimums reached at 26.7 s (chocolate), 52.5 s (strawberry, mint) and 72.5 s (vanilla).
+        Assert.Equal(new[] { 1600, 1600, 2000, 1000 }, late.Platforms.Take(4).Select(p => p.Width).ToArray());
+        Assert.Equal(new[] { 4000, 21500, 8500, 13000 }, late.Platforms.Take(4).Select(p => p.CenterX).ToArray());
+        // Minimums reached at 26.7 s (chocolate), 40 s (mint), 52.5 s (strawberry) and 60 s (vanilla).
         Assert.Equal(1600, d.AtRoundTick(1050).Platforms[0].Width);
         Assert.True(d.AtRoundTick(1040).Platforms[0].Width > 1600);
-        Assert.Equal(2000, d.AtRoundTick(1450).Platforms[2].Width);
-        Assert.True(d.AtRoundTick(1440).Platforms[2].Width > 2000);
+        Assert.Equal(1600, d.AtRoundTick(800).Platforms[1].Width);
+        Assert.True(d.AtRoundTick(790).Platforms[1].Width > 1600);
+        Assert.Equal(2000, d.AtRoundTick(1200).Platforms[2].Width);
+        Assert.True(d.AtRoundTick(1190).Platforms[2].Width > 2000);
+        Assert.Equal(1000, d.AtRoundTick(534).Platforms[3].Width);
+        Assert.True(d.AtRoundTick(530).Platforms[3].Width > 1000);
+        // The cherry top and the wafer never melt.
+        Assert.Equal(d.Platforms[4].Width, late.Platforms[4].Width);
+        Assert.Equal(d.Platforms[6].Width, late.Platforms[6].Width);
     }
 
     [Fact]
     public void A_jelly_on_the_melting_edge_falls_off_when_the_edge_passes_it()
     {
         var d = Stage.Dessert;
-        var s = PlayerState.SpawnAt(6400, 2000, 1); // body 6.0..6.8 on strawberry 1.5..6.5
+        var s = PlayerState.SpawnAt(6400, 2400, 1); // body 6.0..6.8 on strawberry 1.5..6.5
         s.Grounded = true;
         for (uint t = 201; t <= 440; t++) PlayerPhysics.Step(ref s, InputButtons.None, d.AtRoundTick(t));
-        Assert.Equal(2000, s.Y);
+        Assert.Equal(2400, s.Y);
         for (uint t = 441; t <= 500; t++) PlayerPhysics.Step(ref s, InputButtons.None, d.AtRoundTick(t));
         Assert.Equal(0, s.Y);
     }
@@ -459,11 +476,11 @@ public class MapTests
     [Fact]
     public void Bots_see_crates_as_wide_and_do_not_hide_from_icicles_under_ice()
     {
-        var crate = new KnifeState { Id = 1, Kind = HazardKind.Crate, Phase = KnifePhase.Warning, X = 6000, Y = 14000, Timer = 10 };
-        var me = PlayerState.SpawnAt(7000, 0, 1);
+        var crate = new KnifeState { Id = 1, Kind = HazardKind.Crate, Phase = KnifePhase.Warning, X = 12000, Y = 14000, Timer = 10 };
+        var me = PlayerState.SpawnAt(13000, 0, 1);
         var d = Assert.Single(DodgeBrain.FindDangers(me, new[] { crate }, Stage.Warehouse, 2));
-        Assert.Equal(6000 - 720 - HitShapes.BodyHalfWidth - DodgeBrain.Margin, d.Left);
-        Assert.True(d.Contains(7000));
+        Assert.Equal(12000 - 720 - HitShapes.BodyHalfWidth - DodgeBrain.Margin, d.Left);
+        Assert.True(d.Contains(13000));
 
         // On the icy window sill an icicle goes through it: no Down + Jump, walk out instead.
         var icicle = new KnifeState { Id = 2, Kind = HazardKind.Icicle, Phase = KnifePhase.Warning, X = 3500, Y = 11800, Timer = 20 };

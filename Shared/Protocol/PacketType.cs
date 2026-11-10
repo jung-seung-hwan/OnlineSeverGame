@@ -76,5 +76,7 @@ namespace OnlineSeverGame.Shared.Protocol
         Disconnected = 2,
         /// <summary>Hit by a side knife flying across the map.</summary>
         SideKnife = 3,
+        /// <summary>Caught by the map event (v7: the kitchen burners' fire). docs/work/map-layout.md 4.1.</summary>
+        MapEvent = 4,
     }
 }

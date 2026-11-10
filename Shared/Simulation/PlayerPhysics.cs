@@ -24,6 +24,12 @@ namespace OnlineSeverGame.Shared.Simulation
             InputButtons pressed = buttons & ~s.PrevButtons;
             bool down = (buttons & InputButtons.Down) != 0;
             bool dropThrough = false;
+            // A platform that moved since the last tick carries whoever stood on it (docs/work/map-layout.md 5.1).
+            if (s.Grounded) CarryOnPlatform(ref s, stage);
+            // Map event at the start of the tick: wind / conveyor push, syrup slows walking.
+            bool groundedAtStart = s.Grounded;
+            int eventPush = MapEventPhysics.PlayerPush(stage, s, groundedAtStart, groundedAtStart && down);
+            int walkPercent = MapEventPhysics.WalkPercent(stage, s, groundedAtStart);
             bool onIce = s.Grounded && stage.IsIceAt(s.X - GameConstants.PlayerHalfWidth, s.X + GameConstants.PlayerHalfWidth, s.Y);
 
             // DashTicks counts the dash ticks still owed, including the one performed in this step.
@@ -65,7 +71,7 @@ namespace OnlineSeverGame.Shared.Simulation
                 else
                 {
                     bool crouch = s.Grounded && down;
-                    int want = dir * (crouch ? GameConstants.CrouchMoveSpeed : GameConstants.MoveSpeed);
+                    int want = dir * (crouch ? GameConstants.CrouchMoveSpeed : GameConstants.MoveSpeed) * walkPercent / 100;
                     s.Vx = onIce ? Slide(s.Vx, want) : want;
                     if ((pressed & InputButtons.Jump) != 0 && s.Grounded)
                     {
@@ -88,7 +94,7 @@ namespace OnlineSeverGame.Shared.Simulation
 
             // Horizontal: walls at both stage edges, then box sides.
             int oldX = s.X;
-            s.X += s.Vx;
+            s.X += s.Vx + eventPush;
             int minX = GameConstants.PlayerHalfWidth;
             int maxX = stage.Width - GameConstants.PlayerHalfWidth;
             if (s.X < minX || s.X > maxX)
@@ -124,6 +130,27 @@ namespace OnlineSeverGame.Shared.Simulation
 
             s.Crouching = s.Grounded && down && s.DashTicks == 0 && s.StunTicks == 0;
             s.PrevButtons = buttons;
+        }
+
+        /// <summary>
+        /// Standing on a platform that moved by (Dx, Dy) since the previous tick (its old top and span still under the
+        /// feet): move along with it, inside the walls.
+        /// </summary>
+        public static void CarryOnPlatform(ref PlayerState s, Stage stage)
+        {
+            int half = GameConstants.PlayerHalfWidth;
+            for (int i = 0; i < stage.Platforms.Count; i++)
+            {
+                Platform p = stage.Platforms[i];
+                if ((p.Dx == 0 && p.Dy == 0) || p.Gone) continue;
+                if (s.Y != p.Top - p.Dy) continue;
+                if (!(s.X - half < p.Right - p.Dx && p.Left - p.Dx < s.X + half)) continue;
+                int x = s.X + p.Dx;
+                int maxX = stage.Width - half;
+                s.X = x < half ? half : x > maxX ? maxX : x;
+                s.Y += p.Dy;
+                return;
+            }
         }
 
         /// <summary>On ice: drop any dash or knockback speed to walking speed, then ease toward want.</summary>

@@ -27,6 +27,9 @@ namespace OnlineSeverGame.Client.Model
         public int Version;
         // 그리는 시점의 라운드 틱(Playing 이 아니면 0). 녹는 발판의 지금 모양을 정한다.
         public uint RoundTick;
+        // 움직이는·사라지는 발판과 맵 이벤트를 그릴 라운드 틱(소수, Playing 이 아니면 0). 위험물을 그리는 시각과 같다
+        // (살아 있으면 내 예측 시각): 팔레트·리프트 위에 선 내 캐릭터와 발판이 같은 틱으로 그려진다. docs/work/map-layout.md 5.5
+        public double DrawRoundTick;
 
         // 지금 라운드 틱의 지형(녹는 발판이 줄어든 모양)
         public Stage Current => Source.AtRoundTick(RoundTick);
@@ -47,6 +50,7 @@ namespace OnlineSeverGame.Client.Model
             Source = stage;
             Version++;
             RoundTick = 0;
+            DrawRoundTick = 0;
             Width = ToWorld(stage.Width);
             Height = ToWorld(stage.ViewHeight);
             SwordSpawnY = ToWorld(stage.KnifeSpawnY);

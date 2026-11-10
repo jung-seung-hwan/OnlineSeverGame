@@ -76,6 +76,8 @@ namespace OnlineSeverGame.Shared.Simulation
             {
                 ref PushableState b = ref boxes[i];
                 int oldX = b.X;
+                if (b.Grounded) CarryOnPlatform(ref b, stage);
+                int belt = MapEventPhysics.BoxPush(stage, b);
 
                 if (b.Grounded)
                 {
@@ -87,7 +89,7 @@ namespace OnlineSeverGame.Shared.Simulation
                 if (b.Vy < -GameConstants.MaxFallSpeed) b.Vy = -GameConstants.MaxFallSpeed;
 
                 // Horizontal: walls, then other boxes, then players.
-                b.X += b.Vx;
+                b.X += b.Vx + belt;
                 int half = b.Width / 2;
                 if (b.X < half || b.X > stage.Width - half)
                 {
@@ -155,6 +157,21 @@ namespace OnlineSeverGame.Shared.Simulation
                 }
 
                 if (movedX != null) movedX[i] = b.X - oldX;
+            }
+        }
+
+        /// <summary>A box resting on a platform that moved since the previous tick moves with it.</summary>
+        private static void CarryOnPlatform(ref PushableState b, Stage stage)
+        {
+            for (int i = 0; i < stage.Platforms.Count; i++)
+            {
+                Platform p = stage.Platforms[i];
+                if ((p.Dx == 0 && p.Dy == 0) || p.Gone) continue;
+                if (b.Y != p.Top - p.Dy) continue;
+                if (!Overlaps1D(b.Left, b.Right, p.Left - p.Dx, p.Right - p.Dx)) continue;
+                b.X += p.Dx;
+                b.Y += p.Dy;
+                return;
             }
         }
 

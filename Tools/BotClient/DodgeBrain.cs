@@ -11,6 +11,8 @@ namespace OnlineSeverGame.BotClient;
 ///  2. If I stand inside an interval, walk to the nearest x outside all of them; dash when walking
 ///     cannot get there before impact; drop through the platform (Down + Jump) when the knife would land on it.
 ///  3. Otherwise follow the wander input, but do not walk into an interval.
+///     The kitchen fire (docs/work/map-layout.md 4.1) is a danger interval too: each burner that is warned or
+///     burning, widened by the drawn body, for bots on the floor.
 ///  4. Side knives (docs/work/dash-side-knife.md 3.6): for each noticed side knife whose lane meets my body,
 ///     crouch while it passes if crouching gets under it, else jump a few ticks before it arrives. While one is
 ///     coming at a height a jump would carry me into, do not jump.
@@ -72,7 +74,25 @@ public static class DodgeBrain
             if (landing >= bodyTop) continue; // stops on a surface above me
             dangers.Add(new Danger(k.X - halfWidth, k.X + halfWidth, ticks, landing));
         }
+        AddFire(dangers, me, stage, reactionTicks);
         return dangers;
+    }
+
+    /// <summary>Burners that are about to burn or burning, for a bot low enough for the flames to reach.</summary>
+    private static void AddFire(List<Danger> dangers, in PlayerState me, Stage stage, int reactionTicks)
+    {
+        MapEventState e = stage.Event;
+        if (e.Kind != MapEventKind.Fire || e.Phase == MapEventPhase.None) return;
+        if (me.Y >= e.Strength) return; // above the flames
+        int ticks = 0;
+        if (e.IsWarning)
+        {
+            MapEventSpec spec = stage.EventSpec;
+            if (spec != null && spec.WarningTicks - e.TicksLeft < reactionTicks) return; // not noticed yet
+            ticks = e.TicksLeft;
+        }
+        int pad = HitShapes.BodyHalfWidth + Margin;
+        foreach (FloorSpan f in e.Spans) dangers.Add(new Danger(f.Left - pad, f.Right + pad, ticks, 0));
     }
 
     /// <summary>Whole falling ticks that fit in distance for a hazard that has fallen fallenTicks (icicles speed up).</summary>
@@ -165,8 +185,58 @@ public static class DodgeBrain
         InputButtons wander, IReadOnlyList<PushableState> boxes = null, IReadOnlyList<SideKnifeState> sideKnives = null,
         int lagTicks = 0)
     {
-        return ApplySide(DecideFalling(me, knives, stage, reactionTicks, wander, boxes),
-            PlanSide(me, sideKnives, reactionTicks, lagTicks));
+        return KeepOffFire(me, stage, ApplySide(DecideFalling(me, knives, stage, reactionTicks, wander, boxes),
+            PlanSide(me, sideKnives, reactionTicks, lagTicks)));
+    }
+
+    /// <summary>
+    /// Above the floor while burners are warned or burning (the first server runs: every fire death was a bot
+    /// landing on a burner from the tray shelf or the hood): over a lit burner, no dropping through and no jumping
+    /// off; never walk off the platform edge over a lit burner.
+    /// </summary>
+    private static InputButtons KeepOffFire(in PlayerState me, Stage stage, InputButtons b)
+    {
+        MapEventState e = stage.Event;
+        if (e.Kind != MapEventKind.Fire || e.Phase == MapEventPhase.None) return b;
+        int pad = HitShapes.BodyHalfWidth + Margin;
+        bool OverFire(int x)
+        {
+            foreach (FloorSpan f in e.Spans)
+                if (x >= f.Left - pad && x <= f.Right + pad) return true;
+            return false;
+        }
+        if (!me.Grounded)
+        {
+            // In the air, coming down over (or drifting into) a lit burner: steer to its nearer outside edge.
+            int at = me.X + me.Vx * 4;
+            if (me.Y < 3000 && (OverFire(me.X) || OverFire(at)))
+            {
+                foreach (FloorSpan f in e.Spans)
+                {
+                    if (at < f.Left - pad || at > f.Right + pad) continue;
+                    bool left = at - (f.Left - pad) < (f.Right + pad) - at;
+                    b &= ~(InputButtons.Left | InputButtons.Right);
+                    b |= left ? InputButtons.Left : InputButtons.Right;
+                }
+            }
+            return b;
+        }
+        if (me.Y < e.Strength)
+        {
+            // On the floor: a jump near a lit burner tends to come down in it.
+            foreach (FloorSpan f in e.Spans)
+                if (me.X > f.Left - 3500 && me.X < f.Right + 3500) b &= ~InputButtons.Jump;
+            return b;
+        }
+        if (OverFire(me.X)) b &= ~(InputButtons.Down | InputButtons.Jump);
+        int dir = Dir(b);
+        if (dir != 0 && me.Grounded)
+        {
+            int ahead = me.X + dir * GameConstants.MoveSpeed * LookAheadTicks;
+            bool supported = stage.IsOnPlatform(ahead - GameConstants.PlayerHalfWidth, ahead + GameConstants.PlayerHalfWidth, me.Y);
+            if (!supported && OverFire(ahead)) b &= ~(InputButtons.Left | InputButtons.Right | InputButtons.Dash);
+        }
+        return b;
     }
 
     private static InputButtons ApplySide(InputButtons b, SidePlan plan)

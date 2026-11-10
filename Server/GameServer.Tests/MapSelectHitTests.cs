@@ -152,9 +152,9 @@ public class MapSelectHitTests
             byte a = room.AddPlayer("a"), b = room.AddPlayer("b");
             room.Tick();
             TickToPlaying(room);
-            room.GetPlayer(a).State = PlayerState.SpawnAt(1500, 0, 1); // open floor left of the low shelf
-            room.GetPlayer(b).State = PlayerState.SpawnAt(23000, 0, 1);
-            room.SpawnKnife(1500 + 620); // drawn edges overlap, old boxes 0.02 apart
+            room.GetPlayer(a).State = PlayerState.SpawnAt(22500, 0, 1); // open floor right of the range hood
+            room.GetPlayer(b).State = PlayerState.SpawnAt(500, 0, 1);
+            room.SpawnKnife(22500 - 620); // drawn edges overlap, old boxes 0.02 apart
             for (int i = 0; i < KnifeWarningTicks + 25; i++) room.Tick();
             Assert.Equal(!legacy, room.State == RoomState.Ended);
             Assert.Equal(legacy, room.GetPlayer(a).Alive);

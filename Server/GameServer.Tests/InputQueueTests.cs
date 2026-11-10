@@ -13,7 +13,7 @@ public class InputQueueTests
     {
         var room = new GameRoom(new RoomConfig
         {
-            MinPlayers = 2, AutoSpawnKnives = false, AutoSpawnSideKnives = false, Seed = 1, TrimInputQueue = trim, InputTrimMaxWindowTicks = maxWindowTicks,
+            MinPlayers = 2, AutoSpawnKnives = false, AutoSpawnSideKnives = false, Seed = 1, TrimInputQueue = trim, InputTrimMaxWindowTicks = maxWindowTicks, Stage = TestStages.Arena,
         });
         byte a = room.AddPlayer("a");
         room.AddPlayer("b");

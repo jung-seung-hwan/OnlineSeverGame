@@ -36,7 +36,7 @@ public class EmoteTests
         Assert.Equal(2 + 1 + 2, frame.Length);
         var e = Assert.IsType<EmotePacket>(PacketCodec.DecodePayload(frame, 2, frame.Length - 2));
         Assert.Equal((5, EmoteKind.Sad), (e.PlayerId, e.Emote));
-        Assert.Equal(7, ProtocolConstants.Version);
+        Assert.True(ProtocolConstants.Version >= 7); // v7 added emotes (v8: map event cause, same layout)
     }
 
     [Fact]

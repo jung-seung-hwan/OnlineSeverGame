@@ -7,7 +7,7 @@ namespace OnlineSeverGame.Server.Tests;
 
 public class DodgeBrainTests
 {
-    private static readonly Stage S = Stage.Default;
+    private static readonly Stage S = TestStages.Arena;
     private const int Reaction = 2;
 
     private static KnifeState Warning(int x, int timerLeft = 10) =>
@@ -89,7 +89,7 @@ public class PushLoggingTests
         foreach (bool verbose in new[] { false, true })
         {
             var log = new List<string>();
-            var room = new GameRoom(new RoomConfig { MinPlayers = 2, AutoSpawnKnives = false, LogPushes = verbose }, log.Add);
+            var room = new GameRoom(new RoomConfig { MinPlayers = 2, AutoSpawnKnives = false, LogPushes = verbose, Stage = TestStages.Arena }, log.Add);
             byte a = room.AddPlayer("a");
             byte b = room.AddPlayer("b");
             room.Tick();

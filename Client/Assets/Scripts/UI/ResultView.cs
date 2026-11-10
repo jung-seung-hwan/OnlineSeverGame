@@ -191,6 +191,7 @@ namespace OnlineSeverGame.Client.UI
             if (p.Survived) return Loc.T("result.survived");
             if (p.Cause == EliminationCause.SideKnife) return Loc.F("result.died", p.SurvivedSeconds, Loc.SideHazardName(stage.SideHazard));
             if (p.Cause == EliminationCause.Knife) return Loc.F("result.died", p.SurvivedSeconds, Loc.HazardName(stage.Hazard));
+            if (p.Cause == EliminationCause.MapEvent) return Loc.F("result.burned", p.SurvivedSeconds); // v8: 주방 화구 불
             return Loc.F("hud.seconds", p.SurvivedSeconds);
         }
     }
