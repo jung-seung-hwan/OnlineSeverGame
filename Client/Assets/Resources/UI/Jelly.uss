@@ -1,0 +1,393 @@
+/* Jelly Survival UI 스타일(docs/work/ui-revamp.md 2장 디자인 기준).
+   단위는 1280×720 기준 화면 점(패널 배율은 GameUI 가 창 크기에 맞춰 정한다).
+   색: 배경 잉크(저채도 어두운 보라), 크림 글자, 강조는 플레이어 색(라임·블루베리·레몬·포도),
+   위험물 빨강(#FF4033)은 경고(.warn-*)에만 쓴다. */
+
+.ui-root {
+    position: absolute;
+    left: 0; top: 0; right: 0; bottom: 0;
+    color: rgb(255, 246, 232);
+    font-size: 20px;
+}
+
+.screen {
+    position: absolute;
+    left: 0; top: 0; right: 0; bottom: 0;
+}
+
+.layer {
+    position: absolute;
+    left: 0; top: 0; right: 0; bottom: 0;
+}
+
+/* ---------------------------------------------------------------- 패널 */
+
+.panel {
+    background-color: rgba(34, 28, 46, 0.93);
+    border-left-width: 3px; border-right-width: 3px; border-top-width: 3px; border-bottom-width: 6px;
+    border-left-color: rgb(66, 54, 88); border-right-color: rgb(66, 54, 88);
+    border-top-color: rgb(84, 70, 110); border-bottom-color: rgb(20, 16, 28);
+    border-top-left-radius: 24px; border-top-right-radius: 24px;
+    border-bottom-left-radius: 24px; border-bottom-right-radius: 24px;
+    padding-left: 22px; padding-right: 22px; padding-top: 18px; padding-bottom: 18px;
+}
+
+.panel--soft {
+    background-color: rgba(34, 28, 46, 0.80);
+}
+
+.panel--tight {
+    padding-left: 14px; padding-right: 14px; padding-top: 10px; padding-bottom: 10px;
+    border-top-left-radius: 18px; border-top-right-radius: 18px;
+    border-bottom-left-radius: 18px; border-bottom-right-radius: 18px;
+}
+
+.pill {
+    flex-direction: row;
+    align-items: center;
+    background-color: rgba(26, 21, 36, 0.78);
+    border-top-left-radius: 18px; border-top-right-radius: 18px;
+    border-bottom-left-radius: 18px; border-bottom-right-radius: 18px;
+    padding-left: 14px; padding-right: 14px; padding-top: 4px; padding-bottom: 5px;
+    border-bottom-width: 3px; border-bottom-color: rgba(10, 8, 14, 0.6);
+}
+
+/* ---------------------------------------------------------------- 글자 */
+
+.t-display { font-size: 150px; -unity-text-align: middle-center; -unity-text-outline-width: 4px; -unity-text-outline-color: rgb(26, 24, 30); }
+.t-h1 { font-size: 40px; -unity-text-align: middle-center; }
+.t-h2 { font-size: 28px; }
+.t-body { font-size: 20px; }
+.t-small { font-size: 16px; }
+.t-tiny { font-size: 14px; }
+.t-muted { color: rgb(189, 179, 207); }
+.t-center { -unity-text-align: middle-center; }
+.t-right { -unity-text-align: middle-right; }
+.t-wrap { white-space: normal; }
+.t-shadow { text-shadow: 0 2px 0 rgba(10, 8, 14, 0.9); }
+
+/* ---------------------------------------------------------------- 젤리 버튼
+   둥근 몸 + 아래 두꺼운 그림자 테두리(말랑한 두께) + 위쪽 광택 띠. 누르면 눌려 내려가고 그림자가 얇아진다. */
+
+.jb {
+    margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0;
+    padding-left: 18px; padding-right: 18px; padding-top: 4px; padding-bottom: 4px;
+    height: 46px;
+    min-width: 46px;
+    font-size: 22px;
+    color: rgb(255, 250, 240);
+    -unity-text-align: middle-center;
+    white-space: nowrap;
+    background-color: rgb(74, 61, 99);
+    border-left-width: 0; border-right-width: 0; border-top-width: 0;
+    border-bottom-width: 6px;
+    border-bottom-color: rgb(43, 35, 60);
+    border-top-left-radius: 18px; border-top-right-radius: 18px;
+    border-bottom-left-radius: 18px; border-bottom-right-radius: 18px;
+    text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+    transition-property: scale, translate, border-bottom-width, background-color;
+    transition-duration: 0.12s, 0.08s, 0.08s, 0.15s;
+    transition-timing-function: ease-out-back, ease-out, ease-out, ease-out;
+    overflow: hidden;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.jb-label {
+    -unity-text-align: middle-center;
+    white-space: nowrap;
+    padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0;
+    margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0;
+}
+
+.jb:hover { scale: 1.04 1.04; background-color: rgb(92, 77, 122); }
+.jb:active { translate: 0 4px; border-bottom-width: 2px; scale: 1.02 0.96; }
+.jb:disabled { opacity: 0.45; }
+
+.jb-shine {
+    position: absolute;
+    left: 10px; right: 10px; top: 4px;
+    height: 34%;
+    background-color: rgba(255, 255, 255, 0.20);
+    border-top-left-radius: 12px; border-top-right-radius: 12px;
+    border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;
+}
+
+.jb--primary { background-color: rgb(77, 195, 90); border-bottom-color: rgb(40, 128, 56); }
+.jb--primary:hover { background-color: rgb(96, 214, 108); }
+.jb--blue { background-color: rgb(63, 111, 230); border-bottom-color: rgb(36, 68, 158); }
+.jb--blue:hover { background-color: rgb(84, 130, 245); }
+.jb--grape { background-color: rgb(154, 93, 219); border-bottom-color: rgb(98, 54, 150); }
+.jb--grape:hover { background-color: rgb(172, 114, 235); }
+.jb--small { height: 34px; font-size: 17px; padding-left: 12px; padding-right: 12px; border-bottom-width: 4px;
+    border-top-left-radius: 14px; border-top-right-radius: 14px; border-bottom-left-radius: 14px; border-bottom-right-radius: 14px; }
+.jb--small:active { translate: 0 3px; border-bottom-width: 1px; }
+.jb--big { height: 58px; font-size: 28px; }
+.jb--selected { background-color: rgb(240, 201, 58); border-bottom-color: rgb(166, 130, 22); color: rgb(40, 30, 10); text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4); }
+.jb--selected:hover { background-color: rgb(250, 214, 80); }
+
+/* ---------------------------------------------------------------- 입력칸 */
+
+.field-row { flex-direction: row; align-items: center; margin-bottom: 10px; }
+.field-label { width: 112px; font-size: 20px; color: rgb(189, 179, 207); }
+
+.field {
+    flex-grow: 1;
+    margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0;
+    height: 44px;
+}
+
+.field > .unity-base-text-field__input,
+.field > .unity-text-field__input {
+    background-color: rgb(20, 16, 28);
+    border-left-width: 2px; border-right-width: 2px; border-top-width: 3px; border-bottom-width: 2px;
+    border-left-color: rgb(66, 54, 88); border-right-color: rgb(66, 54, 88);
+    border-top-color: rgb(10, 8, 14); border-bottom-color: rgb(84, 70, 110);
+    border-top-left-radius: 14px; border-top-right-radius: 14px;
+    border-bottom-left-radius: 14px; border-bottom-right-radius: 14px;
+    padding-left: 12px; padding-right: 12px;
+    font-size: 22px;
+    color: rgb(255, 246, 232);
+    --unity-cursor-color: rgb(240, 201, 58);
+    --unity-selection-color: rgba(63, 111, 230, 0.6);
+}
+
+.field:focus > .unity-base-text-field__input,
+.field:focus > .unity-text-field__input {
+    border-left-color: rgb(240, 201, 58); border-right-color: rgb(240, 201, 58);
+    border-bottom-color: rgb(240, 201, 58); border-top-color: rgb(240, 201, 58);
+}
+
+/* ---------------------------------------------------------------- 경고(위험물 빨강은 여기만) */
+
+.warn-box {
+    background-color: rgba(255, 64, 51, 0.16);
+    border-left-width: 2px; border-right-width: 2px; border-top-width: 2px; border-bottom-width: 2px;
+    border-left-color: rgb(255, 64, 51); border-right-color: rgb(255, 64, 51);
+    border-top-color: rgb(255, 64, 51); border-bottom-color: rgb(255, 64, 51);
+    border-top-left-radius: 14px; border-top-right-radius: 14px;
+    border-bottom-left-radius: 14px; border-bottom-right-radius: 14px;
+    padding-left: 12px; padding-right: 12px; padding-top: 6px; padding-bottom: 8px;
+    color: rgb(255, 196, 188);
+    white-space: normal;
+    font-size: 18px;
+}
+
+.warn-pill {
+    background-color: rgba(60, 14, 12, 0.85);
+    border-left-width: 2px; border-right-width: 2px; border-top-width: 2px; border-bottom-width: 2px;
+    border-left-color: rgb(255, 64, 51); border-right-color: rgb(255, 64, 51);
+    border-top-color: rgb(255, 64, 51); border-bottom-color: rgb(255, 64, 51);
+    color: rgb(255, 225, 220);
+}
+
+/* ---------------------------------------------------------------- 젤리 얼굴(접속자 카드·단상) */
+
+.face {
+    width: 40px; height: 40px;
+    flex-shrink: 0;
+    border-top-left-radius: 20px; border-top-right-radius: 20px;
+    border-bottom-left-radius: 20px; border-bottom-right-radius: 20px;
+    overflow: hidden;
+    border-left-width: 3px; border-right-width: 3px; border-top-width: 3px; border-bottom-width: 3px;
+    border-left-color: rgb(20, 16, 28); border-right-color: rgb(20, 16, 28);
+    border-top-color: rgb(20, 16, 28); border-bottom-color: rgb(20, 16, 28);
+}
+
+.face-sprite {
+    position: absolute;
+    background-size: contain;
+}
+
+/* ---------------------------------------------------------------- 접속자 카드 */
+
+.card {
+    flex-direction: row;
+    align-items: center;
+    height: 50px;
+    margin-bottom: 6px;
+    padding-left: 6px; padding-right: 10px;
+    background-color: rgba(48, 39, 66, 0.92);
+    border-top-left-radius: 25px; border-top-right-radius: 16px;
+    border-bottom-left-radius: 25px; border-bottom-right-radius: 16px;
+    border-bottom-width: 3px; border-bottom-color: rgba(10, 8, 14, 0.6);
+}
+
+.card--me { background-color: rgba(70, 58, 96, 0.95); }
+
+.card-name { flex-grow: 1; flex-shrink: 1; margin-left: 10px; font-size: 20px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
+.badge {
+    font-size: 14px;
+    height: 22px;
+    padding-left: 8px; padding-right: 8px;
+    margin-left: 4px;
+    -unity-text-align: middle-center;
+    border-top-left-radius: 11px; border-top-right-radius: 11px;
+    border-bottom-left-radius: 11px; border-bottom-right-radius: 11px;
+    background-color: rgb(74, 61, 99);
+    color: rgb(255, 246, 232);
+}
+
+.badge--host { background-color: rgb(240, 201, 58); color: rgb(50, 36, 6); }
+.badge--me { background-color: rgb(63, 111, 230); }
+
+/* ---------------------------------------------------------------- 맵 고르기 */
+
+.map-preview {
+    height: 172px;
+    border-top-left-radius: 16px; border-top-right-radius: 16px;
+    border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;
+    overflow: hidden;
+    background-size: cover;
+    border-left-width: 3px; border-right-width: 3px; border-top-width: 3px; border-bottom-width: 3px;
+    border-left-color: rgb(20, 16, 28); border-right-color: rgb(20, 16, 28);
+    border-top-color: rgb(20, 16, 28); border-bottom-color: rgb(20, 16, 28);
+    justify-content: flex-end;
+}
+
+.map-preview-name {
+    background-color: rgba(20, 16, 28, 0.78);
+    padding-left: 12px; padding-top: 3px; padding-bottom: 5px;
+    font-size: 22px;
+}
+
+.thumb-row { flex-direction: row; justify-content: space-between; margin-top: 10px; }
+
+.thumb {
+    width: 70px; height: 48px;
+    padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0;
+    margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0;
+    background-size: cover;
+    border-left-width: 3px; border-right-width: 3px; border-top-width: 3px; border-bottom-width: 5px;
+    border-left-color: rgb(20, 16, 28); border-right-color: rgb(20, 16, 28);
+    border-top-color: rgb(20, 16, 28); border-bottom-color: rgb(20, 16, 28);
+    border-top-left-radius: 12px; border-top-right-radius: 12px;
+    border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;
+    transition-property: scale, translate;
+    transition-duration: 0.12s, 0.08s;
+    transition-timing-function: ease-out-back, ease-out;
+    -unity-text-align: upper-left;
+    background-color: rgb(40, 32, 54);
+}
+
+.thumb:hover { scale: 1.08 1.08; }
+.thumb:active { translate: 0 3px; }
+
+.thumb--selected {
+    border-left-color: rgb(240, 201, 58); border-right-color: rgb(240, 201, 58);
+    border-top-color: rgb(240, 201, 58); border-bottom-color: rgb(166, 130, 22);
+}
+
+.thumb-num {
+    position: absolute;
+    left: 3px; top: 2px;
+    width: 22px; height: 22px;
+    font-size: 15px;
+    -unity-text-align: middle-center;
+    background-color: rgba(20, 16, 28, 0.85);
+    border-top-left-radius: 11px; border-top-right-radius: 11px;
+    border-bottom-left-radius: 11px; border-bottom-right-radius: 11px;
+    color: rgb(255, 246, 232);
+}
+
+.seg-row { flex-direction: row; margin-top: 10px; }
+.seg-row > .jb { flex-grow: 1; flex-basis: 0; margin-right: 6px; }
+
+/* ---------------------------------------------------------------- 키 모양 */
+
+.keycap {
+    font-size: 14px;
+    min-width: 24px;
+    height: 24px;
+    padding-left: 6px; padding-right: 6px;
+    -unity-text-align: middle-center;
+    background-color: rgb(236, 228, 214);
+    color: rgb(40, 32, 54);
+    border-top-left-radius: 7px; border-top-right-radius: 7px;
+    border-bottom-left-radius: 7px; border-bottom-right-radius: 7px;
+    border-bottom-width: 3px; border-bottom-color: rgb(150, 138, 120);
+    margin-right: 6px;
+}
+
+/* ---------------------------------------------------------------- HUD */
+
+.hud-dot {
+    width: 14px; height: 14px; margin-left: 4px;
+    border-top-left-radius: 7px; border-top-right-radius: 7px;
+    border-bottom-left-radius: 7px; border-bottom-right-radius: 7px;
+    border-left-width: 2px; border-right-width: 2px; border-top-width: 2px; border-bottom-width: 2px;
+    border-left-color: rgb(20, 16, 28); border-right-color: rgb(20, 16, 28);
+    border-top-color: rgb(20, 16, 28); border-bottom-color: rgb(20, 16, 28);
+}
+
+.gauge {
+    width: 120px; height: 14px;
+    background-color: rgba(10, 8, 14, 0.8);
+    border-top-left-radius: 7px; border-top-right-radius: 7px;
+    border-bottom-left-radius: 7px; border-bottom-right-radius: 7px;
+    overflow: hidden;
+    padding-left: 2px; padding-right: 2px; padding-top: 2px; padding-bottom: 2px;
+}
+
+.gauge-fill {
+    height: 100%;
+    border-top-left-radius: 5px; border-top-right-radius: 5px;
+    border-bottom-left-radius: 5px; border-bottom-right-radius: 5px;
+    background-color: rgb(190, 186, 200);
+}
+
+.gauge-fill--ready { background-color: rgb(115, 242, 255); }
+
+.name-tag {
+    position: absolute;
+    width: 200px;
+    margin-left: -100px;
+    font-size: 15px;
+    -unity-text-align: lower-center;
+    -unity-text-outline-width: 1.5px;
+    -unity-text-outline-color: rgb(20, 16, 28);
+    white-space: nowrap;
+}
+
+.me-arrow {
+    position: absolute;
+    width: 14px; height: 10px;
+    margin-left: -7px;
+}
+
+/* ---------------------------------------------------------------- 단상 */
+
+.podium-col { align-items: center; justify-content: flex-end; width: 150px; margin-left: 6px; margin-right: 6px; }
+.podium-block {
+    width: 132px;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 4px;
+    border-top-left-radius: 14px; border-top-right-radius: 14px;
+    border-bottom-left-radius: 4px; border-bottom-right-radius: 4px;
+    border-bottom-width: 6px;
+}
+.podium-num { font-size: 40px; color: rgb(40, 30, 10); -unity-text-align: middle-center; text-shadow: 0 2px 0 rgba(255, 255, 255, 0.35); }
+.podium-jelly { width: 120px; height: 120px; margin-bottom: -6px; }
+.podium-name { font-size: 18px; margin-top: 6px; -unity-text-align: middle-center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
+.podium-time { font-size: 15px; color: rgb(189, 179, 207); -unity-text-align: middle-center; white-space: nowrap; }
+
+.rest-row { flex-direction: row; align-items: center; height: 30px; }
+
+/* ---------------------------------------------------------------- 설정 */
+
+.modal-back {
+    position: absolute;
+    left: 0; top: 0; right: 0; bottom: 0;
+    background-color: rgba(10, 8, 14, 0.55);
+    align-items: center;
+    justify-content: center;
+}
+
+.section-title { font-size: 22px; color: rgb(240, 201, 58); margin-top: 12px; margin-bottom: 6px; }
+
+.slider-row { flex-direction: row; align-items: center; height: 40px; }
+.slider-row > .unity-label { width: 150px; font-size: 18px; }
+.slider-row > Slider { flex-grow: 1; }
