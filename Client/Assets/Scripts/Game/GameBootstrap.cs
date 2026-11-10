@@ -1,5 +1,6 @@
 using System;
 using OnlineSeverGame.Client.Input;
+using OnlineSeverGame.Client.Juice;
 using OnlineSeverGame.Client.Model;
 using OnlineSeverGame.Client.UI;
 using OnlineSeverGame.Client.View;
@@ -30,6 +31,7 @@ namespace OnlineSeverGame.Client.Game
         InputCollector _input;
         StageView _stage;
         WorldView _world;
+        JuiceDirector _juice; // 소리·파티클·멈춤·슬로모션·카메라 연출(docs/work/juice-sound.md)
         string _screenshotPath;
         float _screenshotAt = -1f;
         float _screenshotEvery = -1f;
@@ -64,6 +66,8 @@ namespace OnlineSeverGame.Client.Game
             _input = gameObject.AddComponent<InputCollector>();
             var ui = gameObject.AddComponent<GameUI>();
             ui.Game = this;
+            _juice = gameObject.AddComponent<JuiceDirector>();
+            _juice.Init(this, _world);
 
             ParseArgs();
         }
@@ -140,8 +144,10 @@ namespace OnlineSeverGame.Client.Game
             if (Session != null)
             {
                 if (_input.AutoChase) UpdateChaseTarget();
-                Session.Update(Time.deltaTime, _input);
+                // 세션은 실제 시간으로 돈다(연출의 멈춤·슬로모션은 Time.timeScale 로 화면만 늦춘다)
+                Session.Update(Time.unscaledDeltaTime, _input);
                 RebuildIfMapChanged();
+                _juice.Present(Session); // 보여 줄 시각의 그림으로 바꾸고 사건(소리·파티클)을 낸다
                 _world.Apply(Session.World);
                 _stage.Refresh(Layout);
                 if (Session.State.Screen != _loggedScreen)
