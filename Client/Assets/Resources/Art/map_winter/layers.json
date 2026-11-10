@@ -1,0 +1,191 @@
+{
+ "ppu": 72,
+ "map": "winter",
+ "note": "Depth layers and moving background, docs/work/map-visual.md. rect = world rect of the image (pivot bottom-left). depth = parallax factor. fx are drawn by the client (BackdropView).",
+ "layers": [
+  {
+   "name": "far",
+   "file": "winter_far",
+   "rect": [
+    -1.5,
+    -1.5,
+    25.5,
+    14.0
+   ],
+   "depth": 0.5,
+   "order": -100,
+   "size": [
+    1944,
+    1116
+   ]
+  },
+  {
+   "name": "mid",
+   "file": "winter_mid",
+   "rect": [
+    2.9861,
+    7.1667,
+    21.625,
+    13.3611
+   ],
+   "depth": 0.25,
+   "order": -95,
+   "size": [
+    1342,
+    446
+   ]
+  },
+  {
+   "name": "attach",
+   "file": "winter_attach",
+   "rect": [
+    1.5694,
+    2.5694,
+    22.4306,
+    5.4444
+   ],
+   "depth": 0.0,
+   "order": -90,
+   "size": [
+    1502,
+    207
+   ]
+  },
+  {
+   "name": "front",
+   "file": "winter_front",
+   "rect": [
+    -1.5,
+    -1.5,
+    25.5,
+    2.7083
+   ],
+   "depth": -0.6,
+   "order": 35,
+   "size": [
+    1944,
+    303
+   ]
+  }
+ ],
+ "fx": [
+  {
+   "kind": "snow",
+   "layer": "far",
+   "area": [
+    -1.5,
+    -0.6,
+    25.5,
+    13.2
+   ],
+   "count": 70,
+   "size": 0.07,
+   "speed": [
+    0.35,
+    0.6
+   ],
+   "color": "#8FA3C8",
+   "alpha": [
+    0.28,
+    0.42
+   ]
+  },
+  {
+   "kind": "snow",
+   "layer": "mid",
+   "area": [
+    -1.5,
+    -0.6,
+    25.5,
+    13.2
+   ],
+   "count": 26,
+   "size": 0.11,
+   "speed": [
+    0.7,
+    1.1
+   ],
+   "color": "#9DB0D2",
+   "alpha": [
+    0.38,
+    0.52
+   ]
+  },
+  {
+   "kind": "sway",
+   "layer": "mid",
+   "sprite": "map_winter/lantern",
+   "pivot": [
+    48,
+    160
+   ],
+   "at": [
+    7.75,
+    10.86
+   ],
+   "scale": 0.72,
+   "color": "#B4B4BC",
+   "glow": "#E2AE68",
+   "glowAt": [
+    0.0,
+    -0.72
+   ],
+   "amp": 5.0,
+   "period": 3.6
+  },
+  {
+   "kind": "sway",
+   "layer": "mid",
+   "sprite": "map_winter/lantern",
+   "pivot": [
+    48,
+    160
+   ],
+   "at": [
+    16.25,
+    10.86
+   ],
+   "scale": 0.72,
+   "color": "#B4B4BC",
+   "glow": "#E2AE68",
+   "glowAt": [
+    0.0,
+    -0.72
+   ],
+   "amp": 5.0,
+   "period": 4.1
+  },
+  {
+   "kind": "glow",
+   "layer": "attach",
+   "at": [
+    4.0,
+    3.9
+   ],
+   "size": 1.9,
+   "color": "#E0904A",
+   "alpha": [
+    0.04,
+    0.1
+   ],
+   "period": 1.7,
+   "flicker": 0.35
+  },
+  {
+   "kind": "glow",
+   "layer": "attach",
+   "at": [
+    20.0,
+    3.9
+   ],
+   "size": 1.9,
+   "color": "#E0904A",
+   "alpha": [
+    0.04,
+    0.1
+   ],
+   "period": 1.9,
+   "flicker": 0.35
+  }
+ ]
+}

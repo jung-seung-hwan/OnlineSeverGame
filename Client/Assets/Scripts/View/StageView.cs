@@ -108,7 +108,8 @@ namespace OnlineSeverGame.Client.View
 
         void BuildKitchen(StageLayout layout)
         {
-            Place("kitchen_bg", ArtSprites.BackgroundRect, Vector2.zero, -100);
+            if (!BackdropView.TryBuild(transform, "map", layout)) // 깊이층(map-visual.md), 없으면 한 장 배경
+                Place("kitchen_bg", ArtSprites.BackgroundRect, Vector2.zero, -100);
             Place("floor_board", ArtSprites.FloorRect, Vector2.zero, -10);
 
             float highest = float.MinValue;
@@ -126,7 +127,8 @@ namespace OnlineSeverGame.Client.View
         {
             if (ArtSprites.MapPiece("map_winter", "winter_bg") != null)
             {
-                Piece("map_winter", "winter_bg", -1.5f, -1.5f, -100);
+                if (!BackdropView.TryBuild(transform, "map_winter", layout))
+                    Piece("map_winter", "winter_bg", -1.5f, -1.5f, -100);
                 Piece("map_winter", "winter_floor", -1.5f, -1.5f, -10);
                 Piece("map_winter", "winter_ice_sill", 1.25f, 1.525f, -9);
                 Piece("map_winter", "winter_ice_sill", 17.25f, 1.525f, -9);
@@ -156,7 +158,8 @@ namespace OnlineSeverGame.Client.View
         {
             if (ArtSprites.MapPiece("map_warehouse", "warehouse_bg") != null)
             {
-                Piece("map_warehouse", "warehouse_bg", -1.5f, -1.5f, -100); // 크레인 레일·팔레트 사슬 포함
+                if (!BackdropView.TryBuild(transform, "map_warehouse", layout)) // 깊이층이면 레일·사슬은 attach 층
+                    Piece("map_warehouse", "warehouse_bg", -1.5f, -1.5f, -100); // 크레인 레일·팔레트 사슬 포함
                 Piece("map_warehouse", "warehouse_floor", -1.5f, -1.5f, -10);
                 Piece("map_warehouse", "warehouse_rack", 0.75f, 0f, -9);
                 Piece("map_warehouse", "warehouse_rack", 18.75f, 0f, -9);
@@ -192,7 +195,8 @@ namespace OnlineSeverGame.Client.View
             var platforms = layout.Source.Platforms;
             if (ArtSprites.MapPiece("map_dessert", "dessert_bg") != null)
             {
-                Piece("map_dessert", "dessert_bg", -1.5f, -1.5f, -100);
+                if (!BackdropView.TryBuild(transform, "map_dessert", layout))
+                    Piece("map_dessert", "dessert_bg", -1.5f, -1.5f, -100);
                 Piece("map_dessert", "dessert_floor", -1.5f, -1.5f, -10);
                 for (int i = 0; i < platforms.Count && i < IceCreamArt.Length; i++)
                 {
