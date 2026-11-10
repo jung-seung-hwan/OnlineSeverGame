@@ -11,6 +11,8 @@ namespace OnlineSeverGame.Client.View
     // 발판마다 뿌리(Root)를 윗면 가운데에 두고, Refresh 가 매 프레임 그 시각(layout.DrawRoundTick)의 모양으로 옮긴다:
     // 녹는 아이스크림은 폭, 크레인 팔레트·케이크 리프트는 위치(틱 사이 보간), 눈 차양은 무너지기 전 흔들림·사라짐.
     // 맵 이벤트(불·바람·벨트·시럽)는 자식 MapEventView 가 그린다.
+    // 새 배치 그림(맵 비주얼 세션, docs/work/map-visual.md 6장)이 Resources 에 있으면 발판마다 그 조각을 붙이고
+    // (map.json world_rect 그대로), 그림에 이미 들어 있는 임시 도형(탑 기둥, 화구, 굴뚝, 얼음 웅덩이, 랙 기둥, 사슬)은 그리지 않는다.
     public sealed class StageView : MonoBehaviour
     {
         static readonly Color Backdrop = new Color(0.08f, 0.09f, 0.11f);   // 배경 그림 밖(넓은 화면)
@@ -64,6 +66,9 @@ namespace OnlineSeverGame.Client.View
             public Transform Root;
             public float BaseWidth;          // 정의된 폭(유닛)
             public SpriteRenderer Sliced;    // 9-slice 아이스크림이면 그 렌더러
+            public SpriteRenderer Art;       // 새 배치 조각(눈 차양이면 무너지기 직전 금 간 그림으로 바꿈)
+            public Sprite Normal, Crumble;
+            public bool WasCrumbling;
             public readonly List<SpriteRenderer> Renderers = new List<SpriteRenderer>();
             public readonly List<Color> Colors = new List<Color>();
         }
@@ -76,12 +81,24 @@ namespace OnlineSeverGame.Client.View
             public int Index;
             public AttachKind Kind;
             public SpriteRenderer Renderer;
+            public bool Art;                 // 그림(케이크 리프트 기둥, 피벗 위 가운데, 1.0 높이를 세로로 늘림)
+        }
+
+        // 눈 차양이 무너질 때 떨어지는 눈 덩어리(장식, 판정 없음)
+        struct Falling
+        {
+            public SpriteRenderer Renderer;
+            public float StartTime;
+            public Vector3 From;
         }
 
         readonly List<PlatformVis> _platforms = new List<PlatformVis>();
         readonly List<Attachment> _attached = new List<Attachment>();
+        readonly List<Falling> _falling = new List<Falling>();
         MapEventView _events;
         Palette _palette;
+        string _folder;   // 그 맵 그림 폴더(Resources/Art/...)
+        bool _art2;       // 새 배치 그림이 있다
 
         public void Build(StageLayout layout)
         {
@@ -89,11 +106,14 @@ namespace OnlineSeverGame.Client.View
                 Destroy(transform.GetChild(i).gameObject);
             _platforms.Clear();
             _attached.Clear();
+            _falling.Clear();
 
             Shapes.Rect(transform, "Backdrop", Backdrop, new Vector2(layout.Width + 40f, layout.Height + 40f), -101)
                 .transform.localPosition = new Vector3(layout.Width / 2f, layout.Height / 2f, 0);
 
             Stage stage = layout.Source;
+            _folder = Folder(stage.Id);
+            _art2 = ArtSprites.MapPiece(_folder, Layout2Probe(stage.Id)) != null;
             switch (stage.Id)
             {
                 case 2: BuildWinter(layout); break;
@@ -138,8 +158,11 @@ namespace OnlineSeverGame.Client.View
                     top = Mathf.Lerp(top, StageLayout.ToWorld(pb.Top), frac);
                 }
                 float w = StageLayout.ToWorld(pa.Width);
+                if (pa.Gone && v.WasCrumbling) DropSnow(v.Root.localPosition);
+                v.WasCrumbling = pa.Crumbling;
                 v.Root.gameObject.SetActive(!pa.Gone);
                 if (pa.Gone) continue;
+                if (v.Crumble != null) v.Art.sprite = pa.Crumbling ? v.Crumble : v.Normal;
                 float shake = pa.Crumbling ? Mathf.Sin(Time.time * 45f) * 0.05f : 0f;
                 v.Root.localPosition = new Vector3(cx + shake, top, 0);
                 if (v.Sliced != null) v.Sliced.size = new Vector2(w + 0.5f, v.Sliced.size.y);
@@ -162,6 +185,11 @@ namespace OnlineSeverGame.Client.View
                 float w = StageLayout.ToWorld(pa.Width);
                 switch (att.Kind)
                 {
+                    case AttachKind.LiftColumn when att.Art:
+                        float ch = Mathf.Max(0.05f, top - 0.45f);   // 접시 그림 아래 끝(윗면 - 0.5)에 살짝 겹침
+                        att.Renderer.transform.localScale = new Vector3(1f, ch, 1f);
+                        att.Renderer.transform.localPosition = new Vector3(cx, ch, 0);
+                        break;
                     case AttachKind.LiftColumn:
                         float h = Mathf.Max(0.05f, top - 0.2f);
                         Shapes.Resize(att.Renderer, new Vector2(0.5f, h));
@@ -176,7 +204,92 @@ namespace OnlineSeverGame.Client.View
                 }
             }
 
+            for (int i = _falling.Count - 1; i >= 0; i--)
+            {
+                var f = _falling[i];
+                float t = Time.time - f.StartTime;
+                if (t > 0.9f || f.Renderer == null)
+                {
+                    if (f.Renderer != null) Destroy(f.Renderer.gameObject);
+                    _falling.RemoveAt(i);
+                    continue;
+                }
+                f.Renderer.transform.localPosition = f.From + new Vector3(0, -0.4f * t - 7f * t * t, 0);
+                f.Renderer.color = new Color(1f, 1f, 1f, 1f - t / 0.9f);
+            }
+
             if (_events != null) _events.Refresh(layout, a);
+        }
+
+        void DropSnow(Vector3 at)
+        {
+            Sprite s = _art2 ? ArtSprites.Prop("map_winter", "snow_dump", 128, 256) : null;
+            if (s == null) return;
+            var go = new GameObject("SnowDump");
+            go.transform.SetParent(transform, false);
+            go.transform.localPosition = at;
+            var sr = go.AddComponent<SpriteRenderer>();
+            sr.sprite = s;
+            sr.sortingOrder = -6;
+            _falling.Add(new Falling { Renderer = sr, StartTime = Time.time, From = at });
+        }
+
+        static string Folder(int stageId)
+        {
+            switch (stageId)
+            {
+                case 2: return "map_winter";
+                case 3: return "map_warehouse";
+                case 4: return "map_dessert";
+                default: return "map";
+            }
+        }
+
+        // 새 배치 그림이 들어왔는지 볼 조각 하나
+        static string Layout2Probe(int stageId)
+        {
+            switch (stageId)
+            {
+                case 2: return "stone_ledge";
+                case 3: return "crane_pallet";
+                case 4: return "cherry_cake";
+                default: return "spice_rack";
+            }
+        }
+
+        // 새 배치 발판 그림 (docs/work/map-visual.md 6장, map.json): 발판 번호 -> 그림 이름과 그림 왼쪽 아래의 월드 좌표
+        // (라운드 틱 0 자리 = 움직이는 발판의 처음 자리). 여러 칸을 덮는 그림(양념 선반 탑, 3단 랙)은 첫 칸에만 붙이고
+        // 나머지 칸은 name = null 로 "그림 있음, 붙일 것 없음". false 면 그림이 없는 발판(디저트 아이스크림은 9-slice 그대로).
+        static bool PlatformArt(int stageId, int index, out string name, out float x0, out float y0)
+        {
+            name = null;
+            x0 = y0 = 0f;
+            switch (stageId * 10 + index)
+            {
+                case 10: name = "spice_rack"; x0 = 0.75f; y0 = 0f; return true;
+                case 11: case 12: return true;
+                case 13: name = "ladle_rail"; x0 = 4.75f; y0 = 9.1f; return true;
+                case 14: name = "wall_board"; x0 = 9.25f; y0 = 4.3f; return true;
+                case 15: name = "tray_shelf"; x0 = 12.25f; y0 = 1.9f; return true;
+                case 16: name = "range_hood"; x0 = 15.75f; y0 = 5.6f; return true;
+                case 20: name = "winter_ice_sill"; x0 = 0.75f; y0 = 1.525f; return true;
+                case 21: name = "winter_beam"; x0 = 6.25f; y0 = 4.3f; return true;
+                case 22: name = "snow_awning"; x0 = 10.75f; y0 = 6.425f; return true;
+                case 23: name = "stone_ledge"; x0 = 14.75f; y0 = 8.975f; return true;
+                case 24: name = "winter_ice_sill"; x0 = 14.25f; y0 = 1.525f; return true;
+                case 25: name = "snow_awning"; x0 = 18.25f; y0 = 4.025f; return true;
+                case 26: name = "icy_gutter"; x0 = 18.75f; y0 = 6.6f; return true;
+                case 30: name = "workbench"; x0 = -0.25f; y0 = 0f; return true;
+                case 31: name = "wall_shelf"; x0 = 0.25f; y0 = 3.1f; return true;
+                case 32: name = "catwalk"; x0 = 2.25f; y0 = 5.5f; return true;
+                case 33: name = "crane_pallet"; x0 = 6.25f; y0 = 7.9f; return true;
+                case 34: name = "warehouse_rack3"; x0 = 18.75f; y0 = 0f; return true;
+                case 35: case 36: return true;
+                case 44: name = "cherry_cake"; x0 = 14.25f; y0 = 8.85f; return true;
+                case 45: name = "cake_lift_plate"; x0 = 16.75f; y0 = 0.7f; return true;
+                case 46: name = "wafer_shelf"; x0 = 19.25f; y0 = 6.7f; return true;
+                default: return false;
+            }
         }
 
         // ---------------------------------------------------------------- 맵별 배경·바닥·고정 부속
@@ -186,14 +299,17 @@ namespace OnlineSeverGame.Client.View
             _palette = Kitchen;
             if (Resources.Load<Texture2D>("Art/map/kitchen_bg") != null)
             {
-                Place("kitchen_bg", ArtSprites.BackgroundRect, Vector2.zero, -100);
-                Place("floor_board", ArtSprites.FloorRect, Vector2.zero, -10);
+                if (!BackdropView.TryBuild(transform, "map", layout)) // 깊이층(map-visual.md), 없으면 한 장 배경
+                    Place("kitchen_bg", ArtSprites.BackgroundRect, Vector2.zero, -100);
+                if (_art2) Piece("map", "kitchen_floor", -1.5f, -1.5f, -10); // 가스레인지 상판·화구 링 포함
+                else Place("floor_board", ArtSprites.FloorRect, Vector2.zero, -10);
             }
             else
             {
                 Wall(layout, _palette);
                 Floor(layout, _palette);
             }
+            if (_art2) return; // 탑 기둥은 spice_rack, 화구는 kitchen_floor 그림에 있다
             // 양념 선반 탑 기둥(뒤)
             foreach (float x in new[] { 1.06f, 3.94f }) Box("RackPost", _palette.Accent, x, 3.6f, 0.12f, 7.2f, -11);
             // 가스레인지 상판과 화구 4개(불은 MapEventView)
@@ -210,7 +326,8 @@ namespace OnlineSeverGame.Client.View
             _palette = Winter;
             if (ArtSprites.MapPiece("map_winter", "winter_bg") != null)
             {
-                Piece("map_winter", "winter_bg", -1.5f, -1.5f, -100);
+                if (!BackdropView.TryBuild(transform, "map_winter", layout))
+                    Piece("map_winter", "winter_bg", -1.5f, -1.5f, -100);
                 Piece("map_winter", "winter_floor", -1.5f, -1.5f, -10);
                 Piece("map_winter", "winter_eave", -1.5f, 12.875f, 30); // 처마는 매달린 고드름보다 앞
             }
@@ -222,6 +339,7 @@ namespace OnlineSeverGame.Client.View
                 Box("Eave", _palette.Accent, layout.Width / 2f, eaveBottom + 0.75f, layout.Width + 3f, 1.5f, 30);
                 Box("EaveSnow", _palette.FloorTop, layout.Width / 2f, eaveBottom + 0.05f, layout.Width + 3f, 0.1f, 31);
             }
+            if (_art2) return; // 얼음 웅덩이(6.5~14)는 winter_floor, 굴뚝은 배경 그림에 있다
             // 바닥 얼음 웅덩이(새 위치, 그림의 웅덩이 위치와 다를 수 있어 위에 덧그림)
             foreach (var span in layout.Source.FloorIce)
             {
@@ -238,7 +356,8 @@ namespace OnlineSeverGame.Client.View
             _palette = Warehouse;
             if (ArtSprites.MapPiece("map_warehouse", "warehouse_bg") != null)
             {
-                Piece("map_warehouse", "warehouse_bg", -1.5f, -1.5f, -100);
+                if (!BackdropView.TryBuild(transform, "map_warehouse", layout))
+                    Piece("map_warehouse", "warehouse_bg", -1.5f, -1.5f, -100);
                 Piece("map_warehouse", "warehouse_floor", -1.5f, -1.5f, -10);
             }
             else
@@ -247,6 +366,7 @@ namespace OnlineSeverGame.Client.View
                 Floor(layout, _palette);
                 Box("CraneRail", _palette.Accent, layout.Width / 2f, 13.4f, layout.Width + 3f, 0.4f, -20);
             }
+            if (_art2) return; // 벨트 무늬는 MapEventView(conveyor_belt 반복), 랙·작업대·통로 기둥과 팔레트 사슬은 조각 그림에 있다
             // 컨베이어 벨트 바탕(무늬·흐름은 MapEventView)
             Box("Belt", new Color(0.12f, 0.12f, 0.13f), 12.5f, -0.07f, 13f, 0.16f, -9);
             // 3단 랙 기둥, 작업대 다리, 벽 선반·통로 받침
@@ -263,7 +383,8 @@ namespace OnlineSeverGame.Client.View
             _palette = Dessert;
             if (ArtSprites.MapPiece("map_dessert", "dessert_bg") != null)
             {
-                Piece("map_dessert", "dessert_bg", -1.5f, -1.5f, -100);
+                if (!BackdropView.TryBuild(transform, "map_dessert", layout))
+                    Piece("map_dessert", "dessert_bg", -1.5f, -1.5f, -100);
                 Piece("map_dessert", "dessert_floor", -1.5f, -1.5f, -10);
             }
             else
@@ -272,7 +393,17 @@ namespace OnlineSeverGame.Client.View
                 Floor(layout, _palette);
             }
             // 케이크 리프트 기둥(리프트를 따라 늘었다 줄었다)
-            Attach(Stage.DessertLiftIndex, AttachKind.LiftColumn, new Color(0.78f, 0.72f, 0.76f), -10);
+            Sprite column = _art2 ? ArtSprites.MapSprite("map_dessert", "cake_lift_column", new Vector2(0.5f, 1f)) : null;
+            if (column != null)
+            {
+                var go = new GameObject("LiftColumn");
+                go.transform.SetParent(transform, false);
+                var sr = go.AddComponent<SpriteRenderer>();
+                sr.sprite = column;
+                sr.sortingOrder = -10;
+                _attached.Add(new Attachment { Index = Stage.DessertLiftIndex, Kind = AttachKind.LiftColumn, Renderer = sr, Art = true });
+            }
+            else Attach(Stage.DessertLiftIndex, AttachKind.LiftColumn, new Color(0.78f, 0.72f, 0.76f), -10);
         }
 
         // ---------------------------------------------------------------- 발판
@@ -285,6 +416,26 @@ namespace OnlineSeverGame.Client.View
             root.localPosition = new Vector3(StageLayout.ToWorld(p.CenterX), StageLayout.ToWorld(p.Top), 0);
             var v = new PlatformVis { Index = index, Root = root, BaseWidth = StageLayout.ToWorld(p.Width) };
             float w = v.BaseWidth;
+
+            if (_art2 && PlatformArt(stage.Id, index, out string piece, out float px0, out float py0))
+            {
+                if (piece == null) return v;
+                var go = new GameObject(piece);
+                go.transform.SetParent(root, false);
+                go.transform.localPosition = new Vector3(px0 - root.localPosition.x, py0 - root.localPosition.y, 0);
+                var sr = go.AddComponent<SpriteRenderer>();
+                sr.sprite = ArtSprites.MapPiece(_folder, piece);
+                sr.sortingOrder = -9;
+                v.Renderers.Add(sr);
+                v.Colors.Add(Color.white);
+                v.Art = sr;
+                if (p.Blinks)
+                {
+                    v.Normal = sr.sprite;
+                    v.Crumble = ArtSprites.MapPiece(_folder, "snow_awning_crack");
+                }
+                return v;
+            }
 
             switch (stage.Id)
             {

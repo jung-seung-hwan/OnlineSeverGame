@@ -2700,4 +2700,5 @@ def main():
     TARGETS[target]()
 
 
-main()
+if __name__ == '__main__':   # build_depth.py imports this module
+    main()

@@ -1,6 +1,7 @@
 {
   "ppu": 72,
-  "note": "pieces: world_rect = [x0, y0, x1, y1] in game units covered by the image, pivot bottom-left at (x0, y0); draw again at every rect in instances. sprites: ppu 128, pivot in px from the bottom-left. Rules: docs/work/art-maps.md section 4.",
+  "layout": "map-layout.md d8e6b45",
+  "note": "pieces: world_rect [x0, y0, x1, y1], pivot bottom-left; moving pieces: 72 px per unit, pivot px from bottom-left = platform top centre, world_rect = start position. Rules: docs/work/map-visual.md section 6.",
   "pieces": {
     "winter_bg.png": {
       "world_rect": [
@@ -8,16 +9,8 @@
         -1.5,
         25.5,
         14.0
-      ]
-    },
-    "winter_eave.png": {
-      "world_rect": [
-        -1.5,
-        12.875,
-        25.5,
-        14.0
       ],
-      "note": "draw in front of the hazards; bottom edge y = 13.0"
+      "note": "far + attach, for a client without layers"
     },
     "winter_floor.png": {
       "world_rect": [
@@ -26,137 +19,135 @@
         25.5,
         0.25
       ],
-      "note": "top y = 0; ice puddle x 8..16"
+      "note": "ice puddle x 7..13"
     },
     "winter_ice_sill.png": {
       "world_rect": [
-        1.25,
+        0.75,
         1.525,
-        6.75,
+        5.25,
         2.525
       ],
       "instances": [
         [
-          1.25,
+          0.75,
           1.525,
-          6.75,
+          5.25,
           2.525
-        ],
-        [
-          17.25,
-          1.525,
-          22.75,
-          2.525
-        ]
-      ],
-      "note": "ice, top y = 2.4"
-    },
-    "winter_bench.png": {
-      "world_rect": [
-        9.75,
-        0.0,
-        14.25,
-        1.75
-      ],
-      "note": "top y = 1.6"
-    },
-    "winter_beam.png": {
-      "world_rect": [
-        4.75,
-        4.3,
-        9.75,
-        4.925
-      ],
-      "instances": [
-        [
-          4.75,
-          4.3,
-          9.75,
-          4.925
         ],
         [
           14.25,
-          4.3,
-          19.25,
+          1.525,
+          18.75,
+          2.525
+        ]
+      ]
+    },
+    "winter_beam.png": {
+      "world_rect": [
+        6.25,
+        4.3,
+        10.75,
+        4.925
+      ]
+    },
+    "stone_ledge.png": {
+      "world_rect": [
+        14.75,
+        8.975,
+        18.25,
+        9.725
+      ]
+    },
+    "icy_gutter.png": {
+      "world_rect": [
+        18.75,
+        6.6,
+        23.75,
+        7.325
+      ]
+    }
+  },
+  "moving": {
+    "snow_awning.png": {
+      "size": [
+        252,
+        65
+      ],
+      "pivot_px_from_bottom_left": [
+        126,
+        56
+      ],
+      "pivot_normalized": [
+        0.5,
+        0.86154
+      ],
+      "start_world_rects": [
+        [
+          10.75,
+          6.425,
+          14.25,
+          7.325
+        ],
+        [
+          18.25,
+          4.025,
+          21.75,
           4.925
         ]
-      ],
-      "note": "top y = 4.8"
+      ]
     },
-    "winter_full.png": {
-      "world_rect": [
-        -1.5,
-        -1.5,
-        25.5,
-        14.0
+    "snow_awning_crack.png": {
+      "size": [
+        252,
+        65
       ],
-      "note": "bg + floor + all platforms (ice cream at start width), check / simple use"
+      "pivot_px_from_bottom_left": [
+        126,
+        56
+      ],
+      "pivot_normalized": [
+        0.5,
+        0.86154
+      ],
+      "start_world_rects": []
     }
   },
   "sprites": {
-    "icicle.png": {
+    "snow_dump.png": {
       "ppu": 128,
       "size": [
-        64,
-        176
+        256,
+        256
       ],
       "pivot_px_from_bottom_left": [
-        32,
-        8
-      ],
-      "pivot_normalized": [
-        0.5,
-        0.04545
-      ],
-      "note": "pivot = icicle tip. Hit box 0.4 x 1.2 above the tip"
-    },
-    "icicle_shards.png": {
-      "ppu": 128,
-      "size": [
         128,
-        48
+        256
       ],
-      "pivot_px_from_bottom_left": [
-        64,
-        8
-      ],
-      "pivot_normalized": [
-        0.5,
-        0.16667
-      ],
-      "note": "after landing, 6 ticks"
+      "note": "falling snow when an awning collapses, decoration"
     },
-    "snowball.png": {
+    "wind_streak.png": {
       "ppu": 128,
       "size": [
-        144,
-        144
+        256,
+        13
       ],
       "pivot_px_from_bottom_left": [
-        72,
-        8
+        128,
+        6
       ],
-      "pivot_normalized": [
-        0.5,
-        0.05556
-      ],
-      "note": "pivot = bottom centre. Hit box 1.0 x 1.0"
+      "note": "2.0 x 0.1"
     },
-    "lantern.png": {
+    "snowflake.png": {
       "ppu": 128,
       "size": [
-        96,
-        168
+        16,
+        16
       ],
       "pivot_px_from_bottom_left": [
-        48,
-        160
-      ],
-      "pivot_normalized": [
-        0.5,
-        0.95238
-      ],
-      "note": "pivot = hang point (top); sway around it"
+        8,
+        8
+      ]
     }
   }
 }

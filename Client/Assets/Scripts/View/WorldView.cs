@@ -56,6 +56,7 @@ namespace OnlineSeverGame.Client.View
                 }
                 view.Apply(p);
                 _seen.Add(p.Id);
+                if (p.IsLocal && p.Alive) BackdropView.SetFocus(p.Position); // 배경 시차 기준
             }
             Prune(_players);
 

@@ -1,0 +1,190 @@
+{
+ "ppu": 72,
+ "map": "warehouse",
+ "layout": "map-layout.md d8e6b45",
+ "layers": [
+  {
+   "name": "far",
+   "file": "warehouse_far",
+   "rect": [
+    -1.5,
+    -1.5,
+    25.5,
+    14.0
+   ],
+   "depth": 0.5,
+   "order": -100,
+   "size": [
+    1944,
+    1116
+   ]
+  },
+  {
+   "name": "mid",
+   "file": "warehouse_mid",
+   "rect": [
+    -1.5,
+    4.1111,
+    25.5,
+    14.0
+   ],
+   "depth": 0.25,
+   "order": -95,
+   "size": [
+    1944,
+    712
+   ]
+  },
+  {
+   "name": "attach",
+   "file": "warehouse_attach",
+   "rect": [
+    -1.5,
+    -1.0417,
+    25.5,
+    14.0
+   ],
+   "depth": 0.0,
+   "order": -90,
+   "size": [
+    1944,
+    1083
+   ]
+  },
+  {
+   "name": "front",
+   "file": "warehouse_front",
+   "rect": [
+    -1.5,
+    -1.5,
+    25.5,
+    1.6528
+   ],
+   "depth": -0.6,
+   "order": 35,
+   "size": [
+    1944,
+    227
+   ]
+  }
+ ],
+ "fx": [
+  {
+   "kind": "dust",
+   "layer": "far",
+   "points": [
+    2.1,
+    9.0,
+    4.5,
+    9.0,
+    8.4,
+    0.0,
+    5.2,
+    0.0
+   ],
+   "count": 26,
+   "size": 0.06,
+   "speed": [
+    0.05,
+    0.16
+   ],
+   "color": "#9AAACC",
+   "alpha": [
+    0.18,
+    0.4
+   ]
+  },
+  {
+   "kind": "dust",
+   "layer": "far",
+   "points": [
+    19.5,
+    9.0,
+    21.9,
+    9.0,
+    18.8,
+    0.0,
+    15.6,
+    0.0
+   ],
+   "count": 26,
+   "size": 0.06,
+   "speed": [
+    0.05,
+    0.16
+   ],
+   "color": "#9AAACC",
+   "alpha": [
+    0.18,
+    0.4
+   ]
+  },
+  {
+   "kind": "tube",
+   "layer": "mid",
+   "area": [
+    7.52,
+    11.6,
+    9.08,
+    11.7
+   ],
+   "color": "#C9D6E4",
+   "alpha": [
+    0.42,
+    0.5
+   ],
+   "size": 1.7,
+   "period": 5.0,
+   "flicker": 0.0
+  },
+  {
+   "kind": "tube",
+   "layer": "mid",
+   "area": [
+    14.92,
+    11.6,
+    16.48,
+    11.7
+   ],
+   "color": "#C9D6E4",
+   "alpha": [
+    0.42,
+    0.5
+   ],
+   "size": 1.7,
+   "period": 7.0,
+   "flicker": 1.0
+  },
+  {
+   "kind": "spin",
+   "layer": "mid",
+   "sprite": "map_warehouse/vent_fan",
+   "pivot": [
+    80,
+    80
+   ],
+   "at": [
+    12.0,
+    5.0
+   ],
+   "scale": 1.0,
+   "color": "#FFFFFF",
+   "amp": 40.0
+  },
+  {
+   "kind": "glow",
+   "layer": "far",
+   "at": [
+    12.0,
+    10.45
+   ],
+   "size": 2.4,
+   "color": "#D9AE6E",
+   "alpha": [
+    0.05,
+    0.09
+   ],
+   "period": 2.8
+  }
+ ]
+}

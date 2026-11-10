@@ -1,0 +1,56 @@
+{
+  "ppu": 128,
+  "note": "white sprites tinted in the client; pivot = centre",
+  "sprites": {
+    "fx_glow.png": {
+      "size": [
+        256,
+        256
+      ],
+      "pivot_px_from_bottom_left": [
+        128,
+        128
+      ]
+    },
+    "fx_puff.png": {
+      "size": [
+        128,
+        128
+      ],
+      "pivot_px_from_bottom_left": [
+        64,
+        64
+      ]
+    },
+    "fx_flake.png": {
+      "size": [
+        32,
+        32
+      ],
+      "pivot_px_from_bottom_left": [
+        16,
+        16
+      ]
+    },
+    "fx_sparkle.png": {
+      "size": [
+        64,
+        64
+      ],
+      "pivot_px_from_bottom_left": [
+        32,
+        32
+      ]
+    },
+    "fx_bar.png": {
+      "size": [
+        128,
+        16
+      ],
+      "pivot_px_from_bottom_left": [
+        64,
+        8
+      ]
+    }
+  }
+}
