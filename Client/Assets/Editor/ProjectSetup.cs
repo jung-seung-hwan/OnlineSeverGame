@@ -13,13 +13,21 @@ namespace OnlineSeverGame.Client.EditorTools
         public const string ScenePath = "Assets/Scenes/Main.unity";
         public const string WindowsBuildPath = "Build/Windows/Client.exe";
 
+        // Store release info (docs/work/store.md). The window title, Start menu tile and save location follow these.
+        // CompanyName is a temporary publisher name; it only names the save folder
+        // (HKCU\Software\<company>\<product>, AppData\LocalLow\<company>\<product>), so changing it later resets
+        // everyone's saved name/server/language/volume again. Keep it once released.
+        public const string ProductName = "Jelly Survival";
+        public const string CompanyName = "JellySurvivalDev";
+        public const string Version = "1.0.0";
+        public const string IconPath = "Assets/Icon/AppIcon.png";
+
         [MenuItem("OnlineSeverGame/Setup Project And Scene")]
         public static void Setup()
         {
             EditorSettings.defaultBehaviorMode = EditorBehaviorMode.Mode2D;
 
-            PlayerSettings.companyName = "OnlineSeverGame";
-            PlayerSettings.productName = "OnlineSeverGame";
+            ApplyAppInfo();
             PlayerSettings.runInBackground = true;
             PlayerSettings.fullScreenMode = FullScreenMode.Windowed;
             PlayerSettings.defaultScreenWidth = 1280;
@@ -42,9 +50,26 @@ namespace OnlineSeverGame.Client.EditorTools
             Debug.Log("[ProjectSetup] scene saved: " + ScenePath);
         }
 
+        /// <summary>Product name, company, version and the Windows icon. Also run at the start of every build.</summary>
+        [MenuItem("OnlineSeverGame/Apply App Info (name, version, icon)")]
+        public static void ApplyAppInfo()
+        {
+            PlayerSettings.companyName = CompanyName;
+            PlayerSettings.productName = ProductName;
+            PlayerSettings.bundleVersion = Version;
+            var icon = AssetDatabase.LoadAssetAtPath<Texture2D>(IconPath);
+            if (icon == null)
+                Debug.LogWarning("[ProjectSetup] app icon not found: " + IconPath);
+            else
+                PlayerSettings.SetIcons(UnityEditor.Build.NamedBuildTarget.Unknown, new[] { icon }, IconKind.Any);
+            AssetDatabase.SaveAssets();
+            Debug.Log("[ProjectSetup] app info: " + ProductName + " " + Version + " (" + CompanyName + ")");
+        }
+
         [MenuItem("OnlineSeverGame/Build Windows")]
         public static void BuildWindows()
         {
+            ApplyAppInfo();
             var options = new BuildPlayerOptions
             {
                 scenes = new[] { ScenePath },
