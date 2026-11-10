@@ -26,9 +26,10 @@ namespace OnlineSeverGame.Shared.Simulation
     /// which still does floors, walls, dash pushes, stomps and boxes.
     /// The numbers are the sprites measured in 100-milli bands (alpha &gt;= 128, outline included, rounded up to
     /// 10): the jelly body without the head decoration (smallest of the 8 colours per band, decorations only
-    /// add pixels), and the hazard sprites around their tip pivots. Crouching and stomped bodies are those shapes
-    /// scaled the way PlayerView squashes the sprite (1.15 x 0.6 and 1.35 x 0.4 around the feet). Run, jump and
-    /// fall frames stay within 0.06 of the idle body and use it. docs/work/map-select-hit.md has the table.
+    /// add pixels), and the hazard sprites around their tip pivots. The crouching body is the idle body scaled
+    /// 1.15 x 0.6 around the feet (the crouch row is rendered with that squash). The flat-stunned body is measured
+    /// from its own sheet row (docs/work/char-motion.md). Run, jump and fall frames use the idle body.
+    /// docs/work/map-select-hit.md has the original tables.
     /// </summary>
     public static class HitShapes
     {
@@ -72,7 +73,27 @@ namespace OnlineSeverGame.Shared.Simulation
         };
 
         public static readonly HitBand[] Crouch = Scale(Body, 115, 60);
-        public static readonly HitBand[] Stomped = Scale(Stunned, 135, 40);
+        /// <summary>
+        /// Flat stun on the ground (stomped or dash-stunned), facing right: the jelly sheet's "stun" row (lying on
+        /// its back, flattened) measured over all its frames as the client draws it (x 1.1, draw_scale), 40-milli
+        /// bands, body only (no decoration, no stars). Blender: build_sprites.py -- stun_table. Until 2026-11-10 it
+        /// was Stunned scaled 1.35 x 0.4, which was wider than the drawing at the front bottom and the top.
+        /// </summary>
+        public static readonly HitBand[] Stomped =
+        {
+            new HitBand(0, 40, -680, -110),
+            new HitBand(40, 80, -810, 180),
+            new HitBand(80, 120, -900, 370),
+            new HitBand(120, 160, -980, 490),
+            new HitBand(160, 240, -1050, 530),
+            new HitBand(240, 280, -1060, 510),
+            new HitBand(280, 320, -1060, 460),
+            new HitBand(320, 360, -1040, 390),
+            new HitBand(360, 400, -1010, 310),
+            new HitBand(400, 440, -950, 190),
+            new HitBand(440, 480, -840, 30),
+            new HitBand(480, 520, -570, -300),
+        };
 
         public static readonly HitBand[] Knife =
         {

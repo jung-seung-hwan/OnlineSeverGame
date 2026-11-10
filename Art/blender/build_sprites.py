@@ -1207,14 +1207,14 @@ def _scale_bands(bands, xp, yp):
 
 
 def hit_of_anim():
-    """Which HitShapes bands each animation is judged with (HitShapes.OfPlayer); Crouch and Stomped are scaled the
-    way HitShapes.cs scales them. 'union' = the bands were measured over all the frames together, so a single frame
+    """Which HitShapes bands each animation is judged with (HitShapes.OfPlayer); Crouch is scaled the way
+    HitShapes.cs scales it. 'union' = the bands were measured over all the frames together, so a single frame
     is expected to be smaller in places and only overflow counts."""
     body, dash, stunned = hit_table('Body'), hit_table('Dash'), hit_table('Stunned')
     out = {n: (body, False) for n in ('idle', 'run', 'jump', 'fall', 'land', 'turn', 'blink',
                                       'emote_wave', 'emote_taunt', 'emote_sad')}
     out.update(dash=(dash, True), knockback=(stunned, True),
-               crouch=(_scale_bands(body, 115, 60), False), stun=(_scale_bands(stunned, 135, 40), False))
+               crouch=(_scale_bands(body, 115, 60), False), stun=(hit_table('Stomped'), False))
     return out
 
 
@@ -1297,10 +1297,9 @@ def target_characters(kind='jelly'):
     hit = dict(Body=measure_bands(idle, hit_table('Body')),
                Dash=measure_bands(body_frames('dash'), hit_table('Dash')),
                Stunned=measure_bands(body_frames('knockback'), hit_table('Stunned')),
-               # HitShapes.cs builds these two with Scale(), so they are scaled here the same way
+               # HitShapes.cs builds Crouch with Scale(), so it is scaled here the same way
                Crouch=measure_bands(body_frames('crouch'), _scale_bands(hit_table('Body'), 115, 60)),
-               Stomped=measure_bands(body_frames('stun'), _scale_bands(hit_table('Stunned'), 135, 40),
-                                     sx=DRAW_SCALE['stun'][0]))
+               Stomped=measure_bands(body_frames('stun'), hit_table('Stomped'), sx=DRAW_SCALE['stun'][0]))
     report['hit_max_diff_milli'] = {k: max((max(abs(d) for d in r['diff']) for r in v if 'diff' in r), default=None)
                                     for k, v in hit.items()}
     # The tables have slack where the jelly drawing itself does not reach, so also compare with the jelly measured
@@ -2641,7 +2640,46 @@ def target_bands():
                 print('BAND   y %5d..%5d  hit %5d..%5d  drawn %5d..%5d' % row)
 
 
-TARGETS = dict(bands=target_bands, characters=target_characters, knife=target_knife, map=target_map, preview=target_preview,
+def target_stun_table():
+    """Prints the flat-stun hit bands measured from the stun row as the client draws it (all frames together,
+    x draw_scale, body only, 40-milli rows merged where equal) for HitShapes.Stomped. Kind from STUN_KIND."""
+    scene = reset_scene()
+    add_camera(scene, 0, 0, 2.0)
+    add_sun(scene, CHAR_SUN, energy=3.0)
+    half = CHAR_FRAME / CHAR_PPU / 2
+    z0 = -CHAR_PIVOT[1] / CHAR_PPU
+    frame_camera(scene, -half, z0, half, z0 + CHAR_FRAME / CHAR_PPU, CHAR_PPU)
+    set_kind(os.environ.get('STUN_KIND', 'jelly'))
+    rig = build_characters(scene)
+    for coll in rig['decor'].values():
+        coll.hide_render = True
+    bpy.data.collections['Stars'].hide_render = True
+    tmp = tempfile.mkdtemp(prefix='stun_')
+    f, imgs = 0, []
+    for aname, _, _, frs in ANIMS:
+        for i in range(len(frs)):
+            f += 1
+            if aname == 'stun':
+                scene.frame_set(f)
+                path = os.path.join(tmp, '%d.png' % i)
+                render_to(scene, path)
+                imgs.append(load_png(path))
+    rows = [(b, b + 40, 0, 0) for b in range(0, 800, 40)]
+    merged = []
+    for r in measure_bands(imgs, rows, sx=DRAW_SCALE['stun'][0]):
+        if r['drawn'] is None:
+            continue
+        b, t = r['band']
+        l, rr = r['drawn']
+        if merged and merged[-1][2:] == (l, rr) and merged[-1][1] == b:
+            merged[-1] = (merged[-1][0], t, l, rr)
+        else:
+            merged.append((b, t, l, rr))
+    for b, t, l, rr in merged:
+        print('STUNBAND new HitBand(%d, %d, %d, %d),' % (b, t, l, rr))
+
+
+TARGETS = dict(stun_table=target_stun_table, bands=target_bands, characters=target_characters, knife=target_knife, map=target_map, preview=target_preview,
                winter=target_winter, warehouse=target_warehouse, dessert=target_dessert,
                map_previews=target_map_previews, probe=lambda: target_probe(os.environ['PROBE_DIR']))
 
