@@ -67,6 +67,7 @@ namespace OnlineSeverGame.Client.Juice
         Dictionary<int, SideKnifeRender> _curSide = new Dictionary<int, SideKnifeRender>();
         readonly Dictionary<int, double> _lastCrouch = new Dictionary<int, double>();
         readonly List<PlayerRender> _deaths = new List<PlayerRender>();
+        readonly Dictionary<int, Vector2> _dead = new Dictionary<int, Vector2>(); // 이번 라운드에 죽은 캐릭터와 죽은 자리
         ClientScreen _lastScreen = ClientScreen.Connect;
         ClientScreen _heldScreen = ClientScreen.Playing;
         bool _rawResult;
@@ -152,6 +153,7 @@ namespace OnlineSeverGame.Client.Juice
             _prevPlayers.Clear(); _prevSwords.Clear(); _prevSide.Clear();
             _baseline = true;
             _lastTwo = false;
+            _dead.Clear();
             _particles.Clear();
         }
 
@@ -272,6 +274,25 @@ namespace OnlineSeverGame.Client.Juice
             var state = session.State;
             Array.Clear(_frameVol, 0, _frameVol.Length);
 
+            // 내 캐릭터가 죽으면 예측 그림이 보간 그림(100 ms 과거)으로 바뀌어 0.1초쯤 다시 살아 보인다(NetworkSession 그리기).
+            // 라운드 안에서 되살아나는 일은 없으므로, 죽은 캐릭터는 대기·카운트다운 전까지 죽은 자리에 웅덩이로 붙잡아 둔다
+            // (화면 표시만. 사망 소리·방울이 두 번 나지 않게).
+            if (state.Screen == ClientScreen.Lobby || state.Screen == ClientScreen.Countdown) _dead.Clear();
+            for (int i = 0; i < world.Players.Count; i++)
+            {
+                var p = world.Players[i];
+                if (p.Spectator || !_dead.TryGetValue(p.Id, out var at)) continue;
+                if (p.Alive)
+                {
+                    p.Alive = false;
+                    p.Dashing = p.Crouching = p.Stomped = p.Stunned = false;
+                    p.ImmuneTicks = 0;
+                    p.Position = at;
+                    world.Players[i] = p;
+                }
+                else _dead[p.Id] = p.Position;
+            }
+
             bool hasListener = false;
             Vector2 listener = (Vector2)_game.WorldCamera.transform.position;
             foreach (var p in world.Players)
@@ -364,7 +385,7 @@ namespace OnlineSeverGame.Client.Juice
 
         void PlayerEvents(PlayerRender p, PlayerRender q, WorldRender world)
         {
-            if (q.Alive && !p.Alive) { _deaths.Add(p); return; }
+            if (q.Alive && !p.Alive) { _deaths.Add(p); _dead[p.Id] = p.Position; return; }
             if (!p.Alive || !q.Alive) return;
             if ((p.Position - q.Position).sqrMagnitude > 6.25f) return; // 순간이동(라운드 시작 배치 등)
 
