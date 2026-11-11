@@ -1,0 +1,126 @@
+Jelly Survival Party
+
+개인정보 처리방침 · Privacy Policy
+시행일 / Effective date: 2026-11-11
+
+한국어
+
+이 처리방침은 Windows 게임 Jelly Survival Party(이하 “게임”)가 어떤 정보를 다루는지 설명합니다. 게임 운영자는 Jungsh입니다.
+
+1. 계정·결제가 없고, 운영자 서버도 없습니다
+
+게임에는 회원 가입, 로그인, 결제, 광고, 채팅 기능이 없습니다. 이메일·전화번호·실명·주소·위치·연락처·사진 같은 정보를 묻거나 수집하지 않습니다.
+
+게임 방은 플레이어 중 한 명(이하 “방장”)이 ‘방 만들기’를 누르면 방장의 PC에서 열립니다. 다른 플레이어는 방장이 알려 준 주소로 방장 PC에 직접 접속합니다. 운영자는 게임 서버를 운영하지 않으며, 플레이 중의 어떤 정보도 운영자에게 전송되거나 보관되지 않습니다.
+
+2. 방장 PC로 보내는 정보
+
+- 플레이어 이름(접속 화면에서 직접 입력, 최대 32바이트): 같은 방의 다른 플레이어 화면에 이름표·순위로 표시
+
+- 고른 캐릭터 종류(젤리·젤리곰·푸딩): 다른 플레이어 화면에 내 캐릭터로 표시
+
+- 조작 입력(이동·점프·대시·엎드리기·이모트), 방장의 다음 맵 선택과 시작: 게임 판정(방장 PC의 게임이 움직임과 결과를 계산)
+
+- 지연 시간 확인 신호(핑): 화면에 지연 시간 표시, 움직임 보정
+
+인터넷 연결의 특성상 방장 PC는 접속한 사람의 IP 주소를 알 수 있고, 참가하는 사람은 방장의 IP 주소를 주소 칸에 입력합니다. 게임 화면에는 다른 플레이어의 IP 주소를 보여 주지 않으며, 게임에서 보이는 것은 이름, 캐릭터, 색, 움직임, 이모트, 순위뿐입니다. 방장 주소는 믿을 수 있는 친구와만 주고받으세요. 이름은 다른 사람에게 보이므로 실명이나 개인을 알아볼 수 있는 이름은 쓰지 마세요.
+
+3. 방장 PC에 남는 기록
+
+- 이름·캐릭터·입력은 방이 열려 있는 동안 방장 PC의 메모리에만 있고, 방을 닫으면 사라집니다. 데이터베이스나 계정에 저장하지 않습니다.
+
+- 방장 PC의 게임 실행 기록 파일(Player.log)에는 문제 해결을 위해 플레이어 이름과 들어옴·나감·탈락 같은 게임 사건이 적힙니다. 접속한 사람의 IP 주소는 적지 않습니다. 이 파일은 방장 PC 안에만 있고 운영자에게 보내지 않으며, 다음에 게임을 실행하면 새 기록으로 바뀝니다.
+
+4. 공유기 포트 열기(UPnP)
+
+방장이 방을 만들면, 인터넷의 친구가 들어올 수 있도록 게임이 방장 PC가 연결된 공유기에 UPnP로 TCP 7777 포트를 이 PC로 열어 달라고 요청하고, 공유기에 공인 IP 주소를 묻습니다. 이 요청은 집 안의 공유기와만 주고받으며 외부 서비스로 보내지 않습니다. 방을 닫으면 연 포트를 다시 지웁니다. 공유기에서 UPnP를 끄면 이 기능은 동작하지 않습니다.
+
+5. 내 PC에 저장하는 정보
+
+다음 설정은 내 PC 안(Windows 사용자 설정 영역)에만 저장되고 다른 곳으로 보내지 않습니다: 마지막에 쓴 이름, 마지막에 참가한 주소, 언어, 고른 캐릭터, 음량, 화면 흔들림 설정. 게임 실행 기록 파일(Player.log, %USERPROFILE%\AppData\LocalLow\JellySurvivalDev 폴더)도 PC 안에만 남습니다. 게임을 지우면 설정은 함께 지워지고, 실행 기록 폴더는 남으므로 원하면 직접 지우면 됩니다.
+
+6. 제3자 서비스
+
+게임은 Unity 엔진으로 만들었고, Unity 분석(Analytics)·오류 보고(Crash Reporting)·광고·결제 서비스는 꺼져 있습니다. 광고나 분석 도구를 넣지 않았습니다. Microsoft Store에서 받은 경우 다운로드·설치에 관한 정보는 Microsoft가 자기 개인정보 처리방침에 따라 처리합니다.
+
+7. 보안
+
+플레이어 PC 사이의 통신은 현재 암호화하지 않습니다. 그러므로 이름에 비밀번호나 개인정보를 넣지 마세요. 보내는 정보는 위 표의 게임 정보뿐입니다.
+
+8. 어린이
+
+게임은 나이를 묻지 않고 어린이 정보를 따로 모으지 않습니다. 보호자는 아이가 실명을 이름으로 쓰지 않도록, 그리고 방장 주소를 모르는 사람과 주고받지 않도록 지도해 주세요.
+
+9. 내 정보 확인·삭제
+
+운영자는 플레이 정보를 받거나 보관하지 않으므로, 운영자가 확인하거나 지울 기록이 없습니다. 내 PC에 저장된 설정은 이름을 바꾸거나 게임을 지우면 바뀌거나 지워지고, 실행 기록 파일은 위 폴더에서 직접 지울 수 있습니다.
+
+10. 바뀔 때
+
+게임 기능이 바뀌어 다루는 정보가 달라지면 이 페이지를 고치고 위의 시행일을 바꿉니다.
+
+11. 운영자
+
+Jungsh (Microsoft Store 게시자)
+
+----------
+
+English
+
+This policy explains what information the Windows game Jelly Survival Party (the “Game”) handles. The Game is operated by Jungsh.
+
+1. No accounts, no payments, and no operator server
+
+The Game has no sign-up, login, payments, ads or chat. It does not ask for or collect your e-mail, phone number, real name, address, location, contacts or photos.
+
+A game room opens on the PC of one of the players (the “host”) when they press Create room. The other players connect directly to the host's PC with the address the host gives them. The operator runs no game server, and nothing from your play is sent to or kept by the operator.
+
+2. What is sent to the host's PC
+
+- Player name (you type it on the connect screen, up to 32 bytes): Shown to other players in the same room (name tag, ranking)
+
+- Chosen character (jelly, jelly bear, pudding): Shown to other players as your character
+
+- Controls (move, jump, dash, crouch, emotes), the host's next-map choice and Start: Running the game (the Game on the host's PC computes movement and results)
+
+- Latency check (ping): Showing your ping and smoothing movement
+
+Because of how internet connections work, the host's PC can see the IP address of each player who connects, and players who join type the host's IP address. The Game never shows other players' IP addresses on screen; others only see your name, character, color, movement, emotes and ranking. Share a host address only with friends you trust. Your name is visible to others, so do not use your real name or anything that identifies you.
+
+3. What stays on the host's PC
+
+- Names, characters and inputs live only in the memory of the host's PC while the room is open and are gone when it closes. There is no database and no account.
+
+- The Game's log file on the host's PC (Player.log) records player names and game events such as join, leave and elimination, for troubleshooting. It does not record the IP addresses of players who connect. The file stays on the host's PC, is never sent to the operator, and is replaced the next time the Game starts.
+
+4. Opening a router port (UPnP)
+
+When the host creates a room, the Game asks the router the host's PC is connected to, using UPnP, to forward TCP port 7777 to that PC so friends can join over the internet, and asks the router for its public IP address. This only talks to the router in the host's home and is never sent to an outside service. The port is removed again when the room closes. If UPnP is turned off on the router, this does nothing.
+
+5. What is stored on your PC
+
+These settings are stored only on your PC (your Windows user settings) and are not sent anywhere: the last name you used, the last address you joined, language, chosen character, volume and screen-shake setting. The Game's log file (Player.log, in the %USERPROFILE%\AppData\LocalLow\JellySurvivalDev folder) also stays on your PC. Uninstalling the Game removes the settings; the log folder is left behind and you can delete it yourself.
+
+6. Third-party services
+
+The Game is made with the Unity engine; Unity Analytics, Crash Reporting, Ads and In-App Purchasing are turned off. No advertising or analytics tools are included. If you got the Game from the Microsoft Store, Microsoft handles download and installation data under its own privacy statement.
+
+7. Security
+
+Traffic between players' PCs is currently not encrypted. Do not put passwords or personal information in your player name. Only the game information listed above is sent.
+
+8. Children
+
+The Game does not ask for your age and does not collect information about children in particular. Parents, please make sure children do not use their real names as player names and do not exchange host addresses with strangers.
+
+9. Seeing or deleting your information
+
+The operator does not receive or keep play information, so there are no operator records to see or delete. The settings on your PC change when you change your name and are removed when you uninstall the Game; you can delete the log file from the folder above.
+
+10. Changes
+
+If a new feature changes what information the Game handles, we will update this page and the effective date above.
+
+11. Operator
+
+Jungsh (Microsoft Store publisher)

@@ -5,7 +5,7 @@
   "publisherDisplayName": "Jungsh",
   "displayName": "Jelly Survival Party",
   "description": "8-player online survival party game: dodge falling knives as a little jelly.",
-  "version": "1.0.0.0",
+  "version": "1.0.1.0",
   "processorArchitecture": "x64",
   "minVersion": "10.0.19043.0",
   "maxVersionTested": "10.0.26200.0",
