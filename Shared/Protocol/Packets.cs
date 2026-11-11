@@ -451,6 +451,8 @@ namespace OnlineSeverGame.Shared.Protocol
         public MapRotation Rotation = MapRotation.Cycle;
         /// <summary>The host picked NextStageId (it is not just what the rotation gives).</summary>
         public bool NextChosen;
+        /// <summary>(v13) A player-hosted room: the first round waits in Waiting until the host sends StartRequest.</summary>
+        public bool HostStarts;
 
         public PacketType Type => PacketType.RoomInfo;
 
@@ -459,17 +461,24 @@ namespace OnlineSeverGame.Shared.Protocol
             w.WriteByte(HostId);
             w.WriteByte(NextStageId);
             w.WriteByte((byte)Rotation);
-            w.WriteByte(NextChosen ? (byte)1 : (byte)0);
+            w.WriteByte((byte)((NextChosen ? 1 : 0) | (HostStarts ? 2 : 0)));
         }
 
-        public static RoomInfoPacket Read(PacketReader r) => new RoomInfoPacket
+        public static RoomInfoPacket Read(PacketReader r)
         {
-            HostId = r.ReadByte(), NextStageId = r.ReadByte(), Rotation = (MapRotation)r.ReadByte(),
-            NextChosen = (r.ReadByte() & 1) != 0,
-        };
+            var info = new RoomInfoPacket
+            {
+                HostId = r.ReadByte(), NextStageId = r.ReadByte(), Rotation = (MapRotation)r.ReadByte(),
+            };
+            byte flags = r.ReadByte();
+            info.NextChosen = (flags & 1) != 0;
+            info.HostStarts = (flags & 2) != 0;
+            return info;
+        }
 
         public bool SameAs(RoomInfoPacket o) =>
-            o != null && o.HostId == HostId && o.NextStageId == NextStageId && o.Rotation == Rotation && o.NextChosen == NextChosen;
+            o != null && o.HostId == HostId && o.NextStageId == NextStageId && o.Rotation == Rotation && o.NextChosen == NextChosen &&
+            o.HostStarts == HostStarts;
     }
 
     /// <summary>
@@ -538,6 +547,19 @@ namespace OnlineSeverGame.Shared.Protocol
 
         public static CharacterRequestPacket Read(PacketReader r) =>
             new CharacterRequestPacket { Character = (CharacterKind)r.ReadByte() };
+    }
+
+    /// <summary>
+    /// C (v13): the host starts the first round of a player-hosted room (RoomInfo.HostStarts). Empty payload. The
+    /// server ignores it from anyone but the host, outside Waiting, or when the room does not wait for the host.
+    /// </summary>
+    public sealed class StartRequestPacket : IPacket
+    {
+        public PacketType Type => PacketType.StartRequest;
+
+        public void Write(PacketWriter w) { }
+
+        public static StartRequestPacket Read(PacketReader r) => new StartRequestPacket();
     }
 
     /// <summary>S (v11): a player's character changed (to everyone, the player too). Joins carry it in PlayerJoined.</summary>

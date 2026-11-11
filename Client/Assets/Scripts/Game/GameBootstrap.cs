@@ -2,6 +2,7 @@ using System;
 using OnlineSeverGame.Client.Input;
 using OnlineSeverGame.Client.Juice;
 using OnlineSeverGame.Client.Model;
+using OnlineSeverGame.Client.Net;
 using OnlineSeverGame.Client.UI;
 using OnlineSeverGame.Client.View;
 using OnlineSeverGame.Shared.Simulation;
@@ -13,6 +14,8 @@ namespace OnlineSeverGame.Client.Game
     //
     // 명령줄 인자(빌드·테스트용):
     //   -character jelly|bear|pudding(이번 실행만, 저장 안 함)
+    //   -host(켜자마자 방 만들기) -autostart(방장이면 대기 화면에서 바로 '시작')  -port <N>(방 만들기 포트, 기본 7777)
+    //   -demoaddress(Store 스크린샷용: 방장 주소 칸에 예시 주소, UPnP 안 함)
     //   -name <이름>  -server <host:port>  -autoconnect  -preview  -autoplay [chase|stomp|mash|motion|pad](무작위 입력 / 가까운 상대 쫓아 대시 / 쫓아 밟기 / 대시 연타 / 동작 차례로 보이기 / 점프 발판 밀고 타기)
     //   -nostomppredict(밟기 튕김 예측 끄기, 비교 시험용)
     //   -screenshot <파일경로> -screenshotDelay <초> [-screenshotEvery <초>]  -quitAfter <초>
@@ -23,8 +26,14 @@ namespace OnlineSeverGame.Client.Game
     public sealed class GameBootstrap : MonoBehaviour
     {
         public string PlayerName = "Player";
-        // 공개 서버(docs/work/online-server.md). 처음 켤 때의 기본값이고, 접속 화면에서 바꾼 주소는 PlayerPrefs가 기억한다.
-        public string ServerAddress = "wildmagic.co.kr:7771";
+        // 참가할 방장의 주소(host:port). 처음에는 비어 있고, 마지막으로 참가한 주소를 PlayerPrefs가 기억한다.
+        // 방장이 방을 만들면 이 PC 안에 서버가 뜨고(LocalHost) 127.0.0.1 로 붙는다(docs/work/player-host.md).
+        public string ServerAddress = "";
+        public int HostPort = LocalHost.DefaultPort;
+
+        // 이 PC가 방장으로 연 서버(없으면 null)
+        public LocalHost Host { get; private set; }
+        public bool IsHosting => Host != null;
 
         public IGameSession Session { get; private set; }
         public Camera WorldCamera { get; private set; }
@@ -48,6 +57,7 @@ namespace OnlineSeverGame.Client.Game
         int _seenTouches;
         ClientScreen _loggedScreen = ClientScreen.Connect;
         int _builtLayoutVersion;
+        bool _autoStart, _autoStarted;
 
         void Awake()
         {
@@ -58,6 +68,7 @@ namespace OnlineSeverGame.Client.Game
             _ = Loc.Current; // 언어를 메인 스레드에서 먼저 읽어 둔다(접속 스레드의 오류 문구도 이 언어로)
             PlayerName = PlayerPrefs.GetString("name", "Player" + UnityEngine.Random.Range(100, 1000));
             ServerAddress = PlayerPrefs.GetString("server", ServerAddress);
+            if (ServerAddress == "wildmagic.co.kr:7771") ServerAddress = ""; // 예전 시험용 공개 서버 기본값은 지운다
 
             Layout = StageLayout.FromShared(Stage.Default);
             WorldCamera = CreateCamera();
@@ -78,7 +89,7 @@ namespace OnlineSeverGame.Client.Game
         void ParseArgs()
         {
             var args = Environment.GetCommandLineArgs();
-            bool autoConnect = false, preview = false;
+            bool autoConnect = false, preview = false, autoHost = false;
             for (int i = 0; i < args.Length; i++)
             {
                 string a = args[i];
@@ -88,6 +99,10 @@ namespace OnlineSeverGame.Client.Game
                     case "-name": if (next != null) PlayerName = next; break;
                     case "-server": if (next != null) ServerAddress = next; break;
                     case "-autoconnect": autoConnect = true; break;
+                    case "-host": autoHost = true; break;
+                    case "-autostart": _autoStart = true; break;
+                    case "-demoaddress": LocalHost.DemoAddress = true; break;
+                    case "-port": if (int.TryParse(next, out var port) && port > 0 && port < 65536) HostPort = port; break;
                     case "-preview": preview = true; break;
                     case "-lang": if (next != null && Loc.TryParse(next, out var lang)) Loc.Override(lang); break;
                     case "-character": if (next != null && CharacterChoice.TryParse(next, out var kind)) CharacterChoice.Override(kind); break;
@@ -110,6 +125,7 @@ namespace OnlineSeverGame.Client.Game
             }
             if (_screenshotPath != null && _screenshotAt < 0f) _screenshotAt = 3f;
             if (preview) StartPreview();
+            else if (autoHost) HostGame();
             else if (autoConnect) Connect();
         }
 
@@ -156,6 +172,11 @@ namespace OnlineSeverGame.Client.Game
                 // 이모트: 접속 화면(이름 입력)만 빼고. 살아 있는지는 세션·서버가 본다.
                 var emote = _input.TakeEmote();
                 if (emote != 0 && screen != ClientScreen.Connect) Session.SendEmote(emote);
+                if (_autoStart && !_autoStarted && Session.State.IsHost && Session.State.HostStarts && screen == ClientScreen.Lobby)
+                {
+                    _autoStarted = true;
+                    Session.RequestStart();
+                }
                 RebuildIfMapChanged();
                 _juice.Present(Session); // 보여 줄 시각의 그림으로 바꾸고 사건(소리·파티클)을 낸다
                 _world.Apply(Session.World);
@@ -262,6 +283,7 @@ namespace OnlineSeverGame.Client.Game
             Session = new PreviewSession(Layout, PlayerName);
         }
 
+        // 친구의 방(ServerAddress)에 참가한다.
         public void Connect()
         {
             CloseSession();
@@ -270,17 +292,35 @@ namespace OnlineSeverGame.Client.Game
             Session = new NetworkSession(Layout, PlayerName, ServerAddress);
         }
 
+        // 방 만들기: 이 PC 안에 서버를 띄우고 방장으로 들어간다. 포트를 못 열면 접속 화면에 이유를 보인다.
+        public void HostGame()
+        {
+            CloseSession();
+            SavePrefs();
+            LastStatus = "";
+            var host = new LocalHost();
+            if (!host.Start(HostPort, out string error))
+            {
+                LastStatus = error;
+                return;
+            }
+            Host = host;
+            Session = new NetworkSession(Layout, PlayerName, "127.0.0.1:" + HostPort);
+        }
+
         public void Disconnect(string reason)
         {
             CloseSession();
             LastStatus = reason ?? "";
         }
 
-        void CloseSession()
+        void CloseSession(bool quitting = false)
         {
             Session?.Close();
             Session = null;
             _world.Clear();
+            Host?.Stop(blocking: quitting); // 방장이 나가면 방도 닫힌다(다른 사람은 '연결 끊김'으로 접속 화면에)
+            Host = null;
         }
 
         void SavePrefs()
@@ -291,6 +331,6 @@ namespace OnlineSeverGame.Client.Game
             PlayerPrefs.Save();
         }
 
-        void OnApplicationQuit() => CloseSession();
+        void OnApplicationQuit() => CloseSession(quitting: true);
     }
 }

@@ -9,13 +9,13 @@ namespace OnlineSeverGame.Client.UI
     public sealed class ConnectView : UiView
     {
         const float CardWidth = 500f;
-        const float CardHeightForLayout = 500f; // 접속 카드(캐릭터 고르기, 경고 두 줄까지)
+        const float CardHeightForLayout = 560f; // 접속 카드(캐릭터 고르기, 방 만들기, 참가 줄, 경고 두 줄까지)
 
         readonly TitleLogoElement _logo;
         readonly VisualElement _connectBox, _connectingBox, _dots;
-        readonly Label _nameLabel, _serverLabel, _status, _connectingText;
+        readonly Label _nameLabel, _serverLabel, _joinTitle, _status, _connectingText;
         readonly TextField _name, _server;
-        readonly Button _join, _preview, _settingsBtn, _langBtn, _cancel;
+        readonly Button _host, _join, _preview, _settingsBtn, _langBtn, _cancel;
         readonly CharacterPicker _picker;
         bool _fieldsLoaded;
 
@@ -48,12 +48,6 @@ namespace OnlineSeverGame.Client.UI
             _name.AddToClassList("field");
             _name.RegisterValueChangedCallback(e => Ui.Game.PlayerName = e.newValue);
             row.Add(_name);
-            row = UiKit.El("field-row", _connectBox);
-            _serverLabel = UiKit.Text("", "field-label", row);
-            _server = new TextField { name = "field-server", maxLength = 64 };
-            _server.AddToClassList("field");
-            _server.RegisterValueChangedCallback(e => Ui.Game.ServerAddress = e.newValue);
-            row.Add(_server);
 
             // 캐릭터 고르기(접속 전: 마지막으로 받은 번호의 색으로 미리 보기)
             _picker = new CharacterPicker(ui, "connect", CardWidth - 44f, 104f, showNames: true);
@@ -61,17 +55,31 @@ namespace OnlineSeverGame.Client.UI
             _picker.Root.style.marginBottom = 4;
             _connectBox.Add(_picker.Root);
 
+            // 방 만들기(이 PC가 방장: 게임 안에서 서버를 띄운다) + 오프라인 미리보기
             var buttons = UiKit.El(null, _connectBox);
             buttons.style.flexDirection = FlexDirection.Row;
             buttons.style.marginTop = 6;
-            _join = UiKit.Button("btn-join", "", TryJoin, "jb--primary jb--big", buttons);
-            _join.style.flexGrow = 1;
-            _join.style.flexBasis = 0;
-            _join.style.marginRight = 10;
+            _host = UiKit.Button("btn-host", "", TryHost, "jb--primary jb--big", buttons);
+            _host.style.flexGrow = 1.3f;
+            _host.style.flexBasis = 0;
+            _host.style.marginRight = 10;
             _preview = UiKit.Button("btn-preview", "", () => Ui.Game.StartPreview(), "jb--blue jb--big", buttons);
-            _preview.style.flexGrow = 1.3f;
+            _preview.style.flexGrow = 1f;
             _preview.style.flexBasis = 0;
             _preview.style.fontSize = 22;
+
+            // 친구 방에 참가: 방장이 알려 준 주소 + 참가
+            _joinTitle = UiKit.Text("", "t-small t-muted t-wrap", _connectBox);
+            _joinTitle.style.marginTop = 12;
+            row = UiKit.El("field-row", _connectBox);
+            _serverLabel = UiKit.Text("", "field-label", row);
+            _server = new TextField { name = "field-server", maxLength = 64 };
+            _server.AddToClassList("field");
+            _server.RegisterValueChangedCallback(e => Ui.Game.ServerAddress = e.newValue);
+            row.Add(_server);
+            _join = UiKit.Button("btn-join", "", TryJoin, "jb--grape", row);
+            _join.style.marginLeft = 8;
+            _join.style.flexShrink = 0;
 
             var bottom = UiKit.El(null, _connectBox);
             bottom.style.flexDirection = FlexDirection.Row;
@@ -104,8 +112,14 @@ namespace OnlineSeverGame.Client.UI
 
         public void TryJoin()
         {
-            if (string.IsNullOrWhiteSpace(Ui.Game.PlayerName)) return;
+            if (string.IsNullOrWhiteSpace(Ui.Game.PlayerName) || string.IsNullOrWhiteSpace(Ui.Game.ServerAddress)) return;
             Ui.Game.Connect();
+        }
+
+        public void TryHost()
+        {
+            if (string.IsNullOrWhiteSpace(Ui.Game.PlayerName)) return;
+            Ui.Game.HostGame();
         }
 
         public void BlurFields()
@@ -137,13 +151,17 @@ namespace OnlineSeverGame.Client.UI
             UiKit.SetText(_nameLabel, Loc.T("connect.name"));
             UiKit.SetText(_serverLabel, Loc.T("connect.server"));
             UiKit.SetText(_join, Loc.T("connect.join"));
+            UiKit.SetText(_host, Loc.T("connect.host"));
+            UiKit.SetText(_joinTitle, Loc.T("connect.joinTitle"));
             UiKit.SetText(_preview, Loc.T("connect.preview"));
             UiKit.SetText(_settingsBtn, Loc.T("ui.settings"));
             UiKit.SetText(_langBtn, Loc.T("lang.label") + " · " + Loc.T("lang.button"));
             UiKit.SetText(_cancel, Loc.T("connect.cancel"));
             if (!connecting)
                 _picker.Refresh(CharacterChoice.LastColor, CharacterChoice.Current, false, Loc.T("char.colorNote"), now);
-            _join.SetEnabled(!string.IsNullOrWhiteSpace(Ui.Game.PlayerName));
+            bool named = !string.IsNullOrWhiteSpace(Ui.Game.PlayerName);
+            _host.SetEnabled(named);
+            _join.SetEnabled(named && !string.IsNullOrWhiteSpace(Ui.Game.ServerAddress));
 
             string status = Ui.Game.LastStatus;
             UiKit.Show(_status, !string.IsNullOrEmpty(status));
@@ -151,7 +169,7 @@ namespace OnlineSeverGame.Client.UI
 
             if (connecting)
             {
-                UiKit.SetText(_connectingText, Loc.F("connect.connecting", Ui.Game.ServerAddress));
+                UiKit.SetText(_connectingText, Ui.Game.IsHosting ? Loc.T("connect.opening") : Loc.F("connect.connecting", Ui.Game.ServerAddress));
                 // 젤리 점 넷이 차례로 통통 뛴다
                 int i = 0;
                 foreach (var d in _dots.Children())

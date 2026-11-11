@@ -15,5 +15,6 @@
   ],
   "applicationId": "JellySurvival",
   "executable": "Client.exe",
-  "unityBuildDir": "Client/Build/Windows"
+  "unityBuildDir": "Client/Build/Windows",
+  "gamePort": "7777"
 }

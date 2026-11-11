@@ -348,6 +348,7 @@ namespace OnlineSeverGame.Client.Game
             State.NextMapName = StageLayout.DisplayName(info.NextStageId);
             State.Rotation = info.Rotation;
             State.NextChosen = info.NextChosen;
+            State.HostStarts = info.HostStarts;
             Debug.Log($"[Net] room host=#{info.HostId} next map {info.NextStageId} '{State.NextMapName}' rotation={info.Rotation}" +
                       (info.NextChosen ? " (host pick)" : ""));
         }
@@ -368,6 +369,14 @@ namespace OnlineSeverGame.Client.Game
             if (!_welcomed) return; // 접속 중이면 Hello 에 이미 실렸거나, 접속 화면에서 고른 값이 다음 Hello 에 실린다
             _net.Send(new CharacterRequestPacket { Character = kind });
             Debug.Log($"[Net] character request {kind}");
+        }
+
+        // (v13) 방장만 보낸다(UI 가 막는다). 서버가 방장·대기 상태인지 확인하고 카운트다운을 시작한다.
+        public void RequestStart()
+        {
+            if (!_welcomed) return;
+            _net.Send(new StartRequestPacket());
+            Debug.Log("[Net] start request");
         }
 
         // 방장만 보낸다(UI 가 막는다). 서버도 방장인지 확인하고, 바뀌면 RoomInfo 로 모두에게 알린다.

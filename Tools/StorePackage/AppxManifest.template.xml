@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Jelly Survival MSIX manifest template. package_store.py fills the {placeholders} from store_config.json.
-     Full-trust desktop app (Unity player), x64. Only runFullTrust (required for a desktop app) and internetClient
-     (the game talks to the online game server) are declared.
+     Full-trust desktop app (Unity player), x64. Declared: runFullTrust (required for a desktop app),
+     internetClientServer and privateNetworkClientServer (a player hosts the room inside the game and friends connect
+     to it over the internet or the same router, docs/work/player-host.md), and an inbound firewall rule for the game
+     port so Windows does not block the host's room.
      Schema: https://learn.microsoft.com/en-us/windows/msix/desktop/desktop-to-uwp-manual-conversion -->
 <Package
   xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
   xmlns:uap10="http://schemas.microsoft.com/appx/manifest/uap/windows10/10"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
-  IgnorableNamespaces="uap uap10 rescap">
+  xmlns:desktop2="http://schemas.microsoft.com/appx/manifest/desktop/windows10/2"
+  IgnorableNamespaces="uap uap10 rescap desktop2">
 
   <Identity Name="{identityName}" Version="{version}" Publisher="{publisher}" ProcessorArchitecture="{processorArchitecture}" />
 
@@ -28,7 +31,8 @@
   </Dependencies>
 
   <Capabilities>
-    <Capability Name="internetClient" />
+    <Capability Name="internetClientServer" />
+    <Capability Name="privateNetworkClientServer" />
     <rescap:Capability Name="runFullTrust" />
   </Capabilities>
 
@@ -48,4 +52,12 @@
       </uap:VisualElements>
     </Application>
   </Applications>
+
+  <Extensions>
+    <desktop2:Extension Category="windows.firewallRules">
+      <desktop2:FirewallRules Executable="{executable}">
+        <desktop2:Rule Direction="in" IPProtocol="TCP" Profile="all" LocalPortMin="{gamePort}" LocalPortMax="{gamePort}" />
+      </desktop2:FirewallRules>
+    </desktop2:Extension>
+  </Extensions>
 </Package>

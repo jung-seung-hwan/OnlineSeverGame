@@ -20,6 +20,7 @@ namespace OnlineSeverGame.Shared.Protocol
         EmoteRequest = 51, // C (v7)
         PlayerCharacter = 34, // S (v11)
         CharacterRequest = 52, // C (v11)
+        StartRequest = 53, // C (v13)
     }
 
     /// <summary>

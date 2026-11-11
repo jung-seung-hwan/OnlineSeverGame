@@ -1,5 +1,6 @@
 using System.Text;
 using OnlineSeverGame.Client.Model;
+using OnlineSeverGame.Client.Net;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -12,7 +13,11 @@ namespace OnlineSeverGame.Client.UI
     {
         readonly VisualElement _cards, _status;
         readonly Label _rosterTitle, _head, _sub, _tip, _ping, _bigNumber, _roundLine;
-        readonly Button _settingsBtn, _leaveBtn;
+        readonly Button _settingsBtn, _leaveBtn, _startBtn, _copyBtn;
+        // 방장 PC 만: 친구가 접속할 주소(인터넷·같은 공유기)와 공유기 포트 상태(docs/work/player-host.md)
+        readonly VisualElement _hostBox;
+        readonly Label _hostTitle, _hostPublic, _hostLan, _hostNote;
+        float _copiedUntil;
         readonly MapPicker _map;
         readonly CharacterPicker _picker;
         readonly TitleLogoElement _logo;
@@ -50,6 +55,20 @@ namespace OnlineSeverGame.Client.UI
             _head = UiKit.Text("", "t-h2 t-center", _status);
             _sub = UiKit.Text("", "t-small t-muted t-center t-wrap", _status);
             _tip = UiKit.Text("", "t-small t-center t-wrap", _status);
+            // 플레이어가 연 방: 방장이 '시작'(혼자여도 된다)
+            _startBtn = UiKit.Button("lobby-start", "", () => Ui.Game.Session?.RequestStart(), "jb--primary jb--big", _status);
+            _startBtn.style.marginTop = 6;
+            _startBtn.style.minWidth = 220;
+
+            _hostBox = UiKit.El("panel panel--tight panel--soft", _status);
+            _hostBox.style.marginTop = 8;
+            _hostBox.style.alignItems = Align.Center;
+            _hostTitle = UiKit.Text("", "t-small t-muted t-center", _hostBox);
+            _hostPublic = UiKit.Text("", "t-body t-center t-wrap", _hostBox);
+            _hostLan = UiKit.Text("", "t-small t-center t-wrap", _hostBox);
+            _hostNote = UiKit.Text("", "t-tiny t-muted t-center t-wrap", _hostBox);
+            _copyBtn = UiKit.Button("lobby-copy-address", "", CopyAddress, "jb--small jb--blue", _hostBox);
+            _copyBtn.style.marginTop = 4;
 
             // ---- 오른쪽: 버튼, 작은 로고, 맵 고르기
             var right = UiKit.El(null, Root);
@@ -97,10 +116,15 @@ namespace OnlineSeverGame.Client.UI
             else _picker.Refresh(CharacterChoice.LastColor, CharacterChoice.Current, false, null, now);
             UiKit.SetText(_rosterTitle, Loc.F("lobby.roster", s.Roster.Count, s.Capacity));
 
-            UiKit.SetText(_head, counting ? Loc.F("lobby.countdown", Mathf.CeilToInt(Mathf.Max(0f, s.CountdownSeconds))) : Loc.T("lobby.waiting"));
+            bool hostStarts = s.HostStarts && !counting;
+            string waitHead = !hostStarts ? Loc.T("lobby.waiting") : s.IsHost ? Loc.T("lobby.hostReady") : Loc.T("lobby.waitHost");
+            UiKit.SetText(_head, counting ? Loc.F("lobby.countdown", Mathf.CeilToInt(Mathf.Max(0f, s.CountdownSeconds))) : waitHead);
             UiKit.SetText(_sub, counting
                 ? Loc.F("lobby.countdownSub", s.RoundNumber, Loc.MapName(s.MapId), s.ParticipantCount)
-                : Loc.F("lobby.waitingSub", s.Roster.Count, s.Capacity));
+                : Loc.F(hostStarts ? "lobby.hostStartsSub" : "lobby.waitingSub", s.Roster.Count, s.Capacity));
+            UiKit.Show(_startBtn, hostStarts && s.IsHost);
+            UiKit.SetText(_startBtn, Loc.T("lobby.start"));
+            RefreshHostBox(now);
             UiKit.Show(_tip, counting);
             if (counting) UiKit.SetText(_tip, Loc.T("lobby.countdownTip"));
 
@@ -128,6 +152,48 @@ namespace OnlineSeverGame.Client.UI
             }
 
             _hint.Refresh(s, 1f);
+        }
+
+        void RefreshHostBox(float now)
+        {
+            var host = Ui.Game.Host;
+            UiKit.Show(_hostBox, host != null);
+            if (host == null) return;
+            UiKit.SetText(_hostTitle, Loc.T("host.title"));
+            string port = host.Port.ToString();
+            switch (host.Ports)
+            {
+                case LocalHost.PortState.Trying:
+                    UiKit.SetText(_hostPublic, Loc.T("host.trying"));
+                    UiKit.SetText(_hostNote, "");
+                    break;
+                case LocalHost.PortState.Opened when !host.PublicIpIsPrivate && !string.IsNullOrEmpty(host.PublicIp):
+                    UiKit.SetText(_hostPublic, Loc.F("host.internet", host.PublicIp + ":" + port));
+                    UiKit.SetText(_hostNote, Loc.T("host.opened"));
+                    break;
+                case LocalHost.PortState.Opened:
+                    UiKit.SetText(_hostPublic, Loc.T("host.doubleNat"));
+                    UiKit.SetText(_hostNote, Loc.F("host.forwardHint", port));
+                    break;
+                default:
+                    UiKit.SetText(_hostPublic, Loc.T("host.notOpened"));
+                    UiKit.SetText(_hostNote, Loc.F("host.forwardHint", port));
+                    break;
+            }
+            UiKit.Show(_hostNote, !string.IsNullOrEmpty(_hostNote.text));
+            string lan = host.LanIp;
+            UiKit.SetText(_hostLan, string.IsNullOrEmpty(lan) ? "" : Loc.F("host.lan", lan + ":" + port));
+            string share = host.ShareAddress;
+            UiKit.Show(_copyBtn, !string.IsNullOrEmpty(share));
+            UiKit.SetText(_copyBtn, now < _copiedUntil ? Loc.T("host.copied") : Loc.F("host.copy", share));
+        }
+
+        void CopyAddress()
+        {
+            var host = Ui.Game.Host;
+            if (host == null || string.IsNullOrEmpty(host.ShareAddress)) return;
+            GUIUtility.systemCopyBuffer = host.ShareAddress;
+            _copiedUntil = Ui.Now + 1.5f;
         }
 
         void RefreshCards(SessionState s)

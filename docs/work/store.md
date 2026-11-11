@@ -51,7 +51,7 @@ Unity는 저장값(PlayerPrefs)과 실행 기록(Player.log)의 위치를 `compa
 
 - **형식: MSIX.** Store가 권장하고, Store가 Microsoft 인증서로 다시 서명해 주므로 **유료 코드 서명 인증서가 필요 없다**. EXE·MSI로 내면 직접 Authenticode 서명해야 하고 설치 파일을 우리 서버에 올려 두어야 한다.
 - **전체 신뢰 데스크톱 앱**: Unity 플레이어는 일반 Win32 프로그램이라 `uap10:RuntimeBehavior="packagedClassicApp"`, `uap10:TrustLevel="mediumIL"`(문서의 수동 패키징 틀 그대로).
-- **기능(Capabilities)은 둘만**: `runFullTrust`(데스크톱 앱은 필수, 제한 기능이라 제출 때 이유를 적어야 함 → 8장 7단계), `internetClient`(게임 서버 접속. 전체 신뢰 앱에서는 막지 않지만 Store 목록에 "인터넷 연결 사용"을 정직하게 보이려고 넣음). 그 밖에 아무것도 없다.
+- **기능(Capabilities)**: `runFullTrust`(데스크톱 앱은 필수, 제한 기능이라 제출 때 이유를 적어야 함 → 8장 10단계), `internetClientServer`·`privateNetworkClientServer`(2026-11-11부터: 방장 PC가 방을 열어 친구의 접속을 받는다. 전체 신뢰 앱에서는 막지 않지만 Store 목록에 정직하게 보이려고 넣음). 그리고 패키지 확장 `desktop2:FirewallRules`로 Client.exe의 **들어오는 TCP 7777**을 허용한다(설치하면 Windows 방화벽 규칙이 생기고, 지우면 사라진다. 15장).
 - **최소 Windows**: `10.0.19043.0`(Windows 10 21H1). Unity 6 플레이어 요구 사항이 "Windows 10 version 21H1 (build 19043) or newer"이고, `uap10` 속성은 19041부터라 둘 중 높은 쪽. `MaxVersionTested`는 이 PC의 `10.0.26200.0`.
 - **x64 하나**: Unity 빌드가 `StandaloneWindows64`. ARM PC는 Windows의 x64 에뮬레이션으로 돈다(직접 확인 못 함).
 - **버전 1.0.0.0**: Store 규칙상 네 번째 자리는 0이어야 한다(Store 예약). 다음 업데이트는 `1.0.1.0`처럼 올린다.
@@ -193,8 +193,7 @@ Partner Center > 제출 > **Age ratings**에서 처음 한 번 IARC 설문을 �
 ## 8. 제출 안내서 (사용자가 직접 할 일, 순서대로)
 
 **0. 미리 준비**
-- 공개 서버(맥미니)를 **이 패키지와 같은 프로토콜 버전(v12)**으로 켜 둔다: `python -I Tools/ServerPackage/package_server.py`로 만든 `JellySurvivalServer-v12-…` 패키지. 포트 7771이 밖에서 열려 있는지 다른 네트워크에서 `Test-NetConnection wildmagic.co.kr -Port 7771` → `TcpTestSucceeded : True`. (2026-11-10 현재 닫혀 있음, `online-server.md` 4장.)
-- **심사 동안 혼자서도 판이 열리게** 서버 설정 `server.conf`의 `MIN_PLAYERS=1`을 권한다. 기본 2면 심사원이 혼자 들어가 "다른 플레이어를 기다리는 중"에서 멈추고, 게임을 시험할 수 없어 정책 10.3(시험 가능해야 함)으로 떨어질 수 있다. 1이면 혼자서도 바로 판이 시작되고, 맞으면 판이 끝난다(코드 확인: 혼자 판은 그 사람이 탈락할 때 끝남).
+- (2026-11-11부터) **공개 서버가 필요 없다.** 플레이어가 게임 안에서 방을 만들고(방장), 친구는 그 주소로 참가한다(`docs/work/player-host.md`, 프로토콜 v13). 심사원은 혼자 '방 만들기' → '시작'으로 바로 시험할 수 있다. 예전의 "공개 서버를 v12로 켜 두고 `MIN_PLAYERS=1`" 준비는 더 이상 하지 않는다.
 - 처리방침 HTML의 노란 칸을 채워 wildmagic.co.kr에 올리고 주소를 확인한다(예: `https://wildmagic.co.kr/jelly-survival/privacy.html`).
 
 **1. 개발자 계정 만들기(무료)**
@@ -217,7 +216,7 @@ Partner Center > 제출 > **Age ratings**에서 처음 한 번 IARC 설문을 �
 - Category: **Games**, 장르(최대 3): **Platformer**, **Action + adventure**(또는 Family + kids). 이 게임은 2D에서 걷고 뛰는 게임이라 문서의 Platformer 설명("2-dimensional where player can control character's walk, jump")과 맞는다.
 - Privacy policy: "개인정보를 접근·수집·전송한다" **예** → URL 입력(0단계 주소).
 - Website(선택): wildmagic.co.kr. Support contact info(선택, Xbox에 낼 때만 필수).
-- Game settings: **Online multiplayer** 체크, 최소 2(서버를 1로 두면 1)·최대 **8**. Cross-platform 아님.
+- Game settings: **Online multiplayer** 체크, 최소 2·최대 **8**(사이트가 2 미만을 받지 않음). 같은 공유기에서도 되므로 **Local multiplayer(LAN)**가 있으면 같이 체크해도 된다. Cross-platform 아님.
 - System requirements: Minimum hardware에 **Keyboard**, **Internet** 해당 항목 체크(있으면). Display mode는 비워 둔다.
 
 **7. Age ratings**: 7장 답안대로 설문 → **Save and generate**.
@@ -231,21 +230,18 @@ Partner Center > 제출 > **Age ratings**에서 처음 한 번 IARC 설문을 �
 
 > This is a Win32 desktop game built with Unity and packaged as MSIX. runFullTrust is required to run the Unity player executable (Client.exe) as a packaged desktop app. It does not use any other restricted capability.
 
-- **Notes for certification**에 아래 문구(영어, 날짜 포함)를 넣는다:
+- **Notes for certification**: 지금 Partner Center에서는 제출 옵션이 아니라 제품의 **추가 정보 > 추가적인 테스트 정보 > 인증에 대한 참고 사항**에 넣는다. 아래 문구(영어, 날짜 포함):
 
-> (2026-MM-DD) Jelly Survival is an online-only multiplayer game; no account, login or purchase is needed.
-> How to test: 1) Launch the app. 2) Type any name, keep the default server address "wildmagic.co.kr:7771", and click Connect (접속 in Korean; the language button switches between Korean and English). 3) A round starts within a few seconds even if you are the only player. Move with the arrow keys or A/D, jump with Up/W/Space, dash with Shift, crouch with Down. Red warning markers show where hazards will fall; when you are hit the round ends and the next one starts after the result screen.
-> Our game server will be online during the whole certification period. If the connect screen says it cannot connect, please retry after a minute.
+> (YYYY-MM-DD) Jelly Survival Party is a multiplayer party game where one player hosts the room on their own PC and friends join by address. No account, login, purchase or developer server is needed. The in-game title logo reads "Jelly Survival".
+> How to test alone: 1) Launch the app. 2) Type any name and click "Create room" (방 만들기 in Korean; the language button switches between Korean and English). 3) In the waiting room, click "Start" (시작). A round starts even with only one player. Move with the arrow keys or A/D, jump with Up/W/Space, dash with Shift, crouch with Down. Red warning markers show where hazards will fall; when you are hit the round ends and the next round starts after the result screen.
+> How to test with two PCs (optional): on PC A click "Create room"; the waiting room shows the address for friends. On PC B enter that address (the "Same router" address on one network) in the Address field and click "Join".
+> The app listens on TCP port 7777 only while a room is open (an inbound firewall rule for this port is declared in the manifest) and tries to open that port on the local router with UPnP; it removes the mapping when the room closes. If Windows asks about the firewall, either answer works for a single-PC test.
 > The game is keyboard-controlled (mouse for menus). There is no chat; other players only see your chosen name, character and emotes.
-
-  (서버를 `MIN_PLAYERS=2`로 두면 3)의 "even if you are the only player"를 "when a second player joins; we run two test bots on the server during certification"으로 바꾸고 실제로 봇을 띄워 둔다.)
 
 **11. 제출**: 앱 개요 > **Submit for certification**. 심사 중 상태는 Partner Center에서 본다. 심사 결과 메일과 IARC 등급 메일이 온다. 통과하면 기본값으로 바로 게시된다(Submission options에서 "직접 Publish now 누를 때까지 보류"를 고를 수도 있음).
 
 **심사 기간에 꼭 지킬 것**
-- 공개 서버가 **계속 켜져 있고**, 버전이 패키지와 **같아야** 한다(v12). 정책 10.3.2: "If your product requires access to a server, the server must be functional". 다르면 접속 화면에 "버전 불일치"가 떠서 떨어진다.
-- 맥미니 잠자기·공유기 재부팅에 주의(`start.sh`가 `caffeinate`로 잠자기를 막음).
-- 심사 중에 서버를 새 프로토콜로 바꾸지 않는다. 바꿔야 하면 새 패키지로 새 제출.
+- (2026-11-11부터) 운영하는 서버가 없으므로 지킬 것이 없다. 심사원은 혼자 방을 만들어 시험한다.
 
 ## 9. 확인한 것과 못 한 것
 
@@ -323,6 +319,17 @@ Partner Center > 제출 > **Age ratings**에서 처음 한 번 IARC 설문을 �
   - 심사 메모: 지금은 제출 옵션이 아니라 제품의 **추가 정보 > 추가적인 테스트 정보 > 인증에 대한 참고 사항**에 넣는다. 8장 문구를 날짜 2026-11-11, 이름 Jelly Survival Party, "혼자여도 판이 시작됨"(MIN_PLAYERS=1 전제)으로 넣고 "게임 안 로고는 Jelly Survival" 한 줄을 더함. 다시 열어 저장된 것 확인.
 - 남은 것: 처리방침을 올리고 URL을 속성에 넣기(속성만 미완료), 공개 서버 `MIN_PLAYERS=1`, 마지막 "인증을 위해 제출"(사용자 확인 후).
 
+## 15. 플레이어 방장 방식으로 바뀐 것 (2026-11-11)
+
+사용자 결정: wildmagic.co.kr 서버는 시험용이었고, 실제 게임은 방장이 방을 열고 다른 사람이 그 주소로 들어와야 한다. 구현은 `docs/work/player-host.md`. Store 쪽에 바뀐 것은 이렇다.
+- 패키지: 기능 `internetClientServer` + `privateNetworkClientServer`, 방화벽 규칙(들어오는 TCP 7777, Client.exe). `store_config.json`의 `gamePort`. MSIX를 다시 만들었다(81.2 MB). **Partner Center에 올린 예전 패키지(v12, 공개 서버 접속)는 새 파일로 바꿔야 한다.**
+- 설치 시험(서명 없는 시험 패키지): 설치하면 "Jelly Survival Party" 방화벽 규칙(Inbound TCP 7777, 설치 폴더의 Client.exe)이 생긴다. 패키지 안에서 `-host -autostart`로 방을 열고, 혼자 시작한 판에 봇 2개가 LAN 주소(172.24.1.5:7777)로 들어와 함께 진행됐다. 제거하면 패키지·방화벽 규칙이 모두 사라진다.
+- WACK은 이번 패키지로 다시 돌리지 않았다(지난번 결과: 경고, 22/24 통과).
+- 등록 글(`Art/store/listing.md`): 방 만들기·주소로 참가·포트(UPnP/포트포워딩) 안내로 바꿨다. 제품 기능 한 줄과 스크린샷 01·02 설명도 바꿨다.
+- 스크린샷 01(접속 화면: 방 만들기·참가 줄)과 02(방장 대기 화면: 친구에게 알려 줄 주소·시작 버튼)를 새로 찍었다. 02는 `-demoaddress`로 문서용 예시 주소(203.0.113.25, 192.168.0.10)를 보인다. 이 PC는 UPnP 공유기가 없어 실제 화면에는 '자동으로 열지 못했습니다'가 뜨기 때문이다. 01의 주소 칸도 같은 예시 대역. 03~07(게임 화면)은 그대로 쓴다.
+- 처리방침: 운영자 서버가 없고, 정보는 방장 PC로 가며, 방장 PC 로그에 IP를 적지 않고, UPnP로 공유기 포트를 연다는 내용으로 다시 썼다(시행일 2026-11-11).
+- 심사 메모: 혼자 '방 만들기' → '시작'으로 시험하는 문구(8장 10단계). 공개 서버·`MIN_PLAYERS=1` 준비는 필요 없어졌다.
+
 ## 13. 변경 기록
 
 | 날짜 | 커밋 | 내용 |
@@ -330,4 +337,5 @@ Partner Center > 제출 > **Age ratings**에서 처음 한 번 IARC 설문을 �
 | 2026-11-10 | `865a1ea` | 작업 시작·완료: 이름 Jelly Survival·버전 1.0.0·앱 아이콘, MSIX 스크립트(`Tools/StorePackage`), Store 그림·스크린샷·등록 글·처리방침·IARC 답안·제출 안내서, 설치·실행·제거와 WACK 확인 |
 | 2026-11-10 | (이 커밋) | main(`e2112ab`)을 합치려 했으나 이미 최신(바뀐 것 없음). 변경 기록에 커밋 번호 |
 | 2026-11-10 | (이 커밋) | Partner Center 진행: `Jelly Survival Party` 예약, 신원 값 반영해 MSIX 다시 만듦, 가격·속성·연령 등급 입력(14장) |
-| 2026-11-11 | (이 커밋) | 패키지 검증 통과, Store 목록(한국어·영어)·제출 옵션·심사 메모 입력. 남은 것은 처리방침 URL과 최종 제출(14장) |
+| 2026-11-11 | `ca18617` | 패키지 검증 통과, Store 목록(한국어·영어)·제출 옵션·심사 메모 입력. 남은 것은 처리방침 URL과 최종 제출(14장) |
+| 2026-11-11 | (이 커밋) | 플레이어 방장 방식으로 바뀜(15장): 매니페스트 기능·방화벽 규칙, MSIX 다시 만듦, 등록 글·스크린샷 01·02·처리방침·심사 메모 수정 |

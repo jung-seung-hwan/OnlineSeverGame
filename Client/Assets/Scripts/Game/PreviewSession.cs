@@ -362,6 +362,7 @@ namespace OnlineSeverGame.Client.Game
         }
 
         public void RequestMap(byte stageId, MapRotation rotation) { } // 미리보기는 주방 하나
+        public void RequestStart() { }
 
         public void SendEmote(EmoteKind emote)
         {

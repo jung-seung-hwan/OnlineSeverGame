@@ -28,12 +28,13 @@ Jelly Survival Party는 최대 8명이 함께 하는 2D 온라인 생존 파티 
 - 창고: 좌우로 오가는 크레인 팔레트, 한 방향으로 움직이는 컨베이어 벨트
 - 디저트 가게: 오르내리는 케이크 리프트, 걸음을 느리게 하는 시럽 바닥
 
-방장은 다음 판의 맵과 맵 순서(차례대로·무작위·고정)를 고를 수 있습니다. 판이 끝나면 1~3위 단상이 나오고 바로 다음 판이 시작됩니다.
+한 명이 '방 만들기'를 누르면 그 PC가 방장이 되고, 친구들은 방장이 알려 주는 주소로 참가합니다. 따로 서버를 빌리거나 계정을 만들 필요가 없습니다. 방장은 원할 때 '시작'을 눌러 판을 열고(혼자서도 시작할 수 있어요), 다음 판의 맵과 맵 순서(차례대로·무작위·고정)를 고를 수 있습니다. 판이 끝나면 1~3위 단상이 나오고 바로 다음 판이 시작됩니다.
 
 캐릭터는 젤리, 젤리곰, 푸딩 세 가지이고, 색은 접속 순서대로 여덟 가지 중 하나가 정해집니다. Z·X·C·V 키로 손 흔들기, 놀리기, 응원, 슬퍼하기 이모트를 보낼 수 있습니다. 한국어와 영어를 지원합니다.
 
 알아 두세요
-- 온라인 전용 게임입니다. 인터넷 연결이 필요하고, 혼자 연습하는 모드나 컴퓨터 상대는 없습니다. 판은 게임 서버에 접속한 사람끼리 진행됩니다.
+- 친구와 함께 하는 온라인 게임입니다. 방장의 PC가 방을 열고, 다른 사람은 그 주소(IP:포트)로 참가합니다. 컴퓨터 상대는 없습니다(혼자 방을 만들어 연습할 수는 있어요).
+- 같은 공유기에서는 바로 됩니다. 인터넷으로 친구를 받으려면 방장의 공유기에서 TCP 7777 포트가 열려 있어야 합니다. 게임이 공유기의 UPnP로 자동으로 열어 보고, 안 되면 공유기 설정에서 포트포워딩을 해야 합니다. 일부 인터넷 환경(공유기가 두 단계인 경우 등)에서는 방장을 할 수 없습니다.
 - 키보드로 조작합니다(메뉴는 마우스). 게임패드는 지원하지 않습니다.
 - 계정, 결제, 광고, 채팅이 없습니다. 플레이어 이름은 같은 방의 다른 사람에게 보이니 실명은 쓰지 마세요.
 
@@ -48,7 +49,7 @@ Jelly Survival Party는 최대 8명이 함께 하는 2D 온라인 생존 파티 
 특징이 다른 맵 4곳과 판 중간 맵 이벤트(불·강풍·컨베이어·시럽)
 젤리·젤리곰·푸딩 세 캐릭터, 여덟 가지 색
 이모트 4종과 1~3위 결과 단상
-방장이 다음 맵과 맵 순서를 고르기
+방 만들기 한 번으로 친구들과 바로: 방장이 시작·다음 맵·맵 순서를 고르기
 한국어·영어 지원
 
 ### 키워드 (7개)
@@ -61,8 +62,8 @@ Jelly Survival Party는 최대 8명이 함께 하는 2D 온라인 생존 파티 
 8인
 
 ### 스크린샷 설명 (파일 이름 → 설명)
-- 01_connect: 젤리·젤리곰·푸딩 중 고르고 접속
-- 02_lobby: 최대 8명이 모이면 판이 시작돼요
+- 01_connect: 캐릭터를 고르고 방을 만들거나, 친구 방 주소로 참가
+- 02_lobby: 방장 화면: 친구에게 알려 줄 주소, 준비되면 시작
 - 03_kitchen: 빨간 예고를 보고 떨어지는 식칼을 피하세요
 - 04_winter: 고드름이 떨어지는 미끄러운 겨울 처마
 - 05_warehouse: 움직이는 팔레트와 컨베이어 벨트의 창고
@@ -100,12 +101,13 @@ Four maps, each with its own twist:
 - Warehouse: a crane pallet sliding back and forth and a conveyor belt
 - Dessert Shop: a cake lift that rises and sinks and a syrup floor that slows you down
 
-The host picks the next map and how maps change (in order, random or fixed). When a round ends the top three stand on the podium and the next round starts right away.
+One player presses Create room and their PC becomes the host; friends join with the address the host shares. No server to rent and no account. The host presses Start whenever they are ready (you can even start alone) and picks the next map and how maps change (in order, random or fixed). When a round ends the top three stand on the podium and the next round starts right away.
 
 Choose between jelly, jelly bear and pudding; your color is one of eight, given by join order. Send emotes with Z, X, C and V (wave, taunt, cheer, sad). Available in English and Korean.
 
 Good to know
-- Online only. An internet connection is required, and there is no single-player practice mode or computer opponents. Rounds are played by whoever is on the game server.
+- An online game to play with friends. The host's PC opens the room and everyone else joins with its address (IP:port). There are no computer opponents (you can create a room and practice alone).
+- It works right away on the same router. To take friends over the internet, TCP port 7777 must be open on the host's router: the game tries to open it automatically with UPnP, otherwise forward the port in the router settings. Some connections (for example two routers in a row) cannot host.
 - Played with the keyboard (mouse for menus). Gamepads are not supported.
 - No accounts, payments, ads or chat. Your player name is visible to others in the room, so do not use your real name.
 
@@ -120,7 +122,7 @@ Pushable boxes and a jump pad that launches you high
 Four maps with mid-round events: fire, wind, conveyors, syrup
 Three characters (jelly, jelly bear, pudding) in eight colors
 Four emotes and a top-three podium after every round
-The host chooses the next map and the map rotation
+Create a room and play with friends: the host starts rounds and picks maps
 English and Korean
 
 ### Keywords (7)
@@ -133,8 +135,8 @@ platformer
 8 players
 
 ### Screenshot captions (file → caption)
-- 01_connect: Pick a jelly, jelly bear or pudding and connect
-- 02_lobby: The round starts when everyone is in, up to 8 players
+- 01_connect: Pick your character, then create a room or join a friend's
+- 02_lobby: The host's lobby: an address to share, and Start when ready
 - 03_kitchen: Watch the red warning and dodge the falling knife
 - 04_winter: Icicles fall on the slippery winter eaves
 - 05_warehouse: A warehouse of moving pallets and conveyor belts

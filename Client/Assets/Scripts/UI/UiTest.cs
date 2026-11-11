@@ -12,8 +12,8 @@ namespace OnlineSeverGame.Client.UI
     // 그 결과(화면 전환, 언어, 서버가 돌려준 다음 맵·교체 방식)를 확인한다. docs/work/ui-revamp.md 7장.
     //   - 누르기 전에 그 점에서 패널이 고르는 요소(panel.Pick)가 그 버튼인지 본다: 다른 요소에 가려졌거나 화면 밖이면 실패.
     //   - 이벤트는 실제 마우스와 같은 길(PointerDown → PointerUp, Clickable)로 간다. 버튼 콜백을 직접 부르지 않는다.
-    // 실행: 서버(최소 2명)를 띄우고 클라이언트를 먼저 접속시켜 방장이 되게 한 뒤, 대기 화면 시험이 끝날 즈음 봇을 넣는다.
-    //   Client.exe -uitest -server 127.0.0.1:7803 -name UiTester [-uitestshots <폴더>]
+    // 실행: 클라이언트가 '방 만들기'로 이 PC에 방을 연다(-port 로 포트를 고른다). 봇은 그 포트로 넣고, 시험이 '시작'을 누른다.
+    //   Client.exe -uitest -port 7803 -name UiTester [-uitestshots <폴더>]   (봇: BotClient --port 7803)
     // 결과: 로그에 "[UITest] PASS/FAIL ..." 줄, 마지막에 "[UITest] DONE pass=N fail=M", 종료 코드 0(모두 통과)/1.
     // 시험 중에는 이름·서버 주소·언어를 저장하지 않는다(사용자 저장값 보호).
     public sealed class UiTest : MonoBehaviour
@@ -69,8 +69,8 @@ namespace OnlineSeverGame.Client.UI
             Check(CharacterChoice.Current == CharacterKind.Bear, "connect: bear tile picks bear");
             yield return Shot("connect");
 
-            // ---------------- 접속 → 대기
-            yield return Click("btn-join");
+            // ---------------- 방 만들기 → 대기(이 PC가 방장, docs/work/player-host.md)
+            yield return Click("btn-host");
             yield return Until(() => Ui.Shown == ClientScreen.Lobby || Ui.Shown == ClientScreen.Countdown, 10f, "join: lobby screen appears");
             yield return Until(() => game.Session != null && game.Session.State.IsHost, 5f, "lobby: first player becomes host");
             yield return Until(() => MyCharacter(game) == CharacterKind.Bear, 3f, "lobby: joined as the character picked before joining (Hello)");
@@ -100,9 +100,13 @@ namespace OnlineSeverGame.Client.UI
             yield return Click("btn-settings-close");
             Check(!Ui.SettingsOpen, "lobby: settings closes");
 
-            // ---------------- 라운드(봇이 들어오면 시작)
-            Debug.Log("[UITest] waiting for the round (bots)");
-            yield return Until(() => Ui.Shown == ClientScreen.Countdown, 90f, "round: countdown starts when bots join");
+            // ---------------- 라운드(방장이 '시작'을 누르면 시작. 봇은 -port 로 연 이 방에 붙는다)
+            Check(game.Session != null && game.Session.State.HostStarts, "lobby: player-hosted room waits for the host");
+            Check(Ui.Shown == ClientScreen.Lobby, "lobby: no countdown before the host presses Start");
+            yield return Shot("lobby-host-address");
+            Debug.Log("[UITest] pressing Start");
+            yield return Click("lobby-start");
+            yield return Until(() => Ui.Shown == ClientScreen.Countdown, 10f, "round: countdown starts when the host presses Start");
             yield return Shot("countdown");
             yield return Until(() => Ui.Shown == ClientScreen.Playing || Ui.Shown == ClientScreen.Spectating, 10f, "round: playing screen");
             if (Ui.Shown == ClientScreen.Playing)

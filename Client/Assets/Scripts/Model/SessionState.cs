@@ -54,6 +54,7 @@ namespace OnlineSeverGame.Client.Model
         public string NextMapName = "";
         public MapRotation Rotation = MapRotation.Cycle;
         public bool NextChosen;         // 방장이 직접 고른 다음 맵
+        public bool HostStarts;         // (v13) 플레이어가 연 방: 첫 판은 방장이 '시작'을 눌러야 시작
 
         public bool IsHost => HostId != 0 && HostId == LocalId;
         // 시험용(-touchshot): 위험물이 처음 내 몸에 닿아 보인 횟수(예측 시각 그리기 기준)
@@ -103,6 +104,8 @@ namespace OnlineSeverGame.Client.Model
         // 캐릭터 고르기(v11): 대기·카운트다운이면 바로, 라운드 진행·결과 중이면 다음 라운드부터 바뀐다(서버가 정함).
         // 미리보기는 바로 바뀐다.
         void RequestCharacter(CharacterKind kind);
+        // (v13) 방장이 첫 판을 시작한다(HostStarts 방, 대기 중일 때만). 미리보기는 무시한다.
+        void RequestStart();
         void Close();
     }
 }
