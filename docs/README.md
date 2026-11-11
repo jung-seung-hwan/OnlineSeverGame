@@ -35,6 +35,7 @@
 | 캐릭터 선택(젤리·젤리곰·푸딩) | [work/char-select.md](work/char-select.md) | 캐릭터 선택 · 01 | 브랜치 `claude/char-select-fbbff8`(main 병합 대기): 접속·대기·결과 화면에서 내 색으로 세 캐릭터 미리 보고 고름(PlayerPrefs 기억, 진행·결과 중 고르면 다음 라운드부터), 서버 검증·모두에게 알림·늦게 온 사람에게 명단으로 전달(프로토콜 v11), 게임·카드·단상·관전·이모트 모두 반영, 봇 무작위, 판정은 종류와 무관(테스트로 고정) |
 | Microsoft Store 출시 준비 | [work/store.md](work/store.md) | 스토어 출시 준비 · 01 | 브랜치 `claude/store-release-915848`: 이름 Jelly Survival·버전 1.0.0·앱 아이콘, MSIX 패키지 스크립트(`Tools/StorePackage`, 신원 값은 `store_config.json` 한 곳), Store 그림·스크린샷·한영 등록 글·처리방침 HTML·IARC 답안(`Art/store/`), 제출 안내서·심사 메모. 이 PC 설치·로컬 서버 두 판·제거, WACK 확인. 2026-11-11 플레이어 방장 방식에 맞춰 매니페스트(방화벽 규칙)·등록 글·스크린샷·처리방침·심사 메모 수정 |
 | 플레이어가 방장 | [work/player-host.md](work/player-host.md) | 스토어 출시 준비 · 01 | 프로토콜 v13: '방 만들기'를 누르면 방장 PC의 게임 안에서 서버가 돈다(`Shared/Server`), 친구는 주소로 참가, UPnP 자동 포트 열기, 방장 '시작' 버튼(혼자도 가능). 공개 서버 기본 주소 제거 |
+| 혼자 하기·봇 | [work/bots.md](work/bots.md) | 스토어 출시 준비 · 01 | 프로토콜 v14: 서버가 직접 돌리는 봇(`Shared/Server/ServerBot.cs`). '혼자 하기'는 이 PC 안의 진짜 서버 + 봇 7명(기절 등 판정이 온라인과 같음), 난이도 쉬움·보통·어려움, 방장은 대기실에서 봇 넣기·빼기·난이도 |
 
 ### 작업 문서에 들어갈 것
 

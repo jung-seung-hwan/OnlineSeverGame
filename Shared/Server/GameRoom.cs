@@ -15,6 +15,10 @@ namespace OnlineSeverGame.Server
         /// MinPlayers are in. After a round, the next one still starts on its own. docs/work/player-host.md.
         /// </summary>
         public bool HostStarts;
+        /// <summary>Level of server-run bots (v14), changed later by the host's BotRequest.</summary>
+        public BotLevel BotLevel = BotLevel.Normal;
+        /// <summary>Bots are named "{prefix} {n}". The in-game host passes its own language's word.</summary>
+        public string BotNamePrefix = "Bot";
         /// <summary>The first map when Rotation starts as Fixed (otherwise Maps[0]).</summary>
         public Stage Stage = Stage.Default;
         /// <summary>The starting rotation; the host may change it (MapRequest).</summary>
@@ -82,6 +86,9 @@ namespace OnlineSeverGame.Server
         /// <summary>Dashes started this round and the server tick of the last one (0 = none yet). For logs and tests.</summary>
         public int RoundDashes;
         public uint LastDashTick;
+        /// <summary>Set for a bot the room runs itself (v14); null for a connected player.</summary>
+        public ServerBot Bot;
+        public bool IsBot => Bot != null;
         /// <summary>Shortest gap between two dash starts this round, in ticks (0 = fewer than two dashes).</summary>
         public int MinDashGap;
         internal readonly Queue<(uint Seq, InputButtons Buttons)> Inputs = new();
@@ -158,6 +165,8 @@ namespace OnlineSeverGame.Server
         private int _roundCratesShattered;
         private readonly HitStats _hitStats = new();
         private readonly Action<string> _log;
+        private BotLevel _botLevel;
+        private readonly Random _botRandom;
 
         public GameRoom(RoomConfig config, Action<string> log = null)
         {
@@ -169,6 +178,8 @@ namespace OnlineSeverGame.Server
             _mapRandom = new Random(config.Seed ^ 0x5EED);
             // Its own stream so adding side knives does not change where falling hazards spawn for a given seed.
             _sideRandom = new Random(config.Seed ^ 0x51DE);
+            _botRandom = new Random(config.Seed ^ 0xB075);
+            _botLevel = ProtocolConstants.IsValidBotLevel((byte)config.BotLevel) ? config.BotLevel : BotLevel.Normal;
             _log = log ?? (_ => { });
             ResetPushables();
         }
@@ -190,14 +201,14 @@ namespace OnlineSeverGame.Server
         public Stage NextStage => _nextStage;
         public MapRotation Rotation => _rotation;
         public bool NextChosen => _nextChosen;
-        /// <summary>The earliest-joined player still connected (0 = empty room). Only the host may change maps.</summary>
+        /// <summary>The earliest-joined player still connected, never a bot (0 = no one). Only the host may change maps.</summary>
         public byte HostId
         {
             get
             {
                 RoomPlayer host = null;
                 foreach (var p in _players.Values)
-                    if (host == null || p.JoinOrder < host.JoinOrder) host = p;
+                    if (!p.IsBot && (host == null || p.JoinOrder < host.JoinOrder)) host = p;
                 return host?.Id ?? 0;
             }
         }
@@ -222,8 +233,15 @@ namespace OnlineSeverGame.Server
         /// <summary>
         /// Returns the new player id (1..8), or 0 if the room is full. character is the kind from Hello (v11); 0 or an
         /// unknown value becomes Jelly. It applies at once even mid-round: a newcomer then only spectates.
+        /// A room full of bots makes room for a person: the most recently added bot leaves (v14).
         /// </summary>
         public byte AddPlayer(string name, CharacterKind character = CharacterKind.Jelly)
+        {
+            if (_players.Count >= ProtocolConstants.MaxPlayers) RemoveBot();
+            return AddPlayer(name, character, null);
+        }
+
+        private byte AddPlayer(string name, CharacterKind character, ServerBot bot)
         {
             if (_players.Count >= ProtocolConstants.MaxPlayers) return 0;
             byte id = 1;
@@ -235,7 +253,7 @@ namespace OnlineSeverGame.Server
             var player = new RoomPlayer
             {
                 Id = id, Name = name, State = SpawnState(id), JoinOrder = ++_joinCounter,
-                Character = character, WantedCharacter = character,
+                Character = character, WantedCharacter = character, Bot = bot,
             };
             _players.Add(id, player);
 
@@ -264,8 +282,132 @@ namespace OnlineSeverGame.Server
             // Everyone else learns about a host change at the end of the tick; the newcomer needs it now.
             Send(id, BuildRoomInfo());
 
-            _log($"join  #{id} '{name}' {character} ({_players.Count}/{ProtocolConstants.MaxPlayers}) state={State}");
+            _log($"join  #{id} '{name}' {character}{(bot != null ? " bot " + bot.Level : "")} ({_players.Count}/{ProtocolConstants.MaxPlayers}) state={State}");
             return id;
+        }
+
+        // ---------------------------------------------------------------- bots (v14)
+
+        public BotLevel BotLevel => _botLevel;
+
+        public int BotCount
+        {
+            get
+            {
+                int n = 0;
+                foreach (var p in _players.Values) if (p.IsBot) n++;
+                return n;
+            }
+        }
+
+        /// <summary>
+        /// Adds a bot the room runs itself, at the room's bot level, as a random character. It joins like a player
+        /// (spectates a round already playing). Returns its id, or 0 when the room is full.
+        /// </summary>
+        public byte AddBot()
+        {
+            if (_players.Count >= ProtocolConstants.MaxPlayers) return 0;
+            int n = 1;
+            while (NameTaken(BotName(n))) n++;
+            var kind = (CharacterKind)(1 + _botRandom.Next(ProtocolConstants.MaxCharacter));
+            return AddPlayer(BotName(n), kind, new ServerBot(_botRandom.Next(), _botLevel));
+        }
+
+        private string BotName(int n) => (_config.BotNamePrefix ?? "Bot").Trim() + " " + n;
+
+        private bool NameTaken(string name)
+        {
+            foreach (var p in _players.Values)
+                if (p.Name == name) return true;
+            return false;
+        }
+
+        /// <summary>Removes the most recently added bot. Returns false when there is none.</summary>
+        public bool RemoveBot()
+        {
+            RoomPlayer last = null;
+            foreach (var p in _players.Values)
+                if (p.IsBot && (last == null || p.JoinOrder > last.JoinOrder)) last = p;
+            if (last == null) return false;
+            RemovePlayer(last.Id, LeaveReason.Disconnected);
+            return true;
+        }
+
+        /// <summary>Sets the level of every bot, now and later.</summary>
+        public void SetBotLevel(BotLevel level)
+        {
+            if (!ProtocolConstants.IsValidBotLevel((byte)level)) return;
+            _botLevel = level;
+            foreach (var p in _players.Values)
+                if (p.IsBot) p.Bot.Level = level;
+        }
+
+        /// <summary>The host's BotRequest. Ignored from anyone else and for unknown actions. Returns true when accepted.</summary>
+        public bool RequestBot(byte playerId, BotAction action, BotLevel level)
+        {
+            if (!_players.ContainsKey(playerId)) return false;
+            if (playerId != HostId)
+            {
+                _log($"bot   request from #{playerId} ignored: not the host (#{HostId})");
+                return false;
+            }
+            switch (action)
+            {
+                case BotAction.Add:
+                    return AddBot() != 0;
+                case BotAction.Remove:
+                    return RemoveBot();
+                case BotAction.SetLevel:
+                    if (!ProtocolConstants.IsValidBotLevel((byte)level))
+                    {
+                        _log($"bot   request from #{playerId} ignored: no level {(byte)level}");
+                        return false;
+                    }
+                    SetBotLevel(level);
+                    _log($"bot   host #{playerId} set bot level {level}");
+                    return true;
+                default:
+                    _log($"bot   request from #{playerId} ignored: no action {(byte)action}");
+                    return false;
+            }
+        }
+
+        /// <summary>Each bot picks this tick's buttons from the state at the start of the tick and queues them.</summary>
+        private void ThinkBots()
+        {
+            int n = _players.Count;
+            if (n == 0) return;
+            RoomPlayer[] list = null;
+            PlayerState[] states = null;
+            bool[] alive = null, isBot = null;
+            Stage stage = null;
+            bool playing = State == RoomState.Playing;
+            int i = 0;
+            foreach (var p in _players.Values)
+            {
+                if (p.IsBot)
+                {
+                    if (list == null)
+                    {
+                        list = new RoomPlayer[n];
+                        _players.Values.CopyTo(list, 0);
+                        states = new PlayerState[n];
+                        alive = new bool[n];
+                        isBot = new bool[n];
+                        for (int j = 0; j < n; j++)
+                        {
+                            states[j] = list[j].State;
+                            isBot[j] = list[j].IsBot;
+                            alive[j] = list[j].Alive && (!playing || list[j].InRound);
+                        }
+                        stage = CurrentStage;
+                    }
+                    InputButtons buttons = p.Bot.Think(i, states, alive, isBot, n, playing, stage, _knives, _sideKnives, _boxes);
+                    QueueInput(p.Id, p.Bot.Seq, buttons);
+                    if (alive[i] && p.Bot.WantsEmote()) RequestEmote(p.Id, p.Bot.PickEmote());
+                }
+                i++;
+            }
         }
 
         /// <summary>Disconnect = leave. During Playing an alive participant is eliminated on the spot.</summary>
@@ -443,6 +585,7 @@ namespace OnlineSeverGame.Server
             ServerTick++;
             if (State == RoomState.Playing) RoundTick++;
 
+            ThinkBots();
             StepWorld();
 
             if (State == RoomState.Playing)
@@ -961,7 +1104,8 @@ namespace OnlineSeverGame.Server
             switch (State)
             {
                 case RoomState.Waiting:
-                    if (_players.Count >= _config.MinPlayers && (!_config.HostStarts || _startRequested)) StartCountdown();
+                    // Bots never start a round on their own: someone has to be there (HostId is never a bot).
+                    if (_players.Count >= _config.MinPlayers && HostId != 0 && (!_config.HostStarts || _startRequested)) StartCountdown();
                     _startRequested = false;
                     break;
 
@@ -989,7 +1133,7 @@ namespace OnlineSeverGame.Server
                 case RoomState.Ended:
                     if (--StateTimer <= 0)
                     {
-                        if (_players.Count >= _config.MinPlayers) StartCountdown();
+                        if (_players.Count >= _config.MinPlayers && HostId != 0) StartCountdown();
                         else EnterWaiting();
                     }
                     break;
@@ -1045,6 +1189,7 @@ namespace OnlineSeverGame.Server
                 p.RoundDashes = 0;
                 p.LastDashTick = 0;
                 p.MinDashGap = 0;
+                p.Bot?.RollReaction();
                 _round.Add(new RoundEntry { Id = p.Id, Name = p.Name });
             }
             Broadcast(BuildRoundStart());
@@ -1113,8 +1258,16 @@ namespace OnlineSeverGame.Server
         private RoomInfoPacket BuildRoomInfo() => new()
         {
             HostId = HostId, NextStageId = _nextStage.Id, Rotation = _rotation, NextChosen = _nextChosen,
-            HostStarts = _config.HostStarts,
+            HostStarts = _config.HostStarts, BotLevel = _botLevel, BotMask = BotMask(),
         };
+
+        private byte BotMask()
+        {
+            int mask = 0;
+            foreach (var p in _players.Values)
+                if (p.IsBot) mask |= 1 << (p.Id - 1);
+            return (byte)mask;
+        }
 
         private SnapshotPacket BuildSnapshot()
         {
@@ -1141,7 +1294,11 @@ namespace OnlineSeverGame.Server
             return s;
         }
 
-        private void Send(byte target, IPacket packet) => Outbox.Add(new Outgoing(target, PacketCodec.EncodeFrame(packet)));
+        private void Send(byte target, IPacket packet)
+        {
+            if (_players.TryGetValue(target, out var p) && p.IsBot) return; // nobody to send to
+            Outbox.Add(new Outgoing(target, PacketCodec.EncodeFrame(packet)));
+        }
 
         private void Broadcast(IPacket packet) => Outbox.Add(new Outgoing(0, PacketCodec.EncodeFrame(packet)));
     }

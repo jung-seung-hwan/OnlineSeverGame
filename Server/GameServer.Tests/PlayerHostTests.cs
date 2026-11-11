@@ -121,6 +121,7 @@ public class PlayerHostTests
         try
         {
             using var host = Join(port, "host");
+            Thread.Sleep(200); // the host's Hello reaches the game loop first (two receive threads race otherwise)
             using var guest = Join(port, "guest");
             Thread.Sleep(300);
             Send(guest, new StartRequestPacket());

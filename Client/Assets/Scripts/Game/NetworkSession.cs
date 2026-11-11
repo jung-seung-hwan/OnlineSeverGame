@@ -349,8 +349,10 @@ namespace OnlineSeverGame.Client.Game
             State.Rotation = info.Rotation;
             State.NextChosen = info.NextChosen;
             State.HostStarts = info.HostStarts;
+            State.BotLevel = info.BotLevel;
+            State.BotMask = info.BotMask;
             Debug.Log($"[Net] room host=#{info.HostId} next map {info.NextStageId} '{State.NextMapName}' rotation={info.Rotation}" +
-                      (info.NextChosen ? " (host pick)" : ""));
+                      (info.NextChosen ? " (host pick)" : "") + (info.BotMask != 0 ? $" bots 0x{info.BotMask:x2} {info.BotLevel}" : ""));
         }
 
         // 이모트: 살아 있을 때만, 서버 제한(1초)보다 조금 길게 1.1초에 한 번. 내 화면에는 바로 보인다.
@@ -377,6 +379,14 @@ namespace OnlineSeverGame.Client.Game
             if (!_welcomed) return;
             _net.Send(new StartRequestPacket());
             Debug.Log("[Net] start request");
+        }
+
+        // (v14) 방장만 보낸다(UI 가 막는다). 결과는 PlayerJoined/PlayerLeft 와 RoomInfo 로 돌아온다.
+        public void RequestBot(BotAction action, BotLevel level)
+        {
+            if (!_welcomed) return;
+            _net.Send(new BotRequestPacket { Action = action, Level = action == BotAction.SetLevel ? level : 0 });
+            Debug.Log($"[Net] bot request {action} {(action == BotAction.SetLevel ? level.ToString() : "")}");
         }
 
         // 방장만 보낸다(UI 가 막는다). 서버도 방장인지 확인하고, 바뀌면 RoomInfo 로 모두에게 알린다.

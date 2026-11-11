@@ -30,6 +30,14 @@ namespace OnlineSeverGame.Server
         public bool HostStarts;
         /// <summary>Write client IP addresses in the log. Off when a player hosts in the game (privacy).</summary>
         public bool LogAddresses = true;
+        /// <summary>Bots the room runs itself, added at start (v14, --bots N). The host can add more in the game.</summary>
+        public int Bots;
+        /// <summary>Level of those bots and of bots added later (--bot-level easy|normal|hard).</summary>
+        public BotLevel BotLevel = BotLevel.Normal;
+        /// <summary>Bot names are "{prefix} {n}".</summary>
+        public string BotNamePrefix = "Bot";
+        /// <summary>Listen on 127.0.0.1 only (the game's offline mode: nobody else can join).</summary>
+        public bool LoopbackOnly;
     }
 
     /// <summary>
@@ -59,9 +67,14 @@ namespace OnlineSeverGame.Server
                 MinPlayers = options.MinPlayers, Seed = options.Seed, LogPushes = options.Verbose,
                 Rotation = options.Rotation, Stage = options.FixedMap, LegacyHitbox = options.LegacyHitbox,
                 TrimInputQueue = !options.NoInputTrim, HostStarts = options.HostStarts,
+                BotLevel = options.BotLevel, BotNamePrefix = options.BotNamePrefix,
             }, msg => Log.Info(msg));
-            _listener = new TcpListener(IPAddress.Any, options.Port);
+            for (int i = 0; i < options.Bots; i++) _room.AddBot();
+            _listener = new TcpListener(options.LoopbackOnly ? IPAddress.Loopback : IPAddress.Any, options.Port);
         }
+
+        /// <summary>The port actually listened on (differs from ServerOptions.Port when that is 0: any free port).</summary>
+        public int Port { get; private set; }
 
         public LockedQueue<NetEvent> Events { get; } = new();
 
@@ -71,13 +84,15 @@ namespace OnlineSeverGame.Server
         public void Start()
         {
             _listener.Start();
+            Port = ((IPEndPoint)_listener.LocalEndpoint).Port;
             _running = true;
             _acceptThread = new Thread(AcceptLoop) { IsBackground = true, Name = "accept" };
             _loopThread = new Thread(GameLoop) { IsBackground = true, Name = "game-loop" };
             _acceptThread.Start();
             _loopThread.Start();
-            Log.Info($"server listening on port {_options.Port}, {GameConstants.TickRate} ticks/s, " +
-                     $"min players {_options.MinPlayers}{(_options.HostStarts ? ", host starts" : "")}, seed {_options.Seed}, stage '{_room.Stage.Name}'");
+            Log.Info($"server listening on {(_options.LoopbackOnly ? "127.0.0.1" : "port")} {Port}, {GameConstants.TickRate} ticks/s, " +
+                     $"min players {_options.MinPlayers}{(_options.HostStarts ? ", host starts" : "")}, seed {_options.Seed}, stage '{_room.Stage.Name}'" +
+                     (_room.BotCount > 0 ? $", {_room.BotCount} bots ({_room.BotLevel})" : ""));
         }
 
         public void Stop()
@@ -202,11 +217,16 @@ namespace OnlineSeverGame.Server
                     break;
 
                 case NetEventKind.Start:
-                if (conn.PlayerId != 0 && _byPlayer.TryGetValue(conn.PlayerId, out var starter) && starter == conn)
-                    _room.RequestStart(conn.PlayerId);
-                break;
+                    if (conn.PlayerId != 0 && _byPlayer.TryGetValue(conn.PlayerId, out var starter) && starter == conn)
+                        _room.RequestStart(conn.PlayerId);
+                    break;
 
-            case NetEventKind.Leave:
+                case NetEventKind.Bot:
+                    if (conn.PlayerId != 0 && _byPlayer.TryGetValue(conn.PlayerId, out var botOwner) && botOwner == conn)
+                        _room.RequestBot(conn.PlayerId, e.BotAction, e.BotLevel);
+                    break;
+
+                case NetEventKind.Leave:
                     lock (_all) _all.Remove(conn);
                     if (conn.PlayerId != 0 && _byPlayer.TryGetValue(conn.PlayerId, out var current) && current == conn)
                     {

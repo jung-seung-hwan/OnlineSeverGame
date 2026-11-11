@@ -286,26 +286,26 @@ public class MapLayoutTests
         var k = Stage.Kitchen;
         var onBurner = PlayerState.SpawnAt(11000, 0, 1); // burner 1 (10~13), lit first
         var warned = k.AtRoundTick(570);                  // 10 ticks into the 40-tick warning
-        var b = OnlineSeverGame.BotClient.DodgeBrain.Decide(onBurner, Array.Empty<KnifeState>(), warned, 2, InputButtons.None);
+        var b = DodgeBrain.Decide(onBurner, Array.Empty<KnifeState>(), warned, 2, InputButtons.None);
         Assert.Equal(InputButtons.Left, b & (InputButtons.Left | InputButtons.Right)); // 10 is the nearer edge
         Assert.Equal(InputButtons.None,
-            OnlineSeverGame.BotClient.DodgeBrain.Decide(onBurner, Array.Empty<KnifeState>(), k.AtRoundTick(561), 5, InputButtons.None));
+            DodgeBrain.Decide(onBurner, Array.Empty<KnifeState>(), k.AtRoundTick(561), 5, InputButtons.None));
         // Wandering toward a lit burner stops at its edge; the unlit one next to it is fine.
-        var beside = PlayerState.SpawnAt(13200 + HitShapes.BodyHalfWidth + OnlineSeverGame.BotClient.DodgeBrain.Margin, 0, -1);
-        Assert.Equal(InputButtons.None, OnlineSeverGame.BotClient.DodgeBrain.Decide(beside, Array.Empty<KnifeState>(), k.AtRoundTick(700), 2, InputButtons.Left) & InputButtons.Left);
-        Assert.Equal(InputButtons.Right, OnlineSeverGame.BotClient.DodgeBrain.Decide(beside, Array.Empty<KnifeState>(), k.AtRoundTick(700), 2, InputButtons.Right));
+        var beside = PlayerState.SpawnAt(13200 + HitShapes.BodyHalfWidth + DodgeBrain.Margin, 0, -1);
+        Assert.Equal(InputButtons.None, DodgeBrain.Decide(beside, Array.Empty<KnifeState>(), k.AtRoundTick(700), 2, InputButtons.Left) & InputButtons.Left);
+        Assert.Equal(InputButtons.Right, DodgeBrain.Decide(beside, Array.Empty<KnifeState>(), k.AtRoundTick(700), 2, InputButtons.Right));
         // On the tray shelf above the stove the fire does not matter ...
         var shelf = PlayerState.SpawnAt(13000, 2400, 1);
         shelf.Grounded = true;
-        Assert.Empty(OnlineSeverGame.BotClient.DodgeBrain.FindDangers(shelf, Array.Empty<KnifeState>(), k.AtRoundTick(700), 2));
+        Assert.Empty(DodgeBrain.FindDangers(shelf, Array.Empty<KnifeState>(), k.AtRoundTick(700), 2));
         // ... but it does not drop or jump down onto a burning burner, nor walk off the shelf's end over one.
         var burning = k.AtRoundTick(700);
-        Assert.Equal(InputButtons.None, OnlineSeverGame.BotClient.DodgeBrain.Decide(shelf, Array.Empty<KnifeState>(), burning, 2,
+        Assert.Equal(InputButtons.None, DodgeBrain.Decide(shelf, Array.Empty<KnifeState>(), burning, 2,
             InputButtons.Down | InputButtons.Jump) & (InputButtons.Down | InputButtons.Jump));
         var edge = PlayerState.SpawnAt(12700, 2400, -1);
         edge.Grounded = true;
-        Assert.Equal(InputButtons.None, OnlineSeverGame.BotClient.DodgeBrain.Decide(edge, Array.Empty<KnifeState>(), burning, 2, InputButtons.Left) & InputButtons.Left);
-        Assert.Equal(InputButtons.Right, OnlineSeverGame.BotClient.DodgeBrain.Decide(edge, Array.Empty<KnifeState>(), burning, 2, InputButtons.Right));
+        Assert.Equal(InputButtons.None, DodgeBrain.Decide(edge, Array.Empty<KnifeState>(), burning, 2, InputButtons.Left) & InputButtons.Left);
+        Assert.Equal(InputButtons.Right, DodgeBrain.Decide(edge, Array.Empty<KnifeState>(), burning, 2, InputButtons.Right));
     }
 
     [Theory]

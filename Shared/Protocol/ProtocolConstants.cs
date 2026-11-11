@@ -3,7 +3,7 @@ namespace OnlineSeverGame.Shared.Protocol
     public static class ProtocolConstants
     {
         /// <summary>Bumped whenever a packet layout changes. Hello/Welcome carry it.</summary>
-        public const ushort Version = 13;
+        public const ushort Version = 14;
 
         public const int DefaultPort = 7777;
 
@@ -23,6 +23,9 @@ namespace OnlineSeverGame.Shared.Protocol
 
         /// <summary>Highest CharacterKind value (v11).</summary>
         public const byte MaxCharacter = 3;
+
+        /// <summary>True for BotLevel Easy..Hard (v14).</summary>
+        public static bool IsValidBotLevel(byte level) => level >= 1 && level <= 3;
 
         /// <summary>True for 1..MaxCharacter.</summary>
         public static bool IsValidCharacter(byte kind) => kind >= 1 && kind <= MaxCharacter;

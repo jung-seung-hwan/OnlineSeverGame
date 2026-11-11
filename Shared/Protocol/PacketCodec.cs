@@ -47,6 +47,7 @@ namespace OnlineSeverGame.Shared.Protocol
                 case PacketType.Emote: packet = EmotePacket.Read(r); break;
                 case PacketType.CharacterRequest: packet = CharacterRequestPacket.Read(r); break;
                 case PacketType.StartRequest: packet = StartRequestPacket.Read(r); break;
+                case PacketType.BotRequest: packet = BotRequestPacket.Read(r); break;
                 case PacketType.PlayerCharacter: packet = PlayerCharacterPacket.Read(r); break;
                 default: throw new PacketFormatException($"Unknown packet type {(byte)type}");
             }

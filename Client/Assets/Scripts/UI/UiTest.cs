@@ -94,6 +94,19 @@ namespace OnlineSeverGame.Client.UI
             yield return Until(() => game.Session != null && game.Session.State.Rotation == MapRotation.Fixed, 3f, "lobby: rotation Fixed button");
             yield return Click("lobby-rot-cycle");
             yield return Until(() => game.Session != null && game.Session.State.Rotation == MapRotation.Cycle, 3f, "lobby: rotation Cycle button");
+            // 봇(v14, docs/work/bots.md): 방장이 넣고 빼고 난이도를 고른다
+            int botsBefore = game.Session.State.BotCount;
+            yield return Click("lobby-bot-add");
+            yield return Until(() => game.Session != null && game.Session.State.BotCount == botsBefore + 1, 3f, "lobby: + bot adds a server bot");
+            yield return Click("lobby-bot-add");
+            yield return Until(() => game.Session != null && game.Session.State.BotCount == botsBefore + 2, 3f, "lobby: + bot again adds another");
+            yield return Click("lobby-bot-level-hard");
+            yield return Until(() => game.Session != null && game.Session.State.BotLevel == BotLevel.Hard, 3f, "lobby: Hard sets the bot level (server RoomInfo)");
+            yield return Shot("lobby-bots");
+            yield return Click("lobby-bot-remove");
+            yield return Until(() => game.Session != null && game.Session.State.BotCount == botsBefore + 1, 3f, "lobby: - bot removes one");
+            yield return Click("lobby-bot-level-normal");
+            yield return Until(() => game.Session != null && game.Session.State.BotLevel == BotLevel.Normal, 3f, "lobby: Normal sets the bot level back");
             yield return Click("btn-settings-lobby");
             Check(Ui.SettingsOpen, "lobby: settings button opens settings");
             yield return Shot("lobby-settings");
@@ -140,6 +153,22 @@ namespace OnlineSeverGame.Client.UI
             yield return Until(() => Ui.Shown == ClientScreen.Connect, 5f, "result: leave button returns to connect screen");
             yield return Frames(20);
             yield return Shot("back-to-connect");
+
+            // ---------------- 혼자 하기(이 PC 안의 서버 + 봇 7명, 난이도 선택)
+            var savedLevel = game.OfflineLevel;
+            yield return Click("btn-level-easy");
+            Check(game.OfflineLevel == BotLevel.Easy, "connect: Easy picks the solo level");
+            yield return Click("btn-solo");
+            yield return Until(() => Ui.Shown == ClientScreen.Lobby, 10f, "solo: lobby appears");
+            yield return Until(() => game.Session != null && game.Session.State.BotCount == 7 && game.Session.State.IsHost, 5f, "solo: 7 bots, I am the host");
+            Check(game.IsOffline && game.Session.State.BotLevel == BotLevel.Easy, "solo: offline room with Easy bots");
+            yield return Frames(20);
+            yield return Shot("solo-lobby");
+            yield return Click("lobby-start");
+            yield return Until(() => Ui.Shown == ClientScreen.Countdown, 10f, "solo: Start begins the countdown");
+            yield return Click("btn-leave-lobby");
+            yield return Until(() => Ui.Shown == ClientScreen.Connect && !game.IsHosting, 5f, "solo: leave closes the solo room");
+            game.OfflineLevel = savedLevel;
 
             Loc.Override(startLang);
             Debug.Log($"[UITest] DONE pass={_pass} fail={_fail}");

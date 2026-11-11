@@ -86,6 +86,10 @@ namespace OnlineSeverGame.Client.Model
         public static string CharacterName(CharacterKind kind) =>
             ProtocolConstants.IsValidCharacter((byte)kind) ? T("char." + (int)kind) : T("char.1");
 
+        // 봇 난이도 이름(v14). 모르는 값은 보통.
+        public static string BotLevelName(BotLevel level) =>
+            ProtocolConstants.IsValidBotLevel((byte)level) ? T("bot.level." + (int)level) : T("bot.level.2");
+
         public static string MapName(int stageId)
         {
             switch (stageId)
@@ -149,7 +153,20 @@ namespace OnlineSeverGame.Client.Model
             { "connect.host", "방 만들기" },
             { "connect.joinTitle", "친구 방에 참가: 방장이 알려 준 주소를 넣으세요 (예: 123.45.67.89:7777)" },
             { "connect.opening", "방을 여는 중…" },
-            { "connect.preview", "오프라인 미리보기" },
+            { "connect.solo", "혼자 하기" },
+            { "connect.soloLevel", "혼자 하기 봇 난이도" },
+            { "connect.soloOpening", "혼자 하기를 준비하는 중…" },
+            { "bot.prefix", "봇" },
+            { "bot.level.1", "쉬움" },
+            { "bot.level.2", "보통" },
+            { "bot.level.3", "어려움" },
+            { "roster.bot", "봇" },
+            { "lobby.bots", "봇 {0}명" },
+            { "lobby.botAdd", "+ 봇" },
+            { "lobby.botRemove", "− 봇" },
+            { "lobby.botLevel", "봇 난이도" },
+            { "lobby.botLevelIs", "봇 {0}명 · 난이도 {1}" },
+            { "lobby.offlineSub", "혼자 하기 · 봇 {0}명 · 난이도 {1}" },
             { "connect.connecting", "접속 중… {0}" },
             { "connect.cancel", "취소" },
             { "connect.cancelled", "접속을 취소했습니다." },
@@ -307,7 +324,20 @@ namespace OnlineSeverGame.Client.Model
             { "connect.host", "Create room" },
             { "connect.joinTitle", "Join a friend's room: enter the address the host gave you (e.g. 123.45.67.89:7777)" },
             { "connect.opening", "Opening the room…" },
-            { "connect.preview", "Offline preview" },
+            { "connect.solo", "Play solo" },
+            { "connect.soloLevel", "Solo bot level" },
+            { "connect.soloOpening", "Getting the solo game ready…" },
+            { "bot.prefix", "Bot" },
+            { "bot.level.1", "Easy" },
+            { "bot.level.2", "Normal" },
+            { "bot.level.3", "Hard" },
+            { "roster.bot", "Bot" },
+            { "lobby.bots", "Bots: {0}" },
+            { "lobby.botAdd", "+ Bot" },
+            { "lobby.botRemove", "− Bot" },
+            { "lobby.botLevel", "Bot level" },
+            { "lobby.botLevelIs", "{0} bots · {1}" },
+            { "lobby.offlineSub", "Solo · {0} bots · {1}" },
             { "connect.connecting", "Connecting… {0}" },
             { "connect.cancel", "Cancel" },
             { "connect.cancelled", "Connection cancelled." },

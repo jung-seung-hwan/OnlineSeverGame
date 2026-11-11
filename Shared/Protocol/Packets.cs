@@ -453,8 +453,14 @@ namespace OnlineSeverGame.Shared.Protocol
         public bool NextChosen;
         /// <summary>(v13) A player-hosted room: the first round waits in Waiting until the host sends StartRequest.</summary>
         public bool HostStarts;
+        /// <summary>(v14) Level of the server-run bots (also used for bots added later). 0 is never sent.</summary>
+        public BotLevel BotLevel = BotLevel.Normal;
+        /// <summary>(v14) Which players are server-run bots: bit (id - 1) for player id 1..8.</summary>
+        public byte BotMask;
 
         public PacketType Type => PacketType.RoomInfo;
+
+        public bool IsBot(byte playerId) => playerId >= 1 && playerId <= 8 && (BotMask & (1 << (playerId - 1))) != 0;
 
         public void Write(PacketWriter w)
         {
@@ -462,6 +468,8 @@ namespace OnlineSeverGame.Shared.Protocol
             w.WriteByte(NextStageId);
             w.WriteByte((byte)Rotation);
             w.WriteByte((byte)((NextChosen ? 1 : 0) | (HostStarts ? 2 : 0)));
+            w.WriteByte((byte)BotLevel);
+            w.WriteByte(BotMask);
         }
 
         public static RoomInfoPacket Read(PacketReader r)
@@ -473,12 +481,14 @@ namespace OnlineSeverGame.Shared.Protocol
             byte flags = r.ReadByte();
             info.NextChosen = (flags & 1) != 0;
             info.HostStarts = (flags & 2) != 0;
+            info.BotLevel = (BotLevel)r.ReadByte();
+            info.BotMask = r.ReadByte();
             return info;
         }
 
         public bool SameAs(RoomInfoPacket o) =>
             o != null && o.HostId == HostId && o.NextStageId == NextStageId && o.Rotation == Rotation && o.NextChosen == NextChosen &&
-            o.HostStarts == HostStarts;
+            o.HostStarts == HostStarts && o.BotLevel == BotLevel && o.BotMask == BotMask;
     }
 
     /// <summary>
@@ -560,6 +570,28 @@ namespace OnlineSeverGame.Shared.Protocol
         public void Write(PacketWriter w) { }
 
         public static StartRequestPacket Read(PacketReader r) => new StartRequestPacket();
+    }
+
+    /// <summary>
+    /// C (v14): the host adds or removes a server-run bot, or changes the bot level. Ignored from anyone else. The
+    /// result comes back as PlayerJoined / PlayerLeft and RoomInfo (BotMask, BotLevel). docs/work/bots.md.
+    /// </summary>
+    public sealed class BotRequestPacket : IPacket
+    {
+        public BotAction Action;
+        /// <summary>The new level for SetLevel; ignored otherwise (send 0).</summary>
+        public BotLevel Level;
+
+        public PacketType Type => PacketType.BotRequest;
+
+        public void Write(PacketWriter w)
+        {
+            w.WriteByte((byte)Action);
+            w.WriteByte((byte)Level);
+        }
+
+        public static BotRequestPacket Read(PacketReader r) =>
+            new BotRequestPacket { Action = (BotAction)r.ReadByte(), Level = (BotLevel)r.ReadByte() };
     }
 
     /// <summary>S (v11): a player's character changed (to everyone, the player too). Joins carry it in PlayerJoined.</summary>

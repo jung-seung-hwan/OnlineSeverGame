@@ -21,6 +21,7 @@ namespace OnlineSeverGame.Shared.Protocol
         PlayerCharacter = 34, // S (v11)
         CharacterRequest = 52, // C (v11)
         StartRequest = 53, // C (v13)
+        BotRequest = 54,   // C (v14)
     }
 
     /// <summary>
@@ -45,6 +46,28 @@ namespace OnlineSeverGame.Shared.Protocol
         Taunt = 2,  // 놀리기
         Cheer = 3,  // 기뻐하기
         Sad = 4,    // 슬퍼하기
+    }
+
+    /// <summary>
+    /// How well server-run bots play (v14, RoomInfo.BotLevel, BotRequest). One level for every bot in the room.
+    /// docs/work/bots.md.
+    /// </summary>
+    public enum BotLevel : byte
+    {
+        Easy = 1,   // 쉬움: 늦게 알아채고, 피할 때 대시를 거의 안 쓴다
+        Normal = 2, // 보통: 콘솔 봇(Tools/BotClient)과 비슷
+        Hard = 3,   // 어려움: 바로 알아채고, 가까운 사람을 대시로 밀친다
+    }
+
+    /// <summary>What a BotRequest asks for (v14). Only the host may send it.</summary>
+    public enum BotAction : byte
+    {
+        /// <summary>One more bot at the room's level (no-op when the room is full).</summary>
+        Add = 1,
+        /// <summary>Remove the most recently added bot.</summary>
+        Remove = 2,
+        /// <summary>Change the level of every bot (BotRequest.Level).</summary>
+        SetLevel = 3,
     }
 
     /// <summary>How the map changes between rounds (RoomInfo, MapRequest). 0 on the wire = none / keep.</summary>

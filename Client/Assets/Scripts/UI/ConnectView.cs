@@ -1,4 +1,5 @@
 using OnlineSeverGame.Client.Model;
+using OnlineSeverGame.Shared.Protocol;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -9,13 +10,15 @@ namespace OnlineSeverGame.Client.UI
     public sealed class ConnectView : UiView
     {
         const float CardWidth = 500f;
-        const float CardHeightForLayout = 560f; // 접속 카드(캐릭터 고르기, 방 만들기, 참가 줄, 경고 두 줄까지)
+        const float CardHeightForLayout = 610f; // 접속 카드(캐릭터 고르기, 방 만들기·혼자 하기, 난이도, 참가 줄, 경고 두 줄까지)
+        static readonly BotLevel[] Levels = { BotLevel.Easy, BotLevel.Normal, BotLevel.Hard };
 
         readonly TitleLogoElement _logo;
         readonly VisualElement _connectBox, _connectingBox, _dots;
-        readonly Label _nameLabel, _serverLabel, _joinTitle, _status, _connectingText;
+        readonly Label _nameLabel, _serverLabel, _joinTitle, _status, _connectingText, _levelLabel;
         readonly TextField _name, _server;
-        readonly Button _host, _join, _preview, _settingsBtn, _langBtn, _cancel;
+        readonly Button _host, _join, _solo, _settingsBtn, _langBtn, _cancel;
+        readonly Button[] _levels = new Button[3];
         readonly CharacterPicker _picker;
         bool _fieldsLoaded;
 
@@ -55,7 +58,7 @@ namespace OnlineSeverGame.Client.UI
             _picker.Root.style.marginBottom = 4;
             _connectBox.Add(_picker.Root);
 
-            // 방 만들기(이 PC가 방장: 게임 안에서 서버를 띄운다) + 오프라인 미리보기
+            // 방 만들기(이 PC가 방장: 게임 안에서 서버를 띄운다) + 혼자 하기(이 PC 안의 서버, 봇 7명)
             var buttons = UiKit.El(null, _connectBox);
             buttons.style.flexDirection = FlexDirection.Row;
             buttons.style.marginTop = 6;
@@ -63,10 +66,24 @@ namespace OnlineSeverGame.Client.UI
             _host.style.flexGrow = 1.3f;
             _host.style.flexBasis = 0;
             _host.style.marginRight = 10;
-            _preview = UiKit.Button("btn-preview", "", () => Ui.Game.StartPreview(), "jb--blue jb--big", buttons);
-            _preview.style.flexGrow = 1f;
-            _preview.style.flexBasis = 0;
-            _preview.style.fontSize = 22;
+            _solo = UiKit.Button("btn-solo", "", TrySolo, "jb--blue jb--big", buttons);
+            _solo.style.flexGrow = 1f;
+            _solo.style.flexBasis = 0;
+
+            // 혼자 하기 봇 난이도: 쉬움·보통·어려움(고른 값은 기억한다)
+            var levelRow = UiKit.El(null, _connectBox);
+            levelRow.style.flexDirection = FlexDirection.Row;
+            levelRow.style.alignItems = Align.Center;
+            levelRow.style.justifyContent = Justify.FlexEnd;
+            levelRow.style.marginTop = 6;
+            _levelLabel = UiKit.Text("", "t-small t-muted", levelRow);
+            _levelLabel.style.marginRight = 8;
+            for (int i = 0; i < Levels.Length; i++)
+            {
+                var level = Levels[i];
+                _levels[i] = UiKit.Button("btn-level-" + level.ToString().ToLowerInvariant(), "", () => Ui.Game.OfflineLevel = level, "jb--small", levelRow);
+                _levels[i].style.marginLeft = 4;
+            }
 
             // 친구 방에 참가: 방장이 알려 준 주소 + 참가
             _joinTitle = UiKit.Text("", "t-small t-muted t-wrap", _connectBox);
@@ -116,6 +133,12 @@ namespace OnlineSeverGame.Client.UI
             Ui.Game.Connect();
         }
 
+        public void TrySolo()
+        {
+            if (string.IsNullOrWhiteSpace(Ui.Game.PlayerName)) return;
+            Ui.Game.PlayOffline(Ui.Game.OfflineLevel);
+        }
+
         public void TryHost()
         {
             if (string.IsNullOrWhiteSpace(Ui.Game.PlayerName)) return;
@@ -153,7 +176,13 @@ namespace OnlineSeverGame.Client.UI
             UiKit.SetText(_join, Loc.T("connect.join"));
             UiKit.SetText(_host, Loc.T("connect.host"));
             UiKit.SetText(_joinTitle, Loc.T("connect.joinTitle"));
-            UiKit.SetText(_preview, Loc.T("connect.preview"));
+            UiKit.SetText(_solo, Loc.T("connect.solo"));
+            UiKit.SetText(_levelLabel, Loc.T("connect.soloLevel"));
+            for (int i = 0; i < Levels.Length; i++)
+            {
+                UiKit.SetText(_levels[i], Loc.BotLevelName(Levels[i]));
+                UiKit.SetClass(_levels[i], "jb--selected", Ui.Game.OfflineLevel == Levels[i]);
+            }
             UiKit.SetText(_settingsBtn, Loc.T("ui.settings"));
             UiKit.SetText(_langBtn, Loc.T("lang.label") + " · " + Loc.T("lang.button"));
             UiKit.SetText(_cancel, Loc.T("connect.cancel"));
@@ -161,6 +190,7 @@ namespace OnlineSeverGame.Client.UI
                 _picker.Refresh(CharacterChoice.LastColor, CharacterChoice.Current, false, Loc.T("char.colorNote"), now);
             bool named = !string.IsNullOrWhiteSpace(Ui.Game.PlayerName);
             _host.SetEnabled(named);
+            _solo.SetEnabled(named);
             _join.SetEnabled(named && !string.IsNullOrWhiteSpace(Ui.Game.ServerAddress));
 
             string status = Ui.Game.LastStatus;
@@ -169,7 +199,8 @@ namespace OnlineSeverGame.Client.UI
 
             if (connecting)
             {
-                UiKit.SetText(_connectingText, Ui.Game.IsHosting ? Loc.T("connect.opening") : Loc.F("connect.connecting", Ui.Game.ServerAddress));
+                UiKit.SetText(_connectingText, Ui.Game.IsOffline ? Loc.T("connect.soloOpening")
+                    : Ui.Game.IsHosting ? Loc.T("connect.opening") : Loc.F("connect.connecting", Ui.Game.ServerAddress));
                 // 젤리 점 넷이 차례로 통통 뛴다
                 int i = 0;
                 foreach (var d in _dots.Children())

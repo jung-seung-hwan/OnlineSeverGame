@@ -5,6 +5,7 @@ using OnlineSeverGame.Client.Model;
 using OnlineSeverGame.Client.Net;
 using OnlineSeverGame.Client.UI;
 using OnlineSeverGame.Client.View;
+using OnlineSeverGame.Shared.Protocol;
 using OnlineSeverGame.Shared.Simulation;
 using UnityEngine;
 
@@ -16,6 +17,7 @@ namespace OnlineSeverGame.Client.Game
     //   -character jelly|bear|pudding(이번 실행만, 저장 안 함)
     //   -host(켜자마자 방 만들기) -autostart(방장이면 대기 화면에서 바로 '시작')  -port <N>(방 만들기 포트, 기본 7777)
     //   -demoaddress(Store 스크린샷용: 방장 주소 칸에 예시 주소, UPnP 안 함)
+    //   -offline [easy|normal|hard](켜자마자 혼자 하기: 이 PC 안의 서버 + 봇 7명, docs/work/bots.md)
     //   -name <이름>  -server <host:port>  -autoconnect  -preview  -autoplay [chase|stomp|mash|motion|pad](무작위 입력 / 가까운 상대 쫓아 대시 / 쫓아 밟기 / 대시 연타 / 동작 차례로 보이기 / 점프 발판 밀고 타기)
     //   -nostomppredict(밟기 튕김 예측 끄기, 비교 시험용)
     //   -screenshot <파일경로> -screenshotDelay <초> [-screenshotEvery <초>]  -quitAfter <초>
@@ -30,6 +32,8 @@ namespace OnlineSeverGame.Client.Game
         // 방장이 방을 만들면 이 PC 안에 서버가 뜨고(LocalHost) 127.0.0.1 로 붙는다(docs/work/player-host.md).
         public string ServerAddress = "";
         public int HostPort = LocalHost.DefaultPort;
+        // 혼자 하기 봇 난이도(PlayerPrefs "botLevel" 로 기억)
+        public BotLevel OfflineLevel = BotLevel.Normal;
 
         // 이 PC가 방장으로 연 서버(없으면 null)
         public LocalHost Host { get; private set; }
@@ -69,6 +73,8 @@ namespace OnlineSeverGame.Client.Game
             PlayerName = PlayerPrefs.GetString("name", "Player" + UnityEngine.Random.Range(100, 1000));
             ServerAddress = PlayerPrefs.GetString("server", ServerAddress);
             if (ServerAddress == "wildmagic.co.kr:7771") ServerAddress = ""; // 예전 시험용 공개 서버 기본값은 지운다
+            int savedLevel = PlayerPrefs.GetInt("botLevel", (int)BotLevel.Normal);
+            if (ProtocolConstants.IsValidBotLevel((byte)savedLevel)) OfflineLevel = (BotLevel)savedLevel;
 
             Layout = StageLayout.FromShared(Stage.Default);
             WorldCamera = CreateCamera();
@@ -89,7 +95,7 @@ namespace OnlineSeverGame.Client.Game
         void ParseArgs()
         {
             var args = Environment.GetCommandLineArgs();
-            bool autoConnect = false, preview = false, autoHost = false;
+            bool autoConnect = false, preview = false, autoHost = false, autoOffline = false;
             for (int i = 0; i < args.Length; i++)
             {
                 string a = args[i];
@@ -104,6 +110,12 @@ namespace OnlineSeverGame.Client.Game
                     case "-demoaddress": LocalHost.DemoAddress = true; break;
                     case "-port": if (int.TryParse(next, out var port) && port > 0 && port < 65536) HostPort = port; break;
                     case "-preview": preview = true; break;
+                    case "-offline":
+                        autoOffline = true;
+                        if (next == "easy") OfflineLevel = BotLevel.Easy;
+                        else if (next == "normal") OfflineLevel = BotLevel.Normal;
+                        else if (next == "hard") OfflineLevel = BotLevel.Hard;
+                        break;
                     case "-lang": if (next != null && Loc.TryParse(next, out var lang)) Loc.Override(lang); break;
                     case "-character": if (next != null && CharacterChoice.TryParse(next, out var kind)) CharacterChoice.Override(kind); break;
                     case "-autoplay":
@@ -125,6 +137,7 @@ namespace OnlineSeverGame.Client.Game
             }
             if (_screenshotPath != null && _screenshotAt < 0f) _screenshotAt = 3f;
             if (preview) StartPreview();
+            else if (autoOffline) PlayOffline(OfflineLevel);
             else if (autoHost) HostGame();
             else if (autoConnect) Connect();
         }
@@ -308,6 +321,25 @@ namespace OnlineSeverGame.Client.Game
             Session = new NetworkSession(Layout, PlayerName, "127.0.0.1:" + HostPort);
         }
 
+        // 혼자 하기: 이 PC 안에 127.0.0.1 전용 서버를 봇 7명과 띄우고 들어간다. 판정·기절·옆 칼·맵은 온라인과 똑같다.
+        public void PlayOffline(BotLevel level)
+        {
+            CloseSession();
+            OfflineLevel = level;
+            SavePrefs();
+            LastStatus = "";
+            var host = new LocalHost();
+            if (!host.Start(0, out string error, offline: true, botLevel: level))
+            {
+                LastStatus = error;
+                return;
+            }
+            Host = host;
+            Session = new NetworkSession(Layout, PlayerName, "127.0.0.1:" + host.Port);
+        }
+
+        public bool IsOffline => Host != null && Host.Offline;
+
         public void Disconnect(string reason)
         {
             CloseSession();
@@ -328,6 +360,7 @@ namespace OnlineSeverGame.Client.Game
             if (UiTest.Active) return; // 클릭 자동 시험은 사용자 저장값(이름·서버 주소)을 바꾸지 않는다
             PlayerPrefs.SetString("name", PlayerName);
             PlayerPrefs.SetString("server", ServerAddress);
+            PlayerPrefs.SetInt("botLevel", (int)OfflineLevel);
             PlayerPrefs.Save();
         }
 

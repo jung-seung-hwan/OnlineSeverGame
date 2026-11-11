@@ -7,8 +7,9 @@ using UnityEngine;
 
 namespace OnlineSeverGame.Client.Game
 {
-    // 서버 없이 그래픽·UI·입력을 확인하는 오프라인 미리보기.
-    // 물리와 판정은 대충 흉내만 낸다. 실제 판정은 서버, 예측은 Shared/ 물리 스텝을 쓴다.
+    // 서버 없이 그래픽·UI·입력을 확인하는 미리보기(-preview 로만 연다. 개발용).
+    // 물리와 판정은 대충 흉내만 낸다(기절도 없다). 게임의 '혼자 하기'는 이 PC 안의 진짜 서버와 봇으로 돈다
+    // (LocalHost 오프라인, docs/work/bots.md).
     public sealed class PreviewSession : IGameSession
     {
         const float Gravity = -30f;
@@ -363,6 +364,7 @@ namespace OnlineSeverGame.Client.Game
 
         public void RequestMap(byte stageId, MapRotation rotation) { } // 미리보기는 주방 하나
         public void RequestStart() { }
+        public void RequestBot(BotAction action, BotLevel level) { }
 
         public void SendEmote(EmoteKind emote)
         {

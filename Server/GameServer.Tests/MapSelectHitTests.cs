@@ -324,7 +324,7 @@ public class MapSelectHitTests
     {
         var info = new RoomInfoPacket { HostId = 5, NextStageId = 3, Rotation = MapRotation.Random, NextChosen = true };
         var frame = PacketCodec.EncodeFrame(info);
-        Assert.Equal(2 + 1 + 4, frame.Length);
+        Assert.Equal(2 + 1 + 6, frame.Length); // v14 added BotLevel and BotMask
         var back = Assert.IsType<RoomInfoPacket>(PacketCodec.DecodePayload(frame, 2, frame.Length - 2));
         Assert.True(info.SameAs(back));
 

@@ -55,8 +55,21 @@ namespace OnlineSeverGame.Client.Model
         public MapRotation Rotation = MapRotation.Cycle;
         public bool NextChosen;         // 방장이 직접 고른 다음 맵
         public bool HostStarts;         // (v13) 플레이어가 연 방: 첫 판은 방장이 '시작'을 눌러야 시작
+        public BotLevel BotLevel = BotLevel.Normal; // (v14) 서버가 돌리는 봇의 난이도(방 하나에 하나)
+        public int BotMask;             // (v14) 봇인 플레이어: 비트 (id - 1)
 
         public bool IsHost => HostId != 0 && HostId == LocalId;
+        public bool IsBot(int id) => id >= 1 && id <= 8 && (BotMask & (1 << (id - 1))) != 0;
+
+        public int BotCount
+        {
+            get
+            {
+                int n = 0;
+                foreach (var r in Roster) if (IsBot(r.Id)) n++;
+                return n;
+            }
+        }
         // 시험용(-touchshot): 위험물이 처음 내 몸에 닿아 보인 횟수(예측 시각 그리기 기준)
         public int HazardTouches;
 
@@ -106,6 +119,8 @@ namespace OnlineSeverGame.Client.Model
         void RequestCharacter(CharacterKind kind);
         // (v13) 방장이 첫 판을 시작한다(HostStarts 방, 대기 중일 때만). 미리보기는 무시한다.
         void RequestStart();
+        // (v14) 방장이 봇을 넣고 빼거나 난이도를 바꾼다(level 은 SetLevel 때만). 미리보기는 무시한다.
+        void RequestBot(BotAction action, BotLevel level);
         void Close();
     }
 }

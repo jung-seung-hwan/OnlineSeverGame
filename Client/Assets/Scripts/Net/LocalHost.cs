@@ -12,6 +12,7 @@ namespace OnlineSeverGame.Client.Net
     //  - 첫 판은 방장이 '시작'을 눌러야 시작(HostStarts), 혼자서도 시작할 수 있다(MinPlayers 1).
     //  - 공유기 포트는 UPnP로 열어 본다(백그라운드 스레드). 결과와 내부·공인 주소를 화면에 보여 준다.
     //  - 로그에는 접속한 사람의 IP를 적지 않는다(LogAddresses = false). 로그 줄은 Unity 로그(Player.log)로 간다.
+    //  - 혼자 하기(오프라인, docs/work/bots.md): 127.0.0.1 에서만, 빈 포트 아무거나, 봇 7명과. 공유기 포트는 열지 않는다.
     public sealed class LocalHost
     {
         public enum PortState
@@ -35,6 +36,11 @@ namespace OnlineSeverGame.Client.Net
         string _lanIp = "", _publicIp = "", _upnpError = "";
 
         public int Port { get; private set; }
+        // 혼자 하기: 이 PC 밖에서는 들어올 수 없는 방(주소 칸을 보이지 않는다)
+        public bool Offline { get; private set; }
+
+        // 혼자 하기에서 처음에 넣는 봇 수(나 + 7 = 8명)
+        public const int OfflineBots = 7;
 
         public PortState Ports { get { lock (_gate) return _portState; } }
         public string LanIp { get { lock (_gate) return _lanIp; } }
@@ -42,14 +48,18 @@ namespace OnlineSeverGame.Client.Net
         public string UpnpError { get { lock (_gate) return _upnpError; } }
 
         // 서버를 연다. 실패하면(포트 사용 중 등) false 와 사용자에게 보일 문구.
-        public bool Start(int port, out string error)
+        // offline = 혼자 하기: port 는 무시하고 127.0.0.1 의 빈 포트에, 봇 OfflineBots 명(botLevel)을 넣어 연다.
+        public bool Start(int port, out string error, bool offline = false, BotLevel botLevel = BotLevel.Normal)
         {
             error = null;
-            Port = port;
+            Offline = offline;
+            Port = offline ? 0 : port;
             Log.Sink = line => Debug.Log("[Host] " + line);
             var server = new GameServer(new ServerOptions
             {
-                Port = port, MinPlayers = 1, HostStarts = true, LogAddresses = false, Seed = Environment.TickCount,
+                Port = Port, MinPlayers = 1, HostStarts = true, LogAddresses = false, Seed = Environment.TickCount,
+                LoopbackOnly = offline, Bots = offline ? OfflineBots : 0, BotLevel = botLevel,
+                BotNamePrefix = Model.Loc.T("bot.prefix"),
             });
             try
             {
@@ -64,6 +74,8 @@ namespace OnlineSeverGame.Client.Net
                 return false;
             }
             _server = server;
+            Port = server.Port;
+            if (offline) return true;
             lock (_gate) _lanIp = LocalAddress.GetLanIPv4() ?? "";
 
             if (DemoAddress)

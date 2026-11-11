@@ -216,6 +216,10 @@
 
 .card--me { background-color: rgba(70, 58, 96, 0.95); }
 
+/* 6명 이상(혼자 하기·봇이 많은 방): 아래 캐릭터 고르기가 잘리지 않게 낮은 카드 */
+.card--compact { height: 37px; margin-bottom: 3px; }
+.card--compact .card-name { font-size: 18px; }
+
 .card-name { flex-grow: 1; flex-shrink: 1; margin-left: 10px; font-size: 20px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 
 .badge {
@@ -232,6 +236,7 @@
 
 .badge--host { background-color: rgb(240, 201, 58); color: rgb(50, 36, 6); }
 .badge--me { background-color: rgb(63, 111, 230); }
+.badge--bot { background-color: rgb(120, 128, 140); }
 
 /* ---------------------------------------------------------------- 맵 고르기 */
 

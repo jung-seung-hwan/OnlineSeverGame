@@ -23,6 +23,8 @@ namespace OnlineSeverGame.Server
         Character,
         /// <summary>StartRequest from the host (v13).</summary>
         Start,
+        /// <summary>BotRequest from the host (v14).</summary>
+        Bot,
     }
 
     /// <summary>What a receive thread hands to the game loop.</summary>
@@ -39,15 +41,19 @@ namespace OnlineSeverGame.Server
         public readonly MapRotation Rotation;
         public readonly EmoteKind Emote;
         public readonly CharacterKind Character;
+        public readonly BotAction BotAction;
+        public readonly BotLevel BotLevel;
 
         public NetEvent(
             NetEventKind Kind, Connection Connection, string Name = null, ushort Version = 0,
             uint Seq = 0, InputButtons Buttons = InputButtons.None, LeaveReason Reason = LeaveReason.Disconnected,
-            byte StageId = 0, MapRotation Rotation = 0, EmoteKind Emote = 0, CharacterKind Character = 0)
+            byte StageId = 0, MapRotation Rotation = 0, EmoteKind Emote = 0, CharacterKind Character = 0,
+            BotAction BotAction = 0, BotLevel BotLevel = 0)
         {
             this.Kind = Kind; this.Connection = Connection; this.Name = Name; this.Version = Version;
             this.Seq = Seq; this.Buttons = Buttons; this.Reason = Reason; this.StageId = StageId;
             this.Rotation = Rotation; this.Emote = Emote; this.Character = Character;
+            this.BotAction = BotAction; this.BotLevel = BotLevel;
         }
     }
 
@@ -178,6 +184,9 @@ namespace OnlineSeverGame.Server
                                 break;
                             case StartRequestPacket _:
                                 _server.Events.Enqueue(new NetEvent(NetEventKind.Start, this));
+                                break;
+                            case BotRequestPacket bot:
+                                _server.Events.Enqueue(new NetEvent(NetEventKind.Bot, this, BotAction: bot.Action, BotLevel: bot.Level));
                                 break;
                             case PingPacket ping:
                                 Send(PacketCodec.EncodeFrame(new PongPacket { ClientTime = ping.ClientTime, ServerTick = _server.CurrentTick }));

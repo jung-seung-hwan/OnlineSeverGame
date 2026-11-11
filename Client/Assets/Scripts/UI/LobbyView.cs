@@ -1,6 +1,7 @@
 using System.Text;
 using OnlineSeverGame.Client.Model;
 using OnlineSeverGame.Client.Net;
+using OnlineSeverGame.Shared.Protocol;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -18,6 +19,12 @@ namespace OnlineSeverGame.Client.UI
         readonly VisualElement _hostBox;
         readonly Label _hostTitle, _hostPublic, _hostLan, _hostNote;
         float _copiedUntil;
+        // 봇(v14, docs/work/bots.md): 방장은 넣고 빼고 난이도를 고른다. 다른 사람은 한 줄로 본다.
+        static readonly BotLevel[] Levels = { BotLevel.Easy, BotLevel.Normal, BotLevel.Hard };
+        readonly VisualElement _botBox, _botHostRows;
+        readonly Label _botCount, _botLevelLabel, _botInfo;
+        readonly Button _botAdd, _botRemove;
+        readonly Button[] _botLevels = new Button[3];
         readonly MapPicker _map;
         readonly CharacterPicker _picker;
         readonly TitleLogoElement _logo;
@@ -39,6 +46,33 @@ namespace OnlineSeverGame.Client.UI
             _rosterTitle = UiKit.Text("", "t-h2", left);
             _rosterTitle.style.marginBottom = 8;
             _cards = UiKit.El(null, left);
+
+            _botBox = UiKit.El(null, left);
+            _botBox.style.marginTop = 6;
+            _botHostRows = UiKit.El(null, _botBox);
+            var botRow = UiKit.El(null, _botHostRows);
+            botRow.style.flexDirection = FlexDirection.Row;
+            botRow.style.alignItems = Align.Center;
+            _botCount = UiKit.Text("", "t-small", botRow);
+            _botCount.style.flexGrow = 1;
+            _botRemove = UiKit.Button("lobby-bot-remove", "", () => Ui.Game.Session?.RequestBot(BotAction.Remove, 0), "jb--small", botRow);
+            _botRemove.style.marginLeft = 4;
+            _botAdd = UiKit.Button("lobby-bot-add", "", () => Ui.Game.Session?.RequestBot(BotAction.Add, 0), "jb--small jb--blue", botRow);
+            _botAdd.style.marginLeft = 4;
+            var levelRow = UiKit.El(null, _botHostRows);
+            levelRow.style.flexDirection = FlexDirection.Row;
+            levelRow.style.alignItems = Align.Center;
+            levelRow.style.marginTop = 4;
+            _botLevelLabel = UiKit.Text("", "t-small t-muted", levelRow);
+            _botLevelLabel.style.flexGrow = 1;
+            for (int i = 0; i < Levels.Length; i++)
+            {
+                var level = Levels[i];
+                _botLevels[i] = UiKit.Button("lobby-bot-level-" + level.ToString().ToLowerInvariant(), "",
+                    () => Ui.Game.Session?.RequestBot(BotAction.SetLevel, level), "jb--small", levelRow);
+                _botLevels[i].style.marginLeft = 4;
+            }
+            _botInfo = UiKit.Text("", "t-small t-muted", _botBox);
             // 내 캐릭터 고르기(카운트다운 중에도 바로 바뀐다)
             _picker = new CharacterPicker(ui, "lobby", 300f - 28f - 6f, 96f, showNames: true);
             _picker.Root.style.marginTop = 6;
@@ -117,11 +151,14 @@ namespace OnlineSeverGame.Client.UI
             UiKit.SetText(_rosterTitle, Loc.F("lobby.roster", s.Roster.Count, s.Capacity));
 
             bool hostStarts = s.HostStarts && !counting;
+            bool offline = Ui.Game.IsOffline;
             string waitHead = !hostStarts ? Loc.T("lobby.waiting") : s.IsHost ? Loc.T("lobby.hostReady") : Loc.T("lobby.waitHost");
             UiKit.SetText(_head, counting ? Loc.F("lobby.countdown", Mathf.CeilToInt(Mathf.Max(0f, s.CountdownSeconds))) : waitHead);
             UiKit.SetText(_sub, counting
                 ? Loc.F("lobby.countdownSub", s.RoundNumber, Loc.MapName(s.MapId), s.ParticipantCount)
+                : offline ? Loc.F("lobby.offlineSub", s.BotCount, Loc.BotLevelName(s.BotLevel))
                 : Loc.F(hostStarts ? "lobby.hostStartsSub" : "lobby.waitingSub", s.Roster.Count, s.Capacity));
+            RefreshBots(s, counting);
             UiKit.Show(_startBtn, hostStarts && s.IsHost);
             UiKit.SetText(_startBtn, Loc.T("lobby.start"));
             RefreshHostBox(now);
@@ -154,11 +191,38 @@ namespace OnlineSeverGame.Client.UI
             _hint.Refresh(s, 1f);
         }
 
+        void RefreshBots(SessionState s, bool counting)
+        {
+            bool host = s.IsHost && !counting;
+            int bots = s.BotCount;
+            UiKit.Show(_botBox, host || bots > 0);
+            UiKit.Show(_botHostRows, host);
+            UiKit.Show(_botInfo, !host && bots > 0);
+            if (host)
+            {
+                UiKit.SetText(_botCount, Loc.F("lobby.bots", bots));
+                UiKit.SetText(_botAdd, Loc.T("lobby.botAdd"));
+                UiKit.SetText(_botRemove, Loc.T("lobby.botRemove"));
+                _botAdd.SetEnabled(s.Roster.Count < s.Capacity);
+                _botRemove.SetEnabled(bots > 0);
+                UiKit.SetText(_botLevelLabel, Loc.T("lobby.botLevel"));
+                for (int i = 0; i < Levels.Length; i++)
+                {
+                    UiKit.SetText(_botLevels[i], Loc.BotLevelName(Levels[i]));
+                    UiKit.SetClass(_botLevels[i], "jb--selected", s.BotLevel == Levels[i]);
+                }
+            }
+            else if (bots > 0)
+            {
+                UiKit.SetText(_botInfo, Loc.F("lobby.botLevelIs", bots, Loc.BotLevelName(s.BotLevel)));
+            }
+        }
+
         void RefreshHostBox(float now)
         {
             var host = Ui.Game.Host;
-            UiKit.Show(_hostBox, host != null);
-            if (host == null) return;
+            UiKit.Show(_hostBox, host != null && !host.Offline);
+            if (host == null || host.Offline) return;
             UiKit.SetText(_hostTitle, Loc.T("host.title"));
             string port = host.Port.ToString();
             switch (host.Ports)
@@ -199,7 +263,7 @@ namespace OnlineSeverGame.Client.UI
         void RefreshCards(SessionState s)
         {
             _sig.Clear();
-            _sig.Append(s.LocalId).Append('|').Append(s.HostId).Append('|');
+            _sig.Append(s.LocalId).Append('|').Append(s.HostId).Append('|').Append(s.BotMask).Append('|');
             foreach (var p in s.Roster)
                 _sig.Append(p.Id).Append(':').Append(p.ColorIndex).Append(':').Append((int)p.Character).Append(':').Append(p.Name).Append(';');
             _sig.Append(Loc.Current);
@@ -207,23 +271,26 @@ namespace OnlineSeverGame.Client.UI
             if (sig == _builtSig) return;
             _builtSig = sig;
             _cards.Clear();
-            foreach (var p in s.Roster) _cards.Add(PlayerCard(p, p.Id == s.LocalId, s.HostId != 0 && p.Id == s.HostId));
+            bool compact = s.Roster.Count >= 6;
+            foreach (var p in s.Roster) _cards.Add(PlayerCard(p, p.Id == s.LocalId, s.HostId != 0 && p.Id == s.HostId, s.IsBot(p.Id), compact));
         }
 
         // 접속자 카드: 젤리 얼굴(플레이어 색 테두리) + 이름 + 나·방장 표시. 왼쪽 띠도 플레이어 색.
-        public static VisualElement PlayerCard(RosterEntry p, bool me, bool host)
+        public static VisualElement PlayerCard(RosterEntry p, bool me, bool host, bool bot = false, bool compact = false)
         {
             var card = UiKit.El("card");
             if (me) card.AddToClassList("card--me");
+            if (compact) card.AddToClassList("card--compact");
             card.name = "card-" + p.Id;
             var color = PlayerColors.Get(p.ColorIndex);
-            var face = UiKit.Face(p.ColorIndex, 40, card, p.Character);
+            var face = UiKit.Face(p.ColorIndex, compact ? 30 : 40, card, p.Character);
             face.style.borderLeftColor = color; face.style.borderRightColor = color;
             face.style.borderTopColor = color; face.style.borderBottomColor = color;
             var name = UiKit.Text(p.Name, "card-name", card);
             name.style.color = Color.Lerp(color, Color.white, 0.55f);
             if (me) UiKit.Text(Loc.T("roster.you").Trim('(', ')'), "badge badge--me", card);
             if (host) UiKit.Text(Loc.T("roster.host"), "badge badge--host", card);
+            if (bot) UiKit.Text(Loc.T("roster.bot"), "badge badge--bot", card);
             return card;
         }
     }

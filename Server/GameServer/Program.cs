@@ -16,6 +16,16 @@ for (int i = 0; i < args.Length; i++)
         case "--legacy-hitbox": options.LegacyHitbox = true; break;
         case "--no-input-trim": options.NoInputTrim = true; break;
         case "--host-start": options.HostStarts = true; break;
+        case "--bots": options.Bots = Math.Clamp(int.Parse(Next()), 0, 7); break;
+        case "--bot-level":
+            options.BotLevel = Next() switch
+            {
+                "easy" => BotLevel.Easy,
+                "normal" => BotLevel.Normal,
+                "hard" => BotLevel.Hard,
+                _ => throw new ArgumentException("--bot-level takes easy, normal or hard"),
+            };
+            break;
         case "--maps":
             string mode = Next();
             options.Rotation = mode switch
@@ -31,7 +41,7 @@ for (int i = 0; i < args.Length; i++)
             break;
         case "-h":
         case "--help":
-            Console.WriteLine("OnlineSeverGame.Server [--port 7777] [--min-players 2] [--seed N] [--exit-after-rounds N] [--verbose] [--maps cycle|random] [--map 1..4] [--legacy-hitbox] [--no-input-trim] [--host-start]");
+            Console.WriteLine("OnlineSeverGame.Server [--port 7777] [--min-players 2] [--seed N] [--exit-after-rounds N] [--verbose] [--maps cycle|random] [--map 1..4] [--legacy-hitbox] [--no-input-trim] [--host-start] [--bots N] [--bot-level easy|normal|hard]");
             return 0;
         default:
             Console.Error.WriteLine($"unknown option {args[i]} (see --help)");

@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Net.Sockets;
+using OnlineSeverGame.Server;
 using OnlineSeverGame.Shared.Protocol;
 using OnlineSeverGame.Shared.Simulation;
 
