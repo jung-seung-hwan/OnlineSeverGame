@@ -43,15 +43,16 @@ def connect_screen(lang, out):
 
 
 def lobby_run(lang, port, out):
-    """The host's lobby: the client creates the room itself, 7 bots join, nobody presses Start."""
+    """The host's lobby: the client creates the room itself, 4 friends (console bots) join and the host adds 3
+    server bots (-bots 3, docs/work/bots.md); nobody presses Start."""
     name, kind = PLAYER[lang]
-    cl = client(lang, ["-host", "-port", str(port), "-demoaddress", "-name", name, "-character", kind,
+    cl = client(lang, ["-host", "-port", str(port), "-demoaddress", "-bots", "3", "-name", name, "-character", kind,
                        "-screenshot", f"{out}/lobby_{{n}}.png", "-screenshotDelay", "8", "-screenshotEvery", "2",
                        "-quitAfter", "16"],
                 os.path.join(out, "client_lobby.log"))
     time.sleep(4)
     bots = []
-    for i, bn in enumerate(BOT_NAMES):
+    for i, bn in enumerate(BOT_NAMES[:4]):
         bots.append(subprocess.Popen([BOT, "--port", str(port), "--count", "1", "--name", bn,
                                       "--seed", str(900 + i * 17 + (7 if lang == "en" else 0)), "--duration", "14"],
                                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL))
@@ -77,7 +78,7 @@ def map_run(lang, stage, port, out):
                 os.path.join(out, f"client_map{stage}.log"))
     time.sleep(5)                      # the client joins first and becomes host
     bots = []
-    for i, bn in enumerate(BOT_NAMES):
+    for i, bn in enumerate(BOT_NAMES[:4]):
         bots.append(subprocess.Popen([BOT, "--port", str(port), "--count", "1", "--name", bn,
                                       "--seed", str(stage * 100 + i * 17 + (7 if lang == "en" else 0)),
                                       "--rounds", "2"],

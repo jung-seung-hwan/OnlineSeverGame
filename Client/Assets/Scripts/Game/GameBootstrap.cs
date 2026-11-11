@@ -18,6 +18,7 @@ namespace OnlineSeverGame.Client.Game
     //   -host(켜자마자 방 만들기) -autostart(방장이면 대기 화면에서 바로 '시작')  -port <N>(방 만들기 포트, 기본 7777)
     //   -demoaddress(Store 스크린샷용: 방장 주소 칸에 예시 주소, UPnP 안 함)
     //   -offline [easy|normal|hard](켜자마자 혼자 하기: 이 PC 안의 서버 + 봇 7명, docs/work/bots.md)
+    //   -bots <N>(방장이면 대기 화면에서 서버 봇 N명을 넣는다. Store 스크린샷용)
     //   -name <이름>  -server <host:port>  -autoconnect  -preview  -autoplay [chase|stomp|mash|motion|pad](무작위 입력 / 가까운 상대 쫓아 대시 / 쫓아 밟기 / 대시 연타 / 동작 차례로 보이기 / 점프 발판 밀고 타기)
     //   -nostomppredict(밟기 튕김 예측 끄기, 비교 시험용)
     //   -screenshot <파일경로> -screenshotDelay <초> [-screenshotEvery <초>]  -quitAfter <초>
@@ -62,6 +63,7 @@ namespace OnlineSeverGame.Client.Game
         ClientScreen _loggedScreen = ClientScreen.Connect;
         int _builtLayoutVersion;
         bool _autoStart, _autoStarted;
+        int _autoBots;
 
         void Awake()
         {
@@ -107,6 +109,7 @@ namespace OnlineSeverGame.Client.Game
                     case "-autoconnect": autoConnect = true; break;
                     case "-host": autoHost = true; break;
                     case "-autostart": _autoStart = true; break;
+                    case "-bots": if (int.TryParse(next, out var nb) && nb > 0) _autoBots = Mathf.Min(nb, 7); break;
                     case "-demoaddress": LocalHost.DemoAddress = true; break;
                     case "-port": if (int.TryParse(next, out var port) && port > 0 && port < 65536) HostPort = port; break;
                     case "-preview": preview = true; break;
@@ -185,6 +188,10 @@ namespace OnlineSeverGame.Client.Game
                 // 이모트: 접속 화면(이름 입력)만 빼고. 살아 있는지는 세션·서버가 본다.
                 var emote = _input.TakeEmote();
                 if (emote != 0 && screen != ClientScreen.Connect) Session.SendEmote(emote);
+                if (_autoBots > 0 && Session.State.IsHost && screen == ClientScreen.Lobby)
+                {
+                    for (; _autoBots > 0; _autoBots--) Session.RequestBot(BotAction.Add, 0);
+                }
                 if (_autoStart && !_autoStarted && Session.State.IsHost && Session.State.HostStarts && screen == ClientScreen.Lobby)
                 {
                     _autoStarted = true;

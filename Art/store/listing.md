@@ -13,7 +13,7 @@ Partner Center > 앱 > 제출 > **Store listings** > 언어(한국어 / English)
 Jelly Survival Party (예약됨, Store ID 9N6RLMM91V9V. "Jelly Survival"은 다른 곳이 이미 예약)
 
 ### 짧은 설명 (권장 270자 이내)
-손바닥만 한 젤리가 되어 주방 위에서 떨어지는 식칼을 피하세요! 최대 8명이 함께 접속해 마지막까지 살아남는 사람이 이기는 온라인 생존 파티 게임입니다. 대시로 밀치고, 머리를 밟아 기절시키고, 엎드려 날아오는 칼을 피하세요.
+손바닥만 한 젤리가 되어 주방 위에서 떨어지는 식칼을 피하세요! 최대 8명이 함께 접속해 마지막까지 살아남는 사람이 이기는 생존 파티 게임입니다. 친구와 온라인으로, 또는 혼자 봇 7명과 겨루세요. 대시로 밀치고, 머리를 밟아 기절시키고, 엎드려 날아오는 칼을 피하세요.
 
 ### 설명
 Jelly Survival Party는 최대 8명이 함께 하는 2D 온라인 생존 파티 게임입니다. 커다란 주방에 사는 말랑한 젤리·젤리곰·푸딩이 되어, 위에서 떨어지는 식칼을 피하고 마지막 한 명이 될 때까지 버티세요.
@@ -28,12 +28,14 @@ Jelly Survival Party는 최대 8명이 함께 하는 2D 온라인 생존 파티 
 - 창고: 좌우로 오가는 크레인 팔레트, 한 방향으로 움직이는 컨베이어 벨트
 - 디저트 가게: 오르내리는 케이크 리프트, 걸음을 느리게 하는 시럽 바닥
 
-한 명이 '방 만들기'를 누르면 그 PC가 방장이 되고, 친구들은 방장이 알려 주는 주소로 참가합니다. 따로 서버를 빌리거나 계정을 만들 필요가 없습니다. 방장은 원할 때 '시작'을 눌러 판을 열고(혼자서도 시작할 수 있어요), 다음 판의 맵과 맵 순서(차례대로·무작위·고정)를 고를 수 있습니다. 판이 끝나면 1~3위 단상이 나오고 바로 다음 판이 시작됩니다.
+한 명이 '방 만들기'를 누르면 그 PC가 방장이 되고, 친구들은 방장이 알려 주는 주소로 참가합니다. 따로 서버를 빌리거나 계정을 만들 필요가 없습니다. 방장은 원할 때 '시작'을 눌러 판을 열고(혼자서도 시작할 수 있어요), 다음 판의 맵과 맵 순서(차례대로·무작위·고정)를 고를 수 있습니다. 판이 끝나면 1~3위 단상이 나오고 바로 다음 판이 시작됩니다. 사람이 모자라면 방장이 대기실에서 봇을 넣을 수 있습니다.
+
+친구가 없어도 괜찮아요. '혼자 하기'를 누르면 인터넷 없이 봇 7명과 바로 한 판을 할 수 있습니다. 봇 난이도는 쉬움·보통·어려움 중에서 고르세요. 어려움 봇은 위험물을 금방 피하고, 다가와서 대시로 밀칩니다.
 
 캐릭터는 젤리, 젤리곰, 푸딩 세 가지이고, 색은 접속 순서대로 여덟 가지 중 하나가 정해집니다. Z·X·C·V 키로 손 흔들기, 놀리기, 응원, 슬퍼하기 이모트를 보낼 수 있습니다. 한국어와 영어를 지원합니다.
 
 알아 두세요
-- 친구와 함께 하는 온라인 게임입니다. 방장의 PC가 방을 열고, 다른 사람은 그 주소(IP:포트)로 참가합니다. 컴퓨터 상대는 없습니다(혼자 방을 만들어 연습할 수는 있어요).
+- 친구와 함께 할 때는 방장의 PC가 방을 열고, 다른 사람은 그 주소(IP:포트)로 참가합니다. 혼자 하기(봇과 대결)는 인터넷 없이 됩니다.
 - 같은 공유기에서는 바로 됩니다. 인터넷으로 친구를 받으려면 방장의 공유기에서 TCP 7777 포트가 열려 있어야 합니다. 게임이 공유기의 UPnP로 자동으로 열어 보고, 안 되면 공유기 설정에서 포트포워딩을 해야 합니다. 일부 인터넷 환경(공유기가 두 단계인 경우 등)에서는 방장을 할 수 없습니다.
 - 키보드로 조작합니다(메뉴는 마우스). 게임패드는 지원하지 않습니다.
 - 계정, 결제, 광고, 채팅이 없습니다. 플레이어 이름은 같은 방의 다른 사람에게 보이니 실명은 쓰지 마세요.
@@ -50,6 +52,8 @@ Jelly Survival Party는 최대 8명이 함께 하는 2D 온라인 생존 파티 
 젤리·젤리곰·푸딩 세 캐릭터, 여덟 가지 색
 이모트 4종과 1~3위 결과 단상
 방 만들기 한 번으로 친구들과 바로: 방장이 시작·다음 맵·맵 순서를 고르기
+혼자 하기: 봇 7명과 대결, 난이도 쉬움·보통·어려움
+방장이 대기실에서 봇을 넣고 빼기
 한국어·영어 지원
 
 ### 키워드 (7개)
@@ -62,8 +66,8 @@ Jelly Survival Party는 최대 8명이 함께 하는 2D 온라인 생존 파티 
 8인
 
 ### 스크린샷 설명 (파일 이름 → 설명)
-- 01_connect: 캐릭터를 고르고 방을 만들거나, 친구 방 주소로 참가
-- 02_lobby: 방장 화면: 친구에게 알려 줄 주소, 준비되면 시작
+- 01_connect: 캐릭터를 고르고 방을 만들거나, 혼자 봇과 하거나, 친구 방 주소로 참가
+- 02_lobby: 방장 화면: 친구에게 알려 줄 주소, 봇 넣기와 난이도, 준비되면 시작
 - 03_kitchen: 빨간 예고를 보고 떨어지는 식칼을 피하세요
 - 04_winter: 고드름이 떨어지는 미끄러운 겨울 처마
 - 05_warehouse: 움직이는 팔레트와 컨베이어 벨트의 창고
@@ -74,7 +78,7 @@ Jelly Survival Party는 최대 8명이 함께 하는 2D 온라인 생존 파티 
 © 2026 Jungsh. 글꼴: 배달의민족 주아체(SIL Open Font License 1.1).
 
 ### 추가 시스템 요구 사항 (최소)
-인터넷 연결
+인터넷 연결(친구와 온라인으로 할 때)
 키보드
 DirectX 11 이상을 지원하는 그래픽
 
@@ -86,7 +90,7 @@ DirectX 11 이상을 지원하는 그래픽
 Jelly Survival Party
 
 ### Short description (keep under 270 characters)
-Become a tiny jelly and dodge the kitchen knives raining from above! Up to 8 players join online and the last one standing wins. Dash to shove, stomp heads to stun, and duck under knives flying in from the side.
+Become a tiny jelly and dodge the kitchen knives raining from above! Up to 8 players, the last one standing wins: play friends online or take on 7 bots alone. Dash to shove, stomp heads to stun, and duck under knives flying in from the side.
 
 ### Description
 Jelly Survival Party is a 2D online survival party game for up to 8 players. Play as a squishy jelly, jelly bear or pudding living in a giant kitchen, dodge the knives that drop from above, and hold out until you are the last one left.
@@ -101,12 +105,14 @@ Four maps, each with its own twist:
 - Warehouse: a crane pallet sliding back and forth and a conveyor belt
 - Dessert Shop: a cake lift that rises and sinks and a syrup floor that slows you down
 
-One player presses Create room and their PC becomes the host; friends join with the address the host shares. No server to rent and no account. The host presses Start whenever they are ready (you can even start alone) and picks the next map and how maps change (in order, random or fixed). When a round ends the top three stand on the podium and the next round starts right away.
+One player presses Create room and their PC becomes the host; friends join with the address the host shares. No server to rent and no account. The host presses Start whenever they are ready (you can even start alone) and picks the next map and how maps change (in order, random or fixed). When a round ends the top three stand on the podium and the next round starts right away. Short of players? The host can add bots in the lobby.
+
+No friends around? Press Play solo for a round against 7 bots right away, no internet needed. Pick the bot level: Easy, Normal or Hard. Hard bots dodge fast and come over to dash into you.
 
 Choose between jelly, jelly bear and pudding; your color is one of eight, given by join order. Send emotes with Z, X, C and V (wave, taunt, cheer, sad). Available in English and Korean.
 
 Good to know
-- An online game to play with friends. The host's PC opens the room and everyone else joins with its address (IP:port). There are no computer opponents (you can create a room and practice alone).
+- With friends, the host's PC opens the room and everyone else joins with its address (IP:port). Play solo (against bots) works without the internet.
 - It works right away on the same router. To take friends over the internet, TCP port 7777 must be open on the host's router: the game tries to open it automatically with UPnP, otherwise forward the port in the router settings. Some connections (for example two routers in a row) cannot host.
 - Played with the keyboard (mouse for menus). Gamepads are not supported.
 - No accounts, payments, ads or chat. Your player name is visible to others in the room, so do not use your real name.
@@ -123,6 +129,8 @@ Four maps with mid-round events: fire, wind, conveyors, syrup
 Three characters (jelly, jelly bear, pudding) in eight colors
 Four emotes and a top-three podium after every round
 Create a room and play with friends: the host starts rounds and picks maps
+Play solo against 7 bots: Easy, Normal or Hard
+The host can add or remove bots in the lobby
 English and Korean
 
 ### Keywords (7)
@@ -135,8 +143,8 @@ platformer
 8 players
 
 ### Screenshot captions (file → caption)
-- 01_connect: Pick your character, then create a room or join a friend's
-- 02_lobby: The host's lobby: an address to share, and Start when ready
+- 01_connect: Pick your character, then create a room, play solo against bots, or join a friend's
+- 02_lobby: The host's lobby: an address to share, bots and their level, and Start when ready
 - 03_kitchen: Watch the red warning and dodge the falling knife
 - 04_winter: Icicles fall on the slippery winter eaves
 - 05_warehouse: A warehouse of moving pallets and conveyor belts
@@ -147,6 +155,6 @@ platformer
 © 2026 Jungsh. Font: Jua by Woowahan Brothers (SIL Open Font License 1.1).
 
 ### Additional system requirements (minimum)
-Internet connection
+Internet connection (to play with friends online)
 Keyboard
 Graphics with DirectX 11 or later
